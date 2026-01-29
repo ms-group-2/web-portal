@@ -1,1 +1,60 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'lib/themes/material/material-theme.scss';
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #885DDE;
+  --color-accent: #7A1DFF;
+  
+  --color-swap: #FAAF78;
+  --color-market: #80CBC4;
+  --color-booking: #3E5AD8;
+  
+  --color-feature: var(--color-primary);
+  
+  --color-text: #111827;
+  --color-placeholder: #9CA3AF;
+  --color-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-bg: #ffffff;
+}
+
+/* 4) Feature theme switching (route-based) */
+body.theme-swap { --vipo-feature: var(--vipo-swap); }
+body.theme-market { --vipo-feature: var(--vipo-market); }
+body.theme-booking { --vipo-feature: var(--vipo-booking); }
+
+/* 5) Base / reset (single) */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  color-scheme: light;
+
+  font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  background-color: var(--mat-sys-surface);
+  color: #101828;
+
+}
+
+.cdk-overlay-container { z-index: 1000; }
+// .text-feature {
+//   color: var(--color-feature);
+// }
+
+// .bg-feature {
+//   background-color: var(--color-feature);
+// }
+
+// .border-feature {
+//   border-color: var(--color-feature);
+// }
+

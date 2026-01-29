@@ -1,0 +1,51 @@
+// mat-flat
+
+.mat-mdc-unelevated-button,
+button.mat-mdc-unelevated-button,
+button[mat-flat-button] {
+  --mdc-filled-button-container-color: var(--color-primary) !important;
+  --mdc-filled-button-label-text-color: var(--color-text) !important;
+  border-radius: 12px !important;
+  font-weight: 900 !important;
+  font-size: 14px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  height: auto !important;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.mat-mdc-unelevated-button .mdc-button__label,
+button.mat-mdc-unelevated-button .mdc-button__label,
+button[mat-flat-button] .mdc-button__label {
+  padding: 16px 0 !important;
+}
+
+.mat-mdc-unelevated-button .mdc-button__ripple {
+  background-color: #885dde !important;
+   
+}
+
+.mat-mdc-unelevated-button:disabled .mdc-button__ripple,
+.mat-mdc-unelevated-button:disabled .mdc-button {
+  background-color: #9ca3af61 !important; 
+}
+
+
+.mat-mdc-stroked-button .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  line-height: 1;
+}
+// .mat-mdc-unelevated-button .mdc-button {
+//   background-color: var(--color-primary) !important;
+// }
+
+
+// .mat-mdc-unelevated-button:hover:not(:disabled) .mdc-button__ripple,
+// .mat-mdc-unelevated-button:hover:not(:disabled) .mdc-button {
+//   background-color: var(--color-primary) !important;
+// }
+
+
+// #002a7261

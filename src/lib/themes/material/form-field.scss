@@ -1,0 +1,67 @@
+
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch {
+  border-color: #885ddeae !important;
+}
+.mat-mdc-form-field-hint-wrapper,
+.mat-mdc-form-field-error-wrapper {
+  padding: 0 4px !important;
+}
+.mat-mdc-form-field-error,
+.mat-mdc-form-field-error-wrapper {
+  color: #ef4444 !important;
+}
+
+
+.mat-mdc-input-element {
+  color: #1018280f;
+}
+
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-container-shape: 24px;
+}
+
+.mat-mdc-form-field .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+//   border-radius: 13px !important;
+  border-color: #D1D5DB !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+input.mat-mdc-input-element::placeholder,
+textarea.mat-mdc-input-element::placeholder {
+  color: #9CA3AF !important; 
+  transition: opacity 120ms ease;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder,
+input.mat-mdc-input-element:focus::placeholder,
+textarea.mat-mdc-input-element:focus::placeholder {
+  opacity: 0;
+}
+
+.mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field-icon-prefix mat-icon,
+.mat-mdc-form-field-icon-suffix mat-icon-button mat-icon,
+.mat-mdc-form-field-icon-suffix button[mat-icon-button] mat-icon {
+  color: var(--color-placeholder) !important; 
+}
+
+.mat-mdc-form-field-icon-prefix mat-icon {
+  color: var(--color-placeholder) !important; 
+}
+
+.mat-mdc-form-field-icon-suffix button[mat-icon-button],
+.mat-mdc-form-field-icon-suffix button.mat-mdc-icon-button,
+.mat-mdc-form-field-icon-suffix .mat-mdc-icon-button {
+  margin-right: 10px !important;
+}
+
+// .mat-mdc-form-field-icon-suffix button[mat-icon-button]:hover mat-icon,
+// .mat-mdc-form-field-icon-suffix button.mat-mdc-icon-button:hover mat-icon,
+// .mat-mdc-form-field-icon-suffix button.mat-mdc-icon-button:hover .mat-icon {
+//   color: #341b66 !important; 
+// }

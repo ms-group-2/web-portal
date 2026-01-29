@@ -1,0 +1,179 @@
+<div class="min-h-screen bg-white flex justify-center pt-20 relative overflow-hidden">
+  <a 
+    routerLink="/"
+    class="absolute top-8 left-8 flex items-center gap-2 text-gray-600 hover:text-primary transition-all group"
+  >
+    <mat-icon class="group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
+    <span class="font-bold uppercase text-sm tracking-wide">back</span>
+  </a>
+
+  <div class="w-full max-w-lg relative z-10">
+    <div class="text-center mb-6">
+      <div class="flex justify-center mb-2">
+        <img
+          src="/assets/logo/logo-purple.svg"
+          alt="Vipo logo"
+          class="h-10 w-auto m-3 mt-5"
+        />
+      </div>
+      <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">
+        create your account
+      </p>
+    </div>
+
+    <div class="bg-white border border-color-[#E5E7EB] rounded-2xl max-w-[512px] mx-auto p-8">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-1">
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider mb-2">Email</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-icon matPrefix class=" text-gray-400 mr-2">mail</mat-icon>
+            <input
+              matInput
+              type="email"
+              formControlName="email"
+              placeholder="you@example.com"
+              
+            />
+            @if (showError('email')) {
+              <mat-error>{{ getError('email') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">First Name</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input
+                matInput
+                type="text"
+                formControlName="firstName"
+                placeholder="first name"
+              />
+              @if (showError('firstName')) {
+                <mat-error>{{ getError('firstName') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">Last Name</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input
+                matInput
+                type="text"
+                formControlName="lastName"
+                placeholder="last name"
+              />
+              @if (showError('lastName')) {
+                <mat-error>{{ getError('lastName') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">Password</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-icon matPrefix class="text-gray-400 mr-2">lock</mat-icon>
+              <input
+                matInput
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="••••••••"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="showPassword.set(!showPassword())"
+                class="text-gray-400 hover:text-primary"
+              >
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (form.controls.password.invalid && form.controls.password.touched) {
+                <mat-error>{{ getError('password') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">Confirm Password</label>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-icon matPrefix class="text-gray-400 mr-2">lock</mat-icon>
+              <input
+                matInput
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="••••••••"
+                class="colo"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="showConfirmPassword.set(!showConfirmPassword())"
+                class="text-gray-400 hover:text-primary"
+              >
+                <mat-icon>{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (showError('confirmPassword')) {
+                <mat-error>{{ getError('confirmPassword') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+
+        <button
+          mat-flat-button
+          type="submit"
+          [disabled]="form.invalid"
+          class="w-full "
+        >
+          create account
+        </button>
+       
+      </form>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center">
+          <span class="bg-white px-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+            or continue with
+          </span>
+        </div>
+      </div>
+
+      <div class="w-full">
+      <button
+        type="button"
+        class="w-full py-3 px-4 bg-gray-50 border border-gray-300 rounded-xl font-black text-gray-800 text-sm
+              hover:bg-gray-100 hover:border-gray-400 transition-all uppercase tracking-wide
+              inline-flex items-center justify-center gap-3"
+      >
+        <img
+          src="/assets/logo/google.png"
+          alt="Google"
+          class="w-5 h-5 object-contain block"
+        />
+        <span class="leading-none">Google</span>
+      </button>
+      </div>
+
+      <div class="mt-6 text-center">
+        <span class="text-sm font-medium text-gray-600">
+          Already have an account?
+         <a
+          routerLink="/login"
+          class="font-black uppercase tracking-wide ml-1 text-[var(--color-primary) hover:opacity-90"
+        >
+          sign in
+        </a>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

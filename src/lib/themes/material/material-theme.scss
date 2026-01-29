@@ -1,0 +1,41 @@
+@use '@angular/material' as mat;
+
+$vipo-primary-palette: (
+  0: #000000,
+  10: #1e0066,
+  20: #341a7f,
+  25: #40268c,
+  30: #4d3299,
+  35: #593ea6,
+  40: #664bb3,
+  50: #7776EA,
+  60: #9995f0,
+  70: #b3b0f5,
+  80: #cccbf9,
+  90: #e5e5fc,
+  95: #f2f2fe,
+  98: #fafaff,
+  99: #fdfcff,
+  100: #ffffff,
+
+);
+
+html {
+  @include mat.theme((
+    color: (
+      primary: $vipo-primary-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: (
+      plain-family: 'Nunito, system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+      brand-family: 'Nunito, system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+      bold-weight: 700,
+      medium-weight: 500,
+      regular-weight: 400,
+    ),
+    density: 0,
+  ));
+}
+
+@import './form-field.scss';
+@import './button.scss';
