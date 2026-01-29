@@ -22,6 +22,15 @@ export const routes: Routes = [
         path: 'register',
         loadComponent: () => import('./pages/auth/register/register').then(m => m.Register),
       },
+      {
+        path: 'verify',
+        loadComponent: () => import('./pages/auth/verify/verify').then(m => m.Verify),
+      },
+      {
+        path: 'google-callback',
+        loadComponent: () =>
+          import('./pages/auth/google-callback/google-callback').then(m => m.GoogleCallback),
+      },
     ],
   },
 

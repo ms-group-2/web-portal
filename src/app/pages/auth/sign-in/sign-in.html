@@ -1,1 +1,100 @@
-<p>sign-in works!</p>
+<div class="min-h-screen bg-white flex justify-center pt-20 relative overflow-hidden">
+  <a routerLink="/" class="absolute top-8 left-8 flex items-center gap-2 text-gray-600">
+    <mat-icon>arrow_back</mat-icon>
+    <span class="font-bold uppercase text-sm">back</span>
+  </a>
+
+  <div class="w-full max-w-lg">
+    <div class="text-center mb-6">
+      <div class="flex justify-center mb-2">
+        <img
+          src="/assets/logo/logo-purple.svg"
+          alt="Vipo logo"
+          class="h-10 w-auto m-3 mt-5"
+        />
+      </div>
+      <p class="text-sm  text-gray-500 font-bold uppercase tracking-wide">
+        გაიარეთ ავტორიზაცია
+      </p>
+    </div>
+
+    <div class="bg-white border rounded-2xl p-8">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3">
+        <div>
+          <label class="text-xs font-black uppercase mb-2  block tracking-wider">იმეილი</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-icon matPrefix>mail</mat-icon>
+            <input matInput type="email" formControlName="email" placeholder="you@example.com" />
+            @if (showError('email')) {
+              <mat-error>{{ getError('email') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div>
+          <label class="text-xs font-black uppercase mb-2 block tracking-wider">პაროლი</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-icon matPrefix>lock</mat-icon>
+            <input
+              matInput
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="showPassword.set(!showPassword())"
+            >
+              <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+
+            @if (showError('password')) {
+              <mat-error>{{ getError('password') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <button mat-flat-button type="submit" class="w-full" [disabled]="form.invalid">
+          შესვლა
+        </button>
+
+        <div class="relative my-6 p-3">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center">
+          <span class="bg-white px-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+            ან შედი
+          </span>
+        </div>
+      </div>
+
+      <div class="w-full ">
+      <button
+        type="button"
+        (click)="onGoogle()"
+        class="w-full py-3 px-4 bg-gray-50 border border-gray-300 rounded-xl font-black text-gray-800 text-sm
+              hover:bg-gray-100 hover:border-gray-400 transition-all uppercase tracking-wide
+              inline-flex items-center justify-center gap-3"
+      >
+        <img
+          src="/assets/logo/google.png"
+          alt="Google"
+          class="w-5 h-5 object-contain block"
+        />
+        <span class="leading-none">Google-ით</span>
+      </button>
+      </div>
+
+        <div class="text-center text-sm text-gray-600 mt-2">
+          არ გაქვს ანგარიში?    
+          <a routerLink="/auth/register" class="font-black uppercase tracking-wide ml-1 text-primary hover:opacity-90">
+            დარეგისტრირდი
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

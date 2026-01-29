@@ -65,7 +65,8 @@
               "buildTarget": "vipo-web-app:build:production"
             },
             "development": {
-              "buildTarget": "vipo-web-app:build:development"
+              "buildTarget": "vipo-web-app:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
