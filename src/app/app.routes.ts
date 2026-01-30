@@ -33,6 +33,19 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/auth/google-callback/google-callback').then(m => m.GoogleCallback),
       },
+      {
+      path: 'forgot-password',
+        canActivate: [guestGuard],
+        loadComponent: () =>
+          import('./pages/auth/forgot-password/forgot-password').then(m => m.ForgotPassword),
+      },
+      {
+        path: 'reset-password',
+        canActivate: [guestGuard],
+        loadComponent: () =>
+          import('./pages/auth/reset-password/reset-password').then(m => m.ResetPassword),
+      },
+
     ],
   },
 

@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-white flex justify-center pt-20 relative overflow-hidden">
   <a routerLink="/" class="absolute top-8 left-8 flex items-center gap-2 text-gray-600">
     <mat-icon>arrow_back</mat-icon>
-    <span class="font-bold uppercase text-sm">back</span>
+    <span class="font-bold uppercase text-sm">უკან</span>
   </a>
 
   <div class="w-full max-w-lg ">
@@ -54,6 +54,15 @@
               <mat-error>{{ getError('password') }}</mat-error>
             }
           </mat-form-field>
+        </div>
+
+        <div class="text-right !mt-0">
+          <a
+            routerLink="/auth/forgot-password"
+            class="text-xs font-bold text-primary hover:opacity-80"
+          >
+            დაგავიწყდა პაროლი?
+          </a>
         </div>
 
         <button mat-flat-button type="submit" class="w-full" [disabled]="form.invalid">

@@ -1,3 +1,20 @@
-<h1 class="text-3xl font-bold underline">Landing Works</h1>
-
-<button mat-raised-button color="primary" routerLink="/auth/register">Continue</button>
+<div class="landing-container">
+  <div class="landing-content">
+    <div class="logo-container">
+      <img src="/assets/logo/logo-purple.svg" alt="Vipo Logo" class="logo">
+    </div>
+    
+    <div class="animated-text-container">
+      <span 
+        *ngFor="let item of displayedText; let i = index" 
+        class="animated-char"
+        [class.vipo-text]="item.isVipo">
+        {{ item.char }}
+      </span>
+    </div>
+  </div>
+  
+  <button mat-raised-button color="primary" routerLink="/auth/register" class="continue-button">
+    დარეგისტრირდი წინასწარ
+  </button>
+</div>

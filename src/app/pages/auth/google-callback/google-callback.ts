@@ -7,7 +7,7 @@ import { AuthService } from 'lib/services/identity/auth.service';
   selector: 'vipo-google-callback',
   template: `
     <div class="min-h-screen flex items-center justify-center">
-      <p class="text-sm text-gray-600 font-semibold">Signing you in with Google…</p>
+      <p class="text-sm text-gray-600 font-semibold">შედიხართ Google-ით…</p>
     </div>
   `,
 })

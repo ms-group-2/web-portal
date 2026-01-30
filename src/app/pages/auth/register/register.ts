@@ -11,6 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { mustMatchField } from 'lib/validators/must-match-validator';
+import { passwordStrengthValidator } from 'lib/validators/password-strength.validator';
+import { formatPasswordStrengthErrors } from 'lib/utils/password-strength-error.util';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
@@ -42,7 +44,7 @@ export class Register {
     email: this.fb.control('', [Validators.required, Validators.email, emptySpaceValidator()]),
     firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
     lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
-    password: this.fb.control('', [Validators.required, Validators.minLength(6)]),
+    password: this.fb.control('', [Validators.required, passwordStrengthValidator()]),
     confirmPassword: this.fb.control('', [Validators.required, mustMatchField('password')]),
   });
 
@@ -57,10 +59,15 @@ export class Register {
 
     const key = Object.keys(errors)[0];
 
-    if (key === 'minlength') {
-    const required = errors['minlength'].requiredLength;
-    return this.ERRORS['minlength'].replace('{n}', String(required));
+    if (key === 'passwordStrength') {
+      return formatPasswordStrengthErrors(errors['passwordStrength']);
     }
+
+    if (key === 'minlength') {
+      const required = errors['minlength'].requiredLength;
+      return this.ERRORS['minlength'].replace('{n}', String(required));
+    }
+    
     return this.ERRORS[key] ?? null;
 
     // if (key === 'minlength') {

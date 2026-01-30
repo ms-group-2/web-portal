@@ -7,12 +7,8 @@ import { RegisterRequest } from './models/register.request.model';
 import { VerifyRequest } from './models/verify.request.model';
 import { UserResponse } from './models/user.response.model';
 import { TokenResponse } from './models/token.response.model';
-
-type VerifyResponse = UserResponse & {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-};
+import { VerifyResponse } from './models/verify.response.model';
+import { MessageResponse } from './models/message.response.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -78,12 +74,26 @@ export class AuthService {
   }
 
   resendVerification(email: string) {
-  return this.http.post<{ message: string }>(
+  return this.http.post<MessageResponse>(
     `${this.baseUrl}/auth/resend-verification-code`,
     { email }
   );
+
   }
+  
+  forgotPassword(email: string) {
+  return this.http.post<MessageResponse>(`${this.baseUrl}/auth/forgot-password`, { email });
+}
+
+  resetPassword(token: string, newPassword: string) {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/auth/reset-password`, {
+      token,
+      new_password: newPassword,
+    });
+  }
+
   googleLoginRedirect() {
-  window.location.href = `${environment.oauthBaseUrl}/auth/login/google`;
+    const callbackUrl = encodeURIComponent(`${window.location.origin}/auth/google-callback`);
+    window.location.href = `${environment.oauthBaseUrl}/auth/login/google?redirect_uri=${callbackUrl}`;
   }
 }
