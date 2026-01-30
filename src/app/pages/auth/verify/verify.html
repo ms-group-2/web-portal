@@ -8,7 +8,7 @@
   </a>
 
   <div class="w-full max-w-lg">
-    <div class="text-center mb-6">
+    <div class="text-center mb-10">
       <div class="flex justify-center mb-2">
         <img
           src="/assets/logo/logo-purple.svg"
@@ -21,7 +21,7 @@
       </p>
     </div>
 
-    <div class="bg-white border rounded-2xl p-8">
+    <div class="bg-white border rounded-2xl p-8 auth-card-shadow">
       <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3">
         <div>
           <label class="block text-xs font-black uppercase tracking-wider mb-2">იმეილი</label>
@@ -31,24 +31,27 @@
           </mat-form-field>
         </div>
 
-        <div>
-          <label class="block text-xs font-black uppercase tracking-wider mb-2">ვერიფიკაციის კოდი</label>
-          <mat-form-field appearance="outline" class="w-full">
-            <input
-              matInput
-              formControlName="code"
-              placeholder="1234"
-            />
-            @if (showError('code')) {
-                <mat-error>
-                    {{ getError('code') }}
-                </mat-error>
-                }
-          </mat-form-field>
-          <div class="text-right">
+       <div>
+        <label class="block text-xs font-black uppercase tracking-wider mb-2">ვერიფიკაციის კოდი</label>
+
+        <div class="flex items-center justify-between gap-4 my-4">
+          <div class="flex gap-3">
+            @for (digit of codeArray; track $index) {
+              <input
+                type="text"
+                inputmode="numeric"
+                maxlength="1"
+                 class="w-12 h-12 text-lg font-bold rounded-xl text-center shadow-sm
+                      border border-gray-300 focus:outline-none focus:border-primary"
+                [formControl]="digit"
+                (input)="onDigitInput($index, $event)"
+              />
+            }
+          </div>
+
           <button
             type="button"
-            class="text-xs font-bold uppercase text-primary hover:opacity-80"
+            class="text-xs font-bold uppercase text-primary hover:opacity-80 whitespace-nowrap"
             [disabled]="isResending()"
             (click)="resend()"
           >
@@ -56,12 +59,18 @@
           </button>
         </div>
 
+        @if (showError('code')) {
+          <p class="text-xs text-red-500 text-center mt-2">
+            {{ getError('code') }}
+          </p>
+        }
+
         @if (resentMessage()) {
           <p class="text-xs text-green-600 font-semibold mt-2">
             {{ resentMessage() }}
           </p>
         }
-        </div>
+      </div>
 
        <button mat-flat-button type="submit" class="w-full" [disabled]="form.invalid">
           ვერიფიკაცია

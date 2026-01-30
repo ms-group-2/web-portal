@@ -45,6 +45,10 @@ body {
 
 }
 
+.auth-card-shadow {
+  box-shadow: 0 4px 20px 23px rgba(123, 29, 255, 0.029);
+}
+
 .text-xs {
     font-size: 14px !important;
 }
@@ -61,4 +65,3 @@ body {
 // .border-feature {
 //   border-color: var(--color-feature);
 // }
-

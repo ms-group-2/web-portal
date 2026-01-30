@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { FormArray, FormControl } from '@angular/forms';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -44,6 +45,11 @@ export class Verify {
       Validators.minLength(4),
       emptySpaceValidator(),
     ]),
+      codeDigits: this.fb.array<FormControl<string>>(
+    Array.from({ length: 4 }, () =>
+      this.fb.control('', [Validators.required])
+    )
+),
   });
 
   ngOnInit(): void {
@@ -52,15 +58,41 @@ export class Verify {
 
     const email = emailFromQuery ?? emailFromSignal;
 
-    if (!email) {
-      this.router.navigateByUrl('/auth/register');
-      return;
-    }
+    // if (!email) {
+    //   this.router.navigateByUrl('/auth/register');
+    //   return;
+    // }
 
-    this.form.controls.email.setValue(email);
+    // this.form.controls.email.setValue(email);
     this.auth.pendingEmail.set(email);
   }
 
+  // === 4-digit code helpers ===
+get codeArray(): FormControl<string>[] {
+  return (this.form.get('codeDigits') as FormArray<FormControl<string>>).controls;
+}
+
+onDigitInput(index: number, event: Event): void {
+  const input = event.target as HTMLInputElement;
+
+  // allow only 1 digit
+  const value = input.value.replace(/\D/g, '').slice(0, 1);
+  input.value = value;
+  this.codeArray[index].setValue(value);
+
+  // auto move
+  if (value && index < this.codeArray.length - 1) {
+    (input.nextElementSibling as HTMLInputElement | null)?.focus();
+  }
+  if (!value && index > 0) {
+    (input.previousElementSibling as HTMLInputElement | null)?.focus();
+  }
+
+  // sync with `code`
+  const joined = this.codeArray.map(c => c.value).join('');
+  this.form.controls.code.setValue(joined);
+}
+  
   showError(controlName: keyof typeof this.form.controls): boolean {
     const control = this.form.controls[controlName];
     return control.invalid && (control.touched || control.dirty);
