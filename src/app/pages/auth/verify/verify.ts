@@ -52,12 +52,12 @@ export class Verify {
 
     const email = emailFromQuery ?? emailFromSignal;
 
-    // if (!email) {
-    //   this.router.navigateByUrl('/auth/register');
-    //   return;
-    // }
+    if (!email) {
+      this.router.navigateByUrl('/auth/register');
+      return;
+    }
 
-    // this.form.controls.email.setValue(email);
+    this.form.controls.email.setValue(email);
     this.auth.pendingEmail.set(email);
   }
 

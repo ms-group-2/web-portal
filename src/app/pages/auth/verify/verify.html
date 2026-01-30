@@ -37,7 +37,7 @@
             <input
               matInput
               formControlName="code"
-              placeholder="123456"
+              placeholder="1234"
             />
             @if (showError('code')) {
                 <mat-error>
@@ -48,7 +48,7 @@
           <div class="text-right">
           <button
             type="button"
-            class="text-xs font-bold uppercase text-[#885DDE] hover:opacity-80"
+            class="text-xs font-bold uppercase text-primary hover:opacity-80"
             [disabled]="isResending()"
             (click)="resend()"
           >
