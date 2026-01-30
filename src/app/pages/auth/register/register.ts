@@ -88,9 +88,9 @@ export class Register {
       return;
     }
 
-    const { email, password } = this.form.getRawValue();
+    const { email, password, firstName, lastName } = this.form.getRawValue();
 
-    this.auth.register({ email, password }).subscribe({
+    this.auth.register({ email, password, firstName, lastName }).subscribe({
       next: () => {
         this.auth.pendingEmail.set(email);
         this.router.navigate(['/auth/verify'], { queryParams: { email } });

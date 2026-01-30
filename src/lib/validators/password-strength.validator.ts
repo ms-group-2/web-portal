@@ -7,7 +7,7 @@ export interface PasswordStrengthErrors {
   specialChar?: boolean;
 }
 
-export const PASSWORD_MIN_LENGTH = 5;
+export const PASSWORD_MIN_LENGTH = 8;
 
 export function passwordStrengthValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {

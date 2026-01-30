@@ -27,7 +27,12 @@ export class AuthService {
   }
 
   register(payload: RegisterRequest) {
-    const body = { email: payload.email, password: payload.password };
+    const body = {
+      email: payload.email,
+      password: payload.password,
+      name: payload.firstName,
+      surname: payload.lastName,
+    };
     return this.http.post<UserResponse>(`${this.baseUrl}/auth/register`, body);
   }
 
