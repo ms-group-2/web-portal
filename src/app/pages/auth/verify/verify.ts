@@ -67,7 +67,6 @@ export class Verify {
     this.auth.pendingEmail.set(email);
   }
 
-  // === 4-digit code helpers ===
 get codeArray(): FormControl<string>[] {
   return (this.form.get('codeDigits') as FormArray<FormControl<string>>).controls;
 }
@@ -75,12 +74,10 @@ get codeArray(): FormControl<string>[] {
 onDigitInput(index: number, event: Event): void {
   const input = event.target as HTMLInputElement;
 
-  // allow only 1 digit
   const value = input.value.replace(/\D/g, '').slice(0, 1);
   input.value = value;
   this.codeArray[index].setValue(value);
 
-  // auto move
   if (value && index < this.codeArray.length - 1) {
     (input.nextElementSibling as HTMLInputElement | null)?.focus();
   }
@@ -88,7 +85,6 @@ onDigitInput(index: number, event: Event): void {
     (input.previousElementSibling as HTMLInputElement | null)?.focus();
   }
 
-  // sync with `code`
   const joined = this.codeArray.map(c => c.value).join('');
   this.form.controls.code.setValue(joined);
 }
