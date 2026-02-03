@@ -20,7 +20,7 @@ export class AuthService {
 
 
 
-  private baseUrl = environment.apiBaseUrl; // "/api"
+  private baseUrl = environment.oauthBaseUrl; // "/api"
 
   isAuthenticated(): boolean {
     return this.tokens.isAuthenticated();
