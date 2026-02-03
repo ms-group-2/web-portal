@@ -49,6 +49,7 @@
                 type="text"
                 formControlName="firstName"
                 placeholder="სახელი"
+                (input)="sanitizeTextInput($event)"
               />
               @if (showError('firstName')) {
                 <mat-error>{{ getError('firstName') }}</mat-error>
@@ -64,6 +65,7 @@
                 type="text"
                 formControlName="lastName"
                 placeholder="გვარი"
+                (input)="sanitizeTextInput($event)"
               />
               @if (showError('lastName')) {
                 <mat-error>{{ getError('lastName') }}</mat-error>

@@ -53,7 +53,7 @@ export class ForgotPassword {
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      return;``
+      return;
     }
 
     const { email } = this.form.getRawValue();
@@ -63,7 +63,9 @@ export class ForgotPassword {
     this.auth.forgotPassword(email).subscribe({
       next: () => {
         this.isSending.set(false);
-        this.sentMessage.set('თუ ეს იმეილი არსებობს, reset ლინკი გაიგზავნა');
+        this.sentMessage.set('თუ ეს იმეილი არსებობს, reset კოდი გაიგზავნა');
+
+        this.router.navigate(['/auth/reset-password'], { queryParams: { email } });
       },
       error: () => {
         this.isSending.set(false);

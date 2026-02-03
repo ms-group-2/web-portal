@@ -87,15 +87,23 @@ export class AuthService {
   }
   
   forgotPassword(email: string) {
-  return this.http.post<MessageResponse>(`${this.baseUrl}/auth/forgot-password`, { email });
+  return this.http.post<{ message: string }>(`${this.baseUrl}/auth/forgot-password`, { email });
 }
 
-  resetPassword(token: string, newPassword: string) {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/auth/reset-password`, {
-      token,
-      new_password: newPassword,
-    });
-  }
+resendPasswordResetCode(email: string) {
+  return this.http.post<{ message: string }>(`${this.baseUrl}/auth/resend-password-reset-code`, { email });
+}
+
+validateResetCode(payload: { email: string; code: string; reset_token: string }) {
+  return this.http.post<{ password_change_token: string }>(
+    `${this.baseUrl}/auth/validate-reset-code`,
+    payload
+  );
+}
+
+setNewPassword(payload: { email: string; new_password: string; password_change_token: string }) {
+  return this.http.post<{ message: string }>(`${this.baseUrl}/auth/set-new-password`, payload);
+}
 
   googleLoginRedirect() {
     const callbackUrl = encodeURIComponent(`${window.location.origin}/auth/google-callback`);

@@ -1,19 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-import { mustMatchField } from 'lib/validators/must-match-validator';
-import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
+import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
+import { passwordStrengthValidator, edgeSpacesValidator } from 'lib/validators/password-strength.validator';
+import { formatPasswordStrengthErrors } from 'lib/utils/password-strength-error.util';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
-  standalone: true,
   selector: 'vipo-reset-password',
   imports: [
     ReactiveFormsModule,
@@ -31,56 +31,152 @@ export class ResetPassword {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
+
+  showNewPassword = signal(false);
+  showConfirmPassword = signal(false);
+
   ERRORS = formInputErrors;
 
-  showPassword = signal(false);
-  showConfirm = signal(false);
+  step = signal<'code' | 'newPassword'>('code');
+  isLoading = signal(false);
+  infoMessage = signal<string | null>(null);
 
-  token = signal<string | null>(null);
+  private passwordChangeToken = signal<string | null>(null);
+  private resetToken = signal<string | null>(null);
 
   form = this.fb.group({
-    password: this.fb.control('', [Validators.required, Validators.minLength(6), emptySpaceValidator()]),
-    confirmPassword: this.fb.control('', [Validators.required, mustMatchField('password')]),
+    email: this.fb.control({ value: '', disabled: true }, [
+      Validators.required,
+      Validators.email,
+    ]),
+    code: this.fb.control('', [
+      Validators.required,
+      Validators.minLength(4),
+      emptySpaceValidator(),
+    ]),
+    new_password: this.fb.control('', [
+      Validators.required,
+      passwordStrengthValidator(),
+    ]),
+    confirm_password: this.fb.control('', [
+      Validators.required,
+      edgeSpacesValidator(),
+    ]),
   });
 
   ngOnInit(): void {
-    const token = this.route.snapshot.queryParamMap.get('token');
-    if (!token) {
-      this.router.navigateByUrl('/auth/sign-in');
+    const email = this.route.snapshot.queryParamMap.get('email');
+    const resetToken = this.route.snapshot.queryParamMap.get('reset_token');
+
+    if (!email) {
+      this.router.navigateByUrl('/auth/forgot-password');
       return;
     }
-    this.token.set(token);
+
+    this.form.controls.email.setValue(email);
+    if (resetToken) {
+      this.resetToken.set(resetToken);
+    }
   }
 
-  showError(controlName: keyof typeof this.form.controls): boolean {
-    const c = this.form.controls[controlName];
+  showError(name: keyof typeof this.form.controls): boolean {
+    const c = this.form.controls[name];
     return c.invalid && (c.touched || c.dirty);
   }
 
-  getError(controlName: keyof typeof this.form.controls): string | null {
-    const errors = this.form.controls[controlName].errors;
+  getError(name: keyof typeof this.form.controls): string | null {
+    const errors = this.form.controls[name].errors;
     if (!errors) return null;
     const key = Object.keys(errors)[0];
+
+    if (key === 'passwordStrength') {
+      return formatPasswordStrengthErrors(errors['passwordStrength']);
+    }
+
     return this.ERRORS[key] ?? null;
   }
 
-  submit(): void {
-    if (this.form.invalid) {
+  resend(): void {
+    const email = this.form.controls.email.getRawValue();
+    if (!email) return;
+
+    this.isLoading.set(true);
+    this.infoMessage.set(null);
+
+    this.auth.resendPasswordResetCode(email).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.infoMessage.set('კოდი ხელახლა გაიგზავნა ელფოსტაზე');
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.form.controls.code.setErrors({ serverDown: true });
+      },
+    });
+  }
+
+  submitCode(): void {
+    const email = this.form.controls.email.getRawValue();
+    const code = this.form.controls.code.getRawValue();
+    const resetToken = this.resetToken();
+
+    if (!email || !code) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const token = this.token();
-    if (!token) return;
+    if (!resetToken) {
+      this.form.controls.code.setErrors({ missingToken: true });
+      return;
+    }
 
-    const { password } = this.form.getRawValue();
+    this.isLoading.set(true);
+    this.infoMessage.set(null);
 
-    this.auth.resetPassword(token, password).subscribe({
+    this.auth.validateResetCode({ email, code, reset_token: resetToken }).subscribe({
+      next: (res) => {
+        this.isLoading.set(false);
+        this.passwordChangeToken.set(res.password_change_token);
+        this.step.set('newPassword');
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.form.controls.code.setErrors({ verificationFailed: true });
+      },
+    });
+  }
+
+  submitNewPassword(): void {
+    const email = this.form.controls.email.getRawValue();
+    const new_password = this.form.controls.new_password.getRawValue();
+    const confirm_password = this.form.controls.confirm_password.getRawValue();
+    const token = this.passwordChangeToken();
+
+    if (!email || !new_password || !confirm_password || !token) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    if (new_password !== confirm_password) {
+      this.form.controls.confirm_password.setErrors({ mustMatchField: true });
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.infoMessage.set(null);
+
+    this.auth.setNewPassword({
+      email,
+      new_password,
+      password_change_token: token,
+    }).subscribe({
       next: () => {
+        this.isLoading.set(false);
         this.router.navigateByUrl('/auth/sign-in');
       },
       error: () => {
-        this.form.controls.password.setErrors({ serverDown: true });
+        this.isLoading.set(false);
+        this.form.controls.new_password.setErrors({ serverDown: true });
       },
     });
   }

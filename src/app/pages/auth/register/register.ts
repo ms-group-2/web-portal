@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { mustMatchField } from 'lib/validators/must-match-validator';
-import { passwordStrengthValidator } from 'lib/validators/password-strength.validator';
+import { edgeSpacesValidator, passwordStrengthValidator } from 'lib/validators/password-strength.validator';
 import { formatPasswordStrengthErrors } from 'lib/utils/password-strength-error.util';
 import { AuthService } from 'lib/services/identity/auth.service';
 
@@ -42,11 +42,18 @@ export class Register {
 
   form = this.fb.group({
     email: this.fb.control('', [Validators.required, Validators.email, emptySpaceValidator()]),
-    firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
-    lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
-    password: this.fb.control('', [Validators.required, passwordStrengthValidator()]),
+    firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator(), edgeSpacesValidator()]),
+    lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator(), edgeSpacesValidator()]),
+    password: this.fb.control('', [Validators.required, passwordStrengthValidator(), edgeSpacesValidator()]),
     confirmPassword: this.fb.control('', [Validators.required, mustMatchField('password')]),
   });
+
+  sanitizeTextInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input) return;
+
+    input.value = input.value.replace(/[^a-zA-Zა-ჰ]/g, '');
+  }
 
   showError(controlName: keyof typeof this.form.controls): boolean {
     const control = this.form.controls[controlName];

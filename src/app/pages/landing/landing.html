@@ -5,12 +5,13 @@
     </div>
     
     <div class="animated-text-container">
-      <span 
-        *ngFor="let item of displayedText; let i = index" 
-        class="animated-char"
-        [class.vipo-text]="item.isVipo">
-        {{ item.char }}
-      </span>
+      @for (item of displayedText; track $index) {
+        <span
+          class="animated-char"
+          [class.vipo-text]="item.isVipo">
+          {{ item.char }}
+        </span>
+      }
     </div>
   </div>
   

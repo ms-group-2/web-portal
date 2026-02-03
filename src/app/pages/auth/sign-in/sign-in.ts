@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
+import { edgeSpacesValidator } from 'lib/validators/password-strength.validator';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
@@ -35,7 +36,7 @@ export class SignIn {
 
   form = this.fb.group({
     email: this.fb.control('', [Validators.required, Validators.email, emptySpaceValidator()]),
-    password: this.fb.control('', [Validators.required]),
+    password: this.fb.control('', [Validators.required, edgeSpacesValidator()]),
   });
 
   showError(controlName: keyof typeof this.form.controls): boolean {

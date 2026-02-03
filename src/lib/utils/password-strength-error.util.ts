@@ -6,6 +6,10 @@ export function formatPasswordStrengthErrors(
 ): string | null {
   const errorMessages: string[] = [];
 
+  if (passwordErrors.edgeSpaces) {
+    errorMessages.push(formInputErrors['edgeSpaces']);
+  }
+
   if (passwordErrors.minLength) {
     errorMessages.push(formInputErrors['passwordStrengthMinLength']);
   }

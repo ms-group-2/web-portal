@@ -13,6 +13,7 @@ export const formInputErrors: Record<string, string> = {
   resetSent: 'თუ ეს იმეილი არსებობს, reset ლინკი გაიგზავნა',
   resetFailed: 'პაროლის შეცვლა ვერ მოხერხდა',
 
+  edgeSpaces: 'პაროლი არ უნდა იწყებოდეს ან მთავრდებოდეს სფეისით',
   passwordStrengthMinLength: 'მინიმუმ 8 სიმბოლო',
   passwordStrengthUppercase: 'უნდა შეიცავდეს მინიმუმ 1 დიდ ასოს',
   passwordStrengthLowercase: 'უნდა შეიცავდეს მინიმუმ 1 პატარა ასოს',
