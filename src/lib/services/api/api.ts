@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  // TODO: replace with your backend base URL (or move this to environment.ts)
   private readonly baseUrl = 'http://localhost:8000';
 
   constructor(private http: HttpClient) {}

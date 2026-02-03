@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard } from 'lib/guards/auth.guard';
+import { authGuard, guestGuard } from 'lib/guards/auth.guard';
+
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'landing' },
@@ -11,17 +12,40 @@ export const routes: Routes = [
 
   {
     path: 'auth',
-    loadComponent: () => import('./layouts/auth-layout/auth-layout').then(m => m.AuthLayout),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'sign-in' },
       {
         path: 'sign-in',
+        canActivate: [guestGuard],
         loadComponent: () => import('./pages/auth/sign-in/sign-in').then(m => m.SignIn),
       },
       {
         path: 'register',
+        canActivate: [guestGuard],
         loadComponent: () => import('./pages/auth/register/register').then(m => m.Register),
       },
+      {
+        path: 'verify',
+        canActivate: [guestGuard],
+        loadComponent: () => import('./pages/auth/verify/verify').then(m => m.Verify),
+      },
+      {
+        path: 'google-callback',
+        loadComponent: () =>
+          import('./pages/auth/google-callback/google-callback').then(m => m.GoogleCallback),
+      },
+      {
+      path: 'forgot-password',
+        canActivate: [guestGuard],
+        loadComponent: () =>
+          import('./pages/auth/forgot-password/forgot-password').then(m => m.ForgotPassword),
+      },
+      {
+        path: 'reset-password',
+        canActivate: [guestGuard],
+        loadComponent: () =>
+          import('./pages/auth/reset-password/reset-password').then(m => m.ResetPassword),
+      },
+
     ],
   },
 

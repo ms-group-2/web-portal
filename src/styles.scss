@@ -22,12 +22,10 @@
   --color-bg: #ffffff;
 }
 
-/* 4) Feature theme switching (route-based) */
 body.theme-swap { --vipo-feature: var(--vipo-swap); }
 body.theme-market { --vipo-feature: var(--vipo-market); }
 body.theme-booking { --vipo-feature: var(--vipo-booking); }
 
-/* 5) Base / reset (single) */
 *,
 *::before,
 *::after { box-sizing: border-box; }
@@ -45,6 +43,15 @@ body {
 
 }
 
+
+.auth-card-shadow {
+  box-shadow: 0 4px 20px 23px rgba(123, 29, 255, 0.029);
+}
+
+.text-xs {
+    font-size: 14px !important;
+}
+
 .cdk-overlay-container { z-index: 1000; }
 // .text-feature {
 //   color: var(--color-feature);
@@ -57,4 +64,3 @@ body {
 // .border-feature {
 //   border-color: var(--color-feature);
 // }
-

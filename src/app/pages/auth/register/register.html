@@ -1,14 +1,14 @@
-<div class="min-h-screen bg-white flex justify-center pt-20 relative overflow-hidden">
+<div class="min-h-screen bg-white flex justify-center pt-20 px-3 md:pt-20 relative overflow-hidden">
   <a 
     routerLink="/"
     class="absolute top-8 left-8 flex items-center gap-2 text-gray-600 hover:text-primary transition-all group"
-  >
+    >
     <mat-icon class="group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
-    <span class="font-bold uppercase text-sm tracking-wide">back</span>
+    <span class="font-bold uppercase text-sm tracking-wide">უკან</span>
   </a>
 
   <div class="w-full max-w-lg relative z-10">
-    <div class="text-center mb-6">
+    <div class="text-center mb-10">
       <div class="flex justify-center mb-2">
         <img
           src="/assets/logo/logo-purple.svg"
@@ -17,14 +17,14 @@
         />
       </div>
       <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">
-        create your account
+        შექმენი შენი ანგარიში
       </p>
     </div>
 
-    <div class="bg-white border border-color-[#E5E7EB] rounded-2xl max-w-[512px] mx-auto p-8">
+    <div class="bg-white border border-color-[#E5E7EB] rounded-2xl max-w-[512px] mx-auto p-8 auth-card-shadow">
       <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-1">
         <div>
-          <label class="block text-xs font-black uppercase tracking-wider mb-2">Email</label>
+          <label class="block text-xs font-black uppercase tracking-wider mb-2">იმეილი</label>
           <mat-form-field appearance="outline" class="w-full">
             <mat-icon matPrefix class=" text-gray-400 mr-2">mail</mat-icon>
             <input
@@ -42,13 +42,14 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider mb-2">First Name</label>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">სახელი</label>
             <mat-form-field appearance="outline" class="w-full">
               <input
                 matInput
                 type="text"
                 formControlName="firstName"
-                placeholder="first name"
+                placeholder="სახელი"
+                (input)="sanitizeTextInput($event)"
               />
               @if (showError('firstName')) {
                 <mat-error>{{ getError('firstName') }}</mat-error>
@@ -57,13 +58,14 @@
           </div>
 
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider mb-2">Last Name</label>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">გვარი</label>
             <mat-form-field appearance="outline" class="w-full">
               <input
                 matInput
                 type="text"
                 formControlName="lastName"
-                placeholder="last name"
+                placeholder="გვარი"
+                (input)="sanitizeTextInput($event)"
               />
               @if (showError('lastName')) {
                 <mat-error>{{ getError('lastName') }}</mat-error>
@@ -74,7 +76,7 @@
 
         <div class="space-y-1.5">
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider mb-2">Password</label>
+            <label class="block text-xs font-black uppercase tracking-wider mb-3">პაროლი</label>
             <mat-form-field appearance="outline" class="w-full">
               <mat-icon matPrefix class="text-gray-400 mr-2">lock</mat-icon>
               <input
@@ -99,7 +101,7 @@
           </div>
 
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider mb-2">Confirm Password</label>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">გაიმეორე პაროლი</label>
             <mat-form-field appearance="outline" class="w-full">
               <mat-icon matPrefix class="text-gray-400 mr-2">lock</mat-icon>
               <input
@@ -107,7 +109,6 @@
                 [type]="showConfirmPassword() ? 'text' : 'password'"
                 formControlName="confirmPassword"
                 placeholder="••••••••"
-                class="colo"
               />
               <button
                 mat-icon-button
@@ -131,7 +132,7 @@
           [disabled]="form.invalid"
           class="w-full "
         >
-          create account
+          რეგისტრაცია
         </button>
        
       </form>
@@ -142,7 +143,7 @@
         </div>
         <div class="relative flex justify-center">
           <span class="bg-white px-4 text-xs font-black text-gray-400 uppercase tracking-wider">
-            or continue with
+            ან შედი
           </span>
         </div>
       </div>
@@ -150,6 +151,7 @@
       <div class="w-full">
       <button
         type="button"
+        (click)="onGoogle()"
         class="w-full py-3 px-4 bg-gray-50 border border-gray-300 rounded-xl font-black text-gray-800 text-sm
               hover:bg-gray-100 hover:border-gray-400 transition-all uppercase tracking-wide
               inline-flex items-center justify-center gap-3"
@@ -159,18 +161,18 @@
           alt="Google"
           class="w-5 h-5 object-contain block"
         />
-        <span class="leading-none">Google</span>
+        <span class="leading-none">Google-ით</span>
       </button>
       </div>
 
-      <div class="mt-6 text-center">
+      <div class="mt-2 text-center">
         <span class="text-sm font-medium text-gray-600">
-          Already have an account?
+          უკვე გაქვს ანგარიში?
          <a
-          routerLink="/login"
-          class="font-black uppercase tracking-wide ml-1 text-[var(--color-primary) hover:opacity-90"
+          routerLink="/auth/sign-in"
+          class="font-black uppercase tracking-wide ml-1 text-primary hover:opacity-90"
         >
-          sign in
+          შესვლა
         </a>
         </span>
       </div>

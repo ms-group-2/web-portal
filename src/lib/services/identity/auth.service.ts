@@ -1,37 +1,112 @@
-import { Injectable } from '@angular/core';
-import { tap } from 'rxjs';
-import { ApiService } from 'lib/services/api/api';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 import { TokenManagementService } from './token-management.service';
 
-import { LoginRequest } from './models/login.request.model';
-import { LoginResponse } from './models/login.response.model';
 import { RegisterRequest } from './models/register.request.model';
 import { VerifyRequest } from './models/verify.request.model';
+import { UserResponse } from './models/user.response.model';
+import { TokenResponse } from './models/token.response.model';
+import { VerifyResponse } from './models/verify.response.model';
+import { MessageResponse } from './models/message.response.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(
-  private api: ApiService,
-  private tokens: TokenManagementService
-) {}
+  private http = inject(HttpClient);
+  private tokens = inject(TokenManagementService);
 
-  login(payload: LoginRequest) {
-    return this.api.post<LoginResponse>('/auth/login', payload).pipe(
-      tap(res => this.tokens.setTokens(res.access_token, res.refresh_token))
-    );
+  user = signal<UserResponse | null>(null);
+  pendingEmail = signal<string | null>(null);
+
+
+
+  private baseUrl = environment.apiBaseUrl; // "/api"
+
+  isAuthenticated(): boolean {
+    return this.tokens.isAuthenticated();
   }
 
   register(payload: RegisterRequest) {
-    return this.api.post<{}>('/auth/register', payload);
+    const body = {
+      email: payload.email,
+      password: payload.password,
+      name: payload.firstName,
+      surname: payload.lastName,
+    };
+    return this.http.post<UserResponse>(`${this.baseUrl}/auth/register`, body);
   }
 
   verify(payload: VerifyRequest) {
-    return this.api.post<LoginResponse>('/auth/verify', payload).pipe(
-      tap(res => this.tokens.setTokens(res.access_token, res.refresh_token))
+    return this.http.post<VerifyResponse>(`${this.baseUrl}/auth/verify`, payload);
+  }
+
+  login(email: string, password: string) {
+    const body = new HttpParams()
+      .set('grant_type', 'password')
+      .set('username', email)
+      .set('password', password);
+
+    return this.http.post<TokenResponse>(`${this.baseUrl}/auth/token`, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+  }
+    refresh() {
+    const refreshToken = this.tokens.refreshToken();
+
+    return this.http.post<TokenResponse>(
+      `${this.baseUrl}/auth/refresh`,
+      null,
+      refreshToken ? { headers: { Authorization: `Bearer ${refreshToken}` } } : undefined
     );
+  }
+
+  me() {
+    return this.http.get<UserResponse>(`${this.baseUrl}/auth/me`);
+  }
+
+  setTokensFromResponse(res: { access_token: string; refresh_token: string; token_type: string }) {
+    this.tokens.setTokens({
+      accessToken: res.access_token,
+      refreshToken: res.refresh_token,
+      tokenType: res.token_type,
+    });
   }
 
   logout() {
     this.tokens.clear();
+    this.user.set(null);
+    this.pendingEmail.set(null);
+  }
+
+  resendVerification(email: string) {
+  return this.http.post<MessageResponse>(
+    `${this.baseUrl}/auth/resend-verification-code`,
+    { email }
+  );
+
+  }
+  
+  forgotPassword(email: string) {
+  return this.http.post<{ message: string }>(`${this.baseUrl}/auth/forgot-password`, { email });
+}
+
+resendPasswordResetCode(email: string) {
+  return this.http.post<{ message: string }>(`${this.baseUrl}/auth/resend-password-reset-code`, { email });
+}
+
+validateResetCode(payload: { email: string; code: string; reset_token: string }) {
+  return this.http.post<{ password_change_token: string }>(
+    `${this.baseUrl}/auth/validate-reset-code`,
+    payload
+  );
+}
+
+setNewPassword(payload: { email: string; new_password: string; password_change_token: string }) {
+  return this.http.post<{ message: string }>(`${this.baseUrl}/auth/set-new-password`, payload);
+}
+
+  googleLoginRedirect() {
+    const callbackUrl = encodeURIComponent(`${window.location.origin}/auth/google-callback`);
+    window.location.href = `${environment.oauthBaseUrl}/auth/login/google?redirect_uri=${callbackUrl}`;
   }
 }

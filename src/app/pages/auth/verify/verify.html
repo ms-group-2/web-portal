@@ -1,0 +1,81 @@
+<div class="min-h-screen bg-white flex justify-center pt-20 relative overflow-hidden">
+  <a
+    routerLink="/"
+    class="absolute top-8 left-8 flex items-center gap-2 text-gray-600"
+  >
+    <mat-icon>arrow_back</mat-icon>
+    <span class="font-bold uppercase text-sm">უკან</span>
+  </a>
+
+  <div class="w-full max-w-lg">
+    <div class="text-center mb-10">
+      <div class="flex justify-center mb-2">
+        <img
+          src="/assets/logo/logo-purple.svg"
+          alt="Vipo logo"
+          class="h-10 w-auto m-3 mt-5"
+        />
+      </div>
+      <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">
+        შექმენი შენი ანგარიში
+      </p>
+    </div>
+
+    <div class="bg-white border rounded-2xl p-8 auth-card-shadow">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3">
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider mb-2">იმეილი</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-icon matPrefix>mail</mat-icon>
+            <input matInput formControlName="email" />
+          </mat-form-field>
+        </div>
+
+       <div>
+        <label class="block text-xs font-black uppercase tracking-wider mb-2">ვერიფიკაციის კოდი</label>
+
+        <div class="flex items-center justify-between gap-4 my-4">
+          <div class="flex gap-3">
+            @for (digit of codeArray; track $index) {
+              <input
+                type="text"
+                inputmode="numeric"
+                maxlength="1"
+                 class="w-12 h-12 text-lg font-bold rounded-xl text-center shadow-sm
+                      border border-gray-300 focus:outline-none focus:border-primary"
+                [formControl]="digit"
+                (input)="onDigitInput($index, $event)"
+              />
+            }
+          </div>
+
+          <button
+            type="button"
+            class="text-xs font-bold uppercase text-primary hover:opacity-80 whitespace-nowrap"
+            [disabled]="isResending()"
+            (click)="resend()"
+          >
+            კოდის ხელახლა გაგზავნა
+          </button>
+        </div>
+
+        @if (showError('code')) {
+          <p class="text-xs text-red-500 text-center mt-2">
+            {{ getError('code') }}
+          </p>
+        }
+
+        @if (resentMessage()) {
+          <p class="text-xs text-green-600 font-semibold mt-2">
+            {{ resentMessage() }}
+          </p>
+        }
+      </div>
+
+       <button mat-flat-button type="submit" class="w-full" [disabled]="form.invalid">
+          ვერიფიკაცია
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
