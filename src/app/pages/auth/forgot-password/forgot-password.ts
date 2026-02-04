@@ -12,7 +12,6 @@ import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
-  standalone: true,
   selector: 'vipo-forgot-password',
   imports: [
     ReactiveFormsModule,
@@ -33,6 +32,7 @@ export class ForgotPassword {
 
   isSending = signal(false);
   sentMessage = signal<string | null>(null);
+  serverDownError = signal(false);
 
   form = this.fb.group({
     email: this.fb.control('', [Validators.required, Validators.email, emptySpaceValidator()]),
@@ -59,17 +59,25 @@ export class ForgotPassword {
     const { email } = this.form.getRawValue();
     this.isSending.set(true);
     this.sentMessage.set(null);
+    this.serverDownError.set(false);
 
     this.auth.forgotPassword(email).subscribe({
-      next: () => {
+      next: (res) => {
         this.isSending.set(false);
         this.sentMessage.set('თუ ეს იმეილი არსებობს, reset კოდი გაიგზავნა');
-
-        this.router.navigate(['/auth/reset-password'], { queryParams: { email } });
+        
+        const resetToken = (res as any).reset_token;
+        if (resetToken) {
+          this.router.navigate(['/auth/reset-password'], {
+            queryParams: { email, reset_token: resetToken },
+          });
+        } else {
+          this.router.navigate(['/auth/reset-password'], { queryParams: { email } });
+        }
       },
       error: () => {
         this.isSending.set(false);
-        this.form.controls.email.setErrors({ serverDown: true });
+        this.serverDownError.set(true);
       },
     });
   }

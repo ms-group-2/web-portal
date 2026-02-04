@@ -11,11 +11,12 @@ import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { edgeSpacesValidator } from 'lib/validators/password-strength.validator';
 import { AuthService } from 'lib/services/identity/auth.service';
+// import { CommonModule } from '@angular/common';
 
 @Component({
-  standalone: true,
   selector: 'vipo-sign-in',
   imports: [
+    // CommonModule,
     ReactiveFormsModule,
     RouterLink,
     MatFormFieldModule,
@@ -33,6 +34,8 @@ export class SignIn {
   ERRORS = formInputErrors;
 
   showPassword = signal(false);
+  serverDownError = signal(false);
+  invalidCredentialsError = signal(false);
 
   form = this.fb.group({
     email: this.fb.control('', [Validators.required, Validators.email, emptySpaceValidator()]),
@@ -64,6 +67,8 @@ export class SignIn {
   }
 
   const { email, password } = this.form.getRawValue();
+  this.serverDownError.set(false);
+  this.invalidCredentialsError.set(false);
 
   this.auth.login(email, password).subscribe({
     next: (res) => {
@@ -73,7 +78,7 @@ export class SignIn {
     error: (err) => {
 
       if (err?.status === 0 || err?.status === 404) {
-        this.form.controls.email.setErrors({ serverDown: true });
+        this.serverDownError.set(true);
         return;
       }
 
@@ -83,14 +88,14 @@ export class SignIn {
         if (message.includes('not verified')) {
           this.form.controls.email.setErrors({ notVerified: true });
         } else {
-          this.form.controls.email.setErrors({ invalidCredentials: true });
+          this.invalidCredentialsError.set(true);
         }
         return;
       }
 
-      this.form.controls.email.setErrors({ invalidCredentials: true });
+      this.invalidCredentialsError.set(true);
     },
   });
-  
+
   }
 }

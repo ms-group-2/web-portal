@@ -65,6 +65,14 @@
           </a>
         </div>
 
+        <div [hidden]="!serverDownError()" class="text-red-600 text-sm text-center pb-1">
+          {{ ERRORS['serverDown'] }}
+        </div>
+
+        <div [hidden]="!invalidCredentialsError()" class="text-red-600 text-sm text-center pb-1">
+          {{ ERRORS['invalidCredentials'] }}
+        </div>
+
         <button mat-flat-button type="submit" class="w-full" [disabled]="form.invalid">
           შესვლა
         </button>

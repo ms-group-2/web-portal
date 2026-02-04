@@ -2,27 +2,73 @@ import { formInputErrors } from '../constants/enums/form-input-errors.enum';
 import { PasswordStrengthErrors } from '../validators/password-strength.validator';
 
 export function formatPasswordStrengthErrors(
-  passwordErrors: PasswordStrengthErrors
+  passwordErrors: PasswordStrengthErrors,
+  value?: string | null
 ): string | null {
-  const errorMessages: string[] = [];
+  const lengthForUi = typeof value === 'string' ? value.length : 0;
+
+  const getMessageForKey = (key: keyof PasswordStrengthErrors): string | null => {
+    switch (key) {
+      case 'edgeSpaces':
+        return formInputErrors['edgeSpaces'];
+      case 'minLength':
+        return formInputErrors['passwordStrengthMinLength'];
+      case 'uppercase':
+        return formInputErrors['passwordStrengthUppercase'];
+      case 'lowercase':
+        return formInputErrors['passwordStrengthLowercase'];
+      case 'digit':
+        return formInputErrors['passwordStrengthDigit'];
+      case 'specialChar':
+        return formInputErrors['passwordStrengthSpecialChar'];
+      default:
+        return null;
+    }
+  };
 
   if (passwordErrors.edgeSpaces) {
-    errorMessages.push(formInputErrors['edgeSpaces']);
+    return getMessageForKey('edgeSpaces');
   }
 
+ 
   if (passwordErrors.minLength) {
-    errorMessages.push(formInputErrors['passwordStrengthMinLength']);
-  }
-  if (passwordErrors.uppercase) {
-    errorMessages.push(formInputErrors['passwordStrengthUppercase']);
-  }
-  if (passwordErrors.lowercase) {
-    errorMessages.push(formInputErrors['passwordStrengthLowercase']);
-  }
-  if (passwordErrors.specialChar) {
-    errorMessages.push(formInputErrors['passwordStrengthSpecialChar']);
+    const minMsg = getMessageForKey('minLength')!;
+
+    if (lengthForUi < 6) {
+      return minMsg;
+    }
+
+    const secondaryOrder: (keyof PasswordStrengthErrors)[] = [
+      'uppercase',
+      'lowercase',
+      'digit',
+      'specialChar',
+    ];
+
+    for (const key of secondaryOrder) {
+      if (!passwordErrors[key]) continue;
+      const extra = getMessageForKey(key);
+      if (extra) {
+        return `${minMsg} ${extra}`;
+      }
+    }
+
+    return minMsg;
   }
 
-  return errorMessages.length > 0 ? errorMessages.join(' ') : null;
+  const priorityOrder: (keyof PasswordStrengthErrors)[] = [
+    'uppercase',
+    'lowercase',
+    'digit',
+    'specialChar',
+  ];
+
+  for (const key of priorityOrder) {
+    if (!passwordErrors[key]) continue;
+    const msg = getMessageForKey(key);
+    if (msg) return msg;
+  }
+
+  return null;
 }
 

@@ -17,6 +17,12 @@ export class AuthService {
 
   user = signal<UserResponse | null>(null);
   pendingEmail = signal<string | null>(null);
+  pendingRegistration = signal<{
+    email: string;
+    firstName: string;
+    lastName: string;
+    // password: string;
+  } | null>(null);
 
 
 
@@ -68,6 +74,7 @@ export class AuthService {
     this.tokens.setTokens({
       accessToken: res.access_token,
       refreshToken: res.refresh_token,
+      
       tokenType: res.token_type,
     });
   }
@@ -76,6 +83,7 @@ export class AuthService {
     this.tokens.clear();
     this.user.set(null);
     this.pendingEmail.set(null);
+    this.pendingRegistration.set(null);
   }
 
   resendVerification(email: string) {
@@ -87,8 +95,11 @@ export class AuthService {
   }
   
   forgotPassword(email: string) {
-  return this.http.post<{ message: string }>(`${this.baseUrl}/auth/forgot-password`, { email });
-}
+    return this.http.post<{ message: string; reset_token?: string }>(
+      `${this.baseUrl}/auth/forgot-password`,
+      { email }
+    );
+  }
 
 resendPasswordResetCode(email: string) {
   return this.http.post<{ message: string }>(`${this.baseUrl}/auth/resend-password-reset-code`, { email });

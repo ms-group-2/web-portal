@@ -12,7 +12,6 @@ import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
-  standalone: true,
   selector: 'vipo-verify',
   imports: [
     ReactiveFormsModule,
@@ -135,6 +134,7 @@ onDigitInput(index: number, event: Event): void {
       next: (res) => {
         this.auth.setTokensFromResponse(res);
         this.auth.pendingEmail.set(null);
+        this.auth.pendingRegistration.set(null);
 
         this.router.navigateByUrl('/landing');
       },

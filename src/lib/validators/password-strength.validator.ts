@@ -5,6 +5,7 @@ export interface PasswordStrengthErrors {
   uppercase?: boolean;
   lowercase?: boolean;
   specialChar?: boolean;
+  digit?: boolean;
   edgeSpaces?: boolean;
 }
 
@@ -33,6 +34,10 @@ export function passwordStrengthValidator(): ValidatorFn {
 
     if (!/[a-z]/.test(value)) {
       errors.lowercase = true;
+    }
+
+    if (!/\d/.test(value)) {
+      errors.digit = true;
     }
 
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {

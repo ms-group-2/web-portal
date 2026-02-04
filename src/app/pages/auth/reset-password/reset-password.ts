@@ -40,6 +40,7 @@ export class ResetPassword {
   step = signal<'code' | 'newPassword'>('code');
   isLoading = signal(false);
   infoMessage = signal<string | null>(null);
+  serverDownError = signal(false);
 
   private passwordChangeToken = signal<string | null>(null);
   private resetToken = signal<string | null>(null);
@@ -63,6 +64,15 @@ export class ResetPassword {
       edgeSpacesValidator(),
     ]),
   });
+
+  sanitizePasswordInput(event: Event, controlName: 'new_password' | 'confirm_password'): void {
+    const input = event.target as HTMLInputElement;
+    if (!input) return;
+
+    const sanitized = input.value.replace(/[^A-Za-z0-9!@#$%^&*(),.?":{}|<>]/g, '');
+    input.value = sanitized;
+    this.form.controls[controlName].setValue(sanitized);
+  }
 
   ngOnInit(): void {
     const email = this.route.snapshot.queryParamMap.get('email');
@@ -90,7 +100,8 @@ export class ResetPassword {
     const key = Object.keys(errors)[0];
 
     if (key === 'passwordStrength') {
-      return formatPasswordStrengthErrors(errors['passwordStrength']);
+      const value = this.form.controls.new_password.value;
+      return formatPasswordStrengthErrors(errors['passwordStrength'], value);
     }
 
     return this.ERRORS[key] ?? null;
@@ -102,15 +113,17 @@ export class ResetPassword {
 
     this.isLoading.set(true);
     this.infoMessage.set(null);
+    this.serverDownError.set(false);
 
     this.auth.resendPasswordResetCode(email).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.infoMessage.set('კოდი ხელახლა გაიგზავნა ელფოსტაზე');
       },
-      error: () => {
+      error: (err) => {
+        console.log('Resend error:', err);
         this.isLoading.set(false);
-        this.form.controls.code.setErrors({ serverDown: true });
+        this.serverDownError.set(true);
       },
     });
   }
@@ -126,22 +139,31 @@ export class ResetPassword {
     }
 
     if (!resetToken) {
-      this.form.controls.code.setErrors({ missingToken: true });
+      this.serverDownError.set(false);
+      this.form.controls.code.setErrors({ verificationFailed: true });
+      this.form.controls.code.markAsTouched();
       return;
     }
 
     this.isLoading.set(true);
     this.infoMessage.set(null);
+    this.serverDownError.set(false);
 
     this.auth.validateResetCode({ email, code, reset_token: resetToken }).subscribe({
       next: (res) => {
         this.isLoading.set(false);
+        this.serverDownError.set(false);
         this.passwordChangeToken.set(res.password_change_token);
         this.step.set('newPassword');
       },
-      error: () => {
+      error: (err) => {
         this.isLoading.set(false);
-        this.form.controls.code.setErrors({ verificationFailed: true });
+
+        if (err?.status === 0 || err?.status === 500) {
+          this.serverDownError.set(true);
+        } else {
+          this.form.controls.code.setErrors({ verificationFailed: true });
+        }
       },
     });
   }
@@ -164,6 +186,7 @@ export class ResetPassword {
 
     this.isLoading.set(true);
     this.infoMessage.set(null);
+    this.serverDownError.set(false);
 
     this.auth.setNewPassword({
       email,
@@ -174,9 +197,10 @@ export class ResetPassword {
         this.isLoading.set(false);
         this.router.navigateByUrl('/auth/sign-in');
       },
-      error: () => {
+      error: (err) => {
+        console.log('Set new password error:', err);
         this.isLoading.set(false);
-        this.form.controls.new_password.setErrors({ serverDown: true });
+        this.serverDownError.set(true);
       },
     });
   }
