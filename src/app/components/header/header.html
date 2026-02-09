@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-50 bg-gradient-to-r from-primary to-purple-600">
+<header class="sticky top-0 z-50 bg-gradient-to-r from-[#7A1DFF] to-purple-600">
   <nav class="w-full flex items-center px-20 py-3 ">
 
     <a
@@ -32,7 +32,7 @@
       @if (!isAuthenticated) {
         <a
           routerLink="/auth/register"
-          class="!px-5 !py-2 rounded-xl border border-white/40 text-white text-base hover:bg-white/10 transition tracking-wider"
+          class="!px-5 !py-2 rounded-xl border-2 border-white/40 text-white text-base hover:bg-white/10 transition tracking-wider"
         >
           დარეგისტრირდი
         </a>
@@ -45,20 +45,26 @@
         </a>
       }
 
-        <button
-          [matMenuTriggerFor]="userMenu"
-          aria-label="User menu"
-          class="text-white"
-        >
-          <i class="ph ph-user text-3xl mt-1 animate-scale-in hover:scale-110 transition-transform duration-200"></i>
-        </button>
+      <button
+        [matMenuTriggerFor]="userMenu"
+        aria-label="User menu"
+        class="text-white border-2 border-white/40 rounded-lg p-2 hover:bg-white/10 transition-all flex items-center justify-center w-10 h-10 relative z-[60]"
+      >
+        <i class="ph ph-user text-2xl animate-scale-in hover:scale-110 transition-transform duration-200"></i>
+      </button>
 
-        <mat-menu #userMenu="matMenu">
-          <button mat-menu-item (click)="logout()">
+      <mat-menu #userMenu="matMenu" class="user-menu z-[60]">
+        <button mat-menu-item class="profile-menu-item right " (click)="navigateToProfile()">
+          <mat-icon>person</mat-icon>
+          <span>პროფილი</span>
+        </button>
+        @if (isAuthenticated) {
+          <button mat-menu-item (click)="logout()" class="logout-menu-item">
             <mat-icon>logout</mat-icon>
-            <span>Logout</span>
+            <span>გასვლა</span>
           </button>
-        </mat-menu>
+        }
+      </mat-menu>
     </div>
   </nav>
 </header>

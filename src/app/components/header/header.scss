@@ -1,86 +1,58 @@
-.header {
-  width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background-color: var(--color-bg);
-  border-bottom: 1px solid var(--color-border);
-}
 
-.header-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  
-  @media (max-width: 768px) {
-    padding: 0.75rem 1rem;
+::ng-deep .user-menu {
+  margin-top: 0.5rem !important;
+  background-color: white !important;
+
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+  }
+
+  .mat-mdc-menu-item {
+    width: 188px !important;
+    height: 44px !important;
+    // min-height: 44px !important;
+    // padding: 0 16px !important; // px-4
+    // text-align: left !important;
+    // display: flex !important;
+    // align-items: center !important;
+    // justify-content: flex-start !important;
+    // transition: all 0.2s ease !important;
+    
+    // .mat-icon {
+    //   display: none !important; 
+    // }
+
+    span {
+      color: var(--color-text) !important; 
+      font-weight: 600 !important; 
+      font-size: 0.875rem !important; 
+      text-transform: uppercase !important;
+      letter-spacing: 0.05em !important; 
+      // width: 100% !important;
+    }
+  }
+
+  .profile-menu-item {
+    border-top: none !important;
+    
+    &:hover {
+      background-color: #885dde !important;
+      
+      span {
+        color: white !important;
+      }
+    }
+  }
+
+  .logout-menu-item {
+    border-top: 1px solid #e5e7eb !important; 
+    
+    &:hover {
+      background-color: #F3B582 !important;
+      
+      span {
+        color: black !important;
+      }
+    }
   }
 }
-
-.header-logo {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  
-  .header-logo-img {
-    height: 19px;
-    width: auto;
-    display: block;
-  }
-}
-
-.header-nav-links {
-  display: none;
-  align-items: center;
-  gap: 2rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  
-  @media (min-width: 768px) {
-    display: flex;
-  }
-}
-
-.header-nav-link {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text);
-  text-decoration: none;
-  transition: opacity 0.3s ease;
-  
-  &:hover {
-    opacity: 0.6;
-  }
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.header-user-btn {
-  color: var(--color-text);
-
-
-  &:hover {
-    opacity: 0.6;
-  }
-}
-
-// @keyframes scale-in {
-//   0% {
-//     transform: scale(0);
-//     opacity: 0;
-//   }
-//   100% {
-//     transform: scale(1);
-//     opacity: 1;
-//   }
-// }
-
-// .animate-scale-in {
-//   animation: scale-in 0.3s ease-out;
-// }

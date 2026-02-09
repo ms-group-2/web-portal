@@ -1,0 +1,178 @@
+<div class="min-h-screen bg-white">
+  <!-- Header -->
+  <div class="bg-accent py-5 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex items-center justify-between ">
+        <button
+          (click)="goBack()"
+          class="flex items-center gap-2 text-white/80 hover:text-white transition-all group"
+        >
+          <mat-icon class="w-5 h-5 group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
+          <span class="font-bold uppercase text-sm tracking-wider">უკან</span>
+        </button>
+        
+        <div class="w-24 h-8">
+          <img src="assets/logo/logo-white.svg" alt="Vipo Logo" class="h-8 w-auto" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="max-w-6xl mx-auto px-4 py-20">
+    <!-- Profile Header -->
+    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-12 mb-20 relative overflow-hidden border-2 border-gray-200">
+      <div class="relative grid grid-cols-[auto_1fr] gap-10">
+        <!-- Profile Picture -->
+        <div class="relative group">
+          <div class="w-40 h-40 bg-primary rounded-2xl flex items-center justify-center">
+            <i class="ph ph-user text-5xl text-white"></i>  
+          </div>
+          <button class="absolute bottom-2 right-2 w-10 h-10 bg-swap rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg">
+            <mat-icon class="w-5 h-5 text-black">camera_alt</mat-icon>
+          </button>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="flex-1">
+          <div class="flex items-start justify-between mb-4 gap-4">
+            <div class="flex-1 min-w-0">
+              @if (isEditing()) {
+                <div class="flex gap-2 mb-2 flex-wrap">
+                  <input
+                    [formControl]="form.controls.firstName"
+                    placeholder="სახელი"
+                    class="text-3xl font-black text-textBlue bg-white border-2 border-gray-300 rounded-lg px-3 py-2 uppercase tracking-tight focus:outline-none focus:border-primary placeholder:text-gray-400 flex-1 min-w-[120px] max-w-[250px]"
+                  />
+                  <input
+                    [formControl]="form.controls.lastName"
+                    placeholder="გვარი"
+                    class="text-3xl font-black text-textBlue bg-white border-2 border-gray-300 rounded-lg px-3 py-2 uppercase tracking-tight focus:outline-none focus:border-primary placeholder:text-gray-400 w-[250px]"
+                  />
+                </div>
+              } @else {
+                <h1 class="text-5xl font-black text-textBlue   mb-2 uppercase tracking-tight">{{ name() || 'მომხმარებელი' }}</h1>
+              }
+              <div class="flex items-center gap-4 mb-2">
+                <span class="text-gray-700 text-base font-bold">{{ age() }} წლის</span>
+                <span class="text-gray-400">•</span>
+                <span class="text-gray-700 text-base font-bold">{{ gender() }}</span>
+              </div>
+              <p class="text-gray-600 text-sm font-medium mb-4">წევრი 2025 წლის თებერვლიდან</p>
+            </div>
+            <button
+              (click)="toggleEdit()"
+              class="px-6 py-3 bg-primary text-white font-black rounded-lg hover:opacity-90 transition-all uppercase text-sm tracking-wider flex items-center gap-2 shrink-0 whitespace-nowrap"
+            >
+              <mat-icon class="w-4 h-4">edit</mat-icon>
+              {{ isEditing() ? 'შენახვა' : 'რედაქტირება' }}
+            </button>
+          </div>
+
+          @if (isEditing()) {
+            <div class="flex items-start gap-6 mb-4">
+              <div class="flex flex-col flex-1">
+                <label class="text-xs font-black text-gray-500 uppercase tracking-wide mb-2">ასაკი</label>
+                <input
+                  [formControl]="form.controls.age"
+                  type="number"
+                  class="px-3 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:border-primary transition-all w-full"
+                />
+              </div>
+              <div class="flex flex-col flex-1">
+                <label class="text-xs font-black text-gray-500 uppercase tracking-wide mb-2">GENDER</label>
+                <select
+                  [formControl]="form.controls.gender"
+                  class="px-3 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:border-primary transition-all w-full"
+                >
+                  @for (option of genderOptions; track option) {
+                    <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          }
+
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-12 mt-8" [class]="isEditing() ? 'border-t-2 border-gray-300 pt-6' : ''">
+            @for (stat of stats; track stat.label) {
+              <div class="bg-white rounded-xl p-4 border-2 border-gray-300">
+                <div [class]="'text-4xl font-black mb-1 ' + stat.colorClass">{{ stat.value }}</div>
+                <div class="text-xs text-gray-600 uppercase tracking-wide font-medium">{{ stat.label }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-16">
+      <h2 class="text-2xl font-black text-textBlue mb-6 uppercase tracking-tight">ჩემს შესახებ</h2>
+      @if (isEditing()) {
+        <textarea
+          [formControl]="form.controls.bio"
+          class="w-full p-4 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none focus:border-primary focus:bg-white transition-all resize-none"
+          rows="3"
+        ></textarea>
+      } @else {
+        <p class="text-gray-600 text-lg leading-relaxed">{{ bio() }}</p>
+      }
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-12 mb-20">
+      <div>
+        <h2 class="text-2xl font-black text-textBlue mb-8 uppercase tracking-tight">საკონტაქტო ინფორმაცია</h2>
+        
+        <div class="space-y-5">
+          @for (field of contactFields; track field.formControlName) {
+            <div class="bg-gray-50 rounded-xl p-5 border-2 border-gray-200 {{ getHoverBorderClass(field.theme) }} transition-all">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 {{ getIconBgClass(field.theme) }} rounded-lg flex items-center justify-center">
+                  <mat-icon [class]="'w-5 h-5 ' + getIconTextClass(field.theme)">{{ field.icon }}</mat-icon>
+                </div>
+                <span class="text-xs font-black text-gray-500 uppercase tracking-wide">{{ field.label }}</span>
+              </div>
+              @if (isEditing() && field.isEditable) {
+                <input
+                  [type]="field.inputType"
+                  [formControl]="form.controls[field.formControlName]"
+                  class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:border-primary transition-all"
+                />
+              } @else {
+                <p class="text-gray-900 font-bold">{{ getFieldValue(field.valueKey) }}</p>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-black text-textBlue mb-8 uppercase tracking-tight">ბოლო აქტივობა</h2>
+        
+        <div class="space-y-5">
+          @for (activity of activities; track activity.title) {
+            <div class="bg-white rounded-xl p-4 border-2 border-gray-200">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-sm font-black text-gray-900 uppercase">{{ activity.title }}</span>
+                <span class="text-xs text-gray-500">{{ activity.timeAgo }}</span>
+              </div>
+              <p class="text-xs text-gray-600">{{ activity.description }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-red-50 rounded-xl p-8 border-2 border-red-200">
+      <h2 class="text-xl font-black text-red-600 mb-4 uppercase tracking-tight">საშიში ზონა</h2>
+      <p class="text-gray-600 mb-4">ანგარიშის წაშლის შემდეგ, დაბრუნება შეუძლებელია. გთხოვთ, დარწმუნდეთ.</p>
+      <button 
+        (click)="deleteAccount()"
+        class="px-6 py-3 bg-red-600 text-white font-black rounded-lg hover:bg-red-700 transition-all uppercase text-sm tracking-wider"
+      >
+        ანგარიშის წაშლა
+      </button>
+    </div>
+  </div>
+</div>
+

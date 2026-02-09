@@ -3,10 +3,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { Header } from 'src/app/components/header/header';
+import { Footer } from 'src/app/components/footer/footer';
 
 @Component({
   selector: 'app-landing',
-  imports: [MatButtonModule, RouterLink, CommonModule, Header],
+  imports: [MatButtonModule, RouterLink, CommonModule, Header, Footer],
   templateUrl: './landing.html',
   styleUrls: ['./landing.scss']
 })

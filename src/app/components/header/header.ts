@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -17,11 +17,16 @@ import { SnackbarService } from 'lib/services/snackbar.service';
 export class Header {
   private auth = inject(AuthService);
   private snackbar = inject(SnackbarService);
+  private router = inject(Router);
 
   navItems = signal(NAV_ITEMS);
 
   get isAuthenticated(): boolean {
     return this.auth.isAuthenticated();
+  }
+
+  navigateToProfile() {
+    this.router.navigateByUrl('/profile');
   }
 
   logout() {

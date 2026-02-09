@@ -136,6 +136,15 @@ onDigitInput(index: number, event: Event): void {
     this.auth.verify({ email, code }).subscribe({
       next: (res) => {
         this.auth.setTokensFromResponse(res);
+        
+        // Store registration data in localStorage before clearing
+        const pendingReg = this.auth.pendingRegistration();
+        if (pendingReg) {
+          if (pendingReg.firstName) localStorage.setItem('vipo_user_firstName', pendingReg.firstName);
+          if (pendingReg.lastName) localStorage.setItem('vipo_user_lastName', pendingReg.lastName);
+          if (pendingReg.email) localStorage.setItem('vipo_user_email', pendingReg.email);
+        }
+        
         this.auth.pendingEmail.set(null);
         this.auth.pendingRegistration.set(null);
 

@@ -99,6 +99,12 @@ export class Register {
     this.auth.register({ email, password, firstName, lastName }).subscribe({
       next: () => {
         this.auth.pendingEmail.set(email);
+        // Store registration data in localStorage
+        if (firstName && lastName) {
+          localStorage.setItem('vipo_user_firstName', firstName);
+          localStorage.setItem('vipo_user_lastName', lastName);
+          localStorage.setItem('vipo_user_email', email);
+        }
         this.router.navigate(['/auth/verify'], { queryParams: { email } });
       },
       error: (err) => {
