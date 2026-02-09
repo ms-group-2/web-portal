@@ -1,0 +1,64 @@
+<header class="sticky top-0 z-50 bg-gradient-to-r from-primary to-purple-600">
+  <nav class="w-full flex items-center px-20 py-3 ">
+
+    <a
+      routerLink="/"
+      class="flex items-center gap-2 shrink-0"
+      aria-label="Vipo home"
+    >
+      <img
+        src="assets/logo/logo-white.svg"
+        alt="Vipo Logo"
+        class="w-32 h-10"
+      />
+    </a>
+
+    <ul class="hidden md:flex items-center gap-1 ml-10 text-md font-normal text-white/80 uppercase tracking-wider">
+      @for (item of navItems(); track item.label) {
+        <li>
+          <a
+            [routerLink]="item.link"
+            routerLinkActive="bg-white/20 rounded-lg font-semibold text-swap bg-white/10"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="hover:text-white/80 transition px-6 py-2 inline-block "
+          >
+            {{ item.label }}
+          </a>
+        </li>
+      }
+    </ul>
+
+    <div class="ml-auto flex items-center gap-5">
+      @if (!isAuthenticated) {
+        <a
+          routerLink="/auth/register"
+          class="!px-5 !py-2 rounded-xl border border-white/40 text-white text-base hover:bg-white/10 transition tracking-wider"
+        >
+          დარეგისტრირდი
+        </a>
+
+        <a
+          routerLink="/auth/sign-in"
+          class="btn-shimmer px-5 py-2 rounded-xl text-base transition tracking-wider inline-block"
+        >
+          <span class="relative z-10 text-black font-medium">შედი</span>
+        </a>
+      }
+
+        <button
+          [matMenuTriggerFor]="userMenu"
+          aria-label="User menu"
+          class="text-white"
+        >
+          <i class="ph ph-user text-3xl mt-1 animate-scale-in hover:scale-110 transition-transform duration-200"></i>
+        </button>
+
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
+    </div>
+  </nav>
+</header>

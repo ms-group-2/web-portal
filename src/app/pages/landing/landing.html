@@ -1,3 +1,4 @@
+<app-header></app-header>
 <div class="landing-container">
   <div class="landing-content">
     <div class="logo-container">
@@ -6,7 +7,7 @@
     
     <div class="animated-text-container">
       @for (item of displayedText; track $index) {
-        <span
+        <span 
           class="animated-char"
           [class.vipo-text]="item.isVipo">
           {{ item.char }}

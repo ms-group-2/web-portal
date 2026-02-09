@@ -10,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { SnackbarService } from 'lib/services/snackbar.service';
+import { SNACKBAR_MESSAGES } from 'lib/constants';
 
 @Component({
   selector: 'vipo-verify',
@@ -28,6 +30,7 @@ export class Verify {
   private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private snackbar = inject(SnackbarService);
 
   ERRORS: Record<string, string> = formInputErrors;
 
@@ -136,6 +139,7 @@ onDigitInput(index: number, event: Event): void {
         this.auth.pendingEmail.set(null);
         this.auth.pendingRegistration.set(null);
 
+        this.snackbar.success(SNACKBAR_MESSAGES.REGISTER_SUCCESS);
         this.router.navigateByUrl('/landing');
       },
       error: (err) => {
@@ -146,5 +150,7 @@ onDigitInput(index: number, event: Event): void {
         }
       },
     });
+
+    
   }
 }

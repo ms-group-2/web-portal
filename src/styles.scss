@@ -1,5 +1,8 @@
 @use 'lib/themes/material/material-theme.scss';
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
+@import 'phosphor-icons/src/css/icons.css';
+@import 'lib/themes/button-shimmer.scss';
+@import 'lib/themes/material/snack-bar.scss';
 
 @tailwind base;
 @tailwind components;
@@ -8,18 +11,24 @@
 :root {
   --color-primary: #885DDE;
   --color-accent: #7A1DFF;
-  
-  --color-swap: #FAAF78;
+
+  // --color-swap: #faae78e0;
+  --color-swap: #F3B582;
   --color-market: #80CBC4;
   --color-booking: #3E5AD8;
-  
+
   --color-feature: var(--color-primary);
-  
+
   --color-text: #111827;
   --color-placeholder: #9CA3AF;
   --color-muted: #6b7280;
   --color-border: #e5e7eb;
   --color-bg: #ffffff;
+
+  // Snackbar colors
+  --color-success: var(--color-primary);
+  --color-secondary-50: #8e5add;
+  --color-tertiary-50: #dd3830;
 }
 
 body.theme-swap { --vipo-feature: var(--vipo-swap); }
@@ -53,6 +62,7 @@ body {
 }
 
 .cdk-overlay-container { z-index: 1000; }
+
 // .text-feature {
 //   color: var(--color-feature);
 // }
