@@ -8,6 +8,12 @@
 @tailwind components;
 @tailwind utilities;
 
+// @layer utilities {
+//   .text-textBlue {
+//     color: var(--color-textBlue);
+//   }
+// }
+
 :root {
   --color-primary: #885DDE;
   --color-accent: #7A1DFF;

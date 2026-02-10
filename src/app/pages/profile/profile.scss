@@ -1,3 +1,37 @@
 // Profile page styles
 // Most styling is handled by Tailwind classes in the template
 
+.activity-tab {
+  padding: 0.625rem 1.25rem;
+  font-weight: 900;
+  border-radius: 0.5rem;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+  
+  &.inactive {
+    background-color: rgb(229 231 235); // bg-gray-200
+    color: rgb(75 85 99); // text-gray-600
+    
+    &:hover {
+      background-color: rgb(209 213 219); // hover:bg-gray-300
+    }
+  }
+  
+  &.active-swap {
+    background-color: var(--color-swap);
+    color: black;
+  }
+  
+  &.active-shop {
+    background-color: var(--color-primary);
+    color: white;
+  }
+  
+  &.active-book {
+    background-color: var(--color-market);
+    color: white;
+  }
+}
+

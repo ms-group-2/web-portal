@@ -5,11 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from 'lib/services/identity/auth.service';
-import { PROFILE_STATS, CONTACT_FIELDS, ContactTheme, RECENT_ACTIVITIES } from 'lib/constants';
+import { PROFILE_STATS, CONTACT_FIELDS, ContactTheme, SWAP_ACTIVITIES, SHOP_ACTIVITIES, BOOK_ACTIVITIES, ACTIVITY_TABS, Tab } from 'lib/constants';
+import { Footer } from "src/app/components/footer/footer";
 
 @Component({
   selector: 'app-profile',
-  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule, CommonModule],
+  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule, Footer],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -28,11 +29,25 @@ export class Profile implements OnInit {
   location = signal('');
   bio = signal('');
   age = signal('28');
-  gender = signal('Non-binary');
+  gender = signal('Female');
 
   stats = PROFILE_STATS;
   contactFields = CONTACT_FIELDS;
-  activities = RECENT_ACTIVITIES;
+  swapActivities = SWAP_ACTIVITIES;
+  shopActivities = SHOP_ACTIVITIES;
+  bookActivities = BOOK_ACTIVITIES;
+  activityTabs = ACTIVITY_TABS;
+  
+  getActivities() {
+    switch (this.activeTab()) {
+      case 'swap':
+        return this.swapActivities;
+      case 'shop':
+        return this.shopActivities;
+      case 'book':
+        return this.bookActivities;
+    }
+  }
 
   getFieldValue(fieldKey: 'email' | 'phone' | 'location'): string {
     switch (fieldKey) {
@@ -59,7 +74,18 @@ export class Profile implements OnInit {
     return `hover:border-${theme}`;
   }
 
-  genderOptions = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
+  genderOptions = ['Male', 'Female', 'Prefer not to say'];
+  
+  activeTab = signal<'swap' | 'shop' | 'book'>('swap');
+  
+  setActiveTab(tab: 'swap' | 'shop' | 'book') {
+    this.activeTab.set(tab);
+  }
+
+  getTabClasses(tab: Tab): string {
+    const isActive = this.activeTab() === tab.id;
+    return `activity-tab ${isActive ? `active-${tab.id}` : 'inactive'}`;
+  }
 
   form = this.fb.group({
     firstName: this.fb.control(''),
@@ -103,7 +129,7 @@ export class Profile implements OnInit {
       firstName: firstName,
       lastName: lastName,
       name: `${firstName} ${lastName}`.trim(),
-      email: email,
+    //   email: email,
       phone: this.phone(),
       location: this.location(),
       bio: this.bio(),

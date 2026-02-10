@@ -20,6 +20,7 @@ module.exports = {
         swap: '#FAAF78',
         market: '#80CBC4',
         booking: '#3E5AD8',
+        textBlue: '#3f5ccfd6',
       },
     },
   },

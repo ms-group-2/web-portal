@@ -46,11 +46,25 @@
       }
 
       <button
+        aria-label="Favorites"
+        class="w-12 h-12 bg-gray-100/30 rounded-full flex items-center justify-center "
+      >
+        <mat-icon class="w-6 h-6 !text-white hover:scale-110 duration-300">favorite_border</mat-icon>
+      </button>
+
+      <button
+        aria-label="Shopping cart"  
+        class="w-12 h-12 bg-gray-100/30 rounded-full flex items-center justify-center "
+      >
+        <mat-icon class="w-6 h-6 !text-white hover:scale-110 duration-300">shopping_cart</mat-icon>
+      </button>
+
+      <button
         [matMenuTriggerFor]="userMenu"
         aria-label="User menu"
-        class="text-white border-2 border-white/40 rounded-lg p-2 hover:bg-white/10 transition-all flex items-center justify-center w-10 h-10 relative z-[60]"
+        class="w-12 h-12 bg-gray-100/30 rounded-full flex items-center justify-center "
       >
-        <i class="ph ph-user text-2xl animate-scale-in hover:scale-110 transition-transform duration-200"></i>
+        <i class="ph ph-user text-2xl !text-white hover:scale-110 duration-300"></i>
       </button>
 
       <mat-menu #userMenu="matMenu" class="user-menu z-[60]">
