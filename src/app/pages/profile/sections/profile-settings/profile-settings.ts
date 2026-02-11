@@ -1,21 +1,19 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule, NonNullableFormBuilder } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { AuthService } from 'lib/services/identity/auth.service';
-import { PROFILE_STATS, CONTACT_FIELDS, ContactTheme, SWAP_ACTIVITIES, SHOP_ACTIVITIES, BOOK_ACTIVITIES, ACTIVITY_TABS, Tab } from 'lib/constants';
-import { Footer } from "src/app/components/footer/footer";
+import { PROFILE_STATS, CONTACT_FIELDS, ContactTheme } from 'lib/constants';
 
 @Component({
-  selector: 'app-profile',
-  imports: [MatButtonModule, MatIconModule, ReactiveFormsModule, Footer],
-  templateUrl: './profile.html',
-  styleUrl: './profile.scss',
+  selector: 'app-profile-settings',
+  imports: [CommonModule, RouterModule, MatIconModule, ReactiveFormsModule],
+  templateUrl: './profile-settings.html',
+  styleUrl: './profile-settings.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Profile implements OnInit {
-  private router = inject(Router);
+export class ProfileSettingsComponent implements OnInit {
   private auth = inject(AuthService);
   private fb = inject(NonNullableFormBuilder);
 
@@ -33,59 +31,7 @@ export class Profile implements OnInit {
 
   stats = PROFILE_STATS;
   contactFields = CONTACT_FIELDS;
-  swapActivities = SWAP_ACTIVITIES;
-  shopActivities = SHOP_ACTIVITIES;
-  bookActivities = BOOK_ACTIVITIES;
-  activityTabs = ACTIVITY_TABS;
-  
-  getActivities() {
-    switch (this.activeTab()) {
-      case 'swap':
-        return this.swapActivities;
-      case 'shop':
-        return this.shopActivities;
-      case 'book':
-        return this.bookActivities;
-    }
-  }
-
-  getFieldValue(fieldKey: 'email' | 'phone' | 'location'): string {
-    switch (fieldKey) {
-      case 'email':
-        return this.email();
-      case 'phone':
-        return this.phone();
-      case 'location':
-        return this.location();
-      default:
-        return '';
-    }
-  }
-
-  getIconBgClass(theme: ContactTheme): string {
-    return `bg-${theme}`;
-  }
-
-  getIconTextClass(theme: ContactTheme): string {
-    return theme === 'swap' ? 'text-black' : 'text-white';
-  }
-
-  getHoverBorderClass(theme: ContactTheme): string {
-    return `hover:border-${theme}`;
-  }
-
-  genderOptions = ['Male', 'Female', 'Prefer not to say'];
-  
-  activeTab = signal<'swap' | 'shop' | 'book'>('swap');
-  
-  setActiveTab(tab: 'swap' | 'shop' | 'book') {
-    this.activeTab.set(tab);
-  }
-
-  getTabClasses(tab: Tab): string {
-    const isActive = this.activeTab() === tab.id;
-    return `activity-tab ${isActive ? `active-${tab.id}` : 'inactive'}`;
-  }
+  genderOptions = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
 
   form = this.fb.group({
     firstName: this.fb.control(''),
@@ -122,14 +68,13 @@ export class Profile implements OnInit {
 
     this.firstName.set(firstName);
     this.lastName.set(lastName);
-    this.name.set(`${firstName} ${lastName}`.trim() || '');
+    this.name.set(`${firstName} ${lastName}`.trim() || 'User');
     this.email.set(email);
     
     this.form.patchValue({
       firstName: firstName,
       lastName: lastName,
       name: `${firstName} ${lastName}`.trim(),
-    //   email: email,
       phone: this.phone(),
       location: this.location(),
       bio: this.bio(),
@@ -171,12 +116,29 @@ export class Profile implements OnInit {
     this.isEditing.set(!this.isEditing());
   }
 
-  goBack() {
-    this.router.navigateByUrl('/landing');
+  getFieldValue(fieldKey: 'email' | 'phone' | 'location'): string {
+    switch (fieldKey) {
+      case 'email':
+        return this.email();
+      case 'phone':
+        return this.phone();
+      case 'location':
+        return this.location();
+      default:
+        return '';
+    }
   }
 
-  deleteAccount() {
-    console.log('Delete account');
+  getIconBgClass(theme: ContactTheme): string {
+    return `bg-${theme}`;
+  }
+
+  getIconTextClass(theme: ContactTheme): string {
+    return theme === 'swap' ? 'text-black' : 'text-white';
+  }
+
+  getHoverBorderClass(theme: ContactTheme): string {
+    return `hover:border-${theme}`;
   }
 }
 

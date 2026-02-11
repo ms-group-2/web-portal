@@ -9,7 +9,6 @@ import { SnackbarService } from 'lib/services/snackbar.service';
 
 @Component({
   selector: 'app-header',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, MatMenuModule, RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrl: './header.scss',

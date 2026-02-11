@@ -1,0 +1,151 @@
+<div>
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-black text-textBlue uppercase tracking-tight">პროფილი და პარამეტრები</h1>
+    <button
+      (click)="toggleEdit()"
+      class="px-5 py-2.5 bg-primary text-white font-black rounded-lg hover:bg-swap hover:text-black transition-all uppercase text-xs tracking-wider flex items-center gap-2"
+    >
+      <mat-icon class="w-3.5 h-3.5">edit</mat-icon>
+      {{ isEditing() ? 'შენახვა' : 'რედაქტირება' }}
+    </button>
+  </div>
+
+  <!-- Profile Picture -->
+  <div class="flex items-center gap-6 mb-8 pb-8 border-b-2 border-gray-200">
+    <div class="relative group">
+      <div class="w-24 h-24 bg-primary rounded-2xl flex items-center justify-center border-4 border-gray-300">
+        <mat-icon class="w-12 h-12 text-white">person</mat-icon>
+      </div>
+      <button class="absolute bottom-1 right-1 w-8 h-8 bg-swap rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg">
+        <mat-icon class="w-4 h-4 text-black">camera_alt</mat-icon>
+      </button>
+    </div>
+    <div>
+      <h2 class="text-2xl font-black text-textBlue mb-1">{{ name() }}</h2>
+      <p class="text-gray-500 text-sm">წევრი 2025 წლიდან</p>
+    </div>
+  </div>
+
+  <!-- Personal Information -->
+  <div class="space-y-6">
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2">სრული სახელი</label>
+        @if (isEditing()) {
+          <div class="flex gap-2">
+            <input
+              [formControl]="form.controls.firstName"
+              type="text"
+              placeholder="სახელი"
+              class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-bold focus:outline-none focus:border-primary transition-all"
+            />
+            <input
+              [formControl]="form.controls.lastName"
+              type="text"
+              placeholder="გვარი"
+              class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-bold focus:outline-none focus:border-primary transition-all"
+            />
+          </div>
+        } @else {
+          <p class="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-bold">{{ name() }}</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2">ასაკი</label>
+        @if (isEditing()) {
+          <input
+            [formControl]="form.controls.age"
+            type="number"
+            class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-bold focus:outline-none focus:border-primary transition-all"
+          />
+        } @else {
+          <p class="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-bold">{{ age() }} წელი</p>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2">იმეილი</label>
+        @if (isEditing()) {
+          <input
+            [formControl]="form.controls.email"
+            type="email"
+            class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-bold focus:outline-none focus:border-primary transition-all"
+          />
+        } @else {
+          <p class="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-bold">{{ email() }}</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2">ტელეფონი</label>
+        @if (isEditing()) {
+          <input
+            [formControl]="form.controls.phone"
+            type="tel"
+            class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-bold focus:outline-none focus:border-primary transition-all"
+          />
+        } @else {
+          <p class="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg" [class]="phone() ? 'text-gray-900 font-bold' : 'text-gray-500 font-normal'">{{ phone() || 'მითითებული არ არის' }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2">სქესი</label>
+        @if (isEditing()) {
+          <select
+            [formControl]="form.controls.gender"
+            class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-bold focus:outline-none focus:border-primary transition-all"
+          >
+            @for (option of genderOptions; track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+        } @else {
+          <p class="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg text-gray-900 font-bold">{{ gender() }}</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2">მისამართი</label>
+        @if (isEditing()) {
+          <input
+            [formControl]="form.controls.location"
+            type="text"
+            class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 font-bold focus:outline-none focus:border-primary transition-all"
+          />
+        } @else {
+          <p class="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg" [class]="location() ? 'text-gray-900 font-bold' : 'text-gray-500 font-normal'">{{ location() || 'მითითებული არ არის' }}</p>
+        }
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2">ჩემს შესახებ</label>
+      @if (isEditing()) {
+        <textarea
+          [formControl]="form.controls.bio"
+          class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-100 font-medium focus:outline-none focus:border-primary transition-all resize-none"
+          rows="4"
+        ></textarea>
+      } @else {
+        <p class="px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-lg leading-relaxed" [class]="bio() ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ bio() || 'მითითებული არ არის' }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-4 mt-8 pt-8 border-t-2 border-gray-200">
+    @for (stat of stats; track stat.label) {
+      <div class="bg-white rounded-xl p-4 border-2 border-gray-300">
+        <div [class]="'text-3xl font-black mb-1 ' + stat.colorClass">{{ stat.value }}</div>
+        <div class="text-xs text-gray-600 uppercase tracking-wide font-bold">{{ stat.label }}</div>
+      </div>
+    }
+  </div>
+</div>
+

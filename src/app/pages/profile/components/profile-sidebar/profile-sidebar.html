@@ -1,0 +1,103 @@
+<div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 h-fit">
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <mat-icon class="w-5 h-5 text-textBlue">person</mat-icon>
+      <h2 class="text-xl font-black text-textBlue uppercase tracking-tight">გამარჯობა, {{ userName() }}</h2>
+    </div>
+  </div>
+
+  <nav class="space-y-2">
+    <a
+      routerLink="/profile/orders"
+      routerLinkActive="bg-primary text-white"
+      [routerLinkActiveOptions]="{ exact: false }"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
+    >
+      <mat-icon class="w-5 h-5">inventory_2</mat-icon>
+      <span class="font-bold text-sm">ჩემი შეკვეთები</span>
+    </a>
+
+    <a
+      routerLink="/profile/wishlist"
+      routerLinkActive="bg-primary text-white"
+      [routerLinkActiveOptions]="{ exact: false }"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
+    >
+      <mat-icon class="w-5 h-5">favorite</mat-icon>
+      <span class="font-bold text-sm">ფავორიტები</span>
+    </a>
+
+    <a
+      routerLink="/profile/payment"
+      routerLinkActive="bg-primary text-white"
+      [routerLinkActiveOptions]="{ exact: false }"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
+    >
+      <mat-icon class="w-5 h-5">credit_card</mat-icon>
+      <span class="font-bold text-sm">გადახდის მეთოდები</span>
+    </a>
+
+    <a
+      routerLink="/profile/addresses"
+      routerLinkActive="bg-primary text-white"
+      [routerLinkActiveOptions]="{ exact: false }"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
+    >
+      <mat-icon class="w-5 h-5">home</mat-icon>
+      <span class="font-bold text-sm">მიმდინარე მისამართები</span>
+    </a>
+
+    <a
+      routerLink="/profile/settings"
+      routerLinkActive="bg-primary text-white"
+      [routerLinkActiveOptions]="{ exact: false }"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
+    >
+      <mat-icon class="w-5 h-5">settings</mat-icon>
+      <span class="font-bold text-sm">პროფილი და პარამეტრები</span>
+    </a>
+
+    <div class="border-t-2 border-gray-200 my-3 pt-3">
+      <p class="px-4 pb-2 text-xs font-black text-gray-400 uppercase tracking-wide">ისტორია</p>
+      
+      <a
+        routerLink="/profile/history/swap"
+        routerLinkActive="bg-swap text-black"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
+      >
+        <mat-icon class="w-5 h-5">swap_horiz</mat-icon>
+        <span class="font-bold text-sm">გაცვლის ისტორია</span>
+      </a>
+
+      <a
+        routerLink="/profile/history/shop"
+        routerLinkActive="bg-primary text-white"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left mt-2 text-gray-700 hover:bg-gray-100"
+      >
+        <mat-icon class="w-5 h-5">shopping_bag</mat-icon>
+        <span class="font-bold text-sm">შეკვეთების ისტორია</span>
+      </a>
+
+      <a
+        routerLink="/profile/history/booking"
+        routerLinkActive="bg-market text-white"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left mt-2 text-gray-700 hover:bg-gray-100"
+      >
+        <mat-icon class="w-5 h-5">event</mat-icon>
+        <span class="font-bold text-sm">დაჯავშნის ისტორია</span>
+      </a>
+    </div>
+
+    <button
+      (click)="logout()"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-red-50 hover:text-red-600"
+    >
+      <mat-icon class="w-5 h-5">logout</mat-icon>
+      <span class="font-bold text-sm">გასვლა</span>
+    </button>
+  </nav>
+</div>
+

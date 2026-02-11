@@ -35,7 +35,7 @@
     border-top: none !important;
     
     &:hover {
-      background-color: #885dde !important;
+      background-color: var(--color-primary) !important;
       
       span {
         color: white !important;
@@ -51,7 +51,7 @@
     border-top: 1px solid #e5e7eb !important; 
     
     &:hover {
-      background-color: #F3B582 !important;
+      background-color: var(--color-swap) !important;
       
       span {
         color: black !important;

@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
-  standalone: true,
   selector: 'vipo-google-callback',
   template: `
     <div class="min-h-screen flex items-center justify-center">

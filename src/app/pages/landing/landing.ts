@@ -7,7 +7,7 @@ import { Footer } from 'src/app/components/footer/footer';
 
 @Component({
   selector: 'app-landing',
-  imports: [MatButtonModule, RouterLink, CommonModule, Header, Footer],
+  imports: [MatButtonModule,  CommonModule, Header, Footer],
   templateUrl: './landing.html',
   styleUrls: ['./landing.scss']
 })

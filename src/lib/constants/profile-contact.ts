@@ -30,7 +30,7 @@ export const CONTACT_FIELDS: ContactField[] = [
     valueKey: 'phone'
   },
   {
-    label: 'მდებარეობა',
+    label: 'მისამართი',
     icon: 'location_on',
     theme: 'market',
     formControlName: 'location',
