@@ -1,0 +1,91 @@
+::ng-deep .birthdate-picker {
+  .mat-mdc-text-field-wrapper {
+    padding: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #9ca3af;
+    }
+  }
+
+  .mat-mdc-form-field-focus-overlay {
+    display: none;
+  }
+
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background: white;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  .mat-mdc-input-element {
+    padding-inline: 1rem;
+    font-weight: 700 !important;
+    color: #374151;
+  }
+
+  .mdc-text-field--filled {
+    height: 52px;
+    display: flex;
+    align-items: center;
+  }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    border-color: var(--primary, #4f46e5);
+  }
+
+  .mat-datepicker-toggle {
+    color: #6b7280;
+  }
+
+  .mdc-line-ripple {
+    display: none;
+  }
+}
+
+::ng-deep .mat-datepicker-content {
+  background: white !important;
+
+  .mat-calendar {
+    margin-top: 0.75rem !important;
+    background: color-mix(in srgb, var(--color-swap) 10%, transparent) !important;
+    max-height: 330px !important;
+    border-radius: 10px !important;
+  }
+
+  .mat-calendar-table-header {
+    display: none !important;
+  }
+
+  .mat-calendar-previous-button,
+  .mat-calendar-next-button {
+    &::before,
+    &::after {
+      display: none !important;
+    }
+  }
+
+  .mat-calendar-period-button {
+    font-weight: 700 !important;
+    pointer-events: auto !important;
+  }
+}
+
+::ng-deep {
+  .cdk-overlay-pane {
+    transform: translateX(170px) !important;
+  }
+
+  .mat-calendar-body-label {
+    display: none !important;
+  }
+
+  .mat-mdc-tooltip {
+    display: none !important;
+  }
+}

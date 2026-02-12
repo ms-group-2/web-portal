@@ -76,8 +76,16 @@ export class SignIn {
   this.auth.login(email, password).subscribe({
     next: (res) => {
       this.auth.setTokensFromResponse(res);
-      this.router.navigateByUrl('/landing');
-      this.snackbar.success(SNACKBAR_MESSAGES.LOGIN_SUCCESS);
+      this.auth.loadMe().subscribe({
+        next: () => {
+          this.router.navigateByUrl('/landing');
+          this.snackbar.success(SNACKBAR_MESSAGES.LOGIN_SUCCESS);
+        },
+        error: () => {
+          this.router.navigateByUrl('/landing');
+          this.snackbar.success(SNACKBAR_MESSAGES.LOGIN_SUCCESS);
+        },
+      });
     },
     error: (err) => {
 

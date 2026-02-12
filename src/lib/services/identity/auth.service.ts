@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { TokenManagementService } from './token-management.service';
+import { TokenManagementService } from 'lib/services/identity/token-management.service';
 
 import { RegisterRequest } from './models/register.request.model';
 import { VerifyRequest } from './models/verify.request.model';
@@ -10,6 +10,8 @@ import { TokenResponse } from './models/token.response.model';
 import { VerifyResponse } from './models/verify.response.model';
 import { MessageResponse } from './models/message.response.model';
 
+
+import { tap } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -26,7 +28,7 @@ export class AuthService {
 
 
 
-  private baseUrl = environment.oauthBaseUrl; // "/api"
+  private baseUrl = environment.apiBaseUrl;
 
   isAuthenticated(): boolean {
     return this.tokens.isAuthenticated();
@@ -118,6 +120,15 @@ setNewPassword(payload: { email: string; new_password: string; password_change_t
 
   googleLoginRedirect() {
     const callbackUrl = encodeURIComponent(`${window.location.origin}/auth/google-callback`);
-    window.location.href = `${environment.oauthBaseUrl}/auth/login/google?redirect_uri=${callbackUrl}`;
+    window.location.href = `${environment.apiBaseUrl}/auth/login/google?redirect_uri=${callbackUrl}`;
+  }
+  
+  loadMe() {
+  return this.me().pipe(
+    tap(u => {
+      console.log('[AuthService] setting user:', u);
+      this.user.set(u);
+    })
+  );
   }
 }

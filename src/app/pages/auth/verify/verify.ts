@@ -148,8 +148,16 @@ onDigitInput(index: number, event: Event): void {
         this.auth.pendingEmail.set(null);
         this.auth.pendingRegistration.set(null);
 
-        this.snackbar.success(SNACKBAR_MESSAGES.REGISTER_SUCCESS);
-        this.router.navigateByUrl('/landing');
+        this.auth.loadMe().subscribe({
+          next: () => {
+            this.snackbar.success(SNACKBAR_MESSAGES.REGISTER_SUCCESS);
+            this.router.navigateByUrl('/landing');
+          },
+          error: () => {
+            this.snackbar.success(SNACKBAR_MESSAGES.REGISTER_SUCCESS);
+            this.router.navigateByUrl('/landing');
+          },
+        });
       },
       error: (err) => {
         if (err?.status === 0) {

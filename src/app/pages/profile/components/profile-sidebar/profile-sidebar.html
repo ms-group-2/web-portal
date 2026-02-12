@@ -7,88 +7,32 @@
   </div>
 
   <nav class="space-y-2">
-    <a
-      routerLink="/profile/orders"
-      routerLinkActive="bg-primary text-white"
-      [routerLinkActiveOptions]="{ exact: false }"
-      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
-    >
-      <mat-icon class="w-5 h-5">inventory_2</mat-icon>
-      <span class="font-bold text-sm">ჩემი შეკვეთები</span>
-    </a>
-
-    <a
-      routerLink="/profile/wishlist"
-      routerLinkActive="bg-primary text-white"
-      [routerLinkActiveOptions]="{ exact: false }"
-      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
-    >
-      <mat-icon class="w-5 h-5">favorite</mat-icon>
-      <span class="font-bold text-sm">ფავორიტები</span>
-    </a>
-
-    <a
-      routerLink="/profile/payment"
-      routerLinkActive="bg-primary text-white"
-      [routerLinkActiveOptions]="{ exact: false }"
-      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
-    >
-      <mat-icon class="w-5 h-5">credit_card</mat-icon>
-      <span class="font-bold text-sm">გადახდის მეთოდები</span>
-    </a>
-
-    <a
-      routerLink="/profile/addresses"
-      routerLinkActive="bg-primary text-white"
-      [routerLinkActiveOptions]="{ exact: false }"
-      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
-    >
-      <mat-icon class="w-5 h-5">home</mat-icon>
-      <span class="font-bold text-sm">მიმდინარე მისამართები</span>
-    </a>
-
-    <a
-      routerLink="/profile/settings"
-      routerLinkActive="bg-primary text-white"
-      [routerLinkActiveOptions]="{ exact: false }"
-      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
-    >
-      <mat-icon class="w-5 h-5">settings</mat-icon>
-      <span class="font-bold text-sm">პროფილი და პარამეტრები</span>
-    </a>
+    @for (item of mainNavItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        [routerLinkActive]="item.activeClass"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700  hover:text-gray-800 hover:bg-gray-100"
+      >
+        <mat-icon class="w-5 h-5">{{ item.icon }}</mat-icon>
+        <span class="font-bold text-sm">{{ item.label }}</span>
+      </a>
+    }
 
     <div class="border-t-2 border-gray-200 my-3 pt-3">
       <p class="px-4 pb-2 text-xs font-black text-gray-400 uppercase tracking-wide">ისტორია</p>
-      
-      <a
-        routerLink="/profile/history/swap"
-        routerLinkActive="bg-swap text-black"
-        [routerLinkActiveOptions]="{ exact: false }"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100"
-      >
-        <mat-icon class="w-5 h-5">swap_horiz</mat-icon>
-        <span class="font-bold text-sm">გაცვლის ისტორია</span>
-      </a>
 
-      <a
-        routerLink="/profile/history/shop"
-        routerLinkActive="bg-primary text-white"
-        [routerLinkActiveOptions]="{ exact: false }"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left mt-2 text-gray-700 hover:bg-gray-100"
-      >
-        <mat-icon class="w-5 h-5">shopping_bag</mat-icon>
-        <span class="font-bold text-sm">შეკვეთების ისტორია</span>
-      </a>
-
-      <a
-        routerLink="/profile/history/booking"
-        routerLinkActive="bg-market text-white"
-        [routerLinkActiveOptions]="{ exact: false }"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left mt-2 text-gray-700 hover:bg-gray-100"
-      >
-        <mat-icon class="w-5 h-5">event</mat-icon>
-        <span class="font-bold text-sm">დაჯავშნის ისტორია</span>
-      </a>
+      @for (item of historyNavItems; track item.route; let i = $index) {
+        <a
+          [routerLink]="item.route"
+          [routerLinkActive]="item.activeClass"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-gray-100' + (i > 0 ? ' mt-2' : '')"
+        >
+          <mat-icon class="w-5 h-5">{{ item.icon }}</mat-icon>
+          <span class="font-bold text-sm">{{ item.label }}</span>
+        </a>
+      }
     </div>
 
     <button

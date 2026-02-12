@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-wishlist',
   imports: [ RouterModule, MatIconModule],
   templateUrl: './wishlist.html',
-  styleUrl: './wishlist.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WishlistComponent {}

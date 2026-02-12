@@ -1,18 +1,52 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  APP_INITIALIZER,
+  provideBrowserGlobalErrorListeners,
+  provideZoneChangeDetection,
+} from '@angular/core';
+
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { routes } from './app.routes';
-import { jwtInterceptor } from 'lib/interceptors/jwt.interceptor';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
+import { routes } from './app.routes';
+import { ngrokSkipWarningInterceptor } from 'lib/interceptors/ngrok.interceptor';
+import { jwtInterceptor } from 'lib/interceptors/jwt.interceptor';
 
+import { AuthService } from 'lib/services/identity/auth.service';
+import { TokenManagementService } from 'lib/services/identity/token-management.service';
+import { firstValueFrom } from 'rxjs';
+
+
+function initAuth(auth: AuthService, tokens: TokenManagementService) {
+  return async () => {
+    console.log('[initAuth] isAuthenticated =', tokens.isAuthenticated());
+
+    if (!tokens.isAuthenticated()) return;
+
+    try {
+      const u = await firstValueFrom(auth.me());
+      console.log('[initAuth] /auth/me returned:', u);
+      auth.user.set(u);
+    } catch (err) {
+      console.error('[initAuth] /auth/me failed:', err);
+    }
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([jwtInterceptor])),
-    provideAnimations()
-  ]
+    provideHttpClient(withInterceptors([ngrokSkipWarningInterceptor, jwtInterceptor])),
+    provideAnimations(),
+
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initAuth,
+      deps: [AuthService, TokenManagementService],
+      multi: true,
+    },
+  ],
 };

@@ -33,7 +33,6 @@ export class Register {
   private router = inject(Router);
 
 
-
   ERRORS = formInputErrors;
 
   showPassword = signal(false);
@@ -84,16 +83,16 @@ export class Register {
     //   return this.ERRORS['minlength'] ?? null;
     // }
   }
+  
   onGoogle(): void {
       this.auth.googleLoginRedirect();
     }
-
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-
+    
     const { email, password, firstName, lastName } = this.form.getRawValue();
 
     this.auth.register({ email, password, firstName, lastName }).subscribe({
