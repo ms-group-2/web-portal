@@ -114,14 +114,33 @@
       <div>
         <label class="field-label">ტელეფონი</label>
         @if (isEditing()) {
-          <input
-            [formControl]="form.controls.phone"
-            (input)="onPhoneInput($event)"
-            class="field-input"
-            placeholder="+995 "
-          />
+          <div class="flex gap-2">
+            <mat-form-field class="country-code-select">
+              <mat-select
+                [formControl]="form.controls.countryCode"
+                panelClass="country-dropdown-panel"
+              >
+                @for (country of countries; track country.code) {
+                  <mat-option [value]="country.dialCode">
+                    <span class="flex items-center !justify-center gap-4">
+                      <span class="text-lg">{{ country.flag }}</span>
+                      <span class="font-bold">{{ country.dialCode }}</span>
+                    </span>
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <input
+              [formControl]="form.controls.phoneNumber"
+              type="tel"
+              class="field-input flex-1"
+              placeholder="555 12 34 56"
+              (input)="onPhoneInput($event)"
+            />
+          </div>
         } @else {
-          <p class="field-display-optional" [class]="formValue().phone ? 'text-gray-700 font-bold' : 'text-gray-500 font-normal'">{{ formValue().phone || 'მითითებული არ არის' }}</p>
+          <p class="field-display-optional" [class]="phoneDisplay() ? 'text-gray-700 font-bold' : 'text-gray-500 font-normal'">{{ phoneDisplay() || 'მითითებული არ არის' }}</p>
         }
       </div>
     </div>
