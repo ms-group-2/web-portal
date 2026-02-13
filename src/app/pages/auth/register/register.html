@@ -49,7 +49,7 @@
                 type="text"
                 formControlName="firstName"
                 placeholder="სახელი"
-                (input)="sanitizeTextInput($event)"
+                (input)="sanitizeTextInput($event, 'firstName')"
               />
               @if (showError('firstName')) {
                 <mat-error>{{ getError('firstName') }}</mat-error>
@@ -65,7 +65,7 @@
                 type="text"
                 formControlName="lastName"
                 placeholder="გვარი"
-                (input)="sanitizeTextInput($event)"
+                (input)="sanitizeTextInput($event, 'lastName')"
               />
               @if (showError('lastName')) {
                 <mat-error>{{ getError('lastName') }}</mat-error>
@@ -84,6 +84,7 @@
                 [type]="showPassword() ? 'text' : 'password'"
                 formControlName="password"
                 placeholder="••••••••"
+                (input)="sanitizePasswordInput($event, 'password')"
               />
               <button
                 mat-icon-button
@@ -109,6 +110,7 @@
                 [type]="showConfirmPassword() ? 'text' : 'password'"
                 formControlName="confirmPassword"
                 placeholder="••••••••"
+                (input)="sanitizePasswordInput($event, 'confirmPassword')"
               />
               <button
                 mat-icon-button
@@ -124,6 +126,10 @@
               }
             </mat-form-field>
           </div>
+        </div>
+
+        <div [hidden]="!serverDownError()" class="text-red-600 text-sm  text-center pb-1">
+          {{ ERRORS['serverDown'] }}
         </div>
 
         <button

@@ -21,7 +21,6 @@ import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { PROFILE_STATS } from 'lib/constants';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
-import { edgeSpacesValidator } from 'lib/validators/password-strength.validator';
 import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
 import { GenderUtil } from 'lib/services/profile/utils/gender.util';
 import { COUNTRIES } from 'lib/constants/countries';
@@ -85,8 +84,8 @@ export class ProfileSettingsComponent implements OnInit {
   });
 
   form = this.fb.group({
-    firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator(), edgeSpacesValidator()]),
-    lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator(), edgeSpacesValidator()]),
+    firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
+    lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
     email: this.fb.control(''),
     countryCode: this.fb.control('+995'),
     phoneNumber: this.fb.control(''),
