@@ -29,13 +29,6 @@ export const profileRoutes: Routes = [
           import('./sections/wishlist/wishlist').then((m) => m.WishlistComponent),
       },
       {
-        path: 'payment',
-        loadComponent: () =>
-          import('./sections/payment-methods/payment-methods').then(
-            (m) => m.PaymentMethodsComponent
-          ),
-      },
-      {
         path: 'addresses',
         loadComponent: () =>
           import('./sections/addresses/addresses').then((m) => m.AddressesComponent),

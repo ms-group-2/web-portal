@@ -24,7 +24,6 @@ export class ProfileSidebarComponent implements OnInit {
   mainNavItems: NavItem[] = [
     { route: '/profile/orders', icon: 'inventory_2', label: 'ჩემი შეკვეთები', activeClass: 'bg-primary text-white' },
     { route: '/profile/wishlist', icon: 'favorite', label: 'ფავორიტები', activeClass: 'bg-primary text-white' },
-    { route: '/profile/payment', icon: 'credit_card', label: 'გადახდის მეთოდები', activeClass: 'bg-primary text-white' },
     { route: '/profile/addresses', icon: 'home', label: 'მიმდინარე მისამართები', activeClass: 'bg-primary text-white' },
     { route: '/profile/settings', icon: 'settings', label: 'პროფილი და პარამეტრები', activeClass: 'bg-primary text-white' },
   ];

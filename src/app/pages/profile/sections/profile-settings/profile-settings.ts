@@ -349,5 +349,12 @@ export class ProfileSettingsComponent implements OnInit {
     this.avatarUrl.set(null);
   }
 
+  sanitizeTextInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input) return;
+
+    input.value = input.value.replace(/[^a-zA-Zა-ჰ]/g, '');
+  }
+
 }
 
