@@ -1,0 +1,61 @@
+
+::ng-deep .user-menu {
+  margin-top: 0.5rem !important;
+  background-color: white !important;
+
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+  }
+
+  .mat-mdc-menu-item {
+    width: 188px !important;
+    height: 44px !important;
+    // min-height: 44px !important;
+    // padding: 0 16px !important; // px-4
+    // text-align: left !important;
+    // display: flex !important;
+    // align-items: center !important;
+    // justify-content: flex-start !important;
+    // transition: all 0.2s ease !important;
+    
+    // .mat-icon {
+    //   display: none !important; 
+    // }
+
+    span {
+      color: var(--color-text) !important; 
+      font-weight: 600 !important; 
+      font-size: 0.875rem !important; 
+      text-transform: uppercase !important;
+      letter-spacing: 0.05em !important; 
+    }
+  }
+
+  .profile-menu-item {
+    border-top: none !important;
+    
+    &:hover {
+      background-color: var(--color-primary) !important;
+      
+      span {
+        color: white !important;
+      }
+
+      .mat-icon {
+        color: white !important;
+      }
+    }
+  }
+
+  .logout-menu-item {
+    border-top: 1px solid #e5e7eb !important; 
+    
+    &:hover {
+      background-color: var(--color-swap) !important;
+      
+      span {
+        color: black !important;
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+<footer class="bg-gradient-to-r from-primary to-purple-600 text-white">
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div class="col-span-1 md:col-span-2">
+        <img
+          src="assets/logo/logo-white.svg"
+          alt="Vipo Logo"
+          class="w-32 h-10 mb-4"
+        />
+        <p class="text-white/80 text-sm leading-relaxed max-w-md">
+          ვიპო - თქვენი სანდო პარტნიორი ციფრულ სამყაროში
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-bold text-base uppercase tracking-wider mb-4">სწრაფი ბმულები</h3>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a routerLink="/" class="text-white/80 hover:text-white transition">მთავარი</a>
+          </li>
+          <li>
+            <a routerLink="/about" class="text-white/80 hover:text-white transition">ჩვენს შესახებ</a>
+          </li>
+          <li>
+            <a routerLink="/services" class="text-white/80 hover:text-white transition">სერვისები</a>
+          </li>
+          <li>
+            <a routerLink="/contact" class="text-white/80 hover:text-white transition">კონტაქტი</a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-bold text-base uppercase tracking-wider mb-4">კონტაქტი</h3>
+        <ul class="space-y-2 text-sm text-white/80">
+          <li class="flex items-center gap-2">
+            <mat-icon class="text-base">email</mat-icon>
+            <span>info@vipo.ge</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <mat-icon class="text-base">phone</mat-icon>
+            <span>+995 XXX XX XX XX</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <mat-icon class="text-base">location_on</mat-icon>
+            <span>თბილისი, საქართველო</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-white/20 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="text-sm text-white/70">
+        © {{ currentYear }} Vipo. ყველა უფლება დაცულია.
+      </p>
+
+      <div class="flex items-center gap-4">
+        <a href="#" class="text-white/70 hover:text-white transition" aria-label="Facebook">
+          <i class="ph ph-facebook-logo text-2xl"></i>
+        </a>
+        <a href="#" class="text-white/70 hover:text-white transition" aria-label="Instagram">
+          <i class="ph ph-instagram-logo text-2xl"></i>
+        </a>
+        <a href="#" class="text-white/70 hover:text-white transition" aria-label="LinkedIn">
+          <i class="ph ph-linkedin-logo text-2xl"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

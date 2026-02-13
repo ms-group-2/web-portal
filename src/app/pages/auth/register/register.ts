@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
@@ -12,12 +12,10 @@ import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { mustMatchField } from 'lib/validators/must-match-validator';
 import { edgeSpacesValidator, passwordStrengthValidator } from 'lib/validators/password-strength.validator';
-import { strictEmailValidator } from 'lib/validators/strict-email.validator';
 import { formatPasswordStrengthErrors } from 'lib/utils/password-strength-error.util';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
-  standalone: true,
   selector: 'vipo-register',
   imports: [
     ReactiveFormsModule,
@@ -29,66 +27,30 @@ import { AuthService } from 'lib/services/identity/auth.service';
   ],
   templateUrl: './register.html',
 })
-export class Register implements OnInit {
+export class Register {
   private fb = inject(NonNullableFormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
 
-  
 
   ERRORS = formInputErrors;
 
   showPassword = signal(false);
   showConfirmPassword = signal(false);
-  serverDownError = signal(false);
 
   form = this.fb.group({
-    email: this.fb.control('', {
-      validators: [Validators.required, strictEmailValidator(), emptySpaceValidator()],
-      updateOn: 'blur'
-    }),
-    firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator(), ]),
-    lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
-    password: this.fb.control('', [Validators.required, passwordStrengthValidator(), edgeSpacesValidator(), ]),
+    email: this.fb.control('', [Validators.required, Validators.email, emptySpaceValidator()]),
+    firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator(), edgeSpacesValidator()]),
+    lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator(), edgeSpacesValidator()]),
+    password: this.fb.control('', [Validators.required, passwordStrengthValidator(), edgeSpacesValidator()]),
     confirmPassword: this.fb.control('', [Validators.required, mustMatchField('password')]),
   });
 
-  ngOnInit(): void {
-    const passwordControl = this.form.controls.password;
-    const confirmControl = this.form.controls.confirmPassword;
-
-    passwordControl.valueChanges.subscribe(() => {
-      confirmControl.updateValueAndValidity();
-    });
-
-    const pending = this.auth.pendingRegistration();
-    if (pending) {
-      this.form.patchValue({
-        email: pending.email,
-        firstName: pending.firstName,
-        lastName: pending.lastName,
-        // password: pending.password,
-        // confirmPassword: pending.password,
-      });
-    }
-  }
-
-  sanitizeTextInput(event: Event, controlName: 'firstName' | 'lastName'): void {
+  sanitizeTextInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input) return;
 
-    const sanitized = input.value.replace(/[^a-zA-Zა-ჰ]/g, '');
-    input.value = sanitized;
-    this.form.controls[controlName].setValue(sanitized);
-  }
-
-  sanitizePasswordInput(event: Event, controlName: 'password' | 'confirmPassword'): void {
-    const input = event.target as HTMLInputElement;
-    if (!input) return;
-
-    const sanitized = input.value.replace(/[^A-Za-z0-9!@#$%^&*(),.?":{}|<>]/g, '');
-    input.value = sanitized;
-    this.form.controls[controlName].setValue(sanitized);
+    input.value = input.value.replace(/[^a-zA-Zა-ჰ]/g, '');
   }
 
   showError(controlName: keyof typeof this.form.controls): boolean {
@@ -103,8 +65,7 @@ export class Register implements OnInit {
     const key = Object.keys(errors)[0];
 
     if (key === 'passwordStrength') {
-      const value = this.form.controls.password.value;
-      return formatPasswordStrengthErrors(errors['passwordStrength'], value);
+      return formatPasswordStrengthErrors(errors['passwordStrength']);
     }
 
     if (key === 'minlength') {
@@ -114,30 +75,41 @@ export class Register implements OnInit {
     
     return this.ERRORS[key] ?? null;
 
+    // if (key === 'minlength') {
+    //   const required = errors['minlength']?.requiredLength;
+    //   if (typeof required === 'number') {
+    //     return `მინიმუმ ${required} სიმბოლო`;
+    //   }
+    //   return this.ERRORS['minlength'] ?? null;
+    // }
   }
+  
   onGoogle(): void {
       this.auth.googleLoginRedirect();
     }
-
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-
+    
     const { email, password, firstName, lastName } = this.form.getRawValue();
-    this.serverDownError.set(false);
 
     this.auth.register({ email, password, firstName, lastName }).subscribe({
       next: () => {
-        this.auth.pendingRegistration.set({ email, firstName, lastName });
         this.auth.pendingEmail.set(email);
+        // Store registration data in localStorage
+        if (firstName && lastName) {
+          localStorage.setItem('vipo_user_firstName', firstName);
+          localStorage.setItem('vipo_user_lastName', lastName);
+          localStorage.setItem('vipo_user_email', email);
+        }
         this.router.navigate(['/auth/verify'], { queryParams: { email } });
       },
       error: (err) => {
 
         if (err.status === 0) {
-          this.serverDownError.set(true);
+          this.form.controls.email.setErrors({ serverDown: true });
           return;
         }
 
@@ -146,7 +118,7 @@ export class Register implements OnInit {
           return;
         }
 
-        this.serverDownError.set(true);
+        this.form.controls.email.setErrors({ serverDown: true });
         console.error(err);
       }
     });

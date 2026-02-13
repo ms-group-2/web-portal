@@ -1,0 +1,52 @@
+.custom-snackbar {
+  .mdc-snackbar__surface {
+    padding: 8px 16px !important;
+    min-height: auto !important;
+    margin-bottom: 15px !important;
+  }
+
+  .mat-mdc-snack-bar-label {
+    color: #ffffff;
+    font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+    z-index: 10 !important;
+    padding: 0 !important;
+  }
+
+  .mat-mdc-snack-bar-actions {
+    margin: 0 0 0 0 !important;
+    padding: 0 !important;
+
+    .mat-mdc-button {
+      min-width: auto !important;
+      padding: 4px !important;
+      margin: 0 !important;
+
+      .mat-icon {
+        margin: 0 !important;
+        color: white;
+        font-size: 20px !important;
+        width: 20px !important;
+        height: 20px !important;
+      }
+      
+    }
+  }
+}
+
+.success-snackbar {
+  .mdc-snackbar__surface {
+    background-color: var(--color-success) !important;
+  }
+}
+
+.info-snackbar {
+  .mdc-snackbar__surface {
+    background-color: var(--color-secondary-50) !important;
+  }
+}
+
+.error-snackbar {
+  .mdc-snackbar__surface {
+    background-color: var(--color-tertiary-50) !important;
+  }
+}

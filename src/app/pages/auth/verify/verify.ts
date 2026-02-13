@@ -10,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { SnackbarService } from 'lib/services/snackbar.service';
+import { SNACKBAR_MESSAGES } from 'lib/constants';
 
 @Component({
   selector: 'vipo-verify',
@@ -28,6 +30,7 @@ export class Verify {
   private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private snackbar = inject(SnackbarService);
 
   ERRORS: Record<string, string> = formInputErrors;
 
@@ -133,10 +136,28 @@ onDigitInput(index: number, event: Event): void {
     this.auth.verify({ email, code }).subscribe({
       next: (res) => {
         this.auth.setTokensFromResponse(res);
+        
+        // Store registration data in localStorage before clearing
+        const pendingReg = this.auth.pendingRegistration();
+        if (pendingReg) {
+          if (pendingReg.firstName) localStorage.setItem('vipo_user_firstName', pendingReg.firstName);
+          if (pendingReg.lastName) localStorage.setItem('vipo_user_lastName', pendingReg.lastName);
+          if (pendingReg.email) localStorage.setItem('vipo_user_email', pendingReg.email);
+        }
+        
         this.auth.pendingEmail.set(null);
         this.auth.pendingRegistration.set(null);
 
-        this.router.navigateByUrl('/landing');
+        this.auth.loadMe().subscribe({
+          next: () => {
+            this.snackbar.success(SNACKBAR_MESSAGES.REGISTER_SUCCESS);
+            this.router.navigateByUrl('/landing');
+          },
+          error: () => {
+            this.snackbar.success(SNACKBAR_MESSAGES.REGISTER_SUCCESS);
+            this.router.navigateByUrl('/landing');
+          },
+        });
       },
       error: (err) => {
         if (err?.status === 0) {
@@ -146,5 +167,7 @@ onDigitInput(index: number, event: Event): void {
         }
       },
     });
+
+    
   }
 }

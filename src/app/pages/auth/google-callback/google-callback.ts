@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
-  standalone: true,
   selector: 'vipo-google-callback',
   template: `
     <div class="min-h-screen flex items-center justify-center">
@@ -30,9 +29,8 @@ export class GoogleCallback {
 
     this.auth.setTokensFromResponse({ access_token, refresh_token, token_type });
 
-    this.auth.me().subscribe({
-      next: (user) => {
-        this.auth.user.set(user);
+    this.auth.loadMe().subscribe({
+      next: () => {
         this.router.navigateByUrl('/home');
       },
       error: () => {

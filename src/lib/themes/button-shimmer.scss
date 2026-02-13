@@ -1,0 +1,36 @@
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@layer components {
+  .btn-shimmer {
+    @apply relative overflow-hidden inline-block;
+    background-color: #F3B582 !important;
+    color: #000000;
+    
+    > * {
+      @apply relative;
+      z-index: 10;
+    }
+    
+    &::before {
+      content: '';
+      @apply absolute inset-0;
+      background: linear-gradient(
+        to right,
+        #F3B582 0%,
+        #ded85d 50%,
+        #F3B582 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+      z-index: 1;
+    }
+  }
+}
+

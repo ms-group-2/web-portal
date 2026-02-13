@@ -6,8 +6,8 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../services/identity/auth.service';
-import { TokenManagementService } from '../services/identity/token-management.service';
+import { AuthService } from 'lib/services/identity/auth.service';
+import { TokenManagementService } from 'lib/services/identity/token-management.service';
 
 let isRefreshing = false;
 
@@ -20,6 +20,7 @@ export const jwtInterceptor: HttpInterceptorFn = (
 
   const isAuthEndpoint =
     req.url.includes('/auth/token') ||
+    req.url.includes('/auth/refresh') ||
     req.url.includes('/auth/register') ||
     req.url.includes('/auth/verify') ||
     req.url.includes('/auth/login/google') ||
@@ -32,12 +33,9 @@ export const jwtInterceptor: HttpInterceptorFn = (
 
   const access = tokens.accessToken();
 
-  const authReq = access
-    ? req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${access}`,
-        },
-      })
+  const authReq =
+  access && !req.headers.has('Authorization')
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${access}` } })
     : req;
 
   return next(authReq).pipe(

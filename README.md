@@ -7,10 +7,18 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 To start a local development server, run:
 
 ```bash
-ng serve
+npm start
+```
+
+Or with the Angular CLI directly:
+
+```bash
+ng serve --proxy-config proxy.conf.json
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+**Note:** The proxy configuration is used to avoid CORS issues during development by proxying `/auth` and `/profile` requests to the backend API.
 
 ## Code scaffolding
 

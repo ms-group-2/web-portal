@@ -1,0 +1,47 @@
+<div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 h-fit">
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <mat-icon class="w-5 h-5 text-textBlue">person</mat-icon>
+      <h2 class="text-xl font-black text-textBlue uppercase tracking-tight">გამარჯობა, {{ userName() }}</h2>
+    </div>
+  </div>
+
+  <nav class="space-y-2">
+    @for (item of mainNavItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        [routerLinkActive]="item.activeClass"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700  hover:text-gray-800 hover:bg-gray-100"
+      >
+        <mat-icon class="w-5 h-5">{{ item.icon }}</mat-icon>
+        <span class="font-bold text-sm">{{ item.label }}</span>
+      </a>
+    }
+
+    <div class="border-t-2 border-gray-200 my-3 pt-3">
+      <p class="px-4 pb-2 text-xs font-black text-gray-400 uppercase tracking-wide ">ისტორია</p>
+
+      @for (item of historyNavItems; track item.route; let i = $index) {
+        <a
+          [routerLink]="item.route"
+          [routerLinkActive]="item.activeClass"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:text-gray-800 hover:bg-gray-100' + (i > 0 ? ' mt-2' : '')"
+        >
+          <mat-icon class="w-5 h-5">{{ item.icon }}</mat-icon>
+          <span class="font-bold text-sm">{{ item.label }}</span>
+        </a>
+      }
+    </div>
+
+    <button
+      (click)="logout()"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-red-50 hover:text-red-600"
+    >
+      <mat-icon class="w-5 h-5">logout</mat-icon>
+      <span class="font-bold text-sm">გასვლა</span>
+    </button>
+  </nav>
+</div>
+

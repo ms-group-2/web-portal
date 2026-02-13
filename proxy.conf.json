@@ -1,9 +1,0 @@
-{
-  "/api": {
-    "target": "https://unfleeced-ariana-uncried.ngrok-free.dev",
-    "secure": true,
-    "changeOrigin": true,
-    "logLevel": "debug",
-    "pathRewrite": { "^/api": "" }
-  }
-}

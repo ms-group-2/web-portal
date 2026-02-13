@@ -20,6 +20,13 @@ module.exports = {
         swap: '#FAAF78',
         market: '#80CBC4',
         booking: '#3E5AD8',
+        textBlue: '#3f5ccfd6',
+      },
+      screens: {
+        '2xl': '1440px',
+      },
+      maxWidth: {
+        '2xl': '1400px',
       },
     },
   },

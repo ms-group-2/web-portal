@@ -1,0 +1,210 @@
+<div>
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center min-h-[400px] gap-4">
+      <mat-spinner diameter="60" color="primary"></mat-spinner>
+      <p class="text-gray-600 text-lg text-center">იტვირთება...</p>
+    </div>
+  } @else {
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-3xl font-semibold text-textBlue uppercase tracking-tight">პროფილი და პარამეტრები</h1>
+      <button
+      type="button"
+      (click)="isEditing() ? save() : startEdit()"
+      class="px-5 py-2.5 font-medium rounded-lg transition-all uppercase text-xs tracking-wider flex items-center gap-2"
+      [ngClass]="{
+        'bg-swap text-black hover:bg-primary hover:text-white': isEditing(),
+        'bg-primary text-white hover:bg-swap hover:text-black': !isEditing()
+      }"
+    >
+      <mat-icon class="w-3.5 h-3.5">edit</mat-icon>
+      {{ isEditing() ? 'შენახვა' : 'რედაქტირება' }}
+    </button>
+  </div>
+
+  <div class="flex items-center gap-6 mb-8 p-4 border border-gray-200 rounded-xl">
+    @if (profileId()) {
+      <app-avatar-upload
+        [avatarUrl]="avatarUrl()"
+        size="md"
+        [editable]="isEditing()"
+        (fileSelected)="onAvatarFileSelected($event)"
+        (deleteRequested)="onAvatarDeleteRequested()"
+      />
+    }
+    <div>
+      <h2 class="text-2xl font-black text-textBlue mb-1">{{ name() }}</h2>
+      <p class="text-gray-500 text-sm">წევრი {{ currentYear }} წლიდან</p>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="field-label">სრული სახელი</label>
+        @if (isEditing()) {
+          <div class="flex gap-2">
+            <div class="w-full">
+              <input
+                [formControl]="form.controls.firstName"
+                type="text"
+                placeholder="სახელი"
+                class="field-input"
+                [class.border-red-500]="form.controls.firstName.invalid && form.controls.firstName.touched"
+                [class.border-gray-300]="!form.controls.firstName.invalid || !form.controls.firstName.touched"
+                (input)="sanitizeTextInput($event)"
+              />
+              @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+                <p class="text-red-400 text-xs mt-1 font-normal">
+                  {{ getErrorMessage('firstName') }}
+                </p>
+              }
+            </div>
+            <div class="w-full">
+              <input
+                [formControl]="form.controls.lastName"
+                type="text"
+                placeholder="გვარი"
+                class="field-input"
+                [class.border-red-500]="form.controls.lastName.invalid && form.controls.lastName.touched"
+                [class.border-gray-300]="!form.controls.lastName.invalid || !form.controls.lastName.touched"
+                (input)="sanitizeTextInput($event)"
+              />
+              @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+                <p class="text-red-400 text-xs mt-1 font-normal">
+                  {{ getErrorMessage('lastName') }}
+                </p>
+              }
+            </div>
+          </div>
+        } @else {
+          <p class="field-display">{{ name() }}</p>
+        }
+      </div>
+
+      <div>
+        <label class="field-label">{{ isEditing() ? 'დაბადების თარიღი' : 'ასაკი' }}</label>
+        @if (isEditing()) {
+          <mat-form-field class="w-full birthdate-picker">
+            <input
+              matInput
+              [matDatepicker]="picker"
+              [formControl]="form.controls.birthDate"
+              [matDatepickerFilter]="birthDateFilter"
+              placeholder="აირჩიეთ თარიღი"
+              (focus)="picker.open()"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        } @else {
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!age())">{{ age() ? age() + ' წლის' : 'მითითებული არ არის' }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="field-label">იმეილი</label>
+        @if (isEditing()) {
+          <input
+            [formControl]="form.controls.email"
+            type="email"
+            class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 font-bold cursor-not-allowed"
+            readonly
+          />
+        } @else {
+          <p class="field-display">{{ formValue().email }}</p>
+        }
+      </div>
+
+      <div>
+        <label class="field-label">ტელეფონი</label>
+        @if (isEditing()) {
+          <div class="flex gap-2">
+            <mat-form-field class="country-code-select">
+              <mat-select
+                [formControl]="form.controls.countryCode"
+                panelClass="country-dropdown-panel"
+              >
+                @for (country of countries; track country.code) {
+                  <mat-option [value]="country.dialCode">
+                    <span class="flex items-center !justify-center gap-4">
+                      <span class="text-lg">{{ country.flag }}</span>
+                      <span class="font-bold">{{ country.dialCode }}</span>
+                    </span>
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <input
+              [formControl]="form.controls.phoneNumber"
+              type="tel"
+              class="field-input flex-1"
+              placeholder="555 12 34 56"
+              (input)="onPhoneInput($event)"
+            />
+          </div>
+        } @else {
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!phoneDisplay())">{{ phoneDisplay() || 'მითითებული არ არის' }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="field-label">სქესი</label>
+        @if (isEditing()) {
+          <mat-form-field class="w-full gender-select">
+            <mat-select
+              [formControl]="form.controls.gender"
+              panelClass="gender-dropdown-panel"
+            >
+              @for (option of genderOptions(); track option) {
+                <mat-option [value]="option">{{ option }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        } @else {
+          <p class="field-display">{{ formValue().gender }}</p>
+        }
+      </div>
+
+      <div>
+        <label class="field-label">მისამართი</label>
+        @if (isEditing()) {
+          <input
+            [formControl]="form.controls.location"
+            type="text"
+            class="field-input"
+          />
+        } @else {
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!formValue().location)">{{ formValue().location || 'მითითებული არ არის' }}</p>
+        }
+      </div>
+    </div>
+
+    <div>
+      <label class="field-label">ჩემს შესახებ</label>
+      @if (isEditing()) {
+        <textarea
+          [formControl]="form.controls.bio"
+          class="field-textarea"
+          rows="4"
+        ></textarea>
+      } @else {
+        <p class="field-display-optional leading-relaxed" [class]="formValue().bio ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ formValue().bio || 'მითითებული არ არის' }}</p>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 mt-8 pt-8 border-t-2 border-gray-200">
+    @for (stat of stats; track stat.label) {
+      <div class="bg-white rounded-xl p-4 border border-gray-300">
+        <div [class]="'text-3xl font-black mb-1 ' + stat.colorClass">{{ stat.value }}</div>
+        <div class="text-xs text-gray-600 uppercase tracking-wide font-bold">{{ stat.label }}</div>
+      </div>
+    }
+  </div>
+  }
+</div>

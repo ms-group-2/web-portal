@@ -58,5 +58,11 @@ export const routes: Routes = [
     ],
   },
 
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadChildren: () => import('./pages/profile/profile.routes').then(m => m.profileRoutes),
+  },
+
   { path: '**', redirectTo: 'landing' },
 ];

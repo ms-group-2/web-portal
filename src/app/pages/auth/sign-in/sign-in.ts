@@ -11,6 +11,8 @@ import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { edgeSpacesValidator } from 'lib/validators/password-strength.validator';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
+import { SnackbarService } from 'lib/services/snackbar.service';
 // import { CommonModule } from '@angular/common';
 
 @Component({
@@ -30,6 +32,7 @@ export class SignIn {
   private fb = inject(NonNullableFormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private snackbar = inject(SnackbarService);
 
   ERRORS = formInputErrors;
 
@@ -73,7 +76,16 @@ export class SignIn {
   this.auth.login(email, password).subscribe({
     next: (res) => {
       this.auth.setTokensFromResponse(res);
-      this.router.navigateByUrl('/landing');
+      this.auth.loadMe().subscribe({
+        next: () => {
+          this.router.navigateByUrl('/landing');
+          this.snackbar.success(SNACKBAR_MESSAGES.LOGIN_SUCCESS);
+        },
+        error: () => {
+          this.router.navigateByUrl('/landing');
+          this.snackbar.success(SNACKBAR_MESSAGES.LOGIN_SUCCESS);
+        },
+      });
     },
     error: (err) => {
 
