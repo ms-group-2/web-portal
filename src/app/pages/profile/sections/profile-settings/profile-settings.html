@@ -1,74 +1,77 @@
 <div>
-  <div class="flex items-center justify-between mb-8">
-    <h1 class="text-3xl font-black text-textBlue uppercase tracking-tight">პროფილი და პარამეტრები</h1>
-    <button
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center min-h-[400px] gap-4">
+      <mat-spinner diameter="60" color="primary"></mat-spinner>
+      <p class="text-gray-600 text-lg text-center">იტვირთება...</p>
+    </div>
+  } @else {
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-3xl font-semibold text-textBlue uppercase tracking-tight">პროფილი და პარამეტრები</h1>
+      <button
       type="button"
       (click)="isEditing() ? save() : startEdit()"
-      class="px-5 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-swap hover:text-black transition-all uppercase text-xs tracking-wider flex items-center gap-2"
+      class="px-5 py-2.5 font-medium rounded-lg transition-all uppercase text-xs tracking-wider flex items-center gap-2"
+      [ngClass]="{
+        'bg-swap text-black hover:bg-primary hover:text-white': isEditing(),
+        'bg-primary text-white hover:bg-swap hover:text-black': !isEditing()
+      }"
     >
       <mat-icon class="w-3.5 h-3.5">edit</mat-icon>
       {{ isEditing() ? 'შენახვა' : 'რედაქტირება' }}
     </button>
   </div>
 
-  <!-- Profile Picture -->
-  <div class="flex items-center gap-6 mb-8 p-4 border border-gray-200">
-    <div class="relative group">
-      <div class="w-24 h-24 bg-primary rounded-2xl flex items-center justify-center border-4 border-gray-300">
-        <mat-icon class="w-12 h-12 text-white">person</mat-icon>
-      </div>
-      <button class="absolute bottom-1 right-1 w-8 h-8 bg-swap rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg">
-        <mat-icon class="w-4 h-4 text-black">camera_alt</mat-icon>
-      </button>
-    </div>
+  <div class="flex items-center gap-6 mb-8 p-4 border border-gray-200 rounded-xl">
+    @if (profileId()) {
+      <app-avatar-upload
+        [avatarUrl]="avatarUrl()"
+        size="md"
+        [editable]="isEditing()"
+        (fileSelected)="onAvatarFileSelected($event)"
+        (deleteRequested)="onAvatarDeleteRequested()"
+      />
+    }
     <div>
       <h2 class="text-2xl font-black text-textBlue mb-1">{{ name() }}</h2>
-      <p class="text-gray-500 text-sm">წევრი 2025 წლიდან</p>
+      <p class="text-gray-500 text-sm">წევრი {{ currentYear }} წლიდან</p>
     </div>
   </div>
 
-  <!-- Personal Information -->
   <div class="space-y-6">
     <div class="grid grid-cols-2 gap-6">
       <div>
         <label class="field-label">სრული სახელი</label>
         @if (isEditing()) {
-          <div class="space-y-2">
-            <div class="flex gap-2">
-              <div class="w-full">
-                <input
-                  [formControl]="form.controls.firstName"
-                  type="text"
-                  placeholder="სახელი"
-                  class="field-input"
-                  [ngClass]="{
-                    'border-red-500': form.controls.firstName.invalid && form.controls.firstName.touched,
-                    'border-gray-300': !form.controls.firstName.invalid || !form.controls.firstName.touched
-                  }"
-                />
-                @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
-                  <p class="text-red-400 text-xs mt-1 font-normal">
-                    {{ getErrorMessage('firstName') }}
-                  </p>
-                }
-              </div>
-              <div class="w-full">
-                <input
-                  [formControl]="form.controls.lastName"
-                  type="text"
-                  placeholder="გვარი"
-                  class="field-input"
-                  [ngClass]="{
-                    'border-red-500': form.controls.lastName.invalid && form.controls.lastName.touched,
-                    'border-gray-300': !form.controls.lastName.invalid || !form.controls.lastName.touched
-                  }"
-                />
-                @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
-                  <p class="text-red-400 text-xs mt-1 font-normal">
-                    {{ getErrorMessage('lastName') }}
-                  </p>
-                }
-              </div>
+          <div class="flex gap-2">
+            <div class="w-full">
+              <input
+                [formControl]="form.controls.firstName"
+                type="text"
+                placeholder="სახელი"
+                class="field-input"
+                [class.border-red-500]="form.controls.firstName.invalid && form.controls.firstName.touched"
+                [class.border-gray-300]="!form.controls.firstName.invalid || !form.controls.firstName.touched"
+              />
+              @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+                <p class="text-red-400 text-xs mt-1 font-normal">
+                  {{ getErrorMessage('firstName') }}
+                </p>
+              }
+            </div>
+            <div class="w-full">
+              <input
+                [formControl]="form.controls.lastName"
+                type="text"
+                placeholder="გვარი"
+                class="field-input"
+                [class.border-red-500]="form.controls.lastName.invalid && form.controls.lastName.touched"
+                [class.border-gray-300]="!form.controls.lastName.invalid || !form.controls.lastName.touched"
+              />
+              @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+                <p class="text-red-400 text-xs mt-1 font-normal">
+                  {{ getErrorMessage('lastName') }}
+                </p>
+              }
             </div>
           </div>
         } @else {
@@ -77,13 +80,14 @@
       </div>
 
       <div>
-        <label class="field-label">დაბადების თარიღი</label>
+        <label class="field-label">{{ isEditing() ? 'დაბადების თარიღი' : 'ასაკი' }}</label>
         @if (isEditing()) {
           <mat-form-field class="w-full birthdate-picker">
             <input
               matInput
               [matDatepicker]="picker"
               [formControl]="form.controls.birthDate"
+              [matDatepickerFilter]="birthDateFilter"
               placeholder="აირჩიეთ თარიღი"
               (focus)="picker.open()"
             />
@@ -91,7 +95,7 @@
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
         } @else {
-          <p class="field-display-optional" [class]="age() ? 'text-gray-700 font-bold' : 'text-gray-500 font-normal'">{{ age() ? age() + ' წლის' : 'მითითებული არ არის' }}</p>
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!age())">{{ age() ? age() + ' წლის' : 'მითითებული არ არის' }}</p>
         }
       </div>
     </div>
@@ -140,7 +144,7 @@
             />
           </div>
         } @else {
-          <p class="field-display-optional" [class]="phoneDisplay() ? 'text-gray-700 font-bold' : 'text-gray-500 font-normal'">{{ phoneDisplay() || 'მითითებული არ არის' }}</p>
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!phoneDisplay())">{{ phoneDisplay() || 'მითითებული არ არის' }}</p>
         }
       </div>
     </div>
@@ -154,7 +158,7 @@
               [formControl]="form.controls.gender"
               panelClass="gender-dropdown-panel"
             >
-              @for (option of genderOptions; track option) {
+              @for (option of genderOptions(); track option) {
                 <mat-option [value]="option">{{ option }}</mat-option>
               }
             </mat-select>
@@ -173,7 +177,7 @@
             class="field-input"
           />
         } @else {
-          <p class="field-display-optional" [class]="formValue().location ? 'text-gray-700 font-bold' : 'text-gray-500 font-normal'">{{ formValue().location || 'მითითებული არ არის' }}</p>
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!formValue().location)">{{ formValue().location || 'მითითებული არ არის' }}</p>
         }
       </div>
     </div>
@@ -192,7 +196,6 @@
     </div>
   </div>
 
-  <!-- Stats -->
   <div class="grid grid-cols-3 gap-4 mt-8 pt-8 border-t-2 border-gray-200">
     @for (stat of stats; track stat.label) {
       <div class="bg-white rounded-xl p-4 border border-gray-300">
@@ -201,5 +204,5 @@
       </div>
     }
   </div>
+  }
 </div>
-

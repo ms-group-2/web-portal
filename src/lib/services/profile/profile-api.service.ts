@@ -14,13 +14,40 @@ export class ProfileApiService {
   }
 
   updateProfile(profileId: string, body: UpdateProfileRequest): Observable<Profile> {
-    return this.http.put<Profile>(`${this.baseUrl}/${profileId}`, body);
-  }
-
-  uploadAvatar(profileId: string, file: File): Observable<string> {
+    // New API uses multipart/form-data for everything including avatar
     const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<string>(`${this.baseUrl}/${profileId}/avatar`, formData);
+
+    formData.append('name', body.name);
+    formData.append('surname', body.surname);
+
+    if (body.phone_number !== undefined) {
+      formData.append('phone_number', body.phone_number);
+    }
+
+    if (body.birth_date) {
+      formData.append('birth_date', body.birth_date);
+    }
+
+    formData.append('location', body.location);
+
+    // Only send gender if not null - backend doesn't support resetting to null via multipart/form-data
+    if (body.gender !== null && body.gender !== undefined) {
+      formData.append('gender', String(body.gender));
+    }
+
+    formData.append('bio', body.bio);
+
+    // Add avatar file if provided
+    if (body.avatar) {
+      formData.append('avatar', body.avatar);
+    }
+
+    // Add delete_avatar flag if set
+    if (body.delete_avatar) {
+      formData.append('delete_avatar', 'true');
+    }
+
+    return this.http.put<Profile>(`${this.baseUrl}/${profileId}`, formData);
   }
 }
 

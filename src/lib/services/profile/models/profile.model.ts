@@ -14,10 +14,12 @@ export interface Profile {
 export interface UpdateProfileRequest {
   name: string;
   surname: string;
-  phone_number?: string; 
+  phone_number?: string;
   birth_date?: string; //  YYYY-MM-DD
   location: string;
   gender: boolean | null;
   bio: string;
+  avatar?: File | null;
+  delete_avatar?: boolean;
 }
 

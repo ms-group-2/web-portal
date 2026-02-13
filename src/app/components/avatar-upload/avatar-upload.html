@@ -1,0 +1,46 @@
+<div class="relative group">
+  <!-- Avatar Display -->
+  <div
+    [class]="'bg-primary rounded-2xl flex items-center justify-center border-2 border-gray-300 overflow-hidden avatar-container ' + sizeClasses().container"
+    [class.cursor-pointer]="editable()"
+    (click)="openFileDialog()"
+  >
+    @if (displayUrl()) {
+      <img
+        [src]="displayUrl()"
+        alt="Avatar"
+        class="w-full h-full object-cover"
+      />
+    } @else {
+      <mat-icon [class]="'text-white ' + sizeClasses().icon">person</mat-icon>
+    }
+  </div>
+
+  @if (editable()) {
+    <button
+      type="button"
+      (click)="openFileDialog()"
+      [class]="'absolute bottom-1 right-1 bg-swap rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 ' + sizeClasses().button"
+    >
+      <mat-icon [class]="'text-black ' + sizeClasses().buttonIcon">camera_alt</mat-icon>
+    </button>
+  }
+
+  @if (editable() && displayUrl()) {
+    <button
+      type="button"
+      (click)="requestDelete()"
+      [class]="'absolute bottom-1 left-1 bg-red-500 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 ' + sizeClasses().button"
+    >
+      <mat-icon [class]="'text-white ' + sizeClasses().buttonIcon">delete</mat-icon>
+    </button>
+  }
+
+  <input
+    #fileInput
+    type="file"
+    accept="image/*"
+    class="hidden"
+    (change)="onFileSelected($event)"
+  />
+</div>

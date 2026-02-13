@@ -53,7 +53,7 @@
 
   .mat-calendar {
     margin-top: 0.75rem !important;
-    background: color-mix(in srgb, var(--color-swap) 10%, transparent) !important;
+    background: color-mix(in srgb, gray 7%, transparent) !important;
     max-height: 330px !important;
     border-radius: 10px !important;
   }
@@ -73,6 +73,14 @@
   .mat-calendar-period-button {
     font-weight: 700 !important;
     pointer-events: auto !important;
+  }
+
+  .mat-calendar-body-disabled {
+    color: #d1d5db !important;
+    background-color: #f9fafb !important;
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
   }
 }
 

@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { NavItem } from 'lib/services/profile/models/nav-item.model';
+import { ConfirmationDialogService } from '../../../../components/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-profile-sidebar',
@@ -16,6 +17,7 @@ export class ProfileSidebarComponent implements OnInit {
   private router = inject(Router);
   private auth = inject(AuthService);
   private profileApi = inject(ProfileApiService);
+  private confirmDialog = inject(ConfirmationDialogService);
 
   firstName = signal('');
 
@@ -87,8 +89,18 @@ export class ProfileSidebarComponent implements OnInit {
   }
 
   logout() {
-    this.auth.logout();
-    this.router.navigateByUrl('/auth/sign-in');
+    this.confirmDialog.confirm({
+      title: 'გასვლა',
+      message: 'ნამდვილად გსურთ გასვლა?',
+      confirmText: 'გასვლა',
+      cancelText: 'გაუქმება',
+      confirmColor: 'warn',
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.auth.logout();
+        this.router.navigateByUrl('/auth/sign-in');
+      }
+    });
   }
 }
 

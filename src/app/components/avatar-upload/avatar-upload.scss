@@ -1,0 +1,17 @@
+:host {
+  display: inline-block;
+}
+
+.avatar-container {
+  transition: transform 0.3s ease;
+
+  &:not(.cursor-pointer):hover {
+    transform: scale(1.50);
+  }
+}
+
+::ng-deep mat-spinner {
+  circle {
+    stroke: white !important;
+  }
+}
