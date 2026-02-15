@@ -46,9 +46,9 @@ export class ChangePasswordDialogComponent implements OnInit {
   showConfirmPassword = signal(false);
 
   form = this.fb.group({
-    currentPassword: this.fb.control('', [Validators.required]),
-    newPassword: this.fb.control('', [Validators.required, passwordStrengthValidator(), edgeSpacesValidator(), mustNotMatchField('currentPassword')]),
-    confirmPassword: this.fb.control('', [Validators.required, mustMatchField('newPassword')]),
+    currentPassword: this.fb.control('', [Validators.required, Validators.maxLength(128)]),
+    newPassword: this.fb.control('', [Validators.required, Validators.maxLength(128), passwordStrengthValidator(), edgeSpacesValidator(), mustNotMatchField('currentPassword')]),
+    confirmPassword: this.fb.control('', [Validators.required, Validators.maxLength(128), mustMatchField('newPassword')]),
   });
 
   ngOnInit(): void {
@@ -100,6 +100,11 @@ export class ChangePasswordDialogComponent implements OnInit {
     if (key === 'minlength') {
       const required = errors['minlength'].requiredLength;
       return this.ERRORS['minlength'].replace('{n}', String(required));
+    }
+
+    if (key === 'maxlength') {
+      const required = errors['maxlength'].requiredLength;
+      return this.ERRORS['maxlength'].replace('{n}', String(required));
     }
 
     return this.ERRORS[key] ?? null;

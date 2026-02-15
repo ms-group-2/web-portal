@@ -24,9 +24,9 @@ import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
 import { GenderUtil } from 'lib/services/profile/utils/gender.util';
 import { COUNTRIES } from 'lib/constants/countries';
-import { AvatarUploadComponent } from '../../../../components/avatar-upload/avatar-upload';
+import { AvatarUploadComponent } from '../../../../../lib/components/avatar-upload/avatar-upload';
 import { sanitizeTextInput, sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
-import { ChangePasswordDialogService } from '../../../../components/change-password-dialog/change-password-dialog.service';
+import { ChangePasswordDialogService } from '../../../../../lib/components/change-password-dialog/change-password-dialog.service';
 
 @Component({
   selector: 'app-profile-settings',
@@ -89,8 +89,8 @@ export class ProfileSettingsComponent implements OnInit {
   });
 
   form = this.fb.group({
-    firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
-    lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
+    firstName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(60), emptySpaceValidator()]),
+    lastName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(60), emptySpaceValidator()]),
     email: this.fb.control(''),
     countryCode: this.fb.control('+995'),
     phoneNumber: this.fb.control(''),
@@ -328,6 +328,10 @@ export class ProfileSettingsComponent implements OnInit {
     if (control.errors['minlength']) {
       const requiredLength = control.errors['minlength'].requiredLength;
       return this.ERRORS['minlength'].replace('{n}', requiredLength);
+    }
+    if (control.errors['maxlength']) {
+      const requiredLength = control.errors['maxlength'].requiredLength;
+      return this.ERRORS['maxlength'].replace('{n}', requiredLength);
     }
     if (control.errors['emptySpace']) return this.ERRORS['emptySpace'];
     if (control.errors['edgeSpaces']) return this.ERRORS['edgeSpaces'];

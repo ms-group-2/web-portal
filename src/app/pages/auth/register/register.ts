@@ -46,9 +46,9 @@ export class Register implements OnInit {
       validators: [Validators.required, strictEmailValidator(), emptySpaceValidator()],
       updateOn: 'blur'
     }),
-    firstName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
-    lastName: this.fb.control('', [Validators.required, Validators.minLength(3), emptySpaceValidator()]),
-    password: this.fb.control('', [Validators.required, passwordStrengthValidator(), edgeSpacesValidator()]),
+    firstName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(60), emptySpaceValidator()]),
+    lastName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(60), emptySpaceValidator()]),
+    password: this.fb.control('', [Validators.required, Validators.maxLength(128), passwordStrengthValidator(), edgeSpacesValidator()]),
     confirmPassword: this.fb.control('', [Validators.required, mustMatchField('password')]),
   });
 
@@ -97,6 +97,11 @@ export class Register implements OnInit {
     if (key === 'minlength') {
       const required = errors['minlength'].requiredLength;
       return this.ERRORS['minlength'].replace('{n}', String(required));
+    }
+
+    if (key === 'maxlength') {
+      const required = errors['maxlength'].requiredLength;
+      return this.ERRORS['maxlength'].replace('{n}', String(required));
     }
 
     return this.ERRORS[key] ?? null;

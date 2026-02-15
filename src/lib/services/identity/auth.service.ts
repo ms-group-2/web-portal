@@ -26,6 +26,7 @@ export class AuthService {
     lastName: string;
     // password: string;
   } | null>(null);
+  pendingPasswordReset = signal<string | null>(null);
 
 
 
@@ -92,6 +93,7 @@ export class AuthService {
     this.user.set(null);
     this.pendingEmail.set(null);
     this.pendingRegistration.set(null);
+    this.pendingPasswordReset.set(null);
   }
 
   resendVerification(email: string) {
@@ -109,8 +111,9 @@ export class AuthService {
     );
   }
 
-resendPasswordResetCode(email: string) {
-  return this.http.post<{ message: string }>(`${this.baseUrl}/auth/resend-password-reset-code`, { email });
+resendPasswordResetCode(email: string, reset_token?: string) {
+  const body = reset_token ? { email, reset_token } : { email };
+  return this.http.post<{ message: string; reset_token?: string }>(`${this.baseUrl}/auth/resend-password-reset-code`, body);
 }
 
 validateResetCode(payload: { email: string; code: string; reset_token: string }) {

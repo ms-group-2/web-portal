@@ -65,7 +65,9 @@ export class ForgotPassword {
       next: (res) => {
         this.isSending.set(false);
         this.sentMessage.set('თუ ეს იმეილი არსებობს, reset კოდი გაიგზავნა');
-        
+
+        this.auth.pendingPasswordReset.set(email);
+
         const resetToken = (res as any).reset_token;
         if (resetToken) {
           this.router.navigate(['/auth/reset-password'], {
@@ -75,9 +77,18 @@ export class ForgotPassword {
           this.router.navigate(['/auth/reset-password'], { queryParams: { email } });
         }
       },
-      error: () => {
+      error: (err) => {
         this.isSending.set(false);
-        this.serverDownError.set(true);
+
+        if (err?.status === 404) {
+          this.form.controls.email.setErrors({ userNotFound: true });
+          this.form.controls.email.markAsTouched();
+        } else if (err?.status === 429) {
+          this.form.controls.email.setErrors({ rateLimitExceeded: true });
+          this.form.controls.email.markAsTouched();
+        } else {
+          this.serverDownError.set(true);
+        }
       },
     });
   }

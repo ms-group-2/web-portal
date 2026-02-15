@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { NavItem } from 'lib/services/profile/models/nav-item.model';
-import { ConfirmationDialogService } from '../../../../components/confirmation-dialog/confirmation-dialog.service';
+import { ConfirmationDialogService } from '../../../../../lib/components/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-profile-sidebar',
