@@ -25,6 +25,7 @@ import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
 import { GenderUtil } from 'lib/services/profile/utils/gender.util';
 import { COUNTRIES } from 'lib/constants/countries';
 import { AvatarUploadComponent } from '../../../../components/avatar-upload/avatar-upload';
+import { sanitizeTextInput, sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
 
 @Component({
   selector: 'app-profile-settings',
@@ -60,6 +61,7 @@ export class ProfileSettingsComponent implements OnInit {
   avatarUrl = signal<string | null>(null);
   selectedAvatarFile = signal<File | null>(null);
   deleteAvatar = signal(false);
+  dateParseError = signal(false);
   originalFormValue: ReturnType<typeof this.form.getRawValue> | null = null;
 
   profileId = computed(() => this.auth.user()?.id ?? null);
@@ -71,8 +73,9 @@ export class ProfileSettingsComponent implements OnInit {
 
   birthDateFilter = (date: Date | null): boolean => {
     if (!date) return true;
-    const maxDate = new Date(2019, 11, 31); 
-    return date <= maxDate;
+    const minDate = new Date(1926, 0, 1);
+    const maxDate = new Date(2019, 11, 31);
+    return date >= minDate && date <= maxDate;
   };
 
   genderOptions = computed(() => {
@@ -295,6 +298,10 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   private getErrorMessageFromResponse(err: any): string {
+    if ((err?.status === 413 || err?.status === 0) && this.selectedAvatarFile()) {
+      return 'ავატარის ზომა აღემატება 5მბ-.ს';
+    }
+
     if (err?.status === 422 && Array.isArray(err?.error?.detail) && err.error.detail.length > 0) {
       const firstError = err.error.detail[0];
 
@@ -329,12 +336,7 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   onPhoneInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const filtered = input.value.replace(/\D/g, '');
-
-    if (input.value !== filtered) {
-      this.form.controls.phoneNumber.setValue(filtered);
-    }
+    sanitizePhoneInput(event, this.form.controls.phoneNumber);
   }
 
   onAvatarFileSelected(file: File): void {
@@ -348,11 +350,8 @@ export class ProfileSettingsComponent implements OnInit {
     this.avatarUrl.set(null);
   }
 
-  sanitizeTextInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input) return;
-
-    input.value = input.value.replace(/[^a-zA-Zა-ჰ]/g, '');
+  onTextInput(event: Event, controlName: 'firstName' | 'lastName'): void {
+    sanitizeTextInput(event, this.form.controls[controlName]);
   }
 
 }

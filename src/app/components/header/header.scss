@@ -8,26 +8,24 @@
   }
 
   .mat-mdc-menu-item {
-    width: 188px !important;
-    height: 44px !important;
-    // min-height: 44px !important;
-    // padding: 0 16px !important; // px-4
-    // text-align: left !important;
-    // display: flex !important;
-    // align-items: center !important;
-    // justify-content: flex-start !important;
-    // transition: all 0.2s ease !important;
-    
-    // .mat-icon {
-    //   display: none !important; 
-    // }
+    width: 160px !important;
+    height: 40px !important;
+
+    @media (min-width: 768px) {
+      width: 188px !important;
+      height: 44px !important;
+    }
 
     span {
-      color: var(--color-text) !important; 
-      font-weight: 600 !important; 
-      font-size: 0.875rem !important; 
+      color: var(--color-text) !important;
+      font-weight: 600 !important;
+      font-size: 0.75rem !important;
       text-transform: uppercase !important;
-      letter-spacing: 0.05em !important; 
+      letter-spacing: 0.05em !important;
+
+      @media (min-width: 768px) {
+        font-size: 0.875rem !important;
+      }
     }
   }
 

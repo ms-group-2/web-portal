@@ -14,6 +14,7 @@ import { mustMatchField } from 'lib/validators/must-match-validator';
 import { edgeSpacesValidator, passwordStrengthValidator } from 'lib/validators/password-strength.validator';
 import { strictEmailValidator } from 'lib/validators/strict-email.validator';
 import { formatPasswordStrengthErrors } from 'lib/utils/password-strength-error.util';
+import { sanitizeTextInput, sanitizePasswordInput } from 'lib/utils/input-sanitizers.util';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
@@ -69,22 +70,12 @@ export class Register implements OnInit {
     }
   }
 
-  sanitizeTextInput(event: Event, controlName: 'firstName' | 'lastName'): void {
-    const input = event.target as HTMLInputElement;
-    if (!input) return;
-
-    const sanitized = input.value.replace(/[^a-zA-Zა-ჰ]/g, '');
-    input.value = sanitized;
-    this.form.controls[controlName].setValue(sanitized);
+  onTextInput(event: Event, controlName: 'firstName' | 'lastName'): void {
+    sanitizeTextInput(event, this.form.controls[controlName]);
   }
 
-  sanitizePasswordInput(event: Event, controlName: 'password' | 'confirmPassword'): void {
-    const input = event.target as HTMLInputElement;
-    if (!input) return;
-
-    const sanitized = input.value.replace(/[^A-Za-z0-9!@#$%^&*(),.?":{}|<>]/g, '');
-    input.value = sanitized;
-    this.form.controls[controlName].setValue(sanitized);
+  onPasswordInput(event: Event, controlName: 'password' | 'confirmPassword'): void {
+    sanitizePasswordInput(event, this.form.controls[controlName]);
   }
 
   showError(controlName: keyof typeof this.form.controls): boolean {

@@ -48,7 +48,7 @@ export class SnackbarService {
     this._snackBar.openFromComponent(CustomSnackbarComponent, {
       horizontalPosition,
       verticalPosition,
-      duration: 2000,
+      duration: 3000,
       panelClass: [`${type}-snackbar`, 'custom-snackbar'],
       data: { text, closeIcon },
     });

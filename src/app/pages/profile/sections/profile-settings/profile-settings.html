@@ -51,7 +51,7 @@
                 class="field-input"
                 [class.border-red-500]="form.controls.firstName.invalid && form.controls.firstName.touched"
                 [class.border-gray-300]="!form.controls.firstName.invalid || !form.controls.firstName.touched"
-                (input)="sanitizeTextInput($event)"
+                (input)="onTextInput($event, 'firstName')"
               />
               @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
                 <p class="text-red-400 text-xs mt-1 font-normal">
@@ -67,7 +67,7 @@
                 class="field-input"
                 [class.border-red-500]="form.controls.lastName.invalid && form.controls.lastName.touched"
                 [class.border-gray-300]="!form.controls.lastName.invalid || !form.controls.lastName.touched"
-                (input)="sanitizeTextInput($event)"
+                (input)="onTextInput($event, 'lastName')"
               />
               @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
                 <p class="text-red-400 text-xs mt-1 font-normal">
@@ -92,6 +92,7 @@
               [matDatepickerFilter]="birthDateFilter"
               placeholder="აირჩიეთ თარიღი"
               (focus)="picker.open()"
+              readonly
             />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>

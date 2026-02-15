@@ -5,7 +5,6 @@ export const formInputErrors: Record<string, string> = {
   emptySpace: 'ცარიელი სივრცე არ შეიძლება',
   mustMatchField: 'პაროლები არ ემთხვევა',
   server: 'ეს ელფოსტა უკვე გამოყენებულია',
-  alreadyRegistered: 'ეს ელფოსტა უკვე რეგისტრირებულია',
   serverDown: 'სცადე მოგვიანებით',
   verificationFailed: 'კოდი არასწორია ან დრო გაუვიდა',
   invalidCredentials: 'ელფოსტა ან პაროლი არასწორია',
@@ -20,4 +19,6 @@ export const formInputErrors: Record<string, string> = {
   passwordStrengthUppercase: 'უნდა შეიცავდეს მინიმუმ 1 დიდ ასოს',
   passwordStrengthLowercase: 'უნდა შეიცავდეს მინიმუმ 1 პატარა ასოს',
   passwordStrengthSpecialChar: 'უნდა შეიცავდეს მინიმუმ 1 სპეციალურ სიმბოლოს',
+
+  alreadyRegistered: 'ეს ელფოსტა უკვე რეგისტრირებულია',
 };

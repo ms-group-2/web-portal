@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { Profile, UpdateProfileRequest } from 'lib/services/profile/models/profile.model';
 
 @Injectable({ providedIn: 'root' })
+
 export class ProfileApiService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiBaseUrl}/profile`;
