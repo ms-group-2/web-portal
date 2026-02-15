@@ -65,13 +65,11 @@
           </a>
         </div>
 
-        <div [hidden]="!serverDownError()" class="text-red-600 text-sm text-center pb-1">
-          {{ ERRORS['serverDown'] }}
-        </div>
-
-        <div [hidden]="!invalidCredentialsError()" class="text-red-600 text-sm text-center pb-1">
-          {{ ERRORS['invalidCredentials'] }}
-        </div>
+        @for (error of errorSignals; track error.key) {
+          <div [hidden]="!error.signal()" class="text-red-600 text-sm text-center pb-1">
+            {{ ERRORS[error.key] }}
+          </div>
+        }
 
         <button mat-flat-button type="submit" class="w-full" [disabled]="form.invalid">
           შესვლა

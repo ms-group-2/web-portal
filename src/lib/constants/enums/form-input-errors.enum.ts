@@ -9,6 +9,7 @@ export const formInputErrors: Record<string, string> = {
   verificationFailed: 'კოდი არასწორია ან დრო გაუვიდა',
   invalidCredentials: 'ელფოსტა ან პაროლი არასწორია',
   notVerified: 'გთხოვთ დაადასტუროთ ელფოსტა',
+  userNotFound: 'პროფილი არ ასებობს',
 
   resetSent: 'თუ ეს იმეილი არსებობს, reset ლინკი გაიგზავნა',
   resetFailed: 'პაროლის შეცვლა ვერ მოხერხდა',
@@ -21,4 +22,5 @@ export const formInputErrors: Record<string, string> = {
   passwordStrengthSpecialChar: 'უნდა შეიცავდეს მინიმუმ 1 სპეციალურ სიმბოლოს',
 
   alreadyRegistered: 'ეს ელფოსტა უკვე რეგისტრირებულია',
+  passwordsSame: 'ახალი პაროლი არ უნდა ემთხვეოდეს ძველ პაროლს',
 };

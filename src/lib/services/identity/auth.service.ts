@@ -9,6 +9,7 @@ import { UserResponse } from './models/user.response.model';
 import { TokenResponse } from './models/token.response.model';
 import { VerifyResponse } from './models/verify.response.model';
 import { MessageResponse } from './models/message.response.model';
+import { ChangePasswordRequest } from './models/change-password.request.model';
 
 
 import { tap } from 'rxjs';
@@ -41,11 +42,15 @@ export class AuthService {
       name: payload.firstName,
       surname: payload.lastName,
     };
-    return this.http.post<UserResponse>(`${this.baseUrl}/auth/register`, body);
+    return this.http.post<UserResponse>(`${this.baseUrl}/auth/register`, body, {
+      params: new HttpParams().set('showSpinner', 'true')
+    });
   }
 
   verify(payload: VerifyRequest) {
-    return this.http.post<VerifyResponse>(`${this.baseUrl}/auth/verify`, payload);
+    return this.http.post<VerifyResponse>(`${this.baseUrl}/auth/verify`, payload, {
+      params: new HttpParams().set('showSpinner', 'true')
+    });
   }
 
   login(email: string, password: string) {
@@ -56,6 +61,7 @@ export class AuthService {
 
     return this.http.post<TokenResponse>(`${this.baseUrl}/auth/token`, body.toString(), {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      params: new HttpParams().set('showSpinner', 'true')
     });
   }
     refresh() {
@@ -130,5 +136,9 @@ setNewPassword(payload: { email: string; new_password: string; password_change_t
       this.user.set(u);
     })
   );
+  }
+
+  changePassword(payload: ChangePasswordRequest) {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/auth/change-password`, payload);
   }
 }

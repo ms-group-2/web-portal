@@ -65,7 +65,7 @@ export class AvatarUploadComponent {
 
     const maxSizeInBytes = 5 * 1024 * 1024;
     if (file.size > maxSizeInBytes) {
-      this.snackbar.error('ავატარის ზომა აღემატება 5მბ-ს');
+      this.snackbar.error('ავატარის ზომა აღემატება 5მბ- ს');
       return;
     }
 

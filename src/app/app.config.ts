@@ -12,6 +12,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { ngrokSkipWarningInterceptor } from 'lib/interceptors/ngrok.interceptor';
 import { jwtInterceptor } from 'lib/interceptors/jwt.interceptor';
+import { spinnerInterceptor } from 'lib/interceptors/spinner.interceptor';
 
 import { AuthService } from 'lib/services/identity/auth.service';
 import { TokenManagementService } from 'lib/services/identity/token-management.service';
@@ -39,7 +40,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([ngrokSkipWarningInterceptor, jwtInterceptor])),
+    provideHttpClient(withInterceptors([ngrokSkipWarningInterceptor, jwtInterceptor, spinnerInterceptor])),
     provideAnimations(),
 
     {

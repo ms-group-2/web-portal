@@ -39,6 +39,13 @@ export class SignIn {
   showPassword = signal(false);
   serverDownError = signal(false);
   invalidCredentialsError = signal(false);
+  userNotFoundError = signal(false);
+
+  errorSignals = [
+    { signal: this.serverDownError, key: 'serverDown' },
+    { signal: this.invalidCredentialsError, key: 'invalidCredentials' },
+    { signal: this.userNotFoundError, key: 'userNotFound' },
+  ];
 
   form = this.fb.group({
     email: this.fb.control('', [Validators.required, Validators.email, emptySpaceValidator()]),
@@ -72,6 +79,7 @@ export class SignIn {
   const { email, password } = this.form.getRawValue();
   this.serverDownError.set(false);
   this.invalidCredentialsError.set(false);
+  this.userNotFoundError.set(false);
 
   this.auth.login(email, password).subscribe({
     next: (res) => {
@@ -89,8 +97,8 @@ export class SignIn {
     },
     error: (err) => {
 
-      if (err?.status === 0 || err?.status === 404) {
-        this.serverDownError.set(true);
+      if (err?.status === 404) {
+        this.userNotFoundError.set(true);
         return;
       }
 

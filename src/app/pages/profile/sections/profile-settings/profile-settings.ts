@@ -26,6 +26,7 @@ import { GenderUtil } from 'lib/services/profile/utils/gender.util';
 import { COUNTRIES } from 'lib/constants/countries';
 import { AvatarUploadComponent } from '../../../../components/avatar-upload/avatar-upload';
 import { sanitizeTextInput, sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
+import { ChangePasswordDialogService } from '../../../../components/change-password-dialog/change-password-dialog.service';
 
 @Component({
   selector: 'app-profile-settings',
@@ -55,6 +56,7 @@ export class ProfileSettingsComponent implements OnInit {
   private profileApi = inject(ProfileApiService);
   private snackbar = inject(SnackbarService);
   private fb = inject(NonNullableFormBuilder);
+  private changePasswordDialog = inject(ChangePasswordDialogService);
 
   isEditing = signal(false);
   isLoading = signal(false);
@@ -131,9 +133,10 @@ export class ProfileSettingsComponent implements OnInit {
     const userId = this.profileId();
     if (userId) {
       this.loadProfile(userId);
-    } else {
-      this.prefillFromFallbacks();
     }
+    //  else {
+    //   this.prefillFromFallbacks();
+    // }
   }
 
   loadProfile(profileId: string) {
@@ -142,11 +145,12 @@ export class ProfileSettingsComponent implements OnInit {
       next: (profile) => {
         this.isLoading.set(false);
         this.patchFormWithProfile(profile);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.handleLoadError(err);
-      },
+      }
+      // ,
+      // error: (err) => {
+      //   this.isLoading.set(false);
+      //   this.handleLoadError(err);
+      // },
     });
   }
 
@@ -184,25 +188,25 @@ export class ProfileSettingsComponent implements OnInit {
       : defaultResult;
   }
 
-  private handleLoadError(err: any) {
-    this.snackbar.error(
-      err?.status === 404
-        ? 'პროფილი ვერ მოიძებნა. გთხოვთ შექმნათ პროფილი.'
-        : SNACKBAR_MESSAGES.ERROR_GENERIC
-    );
-    this.prefillFromFallbacks();
-  }
+  // private handleLoadError(err: any) {
+  //   this.snackbar.error(
+  //     err?.status === 404
+  //       ? 'პროფილი ვერ მოიძებნა. გთხოვთ შექმნათ პროფილი.'
+  //       : SNACKBAR_MESSAGES.ERROR_GENERIC
+  //   );
+  //   this.prefillFromFallbacks();
+  // }
 
-  prefillFromFallbacks() {
-    const pendingReg = this.auth.pendingRegistration();
-    const user = this.auth.user();
+  // prefillFromFallbacks() {
+  //   const pendingReg = this.auth.pendingRegistration();
+  //   const user = this.auth.user();
 
-    this.form.patchValue({
-      firstName: localStorage.getItem('vipo_user_firstName') || pendingReg?.firstName || '',
-      lastName: localStorage.getItem('vipo_user_lastName') || pendingReg?.lastName || '',
-      email: localStorage.getItem('vipo_user_email') || pendingReg?.email || user?.email || '',
-    });
-  }
+  //   this.form.patchValue({
+  //     firstName: localStorage.getItem('vipo_user_firstName') || pendingReg?.firstName || '',
+  //     lastName: localStorage.getItem('vipo_user_lastName') || pendingReg?.lastName || '',
+  //     email: localStorage.getItem('vipo_user_email') || pendingReg?.email || user?.email || '',
+  //   });
+  // }
 
   private isoToDate(isoDate: string): Date | null {
     return isoDate ? new Date(isoDate) : null;
@@ -299,7 +303,7 @@ export class ProfileSettingsComponent implements OnInit {
 
   private getErrorMessageFromResponse(err: any): string {
     if ((err?.status === 413 || err?.status === 0) && this.selectedAvatarFile()) {
-      return 'ავატარის ზომა აღემატება 5მბ-.ს';
+      return 'ავატარის ზომა აღემატება 5მბ-ს';
     }
 
     if (err?.status === 422 && Array.isArray(err?.error?.detail) && err.error.detail.length > 0) {
@@ -352,6 +356,30 @@ export class ProfileSettingsComponent implements OnInit {
 
   onTextInput(event: Event, controlName: 'firstName' | 'lastName'): void {
     sanitizeTextInput(event, this.form.controls[controlName]);
+  }
+
+  changePassword(): void {
+    this.changePasswordDialog.open().subscribe(result => {
+      if (result) {
+        this.auth.changePassword({
+          old_password: result.currentPassword,
+          new_password: result.newPassword,
+        }).subscribe({
+          next: () => {
+            this.snackbar.success('პაროლი წარმატებით შეიცვალა');
+          },
+          error: (err) => {
+            if (err.status === 400) {
+              this.snackbar.error('შეყვანილი ახლანდელი პაროლი არასწორია');
+            } else if (err.status === 401 ) {
+              this.snackbar.error('ავტორიზაცია ვადაგასულია. გთხოვთ ხელახლა შეხვიდეთ სისტემაში');
+            } else if (err.status === 404) {
+              this.snackbar.error('მომხმარებელი ვერ მოიძებნა');
+            }
+          },
+        });
+      }
+    });
   }
 
 }
