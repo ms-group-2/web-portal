@@ -31,7 +31,7 @@ export class GoogleCallback {
 
     this.auth.loadMe().subscribe({
       next: () => {
-        this.router.navigateByUrl('/home');
+        this.router.navigateByUrl('/landing');
       },
       error: () => {
         this.router.navigateByUrl('/auth/sign-in');

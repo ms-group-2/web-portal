@@ -1,46 +1,46 @@
-<div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 h-fit">
-  <div class="mb-8">
-    <div class="flex items-center gap-3 mb-2">
-      <mat-icon class="w-5 h-5 text-textBlue">person</mat-icon>
-      <h2 class="text-xl font-black text-textBlue uppercase tracking-tight">გამარჯობა, {{ userName() }}</h2>
+<div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-200/50 h-fit">
+  <div class="mb-4 sm:mb-8">
+    <div class="flex items-start gap-2 sm:gap-3 mb-2">
+      <mat-icon class="w-5 h-5 text-textBlue shrink-0 mt-0.5">person</mat-icon>
+      <h2 class="text-lg sm:text-xl font-black text-textBlue uppercase tracking-tight break-words flex-1 min-w-0">გამარჯობა, {{ userName() }}</h2>
     </div>
   </div>
 
-  <nav class="space-y-2">
+  <nav class="space-y-1 sm:space-y-2">
     @for (item of mainNavItems; track item.route) {
       <a
         [routerLink]="item.route"
         [routerLinkActive]="item.activeClass"
         [routerLinkActiveOptions]="{ exact: false }"
-        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700  hover:text-gray-800 hover:bg-gray-100"
+        class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all text-left text-gray-700 hover:text-gray-800 hover:bg-gray-100"
       >
-        <mat-icon class="w-5 h-5">{{ item.icon }}</mat-icon>
-        <span class="font-bold text-sm">{{ item.label }}</span>
+        <mat-icon class="w-5 h-5 shrink-0">{{ item.icon }}</mat-icon>
+        <span class="font-bold text-xs sm:text-sm">{{ item.label }}</span>
       </a>
     }
 
-    <div class="border-t-2 border-gray-200 my-3 pt-3">
-      <p class="px-4 pb-2 text-xs font-black text-gray-400 uppercase tracking-wide ">ისტორია</p>
+    <div class="border-t-2 border-gray-200 my-2 sm:my-3 pt-2 sm:pt-3">
+      <p class="px-3 sm:px-4 pb-2 text-xs font-black text-gray-400 uppercase tracking-wide">ისტორია</p>
 
       @for (item of historyNavItems; track item.route; let i = $index) {
         <a
           [routerLink]="item.route"
           [routerLinkActive]="item.activeClass"
           [routerLinkActiveOptions]="{ exact: false }"
-          [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:text-gray-800 hover:bg-gray-100' + (i > 0 ? ' mt-2' : '')"
+          [class]="'w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all text-left text-gray-700 hover:text-gray-800 hover:bg-gray-100' + (i > 0 ? ' mt-1 sm:mt-2' : '')"
         >
-          <mat-icon class="w-5 h-5">{{ item.icon }}</mat-icon>
-          <span class="font-bold text-sm">{{ item.label }}</span>
+          <mat-icon class="w-5 h-5 shrink-0">{{ item.icon }}</mat-icon>
+          <span class="font-bold text-xs sm:text-sm">{{ item.label }}</span>
         </a>
       }
     </div>
 
     <button
       (click)="logout()"
-      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-red-50 hover:text-red-600"
+      class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-red-50 hover:text-red-600"
     >
-      <mat-icon class="w-5 h-5">logout</mat-icon>
-      <span class="font-bold text-sm">გასვლა</span>
+      <mat-icon class="w-5 h-5 shrink-0">logout</mat-icon>
+      <span class="font-bold text-xs sm:text-sm">გასვლა</span>
     </button>
   </nav>
 </div>

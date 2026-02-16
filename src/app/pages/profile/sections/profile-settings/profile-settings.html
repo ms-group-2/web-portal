@@ -5,12 +5,12 @@
       <p class="text-gray-600 text-lg text-center">იტვირთება...</p>
     </div>
   } @else {
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-3xl font-semibold text-textBlue uppercase tracking-tight">პროფილი და პარამეტრები</h1>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+      <h1 class="text-2xl sm:text-3xl font-semibold text-textBlue uppercase tracking-tight">პროფილი და პარამეტრები</h1>
       <button
       type="button"
       (click)="isEditing() ? save() : startEdit()"
-      class="px-5 py-2.5 font-medium rounded-lg transition-all uppercase text-xs tracking-wider flex items-center gap-2"
+      class="w-full sm:w-auto px-5 py-2.5 font-medium rounded-lg transition-all uppercase text-xs tracking-wider flex items-center justify-center gap-2"
       [ngClass]="{
         'bg-swap text-black hover:bg-primary hover:text-white': isEditing(),
         'bg-primary text-white hover:bg-swap hover:text-black': !isEditing()
@@ -21,7 +21,7 @@
     </button>
   </div>
 
-  <div class="flex items-center gap-6 mb-8 py-4 pl-4 border border-gray-200 rounded-xl">
+  <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-6 sm:mb-8 py-4 px-4 sm:pl-4 border border-gray-200 rounded-xl">
     @if (profileId()) {
       <app-avatar-upload
         [avatarUrl]="avatarUrl()"
@@ -31,35 +31,36 @@
         (deleteRequested)="onAvatarDeleteRequested()"
       />
     }
-    <div class="flex items-center justify-between flex-1">
-      <div>
-        <h2 class="text-2xl font-black text-textBlue mb-1">{{ name() }}</h2>
+    <div class="flex flex-col sm:flex-row items-center sm:justify-between flex-1 gap-4 w-full">
+      <div class="text-center sm:text-left min-w-0 flex-1">
+        <h2 class="text-xl sm:text-2xl font-black text-textBlue mb-1 break-all overflow-hidden">{{ name() }}</h2>
         <p class="text-gray-500 text-sm">წევრი {{ currentYear }} წლიდან</p>
       </div>
       @if (!isEditing()) {
         <button
           type="button"
           (click)="changePassword()"
-          class="px-5 py-2.5 font-medium rounded-lg transition-all uppercase text-xs tracking-wider flex items-center gap-2 text-primary hover:text-swap"
+          class="change-password-btn w-full sm:w-auto px-4 sm:px-5 py-2.5 font-medium rounded-lg transition-all uppercase text-xs tracking-wider flex items-center justify-center gap-2 text-primary hover:text-swap shrink-0"
         >
-          <mat-icon class="w-3.5 h-3.5">lock</mat-icon>
-          შეცვალე პაროლი
+          <mat-icon class="change-password-icon w-3.5 h-3.5">lock</mat-icon>
+          <span class="whitespace-nowrap">შეცვალე პაროლი</span>
         </button>
       }
     </div>
   </div>
 
   <div class="space-y-6">
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
         <label class="field-label">სრული სახელი</label>
         @if (isEditing()) {
-          <div class="flex gap-2">
+          <div class="flex flex-col sm:flex-row gap-2">
             <div class="w-full">
               <input
                 [formControl]="form.controls.firstName"
                 type="text"
                 placeholder="სახელი"
+                maxlength="60"
                 class="field-input"
                 [class.border-red-500]="form.controls.firstName.invalid && form.controls.firstName.touched"
                 [class.border-gray-300]="!form.controls.firstName.invalid || !form.controls.firstName.touched"
@@ -70,12 +71,16 @@
                   {{ getErrorMessage('firstName') }}
                 </p>
               }
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.controls.firstName.value.length || 0 }}/60
+              </div>
             </div>
             <div class="w-full">
               <input
                 [formControl]="form.controls.lastName"
                 type="text"
                 placeholder="გვარი"
+                maxlength="60"
                 class="field-input"
                 [class.border-red-500]="form.controls.lastName.invalid && form.controls.lastName.touched"
                 [class.border-gray-300]="!form.controls.lastName.invalid || !form.controls.lastName.touched"
@@ -86,10 +91,13 @@
                   {{ getErrorMessage('lastName') }}
                 </p>
               }
+              <div class="text-xs text-gray-500 mt-1 text-right">
+                {{ form.controls.lastName.value.length || 0 }}/60
+              </div>
             </div>
           </div>
         } @else {
-          <p class="field-display">{{ name() }}</p>
+          <p class="field-display break-all">{{ name() }}</p>
         }
       </div>
 
@@ -115,7 +123,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
         <label class="field-label">იმეილი</label>
         @if (isEditing()) {
@@ -126,7 +134,7 @@
             readonly
           />
         } @else {
-          <p class="field-display">{{ formValue().email }}</p>
+          <p class="field-display break-all">{{ formValue().email }}</p>
         }
       </div>
 
@@ -164,7 +172,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
         <label class="field-label">სქესი</label>
         @if (isEditing()) {
@@ -200,21 +208,27 @@
     <div>
       <label class="field-label">ჩემს შესახებ</label>
       @if (isEditing()) {
-        <textarea
-          [formControl]="form.controls.bio"
-          class="field-textarea"
-          rows="4"
-        ></textarea>
+        <div>
+          <textarea
+            [formControl]="form.controls.bio"
+            class="field-textarea"
+            rows="4"
+            maxlength="400"
+          ></textarea>
+          <div class="text-xs text-gray-500 mt-1 text-right">
+            {{ form.controls.bio.value?.length || 0 }}/400
+          </div>
+        </div>
       } @else {
-        <p class="field-display-optional leading-relaxed" [class]="formValue().bio ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ formValue().bio || 'მითითებული არ არის' }}</p>
+        <p class="field-display-optional leading-relaxed break-words" [class]="formValue().bio ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ formValue().bio || 'მითითებული არ არის' }}</p>
       }
     </div>
   </div>
 
-  <div class="grid grid-cols-3 gap-4 mt-8 pt-8 border-t-2 border-gray-200">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t-2 border-gray-200">
     @for (stat of stats; track stat.label) {
       <div class="bg-white rounded-xl p-4 border border-gray-300">
-        <div [class]="'text-3xl font-black mb-1 ' + stat.colorClass">{{ stat.value }}</div>
+        <div [class]="'text-2xl sm:text-3xl font-black mb-1 ' + stat.colorClass">{{ stat.value }}</div>
         <div class="text-xs text-gray-600 uppercase tracking-wide font-bold">{{ stat.label }}</div>
       </div>
     }

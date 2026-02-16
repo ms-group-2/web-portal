@@ -95,7 +95,7 @@ export class ProfileSettingsComponent implements OnInit {
     countryCode: this.fb.control('+995'),
     phoneNumber: this.fb.control(''),
     location: this.fb.control(''),
-    bio: this.fb.control(''),
+    bio: this.fb.control('', [Validators.maxLength(400)]),
     birthDate: this.fb.control<Date | null>(null),
     gender: this.fb.control('-'),
   });
