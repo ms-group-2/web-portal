@@ -19,7 +19,7 @@ export interface UpdateProfileRequest {
   location: string;
   gender: boolean | null;
   bio: string;
-  avatar?: File | null;
-  delete_avatar?: boolean;
+  avatar?: File; 
+  delete_avatar?: boolean; 
 }
 

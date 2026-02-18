@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-50 bg-gradient-to-r from-accent to-purple-600">
+<header class="sticky top-0 z-50 transition-all duration-300" [ngClass]="headerGradient()">
   <nav class="w-full flex items-center px-4 sm:px-8 md:px-12 lg:px-20 py-2 md:py-3">
 
     <a
@@ -18,9 +18,9 @@
         <li>
           <a
             [routerLink]="item.link"
-            routerLinkActive="bg-white/20 rounded-lg font-semibold text-swap bg-white/10"
+            routerLinkActive="bg-white/20 rounded-lg font-semibold !text-white"
             [routerLinkActiveOptions]="{ exact: true }"
-            class="hover:text-white/80 transition px-3 lg:px-6 py-2 inline-block"
+            class="hover:text-white transition px-3 lg:px-6 py-2 inline-block"
           >
             {{ item.label }}
           </a>

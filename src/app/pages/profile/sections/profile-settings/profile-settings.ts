@@ -209,11 +209,13 @@ export class ProfileSettingsComponent implements OnInit {
   // }
 
   private isoToDate(isoDate: string): Date | null {
-    return isoDate ? new Date(isoDate) : null;
+    if (!isoDate) return null;
+    return new Date(isoDate + 'T00:00:00');
   }
 
   private dateToIso(date: Date | null): string | null {
-    return date ? date.toISOString().split('T')[0] : null;
+    if (!date) return null;
+    return date.toLocaleDateString('en-CA');
   }
 
   startEdit() {

@@ -11,6 +11,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'swap',
+    loadComponent: () => import('./pages/swap/swap').then(m => m.Swap),
+  },
+
+  {
     path: 'auth',
     children: [
       {

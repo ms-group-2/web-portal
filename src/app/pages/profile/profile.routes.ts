@@ -19,9 +19,9 @@ export const profileRoutes: Routes = [
           ),
       },
       {
-        path: 'orders',
+        path: 'my-posts',
         loadComponent: () =>
-          import('./sections/orders/orders').then((m) => m.OrdersComponent),
+          import('./sections/my-posts/my-posts').then((m) => m.MyPostsComponent),
       },
       {
         path: 'wishlist',

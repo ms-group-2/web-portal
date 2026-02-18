@@ -49,16 +49,12 @@
                 type="text"
                 formControlName="firstName"
                 placeholder="სახელი"
-                maxlength="60"
                 (input)="onTextInput($event, 'firstName')"
               />
               @if (showError('firstName')) {
                 <mat-error>{{ getError('firstName') }}</mat-error>
               }
             </mat-form-field>
-            <div class="text-xs text-gray-500 mt-1 text-right">
-              {{ form.controls.firstName.value.length || 0 }}/60
-            </div>
           </div>
 
           <div>
@@ -69,16 +65,12 @@
                 type="text"
                 formControlName="lastName"
                 placeholder="გვარი"
-                maxlength="60"
                 (input)="onTextInput($event, 'lastName')"
               />
               @if (showError('lastName')) {
                 <mat-error>{{ getError('lastName') }}</mat-error>
               }
             </mat-form-field>
-            <div class="text-xs text-gray-500 mt-1 text-right">
-              {{ form.controls.lastName.value.length || 0 }}/60
-            </div>
           </div>
         </div>
 

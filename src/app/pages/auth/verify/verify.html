@@ -66,11 +66,15 @@
         }
 
         @if (resentMessage()) {
-          <p class="text-xs text-green-600 font-semibold mt-2">
+          <p class="text-xs text-green-600 font-semibold text-center mt-2">
             {{ resentMessage() }}
           </p>
         }
       </div>
+
+        <div [hidden]="!serverDownError()" class="text-red-600 text-sm text-center pb-1">
+          სერვერთან დაკავშირება ვერ მოხერხდა
+        </div>
 
        <button mat-flat-button type="submit" class="w-full" [disabled]="form.invalid">
           ვერიფიკაცია

@@ -50,3 +50,9 @@
     background-color: var(--color-tertiary-50) !important;
   }
 }
+
+.swap-snackbar {
+  .mdc-snackbar__surface {
+    background-color: var(--color-swap) !important;
+  }
+}

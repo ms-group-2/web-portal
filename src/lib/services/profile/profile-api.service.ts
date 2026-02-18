@@ -27,7 +27,7 @@ export class ProfileApiService {
       formData.append('birth_date', body.birth_date);
     }
 
-    formData.append('location', body.location); 
+    formData.append('location', body.location);
 
     if (body.gender !== null && body.gender !== undefined) {
       formData.append('gender', String(body.gender));
@@ -35,11 +35,13 @@ export class ProfileApiService {
 
     formData.append('bio', body.bio);
 
-    if (body.avatar) {
+    // Only append avatar if it's actually a File object (not null or undefined)
+    if (body.avatar instanceof File) {
       formData.append('avatar', body.avatar);
     }
 
-    if (body.delete_avatar) {
+    // Only include delete_avatar flag if explicitly set to true
+    if (body.delete_avatar === true) {
       formData.append('delete_avatar', 'true');
     }
 

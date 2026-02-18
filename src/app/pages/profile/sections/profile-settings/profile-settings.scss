@@ -221,3 +221,8 @@ h2 {
     }
   }
 }
+
+::ng-deep .cdk-overlay-pane:not(:has(.gender-dropdown-panel)):not(:has(.country-dropdown-panel)) {
+  position: absolute !important;
+}
+

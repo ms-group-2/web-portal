@@ -36,6 +36,7 @@ export class Verify {
 
   isResending = signal(false);
   resentMessage = signal<string | null>(null);
+  serverDownError = signal(false);
 
   form = this.fb.group({
     email: this.fb.control({ value: '', disabled: true }, [
@@ -67,6 +68,9 @@ export class Verify {
 
     this.form.controls.email.setValue(email);
     this.auth.pendingEmail.set(email);
+    
+    // Show the initial message when page loads
+    this.resentMessage.set('კოდი გაიგზავნა ელფოსტაზე');
   }
 
 get codeArray(): FormControl<string>[] {
@@ -104,25 +108,32 @@ onDigitInput(index: number, event: Event): void {
     return this.ERRORS[key] ?? null;
   }
   resend(): void {
-    console.log('RESEND CLICKED');
-  const email = this.form.controls.email.getRawValue();
+    const email = this.form.controls.email.getRawValue();
 
-  if (!email) return;
+    if (!email) return;
 
-  this.isResending.set(true);
-  this.resentMessage.set(null);
+    this.isResending.set(true);
+    this.resentMessage.set(null);
+    this.serverDownError.set(false);
+    this.form.controls.code.setErrors(null);
 
-  this.auth.resendVerification(email).subscribe({
-    next: (res) => {
-      this.resentMessage.set('კოდი ხელახლა გაიგზავნა ელფოსტაზე');
-      this.isResending.set(false);
-    },
-    error: () => {
-      this.form.controls.code.setErrors({ serverDown: true });
-      this.isResending.set(false);
-    },
-  });
-}
+    this.auth.resendVerification(email).subscribe({
+      next: (res) => {
+        this.resentMessage.set('კოდი ხელახლა გაიგზავნა ელფოსტაზე');
+        this.isResending.set(false);
+      },
+      error: (err) => {
+        this.isResending.set(false);
+
+        if (err?.status === 429) {
+          this.form.controls.code.setErrors({ rateLimitExceeded: true });
+          this.form.controls.code.markAsTouched();
+        } else {
+          this.serverDownError.set(true);
+        }
+      },
+    });
+  }
 
   submit(): void {
     if (this.form.invalid) {
@@ -133,11 +144,12 @@ onDigitInput(index: number, event: Event): void {
     const email = this.form.controls.email.getRawValue();
     const code = this.form.controls.code.getRawValue();
 
+    this.serverDownError.set(false);
+
     this.auth.verify({ email, code }).subscribe({
       next: (res) => {
         this.auth.setTokensFromResponse(res);
         
-        // Store registration data in localStorage before clearing
         const pendingReg = this.auth.pendingRegistration();
         if (pendingReg) {
           if (pendingReg.firstName) localStorage.setItem('vipo_user_firstName', pendingReg.firstName);
@@ -160,10 +172,20 @@ onDigitInput(index: number, event: Event): void {
         });
       },
       error: (err) => {
-        if (err?.status === 0) {
-          this.form.controls.code.setErrors({ serverDown: true });
+        if (err?.status === 0 || err?.status === 500) {
+          this.serverDownError.set(true);
+        } else if (err?.status === 410) {
+          this.form.controls.code.setErrors({ codeExpired: true });
+          this.form.controls.code.markAsTouched();
+        } else if (err?.status === 401) {
+          this.form.controls.code.setErrors({ incorrectCode: true });
+          this.form.controls.code.markAsTouched();
+        } else if (err?.status === 429) {
+          this.form.controls.code.setErrors({ rateLimitExceeded: true });
+          this.form.controls.code.markAsTouched();
         } else {
           this.form.controls.code.setErrors({ verificationFailed: true });
+          this.form.controls.code.markAsTouched();
         }
       },
     });

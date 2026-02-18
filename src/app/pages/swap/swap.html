@@ -1,0 +1,289 @@
+<app-header></app-header>
+
+<div class="min-h-screen bg-[#faf8f5]">
+  <section class="pt-32 pb-12 px-10">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
+        <div>
+          <h1 class="text-5xl font-bold text-gray-900 mb-3">გაცვალე</h1>
+          <p class="text-lg text-gray-600 max-w-2xl">
+            გაცვალე ნივთები სხვა მომხმარებლებთან
+          </p>
+        </div>
+
+        <button
+          (click)="openPostDialog()"
+          class="inline-flex items-center gap-2 px-8 py-4 bg-swap text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <mat-icon>add</mat-icon>
+          დაამატე ნივთი გასაცვლელად
+        </button>
+      </div>
+
+      <div class="relative max-w-3xl">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          placeholder="მოძებნე ნივთები გასაცვლელად..."
+          class="w-full px-6 py-4 pr-14 rounded-2xl bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-swap/50 transition-all shadow-sm"
+        />
+        <button class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-swap flex items-center justify-center transition-all hover:shadow-md">
+          <mat-icon class="text-white">search</mat-icon>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-8 px-10">
+    <div class="max-w-7xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex flex-wrap items-center gap-4">
+          <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors">
+            <mat-icon class="!w-4 !h-4 !text-base">tune</mat-icon>
+            ფილტრები
+          </button>
+
+          <div class="relative">
+            <select
+              [(ngModel)]="selectedCategory"
+              class="appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-swap/30 cursor-pointer">
+              <option value="">ყველა კატეგორია</option>
+              <option value="electronics">ელექტრონიკა</option>
+              <option value="fashion">მოდა</option>
+              <option value="home">სახლი & ბაღი</option>
+              <option value="sports">სპორტი</option>
+              <option value="books">წიგნები & მედია</option>
+            </select>
+            <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-base text-gray-600 pointer-events-none">expand_more</mat-icon>
+          </div>
+
+          <div class="relative">
+            <select
+              [(ngModel)]="selectedDistance"
+              class="appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-swap/30 cursor-pointer">
+              <option value="">მანძილი</option>
+              <option value="5">5 კმ-ის ფარგლებში</option>
+              <option value="10">10 კმ-ის ფარგლებში</option>
+              <option value="25">25 კმ-ის ფარგლებში</option>
+              <option value="any">ნებისმიერი მანძილი</option>
+            </select>
+            <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-base text-gray-600 pointer-events-none">expand_more</mat-icon>
+          </div>
+
+          <div class="relative ml-auto">
+            <select
+              [(ngModel)]="sortBy"
+              class="appearance-none px-5 py-2.5 pr-10 bg-white hover:bg-gray-50 rounded-xl font-medium text-gray-700 transition-colors border border-gray-200 focus:outline-none focus:ring-2 focus:ring-swap/30 cursor-pointer">
+              <option value="">დისტანცია</option>
+              <option value="nearest">უახლოესი</option>
+              <option value="newest">შედარებით შორი</option>
+            </select>
+            <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-base text-gray-600 pointer-events-none">expand_more</mat-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+
+  <section class="pb-16 px-10">
+    <div class="max-w-7xl mx-auto">
+      @if (isLoading()) {
+        <div class="flex justify-center items-center py-20">
+          <div class="text-center">
+            <div class="inline-block w-12 h-12 border-4 border-swap border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-600">იტვირთება...</p>
+          </div>
+        </div>
+      } @else if (swapItems().length === 0) {
+        <div class="text-center py-20">
+          <mat-icon class="!w-20 !h-20 !text-8xl text-gray-300 mb-4">inventory_2</mat-icon>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">განცხადებები არ მოიძებნა</h3>
+          <p class="text-gray-600 mb-6">დაამატე პირველი ნივთი გასაცვლელად</p>
+          <button
+            (click)="openPostDialog()"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-swap text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+            <mat-icon>add</mat-icon>
+            დაამატე ნივთი
+          </button>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (item of swapItems(); track item.id) {
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer"
+            (mouseleave)="resetPhotoIndex(item.id)">
+            <div class="relative h-56 overflow-hidden bg-gray-100">
+              <img
+                [src]="getItemPhoto(item, getCurrentPhotoIndex(item.id))"
+                [alt]="item.title"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              @if (item.verified) {
+                <div class="absolute top-3 right-3 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                  <mat-icon class="!w-4 !h-4 !text-base !leading-none text-white">verified</mat-icon>
+                </div>
+              }
+
+              <!-- Photo indicators (show on hover if multiple photos) -->
+              @if (item.photos && item.photos.length > 1) {
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-1.5 bg-black/60 px-3 py-2 rounded-full">
+                  @for (photo of item.photos; track $index) {
+                    <button
+                      type="button"
+                      (click)="$event.stopPropagation()"
+                      (mouseenter)="setPhotoIndex(item.id, $index)"
+                      [class.bg-white]="getCurrentPhotoIndex(item.id) === $index"
+                      [class.bg-white/40]="getCurrentPhotoIndex(item.id) !== $index"
+                      class="w-2 h-2 rounded-full transition-all hover:scale-125">
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="p-5">
+              <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-swap transition-colors">
+                {{ item.title }}
+              </h3>
+
+              <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                {{ item.description }}
+              </p>
+
+              <div class="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                <mat-icon class="!w-4 !h-4 !text-base !leading-4">location_on</mat-icon>
+                <span>{{ item.location }}</span>
+                <span class="text-gray-400">•</span>
+                <span>{{ item.distance }}</span>
+              </div>
+
+              <div class="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
+                <div class="flex items-center gap-1">
+                  <mat-icon class="!w-4 !h-4 !text-base !leading-4 text-amber-400">star</mat-icon>
+                  <span class="text-sm font-semibold text-gray-700">{{ item.userRating }}</span>
+                </div>
+                @if (item.verified) {
+                  <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                    გადამოწმებული მომხმარებელი
+                  </span>
+                }
+              </div>
+
+              @if (item.swap_item_title) {
+                <div class="mb-4">
+                  <p class="text-xs text-gray-500 mb-1">სურს გაცვლა:</p>
+                  <div class="inline-block px-3 py-1 bg-[#FEF5EF] text-swap rounded-full text-sm font-medium">
+                    {{ item.swap_item_title }}
+                  </div>
+                </div>
+              }
+
+              <button
+                (click)="proposeSwap(item)"
+                class="w-full py-3 bg-swap text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                შესთავაზე გაცვლა
+              </button>
+            </div>
+          </div>
+        }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="pb-16 px-10 bg-[#f8f4f0]">
+    <div class="max-w-7xl mx-auto py-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">შემოთავაზებული გაცვლები</h2>
+      <p class="text-gray-600 mb-8">შენი ინტერესების საფუძველზე</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        @for (item of suggestedSwaps(); track item.id; let idx = $index) {
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative group cursor-pointer"
+            (mouseleave)="resetPhotoIndex(item.id)">
+            <div class="absolute top-3 left-3 z-10 px-3 py-1 bg-swap text-white rounded-full text-xs font-semibold shadow-lg">
+              {{ idx === 0 ? 'მსგავსი ნივთები' : idx === 1 ? 'იგივე კატეგორია' : 'პოპულარული შესატყვისი' }}
+            </div>
+
+            <div class="relative h-48 overflow-hidden bg-gray-100">
+              <img
+                [src]="getItemPhoto(item, getCurrentPhotoIndex(item.id))"
+                [alt]="item.title"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+
+              <!-- Photo indicators (show on hover if multiple photos) -->
+              @if (item.photos && item.photos.length > 1) {
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-1.5 bg-black/60 px-2 py-1.5 rounded-full">
+                  @for (photo of item.photos; track $index) {
+                    <button
+                      type="button"
+                      (click)="$event.stopPropagation()"
+                      (mouseenter)="setPhotoIndex(item.id, $index)"
+                      [class.bg-white]="getCurrentPhotoIndex(item.id) === $index"
+                      [class.bg-white/40]="getCurrentPhotoIndex(item.id) !== $index"
+                      class="w-1.5 h-1.5 rounded-full transition-all hover:scale-125">
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="p-4">
+              <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-swap transition-colors">
+                {{ item.title }}
+              </h3>
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <mat-icon class="!w-3 !h-3 !text-xs !leading-3">location_on</mat-icon>
+                <span>{{ item.distance }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-16 px-10">
+    <div class="max-w-7xl mx-auto">
+      <div class="bg-gradient-to-r from-[#FEF5EF] to-[#FFF7F2] rounded-3xl p-8">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6">უსაფრთხო გაცვლის რჩევები</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+              <mat-icon class="!w-6 !h-6 !text-2xl text-swap">shield</mat-icon>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-1">შეხვდით საჯარო ადგილას</h4>
+              <p class="text-sm text-gray-600">ყოველთვის გაცვალეთ ნივთები კარგად განათებულ, დასახლებულ უბნებში</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+              <mat-icon class="!w-6 !h-6 !text-2xl text-swap">star</mat-icon>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-1">შეამოწმეთ რეიტინგები</h4>
+              <p class="text-sm text-gray-600">გადახედეთ მომხმარებლის რეიტინგს და გაცვლის ისტორიას შეხვედრამდე</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+              <mat-icon class="!w-6 !h-6 !text-2xl text-swap">search</mat-icon>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-900 mb-1">შეამოწმეთ ნივთები</h4>
+              <p class="text-sm text-gray-600">საფუძვლიანად შეამოწმეთ მდგომარეობა გაცვლის დასრულებამდე</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<app-footer></app-footer>

@@ -85,15 +85,15 @@
 }
 
 ::ng-deep {
-  .cdk-overlay-pane {
-    transform: translateX(170px) !important;
-  }
-
   .mat-calendar-body-label {
     display: none !important;
   }
 
   .mat-mdc-tooltip {
     display: none !important;
+  }
+
+  .mat-datepicker-popup {
+    margin-top: 8px;
   }
 }

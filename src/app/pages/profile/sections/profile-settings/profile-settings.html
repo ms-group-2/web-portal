@@ -111,11 +111,10 @@
               [formControl]="form.controls.birthDate"
               [matDatepickerFilter]="birthDateFilter"
               placeholder="აირჩიეთ თარიღი"
-              (focus)="picker.open()"
               readonly
             />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+            <mat-datepicker #picker startView="multi-year"></mat-datepicker>
           </mat-form-field>
         } @else {
           <p class="field-display-optional" [class]="getOptionalFieldClasses(!!age())">{{ age() ? age() + ' წლის' : 'მითითებული არ არის' }}</p>
@@ -216,7 +215,7 @@
             maxlength="400"
           ></textarea>
           <div class="text-xs text-gray-500 mt-1 text-right">
-            {{ form.controls.bio.value?.length || 0 }}/400
+            {{ form.controls.bio.value.length || 0 }}/400
           </div>
         </div>
       } @else {

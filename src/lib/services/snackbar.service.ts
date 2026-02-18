@@ -65,4 +65,8 @@ export class SnackbarService {
   info(text: string, closeIcon: string = 'close') {
     this.show(text, SnackbarType.INFO, closeIcon);
   }
+
+  swap(text: string, closeIcon: string = 'close') {
+    this.show(text, SnackbarType.SWAP, closeIcon);
+  }
 }
