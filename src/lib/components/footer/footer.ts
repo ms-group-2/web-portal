@@ -2,11 +2,12 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-footer',
-  imports: [CommonModule, RouterLink, MatIconModule],
+  imports: [CommonModule, RouterLink, MatIconModule, TranslatePipe],
   templateUrl: './footer.html',
 })
 export class Footer {
@@ -18,13 +19,13 @@ export class Footer {
   footerGradient = computed(() => {
     const route = this.currentRoute();
     if (route.includes('/swap')) {
-      return 'bg-gradient-to-r from-swap to-[#FAAF78]';
+      return 'linear-gradient(to right, #F3B582, #FAAF78)';
     } else if (route.includes('/market')) {
-      return 'bg-gradient-to-r from-market to-teal-400';
+      return 'linear-gradient(to right, #80CBC4, #2dd4bf)';
     } else if (route.includes('/booking')) {
-      return 'bg-gradient-to-r from-booking to-blue-500';
+      return 'linear-gradient(to right, #3E5AD8, #3b82f6)';
     }
-    return 'bg-gradient-to-r from-primary to-purple-600';
+    return 'linear-gradient(to right, #885DDE, #9333ea)';
   });
 
   constructor() {

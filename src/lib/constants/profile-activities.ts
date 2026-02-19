@@ -18,12 +18,12 @@ export const SWAP_ACTIVITIES: Activity[] = [
     description: 'გაცვლილია @mike_photos-თან'
   },
   {
-    title: 'კანის ქურთუკი გაცვლილი',
+    title: 'კრემისფერი ქურთუკი გაცვლილი',
     timeAgo: '1 კვირის წინ',
     description: 'გაცვლილია @fashion_lover-თან'
   },
   {
-    title: 'სკეიტბორდის დეკა გაცვლილი',
+    title: 'სკეიტბორდის დეკი გაცვლილი',
     timeAgo: '2 კვირის წინ',
     description: 'გაცვლილია @skate_daily-თან'
   }

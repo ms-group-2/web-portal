@@ -7,12 +7,14 @@ import { AuthService } from 'lib/services/identity/auth.service';
 import { NAV_ITEMS, SNACKBAR_MESSAGES } from 'lib/constants';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { ConfirmationDialogService } from '../confirmation-dialog/confirmation-dialog.service';
+import { TranslationService } from 'lib/services/translation.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -21,6 +23,7 @@ export class Header {
   private snackbar = inject(SnackbarService);
   private router = inject(Router);
   private confirmDialog = inject(ConfirmationDialogService);
+  translation = inject(TranslationService);
 
   navItems = signal(NAV_ITEMS);
   currentRoute = signal('');
@@ -49,6 +52,14 @@ export class Header {
 
   get isAuthenticated(): boolean {
     return this.auth.isAuthenticated();
+  }
+
+  isGeorgian(): boolean {
+    return this.translation.isGeorgian();
+  }
+
+  toggleLanguage(): void {
+    this.translation.toggleLanguage();
   }
 
   navigateToProfile() {

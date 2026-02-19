@@ -16,6 +16,7 @@ import { spinnerInterceptor } from 'lib/interceptors/spinner.interceptor';
 
 import { AuthService } from 'lib/services/identity/auth.service';
 import { TokenManagementService } from 'lib/services/identity/token-management.service';
+import { TranslationService } from 'lib/services/translation.service';
 import { firstValueFrom } from 'rxjs';
 
 
@@ -35,6 +36,13 @@ function initAuth(auth: AuthService, tokens: TokenManagementService) {
   };
 }
 
+function initTranslations(translationService: TranslationService) {
+  return () => {
+    const currentLang = translationService.getCurrentLanguage();
+    return firstValueFrom(translationService.loadTranslations(currentLang));
+  };
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -47,6 +55,12 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: initAuth,
       deps: [AuthService, TokenManagementService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initTranslations,
+      deps: [TranslationService],
       multi: true,
     },
   ],

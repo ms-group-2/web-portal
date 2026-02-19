@@ -1,4 +1,4 @@
-<footer class="text-white transition-all duration-300" [ngClass]="footerGradient()">
+<footer class="text-white transition-all duration-300" [style.background]="footerGradient()">
   <div class="max-w-7xl mx-auto px-6 py-12">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
       <div class="col-span-1 md:col-span-2">
@@ -8,30 +8,30 @@
           class="w-32 h-10 mb-4"
         />
         <p class="text-white/80 text-sm leading-relaxed max-w-md">
-          ვიპო - თქვენი სანდო პარტნიორი ციფრულ სამყაროში
+          {{ 'footer.tagline' | translate }}
         </p>
       </div>
 
       <div>
-        <h3 class="font-bold text-base uppercase tracking-wider mb-4">სწრაფი ბმულები</h3>
+        <h3 class="font-bold text-base uppercase tracking-wider mb-4">{{ 'footer.quickLinks' | translate }}</h3>
         <ul class="space-y-2 text-sm">
           <li>
-            <a routerLink="/" class="text-white/80 hover:text-white transition">მთავარი</a>
+            <a routerLink="/" class="text-white/80 hover:text-white transition">{{ 'footer.home' | translate }}</a>
           </li>
           <li>
-            <a routerLink="/about" class="text-white/80 hover:text-white transition">ჩვენს შესახებ</a>
+            <a routerLink="/about" class="text-white/80 hover:text-white transition">{{ 'footer.about' | translate }}</a>
           </li>
           <li>
-            <a routerLink="/services" class="text-white/80 hover:text-white transition">სერვისები</a>
+            <a routerLink="/services" class="text-white/80 hover:text-white transition">{{ 'footer.services' | translate }}</a>
           </li>
           <li>
-            <a routerLink="/contact" class="text-white/80 hover:text-white transition">კონტაქტი</a>
+            <a routerLink="/contact" class="text-white/80 hover:text-white transition">{{ 'footer.contact' | translate }}</a>
           </li>
         </ul>
       </div>
 
       <div>
-        <h3 class="font-bold text-base uppercase tracking-wider mb-4">კონტაქტი</h3>
+        <h3 class="font-bold text-base uppercase tracking-wider mb-4">{{ 'footer.contactInfo' | translate }}</h3>
         <ul class="space-y-2 text-sm text-white/80">
           <li class="flex items-center gap-2">
             <mat-icon class="text-base">email</mat-icon>
@@ -43,7 +43,7 @@
           </li>
           <li class="flex items-center gap-2">
             <mat-icon class="text-base">location_on</mat-icon>
-            <span>თბილისი, საქართველო</span>
+            <span>{{ 'footer.location' | translate }}</span>
           </li>
         </ul>
       </div>
@@ -51,7 +51,7 @@
 
     <div class="border-t border-white/20 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <p class="text-sm text-white/70">
-        © {{ currentYear }} Vipo. ყველა უფლება დაცულია.
+        © {{ currentYear }} Vipo. {{ 'footer.allRightsReserved' | translate }}.
       </p>
 
       <div class="flex items-center gap-4">

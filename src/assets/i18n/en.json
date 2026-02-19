@@ -1,0 +1,25 @@
+{
+  "header": {
+    "register": "Register",
+    "signIn": "Sign In",
+    "profile": "Profile",
+    "logout": "Logout",
+    "nav": {
+      "main": "Main",
+      "swap": "Swap",
+      "market": "Market",
+      "booking": "Booking"
+    }
+  },
+  "footer": {
+    "tagline": "Vipo - Your Trusted Partner in the Digital World",
+    "quickLinks": "Quick Links",
+    "home": "Home",
+    "about": "About Us",
+    "services": "Services",
+    "contact": "Contact",
+    "contactInfo": "Contact",
+    "location": "Tbilisi, Georgia",
+    "allRightsReserved": "All Rights Reserved"
+  }
+}

@@ -1,6 +1,6 @@
 export const NAV_ITEMS = [
-  { label: 'მთავარი', link: '/landing' },
-  { label: 'გაცვალე', link: '/swap' },
-  { label: 'მარკეტი', link: '/' },
-  { label: 'დაჯავშნა', link: '/' }
+  { label: 'header.nav.main', link: '/landing' },
+  { label: 'header.nav.swap', link: '/swap' },
+  { label: 'header.nav.market', link: '/' },
+  { label: 'header.nav.booking', link: '/' }
 ];
