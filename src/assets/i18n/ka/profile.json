@@ -1,5 +1,9 @@
 {
   "profile": {
+    "hello": "გამარჯობა",
+    "back": "უკან",
+    "logout": "გასვლა",
+    "historySection": "ისტორია",
     "titleAndSettings": "პროფილი და პარამეტრები",
     "loading": "იტვირთება...",
     "save": "შენახვა",
@@ -23,6 +27,21 @@
     "genderMale": "კაცი",
     "genderFemale": "ქალი",
     "genderNotSpecified": "-",
+    "nav": {
+      "myPosts": "ჩემი განცხადებები",
+      "favorites": "ფავორიტები",
+      "addresses": "მიმდინარე მისამართები",
+      "settings": "პროფილი და პარამეტრები",
+      "swapHistory": "გაცვლის ისტორია",
+      "shopHistory": "შეკვეთების ისტორია",
+      "bookingHistory": "დაჯავშნის ისტორია"
+    },
+    "logoutDialog": {
+      "title": "გასვლა",
+      "message": "ნამდვილად გსურთ გასვლა?",
+      "confirm": "გასვლა",
+      "cancel": "გაუქმება"
+    },
     "errors": {
       "notAuthenticated": "მომხმარებელი არ არის ავტორიზებული",
       "avatarTooLarge": "ავატარის ზომა აღემატება 5მბ-ს",
@@ -30,7 +49,14 @@
       "passwordChangeSuccess": "პაროლი წარმატებით შეიცვალა",
       "incorrectCurrentPassword": "შეყვანილი ახლანდელი პაროლი არასწორია",
       "authenticationExpired": "ავტორიზაცია ვადაგასულია. გთხოვთ ხელახლა შეხვიდეთ სისტემაში",
-      "userNotFound": "ამ "
+      "userNotFound": "მომხმარებელი ვერ მოიძებნა"
     }
+  },
+  "validation": {
+    "required": "ეს ველი აუცილებელია",
+    "minlength": "ძალიან მოკლეა, მინიმუმ {n} სიმბოლო",
+    "maxlength": "ძალიან გრძელია, მაქსიმუმ {n} სიმბოლო",
+    "emptySpace": "ცარიელი სივრცეები დაუშვებელია",
+    "edgeSpaces": "პაროლი არ უნდა იწყებოდეს ან მთავრდებოდეს სივრცით"
   }
 }

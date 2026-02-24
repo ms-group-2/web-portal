@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormArray, FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,13 +8,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { mustMatchField } from 'lib/validators/must-match-validator';
 import { passwordStrengthValidator, edgeSpacesValidator } from 'lib/validators/password-strength.validator';
 import { formatPasswordStrengthErrors } from 'lib/utils/password-strength-error.util';
 import { sanitizePasswordInput } from 'lib/utils/input-sanitizers.util';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { TranslationService } from 'lib/services/translation.service';
 
 @Component({
   selector: 'vipo-reset-password',
@@ -26,20 +27,19 @@ import { AuthService } from 'lib/services/identity/auth.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './reset-password.html',
 })
-export class ResetPassword implements OnDestroy {
+export class ResetPassword implements OnInit, OnDestroy {
   private fb = inject(NonNullableFormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-
+  translation = inject(TranslationService);
 
   showNewPassword = signal(false);
   showConfirmPassword = signal(false);
-
-  ERRORS = formInputErrors;
 
   step = signal<'code' | 'newPassword'>('code');
   isLoading = signal(false);
@@ -50,6 +50,12 @@ export class ResetPassword implements OnDestroy {
 
   private passwordChangeToken = signal<string | null>(null);
   private resetToken = signal<string | null>(null);
+
+  private resetState(): void {
+    this.isLoading.set(true);
+    this.infoMessage.set(null);
+    this.serverDownError.set(false);
+  }
 
   form = this.fb.group({
     email: this.fb.control({ value: '', disabled: true }, [
@@ -84,20 +90,17 @@ export class ResetPassword implements OnDestroy {
 
   onDigitInput(index: number, event: Event): void {
     const input = event.target as HTMLInputElement;
-
     const value = input.value.replace(/\D/g, '').slice(0, 1);
     input.value = value;
     this.codeArray[index].setValue(value);
 
     if (value && index < this.codeArray.length - 1) {
       (input.nextElementSibling as HTMLInputElement | null)?.focus();
-    }
-    if (!value && index > 0) {
+    } else if (!value && index > 0) {
       (input.previousElementSibling as HTMLInputElement | null)?.focus();
     }
 
-    const joined = this.codeArray.map(c => c.value).join('');
-    this.form.controls.code.setValue(joined);
+    this.form.controls.code.setValue(this.codeArray.map(c => c.value).join(''));
   }
 
   onPasswordInput(event: Event, controlName: 'new_password' | 'confirm_password'): void {
@@ -105,6 +108,9 @@ export class ResetPassword implements OnDestroy {
   }
 
   ngOnInit(): void {
+    this.translation.loadModule('auth').subscribe();
+    this.translation.loadModule('validation').subscribe();
+
     const emailFromSignal = this.auth.pendingPasswordReset();
 
     if (!emailFromSignal) {
@@ -155,42 +161,39 @@ export class ResetPassword implements OnDestroy {
   }
 
   get formattedCountdown(): string {
-    const seconds = this.resendCountdown();
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    const s = this.resendCountdown();
+    return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
   }
 
   get canResend(): boolean {
     return this.resendCountdown() === 0 && !this.isLoading();
   }
 
-  showError(name: keyof typeof this.form.controls): boolean {
-    const c = this.form.controls[name];
-    return c.invalid && (c.touched || c.dirty);
+  get isGeorgian(): boolean {
+    return this.translation.getCurrentLanguage() === 'ka';
   }
 
-  getError(name: keyof typeof this.form.controls): string | null {
+  showError(name: keyof typeof this.form.controls): boolean {
+    const control = this.form.controls[name];
+    return control.invalid && (control.touched || control.dirty);
+  }
+
+  getError(name: keyof typeof this.form.controls): string {
     const errors = this.form.controls[name].errors;
-    if (!errors) return null;
+    if (!errors) return '';
     const key = Object.keys(errors)[0];
 
     if (key === 'passwordStrength') {
       const value = this.form.controls.new_password.value;
-      return formatPasswordStrengthErrors(errors['passwordStrength'], value);
+      return formatPasswordStrengthErrors(errors['passwordStrength'], value) || '';
     }
 
-    if (key === 'minlength') {
-      const required = errors['minlength'].requiredLength;
-      return this.ERRORS['minlength'].replace('{n}', String(required));
+    if (key === 'minlength' || key === 'maxlength') {
+      const required = errors[key].requiredLength;
+      return this.translation.translate(`validation.${key}`).replace('{n}', String(required));
     }
 
-    if (key === 'maxlength') {
-      const required = errors['maxlength'].requiredLength;
-      return this.ERRORS['maxlength'].replace('{n}', String(required));
-    }
-
-    return this.ERRORS[key] ?? null;
+    return `validation.${key}`;
   }
 
   resend(): void {
@@ -198,28 +201,21 @@ export class ResetPassword implements OnDestroy {
     const resetToken = this.resetToken();
     if (!email || !this.canResend) return;
 
-    this.isLoading.set(true);
-    this.infoMessage.set(null);
-    this.serverDownError.set(false);
+    this.resetState();
     this.form.controls.code.setErrors(null);
 
     this.auth.resendPasswordResetCode(email, resetToken || undefined).subscribe({
       next: (res) => {
-        console.log('Resend response:', res);
         this.isLoading.set(false);
-        this.infoMessage.set('კოდი ხელახლა გაიგზავნა ელფოსტაზე');
+        this.infoMessage.set(this.translation.translate('auth.resetPassword.codeResentToEmail'));
         this.startCountdown();
 
         const newResetToken = (res as any).reset_token;
         if (newResetToken) {
-          console.log('New reset_token received:', newResetToken);
           this.resetToken.set(newResetToken);
-        } else {
-          console.warn('No reset_token in resend response');
         }
       },
       error: (err) => {
-        console.log('Resend error:', err);
         this.isLoading.set(false);
 
         if (err?.status === 429) {
@@ -242,9 +238,7 @@ export class ResetPassword implements OnDestroy {
       return;
     }
 
-    this.isLoading.set(true);
-    this.infoMessage.set(null);
-    this.serverDownError.set(false);
+    this.resetState();
 
     this.auth.validateResetCode({ email, code, reset_token: resetToken || '' }).subscribe({
       next: (res) => {
@@ -287,9 +281,7 @@ export class ResetPassword implements OnDestroy {
       return;
     }
 
-    this.isLoading.set(true);
-    this.infoMessage.set(null);
-    this.serverDownError.set(false);
+    this.resetState();
 
     this.auth.setNewPassword({
       email,
@@ -301,8 +293,7 @@ export class ResetPassword implements OnDestroy {
         this.auth.pendingPasswordReset.set(null);
         this.router.navigateByUrl('/auth/sign-in');
       },
-      error: (err) => {
-        console.log('Set new password error:', err);
+      error: () => {
         this.isLoading.set(false);
         this.serverDownError.set(true);
       },

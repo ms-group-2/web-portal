@@ -1,5 +1,9 @@
 {
   "profile": {
+    "hello": "Hello",
+    "back": "Back",
+    "logout": "Logout",
+    "historySection": "History",
     "titleAndSettings": "Profile and Settings",
     "loading": "Loading...",
     "save": "Save",
@@ -23,6 +27,21 @@
     "genderMale": "Male",
     "genderFemale": "Female",
     "genderNotSpecified": "-",
+    "nav": {
+      "myPosts": "My Posts",
+      "favorites": "Favorites",
+      "addresses": "Current Addresses",
+      "settings": "Profile and Settings",
+      "swapHistory": "Swap History",
+      "shopHistory": "Order History",
+      "bookingHistory": "Booking History"
+    },
+    "logoutDialog": {
+      "title": "Logout",
+      "message": "Are you sure you want to logout?",
+      "confirm": "Logout",
+      "cancel": "Cancel"
+    },
     "errors": {
       "notAuthenticated": "User is not authenticated",
       "avatarTooLarge": "Avatar size exceeds 5MB",
@@ -32,5 +51,13 @@
       "authenticationExpired": "Authentication expired. Please sign in again",
       "userNotFound": "User not found"
     }
+  },
+  "validation": {
+    "required": "This field is required",
+    "minlength": "Too short, minimum {n} characters",
+    "maxlength": "Too long, maximum {n} characters",
+    "emptySpace": "Empty spaces are not allowed",
+    "edgeSpaces": "Password cannot start or end with spaces"
   }
 }
+

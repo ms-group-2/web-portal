@@ -2,7 +2,7 @@
   <div class="mb-4 sm:mb-8">
     <div class="flex items-start gap-2 sm:gap-3 mb-2">
       <mat-icon class="w-5 h-5 text-textBlue shrink-0 mt-0.5">person</mat-icon>
-      <h2 class="text-lg sm:text-xl font-black text-textBlue uppercase tracking-tight break-words flex-1 min-w-0">გამარჯობა, {{ userName() }}</h2>
+      <h2 class="text-lg sm:text-xl font-black text-textBlue uppercase tracking-tight break-words flex-1 min-w-0">{{ 'profile.hello' | translate }}, {{ userName() }}</h2>
     </div>
   </div>
 
@@ -15,12 +15,12 @@
         class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all text-left text-gray-700 hover:text-gray-800 hover:bg-gray-100"
       >
         <mat-icon class="w-5 h-5 shrink-0">{{ item.icon }}</mat-icon>
-        <span class="font-bold text-xs sm:text-sm">{{ item.label }}</span>
+        <span class="font-bold text-xs sm:text-sm">{{ item.label | translate }}</span>
       </a>
     }
 
     <div class="border-t-2 border-gray-200 my-2 sm:my-3 pt-2 sm:pt-3">
-      <p class="px-3 sm:px-4 pb-2 text-xs font-black text-gray-400 uppercase tracking-wide">ისტორია</p>
+      <p class="px-3 sm:px-4 pb-2 text-xs font-black text-gray-400 uppercase tracking-wide">{{ 'profile.historySection' | translate }}</p>
 
       @for (item of historyNavItems; track item.route; let i = $index) {
         <a
@@ -30,7 +30,7 @@
           [class]="'w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all text-left text-gray-700 hover:text-gray-800 hover:bg-gray-100' + (i > 0 ? ' mt-1 sm:mt-2' : '')"
         >
           <mat-icon class="w-5 h-5 shrink-0">{{ item.icon }}</mat-icon>
-          <span class="font-bold text-xs sm:text-sm">{{ item.label }}</span>
+          <span class="font-bold text-xs sm:text-sm">{{ item.label | translate }}</span>
         </a>
       }
     </div>
@@ -40,7 +40,7 @@
       class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all text-left text-gray-700 hover:bg-red-50 hover:text-red-600"
     >
       <mat-icon class="w-5 h-5 shrink-0">logout</mat-icon>
-      <span class="font-bold text-xs sm:text-sm">გასვლა</span>
+      <span class="font-bold text-xs sm:text-sm">{{ 'profile.logout' | translate }}</span>
     </button>
   </nav>
 </div>

@@ -8,14 +8,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { mustMatchField } from 'lib/validators/must-match-validator';
 import { edgeSpacesValidator, passwordStrengthValidator } from 'lib/validators/password-strength.validator';
 import { strictEmailValidator } from 'lib/validators/strict-email.validator';
-import { formatPasswordStrengthErrors } from 'lib/utils/password-strength-error.util';
 import { sanitizeTextInput, sanitizePasswordInput } from 'lib/utils/input-sanitizers.util';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { TranslationService } from 'lib/services/translation.service';
 
 @Component({
   selector: 'vipo-register',
@@ -26,6 +26,7 @@ import { AuthService } from 'lib/services/identity/auth.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './register.html',
 })
@@ -33,9 +34,7 @@ export class Register implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
-
-
-  ERRORS = formInputErrors;
+  translation = inject(TranslationService);
 
   showPassword = signal(false);
   showConfirmPassword = signal(false);
@@ -53,6 +52,9 @@ export class Register implements OnInit {
   });
 
   ngOnInit(): void {
+    this.translation.loadModule('auth').subscribe();
+    this.translation.loadModule('validation').subscribe();
+
     const passwordControl = this.form.controls.password;
     const confirmControl = this.form.controls.confirmPassword;
 
@@ -83,28 +85,34 @@ export class Register implements OnInit {
     return control.invalid && (control.touched || control.dirty);
   }
 
-  getError(controlName: keyof typeof this.form.controls): string | null {
+  getError(controlName: keyof typeof this.form.controls): string {
     const errors = this.form.controls[controlName].errors as Record<string, any> | null;
-    if (!errors) return null;
+    if (!errors) return '';
 
     const key = Object.keys(errors)[0];
 
     if (key === 'passwordStrength') {
-      const value = this.form.controls.password.value;
-      return formatPasswordStrengthErrors(errors['passwordStrength'], value);
+      const strengthErrors = errors['passwordStrength'];
+      const errorKeys = Object.keys(strengthErrors);
+      if (errorKeys.length === 0) return '';
+
+      const firstError = errorKeys[0];
+      return `validation.passwordStrength${firstError.charAt(0).toUpperCase() + firstError.slice(1)}`;
     }
 
     if (key === 'minlength') {
       const required = errors['minlength'].requiredLength;
-      return this.ERRORS['minlength'].replace('{n}', String(required));
+      const translated = this.translation.translate('validation.minlength');
+      return translated.replace('{n}', String(required));
     }
 
     if (key === 'maxlength') {
       const required = errors['maxlength'].requiredLength;
-      return this.ERRORS['maxlength'].replace('{n}', String(required));
+      const translated = this.translation.translate('validation.maxlength');
+      return translated.replace('{n}', String(required));
     }
 
-    return this.ERRORS[key] ?? null;
+    return `validation.${key}`;
   }
   
   onGoogle(): void {

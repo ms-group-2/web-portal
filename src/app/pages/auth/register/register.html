@@ -1,10 +1,10 @@
 <div class="min-h-screen bg-white flex justify-center pt-20 px-7 md:pt-20 relative overflow-hidden">
-  <a 
+  <a
     routerLink="/"
     class="absolute top-8 left-8 flex items-center gap-2 text-gray-600 hover:text-primary transition-all group"
     >
     <mat-icon class="group-hover:-translate-x-1 transition-transform">arrow_back</mat-icon>
-    <span class="font-bold uppercase text-sm tracking-wide">უკან</span>
+    <span class="font-bold uppercase text-sm tracking-wide">{{ 'auth.back' | translate }}</span>
   </a>
 
   <div class="w-full max-w-lg relative z-10">
@@ -17,14 +17,14 @@
         />
       </div>
       <p class="text-sm text-gray-500 font-bold uppercase tracking-wide">
-        შექმენი შენი ანგარიში
+        {{ 'auth.register.title' | translate }}
       </p>
     </div>
 
     <div class="bg-white border border-color-[#E5E7EB] rounded-2xl max-w-[512px] mx-auto p-8 auth-card-shadow">
       <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-1">
         <div>
-          <label class="block text-xs font-black uppercase tracking-wider mb-2">იმეილი</label>
+          <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'auth.email' | translate }}</label>
           <mat-form-field appearance="outline" class="w-full">
             <mat-icon matPrefix class=" text-gray-400 mr-2">mail</mat-icon>
             <input
@@ -32,43 +32,43 @@
               type="email"
               formControlName="email"
               placeholder="you@example.com"
-              
+
             />
             @if (showError('email')) {
-              <mat-error>{{ getError('email') }}</mat-error>
+              <mat-error>{{ getError('email') | translate }}</mat-error>
             }
           </mat-form-field>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider mb-2">სახელი</label>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'auth.register.firstName' | translate }}</label>
             <mat-form-field appearance="outline" class="w-full">
               <input
                 matInput
                 type="text"
                 formControlName="firstName"
-                placeholder="სახელი"
+                [placeholder]="'auth.register.firstNamePlaceholder' | translate"
                 (input)="onTextInput($event, 'firstName')"
               />
               @if (showError('firstName')) {
-                <mat-error>{{ getError('firstName') }}</mat-error>
+                <mat-error>{{ getError('firstName') | translate }}</mat-error>
               }
             </mat-form-field>
           </div>
 
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider mb-2">გვარი</label>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'auth.register.lastName' | translate }}</label>
             <mat-form-field appearance="outline" class="w-full">
               <input
                 matInput
                 type="text"
                 formControlName="lastName"
-                placeholder="გვარი"
+                [placeholder]="'auth.register.lastNamePlaceholder' | translate"
                 (input)="onTextInput($event, 'lastName')"
               />
               @if (showError('lastName')) {
-                <mat-error>{{ getError('lastName') }}</mat-error>
+                <mat-error>{{ getError('lastName') | translate }}</mat-error>
               }
             </mat-form-field>
           </div>
@@ -76,7 +76,7 @@
 
         <div class="space-y-1.5">
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider mb-3">პაროლი</label>
+            <label class="block text-xs font-black uppercase tracking-wider mb-3">{{ 'auth.password' | translate }}</label>
             <mat-form-field appearance="outline" class="w-full">
               <mat-icon matPrefix class="text-gray-400 mr-2">lock</mat-icon>
               <input
@@ -96,13 +96,13 @@
                 <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
               @if (form.controls.password.invalid && form.controls.password.touched) {
-                <mat-error>{{ getError('password') }}</mat-error>
+                <mat-error>{{ getError('password') | translate }}</mat-error>
               }
             </mat-form-field>
           </div>
 
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider mb-2">გაიმეორე პაროლი</label>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'auth.register.confirmPassword' | translate }}</label>
             <mat-form-field appearance="outline" class="w-full">
               <mat-icon matPrefix class="text-gray-400 mr-2">lock</mat-icon>
               <input
@@ -122,14 +122,14 @@
                 <mat-icon>{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
               @if (showError('confirmPassword')) {
-                <mat-error>{{ getError('confirmPassword') }}</mat-error>
+                <mat-error>{{ getError('confirmPassword') | translate }}</mat-error>
               }
             </mat-form-field>
           </div>
         </div>
 
         <div [hidden]="!serverDownError()" class="text-red-600 text-sm  text-center pb-1">
-          {{ ERRORS['serverDown'] }}
+          {{ 'validation.serverDown' | translate }}
         </div>
 
         <button
@@ -138,7 +138,7 @@
           [disabled]="form.invalid"
           class="w-full "
         >
-          რეგისტრაცია
+          {{ 'auth.register.submitButton' | translate }}
         </button>
        
       </form>
@@ -149,7 +149,7 @@
         </div>
         <div class="relative flex justify-center">
           <span class="bg-white px-4 text-xs font-black text-gray-400 uppercase tracking-wider">
-            ან შედი
+            {{ 'auth.orSignIn' | translate }}
           </span>
         </div>
       </div>
@@ -167,18 +167,18 @@
           alt="Google"
           class="w-5 h-5 object-contain block"
         />
-        <span class="leading-none">Google-ით</span>
+        <span class="leading-none">{{ 'auth.withGoogle' | translate }}</span>
       </button>
       </div>
 
       <div class="mt-2 text-center">
         <span class="text-sm font-medium text-gray-600">
-          უკვე გაქვს ანგარიში?
+          {{ 'auth.register.alreadyHaveAccount' | translate }}
          <a
           routerLink="/auth/sign-in"
           class="font-black uppercase tracking-wide ml-1 text-primary hover:opacity-90"
         >
-          შესვლა
+          {{ 'auth.register.signInLink' | translate }}
         </a>
         </span>
       </div>

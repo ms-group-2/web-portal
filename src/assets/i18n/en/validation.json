@@ -1,0 +1,29 @@
+{
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "minlength": "Too short, minimum {n} characters",
+    "maxlength": "Too long, maximum {n} characters",
+    "emptySpace": "Empty spaces are not allowed",
+    "mustMatchField": "Passwords do not match",
+    "server": "This email is already in use",
+    "serverDown": "Please try again later",
+    "verificationFailed": "Verification code expired or incorrect",
+    "codeExpired": "Verification code has expired",
+    "incorrectCode": "Verification code is incorrect",
+    "invalidCredentials": "Email or password is incorrect",
+    "notVerified": "Please verify your email",
+    "userNotFound": "No account found with this email",
+    "rateLimitExceeded": "Please wait 2 minutes to request a new code",
+    "resetSent": "If this email exists, a reset link has been sent",
+    "resetFailed": "Password reset failed",
+    "edgeSpaces": "Password cannot start or end with spaces",
+    "passwordStrengthDigit": "Must contain at least 1 digit",
+    "passwordStrengthMinLength": "Minimum 8 characters",
+    "passwordStrengthUppercase": "Must contain at least 1 uppercase letter",
+    "passwordStrengthLowercase": "Must contain at least 1 lowercase letter",
+    "passwordStrengthSpecialChar": "Must contain at least 1 special character",
+    "passwordsSame": "New password must be different from old password",
+    "alreadyRegistered": "This email is already registered"
+  }
+}

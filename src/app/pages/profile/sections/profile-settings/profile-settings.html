@@ -219,7 +219,8 @@
           </div>
         </div>
       } @else {
-        <p class="field-display-optional leading-relaxed break-words" [class]="formValue().bio ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ formValue().bio || ('profile.notSpecified' | translate) }}</p>
+        <p class="field-display-optional leading-relaxed break-words"
+         [class]="formValue().bio ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ formValue().bio || ('profile.notSpecified' | translate) }}</p>
       }
     </div>
   </div>

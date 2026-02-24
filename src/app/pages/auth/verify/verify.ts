@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormArray, FormControl } from '@angular/forms';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,11 +8,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { SNACKBAR_MESSAGES } from 'lib/constants';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { TranslationService } from 'lib/services/translation.service';
 
 @Component({
   selector: 'vipo-verify',
@@ -24,17 +25,17 @@ import { SNACKBAR_MESSAGES } from 'lib/constants';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './verify.html',
 })
-export class Verify implements OnDestroy {
+export class Verify implements OnInit, OnDestroy {
   private fb = inject(NonNullableFormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackbar = inject(SnackbarService);
-
-  ERRORS: Record<string, string> = formInputErrors;
+  translation = inject(TranslationService);
 
   isResending = signal(false);
   resentMessage = signal<string | null>(null);
@@ -60,6 +61,9 @@ export class Verify implements OnDestroy {
   });
 
   ngOnInit(): void {
+    this.translation.loadModule('auth').subscribe();
+    this.translation.loadModule('validation').subscribe();
+
     const emailFromQuery = this.route.snapshot.queryParamMap.get('email');
     const emailFromSignal = this.auth.pendingEmail();
 
@@ -72,8 +76,6 @@ export class Verify implements OnDestroy {
 
     this.form.controls.email.setValue(email);
     this.auth.pendingEmail.set(email);
-
-    // this.resentMessage.set('კოდი გაიგზავნა ელფოსტაზე');
 
     this.startCountdown();
   }
@@ -141,12 +143,12 @@ onDigitInput(index: number, event: Event): void {
     return control.invalid && (control.touched || control.dirty);
   }
 
-  getError(controlName: keyof typeof this.form.controls): string | null {
+  getError(controlName: keyof typeof this.form.controls): string {
     const errors = this.form.controls[controlName].errors;
-    if (!errors) return null;
+    if (!errors) return '';
 
     const key = Object.keys(errors)[0];
-    return this.ERRORS[key] ?? null;
+    return `validation.${key}`;
   }
   resend(): void {
     const email = this.form.controls.email.getRawValue();
@@ -160,7 +162,7 @@ onDigitInput(index: number, event: Event): void {
 
     this.auth.resendVerification(email).subscribe({
       next: (res) => {
-        this.resentMessage.set('კოდი ხელახლა გაიგზავნა ელფოსტაზე');
+        this.resentMessage.set(this.translation.translate('auth.verify.codeResentToEmail'));
         this.isResending.set(false);
         this.startCountdown();
       },

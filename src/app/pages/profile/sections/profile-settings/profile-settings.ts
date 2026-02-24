@@ -64,8 +64,7 @@ export class ProfileSettingsComponent implements OnInit {
   private translationService = inject(TranslationService);
 
   constructor() {
-    // Load profile translations
-    this.translationService.loadModule('profile').subscribe();
+    // Translations loaded in ProfileShellComponent
   }
 
   isEditing = signal(false);
@@ -396,7 +395,7 @@ export class ProfileSettingsComponent implements OnInit {
             } else if (err.status === 404) {
               this.snackbar.error(this.translationService.translate('profile.errors.userNotFound'));
             } else if (err.status === 422) {
-              this.snackbar.error(this.translationService.translate('profile.errors.userNotFound'));
+              this.snackbar.error(this.translationService.translate('profile.errors.incorrectCurrentPassword'));
             }
           },
         });

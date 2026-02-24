@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -8,8 +8,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
-import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { TranslationService } from 'lib/services/translation.service';
 
 @Component({
   selector: 'vipo-forgot-password',
@@ -20,15 +21,15 @@ import { AuthService } from 'lib/services/identity/auth.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './forgot-password.html',
 })
-export class ForgotPassword {
+export class ForgotPassword implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
-
-  ERRORS = formInputErrors;
+  translation = inject(TranslationService);
 
   isSending = signal(false);
   sentMessage = signal<string | null>(null);
@@ -38,16 +39,21 @@ export class ForgotPassword {
     email: this.fb.control('', [Validators.required, Validators.email, emptySpaceValidator()]),
   });
 
+  ngOnInit(): void {
+    this.translation.loadModule('auth').subscribe();
+    this.translation.loadModule('validation').subscribe();
+  }
+
   showError(): boolean {
     const c = this.form.controls.email;
     return c.invalid && (c.touched || c.dirty);
   }
 
-  getError(): string | null {
+  getError(): string {
     const errors = this.form.controls.email.errors;
-    if (!errors) return null;
+    if (!errors) return '';
     const key = Object.keys(errors)[0];
-    return this.ERRORS[key] ?? null;
+    return `validation.${key}`;
   }
 
   submit(): void {
@@ -64,7 +70,7 @@ export class ForgotPassword {
     this.auth.forgotPassword(email).subscribe({
       next: (res) => {
         this.isSending.set(false);
-        this.sentMessage.set('თუ ეს იმეილი არსებობს, reset კოდი გაიგზავნა');
+        this.sentMessage.set(this.translation.translate('auth.forgotPassword.resetSentMessage'));
 
         this.auth.pendingPasswordReset.set(email);
 

@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Header } from 'lib/components/header/header';
 import { ProfileSidebarComponent } from '../components/profile-sidebar/profile-sidebar';
+import { TranslationService } from 'lib/services/translation.service';
 
 @Component({
   selector: 'app-profile-shell',
@@ -10,5 +11,12 @@ import { ProfileSidebarComponent } from '../components/profile-sidebar/profile-s
   styleUrl: './profile-shell.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileShellComponent {}
+export class ProfileShellComponent implements OnInit {
+  private translation = inject(TranslationService);
+
+  ngOnInit() {
+    // Load profile module once for all profile pages (includes validation errors)
+    this.translation.loadModule('profile').subscribe();
+  }
+}
 

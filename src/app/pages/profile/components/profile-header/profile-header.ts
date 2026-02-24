@@ -1,17 +1,23 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { TranslationService } from 'lib/services/translation.service';
 
 @Component({
   selector: 'app-profile-header',
-  imports: [CommonModule, RouterModule, MatIconModule],
+  imports: [CommonModule, RouterModule, MatIconModule, TranslatePipe],
   templateUrl: './profile-header.html',
   styleUrl: './profile-header.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileHeaderComponent {
+export class ProfileHeaderComponent implements OnInit {
   private router = inject(Router);
+  translation = inject(TranslationService);
+
+  ngOnInit() {
+  }
 
   goBack() {
     // Try to go back in history, otherwise navigate to home
