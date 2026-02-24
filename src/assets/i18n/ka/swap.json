@@ -1,0 +1,13 @@
+{
+  "swap": {
+    "title": "გაცვალე",
+    "selectProduct": "აირჩიე პროდუქტი",
+    "yourProduct": "შენი პროდუქტი",
+    "targetProduct": "სასურველი პროდუქტი",
+    "confirm": "დადასტურება",
+    "swapRequest": "გაცვლის მოთხოვნა",
+    "pending": "მიმდინარე",
+    "completed": "დასრულებული",
+    "cancelled": "გაუქმებული"
+  }
+}

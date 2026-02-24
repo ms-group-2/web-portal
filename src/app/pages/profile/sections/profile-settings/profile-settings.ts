@@ -16,8 +16,6 @@ import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angula
 import { AuthService } from 'lib/services/identity/auth.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { UpdateProfileRequest } from 'lib/services/profile/models/profile.model';
-import { SnackbarService } from 'lib/services/snackbar.service';
-import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { PROFILE_STATS } from 'lib/constants';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
@@ -25,8 +23,12 @@ import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
 import { GenderUtil } from 'lib/services/profile/utils/gender.util';
 import { COUNTRIES } from 'lib/constants/countries';
 import { AvatarUploadComponent } from '../../../../../lib/components/avatar-upload/avatar-upload';
-import { sanitizeTextInput, sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
 import { ChangePasswordDialogService } from '../../../../../lib/components/change-password-dialog/change-password-dialog.service';
+import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
+import { SnackbarService } from 'lib/services/snackbar.service';
+import { sanitizeTextInput, sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { TranslationService } from 'lib/services/translation.service';
 
 @Component({
   selector: 'app-profile-settings',
@@ -42,7 +44,9 @@ import { ChangePasswordDialogService } from '../../../../../lib/components/chang
     MatSelectModule,
     MatProgressSpinnerModule,
     ReactiveFormsModule,
-    AvatarUploadComponent
+    AvatarUploadComponent,
+    TranslatePipe,
+
   ],
   templateUrl: './profile-settings.html',
   styleUrls: [
@@ -57,6 +61,12 @@ export class ProfileSettingsComponent implements OnInit {
   private snackbar = inject(SnackbarService);
   private fb = inject(NonNullableFormBuilder);
   private changePasswordDialog = inject(ChangePasswordDialogService);
+  private translationService = inject(TranslationService);
+
+  constructor() {
+    // Load profile translations
+    this.translationService.loadModule('profile').subscribe();
+  }
 
   isEditing = signal(false);
   isLoading = signal(false);
@@ -82,10 +92,14 @@ export class ProfileSettingsComponent implements OnInit {
 
   genderOptions = computed(() => {
     const currentGender = this.formValue().gender;
+    const male = this.translationService.translate('profile.genderMale');
+    const female = this.translationService.translate('profile.genderFemale');
+    const notSpecified = this.translationService.translate('profile.genderNotSpecified');
+
     if (currentGender && currentGender !== '-') {
-      return ['კაცი', 'ქალი'];
+      return [male, female];
     }
-    return ['-', 'კაცი', 'ქალი'];
+    return [notSpecified, male, female];
   });
 
   form = this.fb.group({
@@ -251,7 +265,7 @@ export class ProfileSettingsComponent implements OnInit {
   save() {
     const userId = this.profileId();
     if (!userId) {
-      this.snackbar.error('მომხმარებელი არ არის ავტორიზებული');
+      this.snackbar.error(this.translationService.translate('profile.errors.notAuthenticated'));
       return;
     }
 
@@ -305,14 +319,14 @@ export class ProfileSettingsComponent implements OnInit {
 
   private getErrorMessageFromResponse(err: any): string {
     if ((err?.status === 413 || err?.status === 0) && this.selectedAvatarFile()) {
-      return 'ავატარის ზომა აღემატება 5მბ-ს';
+      return this.translationService.translate('profile.errors.avatarTooLarge');
     }
 
     if (err?.status === 422 && Array.isArray(err?.error?.detail) && err.error.detail.length > 0) {
       const firstError = err.error.detail[0];
 
       if (firstError.loc && Array.isArray(firstError.loc) && firstError.loc.includes('phone_number')) {
-        return 'ნომრის არასწორი ფორმატი არჩეული ქვეყნისთვის';
+        return this.translationService.translate('profile.errors.invalidPhoneFormat');
       }
       return typeof firstError === 'string' ? firstError : firstError.msg || SNACKBAR_MESSAGES.ERROR_GENERIC;
     }
@@ -372,15 +386,17 @@ export class ProfileSettingsComponent implements OnInit {
           new_password: result.newPassword,
         }).subscribe({
           next: () => {
-            this.snackbar.success('პაროლი წარმატებით შეიცვალა');
+            this.snackbar.success(this.translationService.translate('profile.errors.passwordChangeSuccess'));
           },
           error: (err) => {
             if (err.status === 400) {
-              this.snackbar.error('შეყვანილი ახლანდელი პაროლი არასწორია');
+              this.snackbar.error(this.translationService.translate('profile.errors.incorrectCurrentPassword'));
             } else if (err.status === 401 ) {
-              this.snackbar.error('ავტორიზაცია ვადაგასულია. გთხოვთ ხელახლა შეხვიდეთ სისტემაში');
+              this.snackbar.error(this.translationService.translate('profile.errors.authenticationExpired'));
             } else if (err.status === 404) {
-              this.snackbar.error('მომხმარებელი ვერ მოიძებნა');
+              this.snackbar.error(this.translationService.translate('profile.errors.userNotFound'));
+            } else if (err.status === 422) {
+              this.snackbar.error(this.translationService.translate('profile.errors.userNotFound'));
             }
           },
         });

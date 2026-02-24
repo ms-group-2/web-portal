@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, input } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +24,8 @@ export class Header {
   private router = inject(Router);
   private confirmDialog = inject(ConfirmationDialogService);
   translation = inject(TranslationService);
+
+  variant = input<'gradient' | 'white'>('gradient');
 
   navItems = signal(NAV_ITEMS);
   currentRoute = signal('');

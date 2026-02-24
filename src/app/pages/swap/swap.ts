@@ -11,6 +11,10 @@ import { PostSwapDialogComponent } from './components/post-swap-dialog/post-swap
 import { SwapItemsService } from 'lib/services/swap/swap-items.service';
 import { SwapListingApiService } from 'lib/services/swap/swap-listing-api.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
+import { TranslationService } from 'lib/services/translation.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+
+
 
 @Component({
   selector: 'app-swap',
@@ -21,7 +25,8 @@ import { SnackbarService } from 'lib/services/snackbar.service';
     MatIconModule,
     MatDialogModule,
     Header,
-    Footer
+    Footer,
+    TranslatePipe
   ],
   templateUrl: './swap.html',
   styleUrl: './swap.scss',
@@ -32,6 +37,7 @@ export class Swap {
   private swapItemsService = inject(SwapItemsService);
   private api = inject(SwapListingApiService);
   private snackbar = inject(SnackbarService);
+  private translationService = inject(TranslationService);
 
   swapItems = signal<SwapItem[]>([]);
   suggestedSwaps = signal<SwapItem[]>([]);
@@ -84,6 +90,8 @@ export class Swap {
   ];
 
   constructor() {
+    this.translationService.loadModule('swap').subscribe();
+
     this.loadAllListings();
     this.suggestedSwaps.set(this.dummySuggestedSwaps);
   }

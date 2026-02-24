@@ -1,3 +1,85 @@
+// Nav link styles
+header:not(.bg-white) {
+  .active-nav-link {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white !important;
+  }
+
+  .nav-link:hover {
+    color: white;
+  }
+
+  .header-icon {
+    color: white !important;
+  }
+
+  .header-btn {
+    background-color: rgba(255, 255, 255, 0.3);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .lang-btn {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .register-btn {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+header.bg-white {
+  .active-nav-link {
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary) !important;
+  }
+
+  .nav-link:hover {
+    color: var(--color-primary);
+  }
+
+  .header-icon {
+    color: var(--color-primary) !important;
+  }
+
+  .header-btn {
+    background-color: #f3f4f6;
+
+    &:hover {
+      background-color: #e5e7eb;
+    }
+  }
+
+  .lang-btn {
+    background-color: #f3f4f6;
+    color: var(--color-primary);
+
+    &:hover {
+      background-color: #e5e7eb;
+    }
+  }
+
+  .register-btn {
+    border-color: rgba(var(--color-primary-rgb), 0.4);
+    color: var(--color-primary);
+
+    &:hover {
+      background-color: rgba(var(--color-primary-rgb), 0.1);
+    }
+  }
+}
 
 ::ng-deep .user-menu {
   margin-top: 0.5rem !important;

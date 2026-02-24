@@ -1,13 +1,13 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
+// import { CommonModule } from '@angular/common';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-footer',
-  imports: [CommonModule, RouterLink, MatIconModule, TranslatePipe],
+  imports: [RouterLink, MatIconModule, TranslatePipe],
   templateUrl: './footer.html',
 })
 export class Footer {
@@ -29,14 +29,12 @@ export class Footer {
   });
 
   constructor() {
-    // Track route changes
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.currentRoute.set(event.url);
       });
 
-    // Set initial route
     this.currentRoute.set(this.router.url);
   }
 }

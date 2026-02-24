@@ -1,0 +1,36 @@
+{
+  "profile": {
+    "titleAndSettings": "პროფილი და პარამეტრები",
+    "loading": "იტვირთება...",
+    "save": "შენახვა",
+    "edit": "რედაქტირება",
+    "memberSince": "წევრი",
+    "year": "წლიდან",
+    "changePassword": "შეცვალე პაროლი",
+    "fullName": "სრული სახელი",
+    "firstName": "სახელი",
+    "lastName": "გვარი",
+    "birthDate": "დაბადების თარიღი",
+    "age": "ასაკი",
+    "selectDate": "აირჩიეთ თარიღი",
+    "yearsOld": "წლის",
+    "email": "იმეილი",
+    "phone": "ტელეფონი",
+    "gender": "სქესი",
+    "address": "მისამართი",
+    "aboutMe": "ჩემს შესახებ",
+    "notSpecified": "მითითებული არ არის",
+    "genderMale": "კაცი",
+    "genderFemale": "ქალი",
+    "genderNotSpecified": "-",
+    "errors": {
+      "notAuthenticated": "მომხმარებელი არ არის ავტორიზებული",
+      "avatarTooLarge": "ავატარის ზომა აღემატება 5მბ-ს",
+      "invalidPhoneFormat": "ნომრის არასწორი ფორმატი არჩეული ქვეყნისთვის",
+      "passwordChangeSuccess": "პაროლი წარმატებით შეიცვალა",
+      "incorrectCurrentPassword": "შეყვანილი ახლანდელი პაროლი არასწორია",
+      "authenticationExpired": "ავტორიზაცია ვადაგასულია. გთხოვთ ხელახლა შეხვიდეთ სისტემაში",
+      "userNotFound": "ამ "
+    }
+  }
+}

@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormArray, FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -18,6 +19,7 @@ import { AuthService } from 'lib/services/identity/auth.service';
 @Component({
   selector: 'vipo-reset-password',
   imports: [
+    NgClass,
     ReactiveFormsModule,
     RouterLink,
     MatFormFieldModule,
@@ -27,7 +29,7 @@ import { AuthService } from 'lib/services/identity/auth.service';
   ],
   templateUrl: './reset-password.html',
 })
-export class ResetPassword {
+export class ResetPassword implements OnDestroy {
   private fb = inject(NonNullableFormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
@@ -43,6 +45,8 @@ export class ResetPassword {
   isLoading = signal(false);
   infoMessage = signal<string | null>(null);
   serverDownError = signal(false);
+  resendCountdown = signal<number>(0);
+  private countdownInterval: any = null;
 
   private passwordChangeToken = signal<string | null>(null);
   private resetToken = signal<string | null>(null);
@@ -121,6 +125,44 @@ export class ResetPassword {
     newPasswordControl.valueChanges.subscribe(() => {
       confirmPasswordControl.updateValueAndValidity();
     });
+
+    this.startCountdown();
+  }
+
+  ngOnDestroy(): void {
+    this.clearCountdown();
+  }
+
+  private startCountdown(): void {
+    this.clearCountdown();
+    this.resendCountdown.set(120);
+
+    this.countdownInterval = setInterval(() => {
+      const current = this.resendCountdown();
+      if (current > 0) {
+        this.resendCountdown.set(current - 1);
+      } else {
+        this.clearCountdown();
+      }
+    }, 1000);
+  }
+
+  private clearCountdown(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+  }
+
+  get formattedCountdown(): string {
+    const seconds = this.resendCountdown();
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  get canResend(): boolean {
+    return this.resendCountdown() === 0 && !this.isLoading();
   }
 
   showError(name: keyof typeof this.form.controls): boolean {
@@ -154,7 +196,7 @@ export class ResetPassword {
   resend(): void {
     const email = this.form.controls.email.getRawValue();
     const resetToken = this.resetToken();
-    if (!email) return;
+    if (!email || !this.canResend) return;
 
     this.isLoading.set(true);
     this.infoMessage.set(null);
@@ -166,7 +208,8 @@ export class ResetPassword {
         console.log('Resend response:', res);
         this.isLoading.set(false);
         this.infoMessage.set('კოდი ხელახლა გაიგზავნა ელფოსტაზე');
-        
+        this.startCountdown();
+
         const newResetToken = (res as any).reset_token;
         if (newResetToken) {
           console.log('New reset_token received:', newResetToken);

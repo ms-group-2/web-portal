@@ -1,0 +1,13 @@
+{
+  "swap": {
+    "title": "Swap",
+    "selectProduct": "Select Product",
+    "yourProduct": "Your Product",
+    "targetProduct": "Target Product",
+    "confirm": "Confirm",
+    "swapRequest": "Swap Request",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  }
+}

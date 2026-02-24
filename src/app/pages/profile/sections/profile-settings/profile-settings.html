@@ -2,22 +2,22 @@
   @if (isLoading()) {
     <div class="flex flex-col items-center justify-center min-h-[400px] gap-4">
       <mat-spinner diameter="60" color="primary"></mat-spinner>
-      <p class="text-gray-600 text-lg text-center">იტვირთება...</p>
+      <p class="text-gray-600 text-lg text-center">{{ 'profile.loading' | translate }}</p>
     </div>
   } @else {
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-      <h1 class="text-2xl sm:text-3xl font-semibold text-textBlue uppercase tracking-tight">პროფილი და პარამეტრები</h1>
+      <h1 class="text-2xl sm:text-3xl font-bold text-textBlue uppercase tracking-tight">{{ 'profile.titleAndSettings' | translate }}</h1>
       <button
       type="button"
       (click)="isEditing() ? save() : startEdit()"
-      class="w-full sm:w-auto px-5 py-2.5 font-medium rounded-lg transition-all uppercase text-xs tracking-wider flex items-center justify-center gap-2"
+      class="w-full sm:w-auto px-5 py-2.5 font-bold rounded-lg transition-all uppercase text-xs tracking-wider flex items-center justify-center gap-2"
       [ngClass]="{
         'bg-swap text-black hover:bg-primary hover:text-white': isEditing(),
         'bg-primary text-white hover:bg-swap hover:text-black': !isEditing()
       }"
     >
       <mat-icon class="w-3.5 h-3.5">edit</mat-icon>
-      {{ isEditing() ? 'შენახვა' : 'რედაქტირება' }}
+      {{ isEditing() ? ('profile.save' | translate) : ('profile.edit' | translate) }}
     </button>
   </div>
 
@@ -34,16 +34,16 @@
     <div class="flex flex-col sm:flex-row items-center sm:justify-between flex-1 gap-4 w-full">
       <div class="text-center sm:text-left min-w-0 flex-1">
         <h2 class="text-xl sm:text-2xl font-black text-textBlue mb-1 break-all overflow-hidden">{{ name() }}</h2>
-        <p class="text-gray-500 text-sm">წევრი {{ currentYear }} წლიდან</p>
+        <p class="text-gray-500 text-sm">{{ 'profile.memberSince' | translate }} {{ currentYear }} {{'profile.year' | translate}}</p>
       </div>
       @if (!isEditing()) {
         <button
           type="button"
           (click)="changePassword()"
-          class="change-password-btn w-full sm:w-auto px-4 sm:px-5 py-2.5 font-medium rounded-lg transition-all uppercase text-xs tracking-wider flex items-center justify-center gap-2 text-primary hover:text-swap shrink-0"
+          class="change-password-btn w-full sm:w-auto px-4 sm:px-5 py-2.5 font-bold  rounded-lg transition-all uppercase text-xs tracking-wider flex items-center justify-center gap-2 text-primary hover:text-swap shrink-0"
         >
           <mat-icon class="change-password-icon w-3.5 h-3.5">lock</mat-icon>
-          <span class="whitespace-nowrap">შეცვალე პაროლი</span>
+          <span class="whitespace-nowrap">{{ 'profile.changePassword' | translate }}</span>
         </button>
       }
     </div>
@@ -52,14 +52,14 @@
   <div class="space-y-6">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
-        <label class="field-label">სრული სახელი</label>
+        <label class="field-label font-extrabold">{{ 'profile.fullName' | translate }}</label>
         @if (isEditing()) {
           <div class="flex flex-col sm:flex-row gap-2">
             <div class="w-full">
               <input
                 [formControl]="form.controls.firstName"
                 type="text"
-                placeholder="სახელი"
+                [placeholder]="'profile.firstName' | translate"
                 maxlength="60"
                 class="field-input"
                 [class.border-red-500]="form.controls.firstName.invalid && form.controls.firstName.touched"
@@ -79,7 +79,7 @@
               <input
                 [formControl]="form.controls.lastName"
                 type="text"
-                placeholder="გვარი"
+                [placeholder]="'profile.lastName' | translate"
                 maxlength="60"
                 class="field-input"
                 [class.border-red-500]="form.controls.lastName.invalid && form.controls.lastName.touched"
@@ -102,7 +102,7 @@
       </div>
 
       <div>
-        <label class="field-label">{{ isEditing() ? 'დაბადების თარიღი' : 'ასაკი' }}</label>
+        <label class="field-label">{{ isEditing() ? ('profile.birthDate' | translate) : ('profile.age' | translate) }}</label>
         @if (isEditing()) {
           <mat-form-field class="w-full birthdate-picker">
             <input
@@ -110,21 +110,21 @@
               [matDatepicker]="picker"
               [formControl]="form.controls.birthDate"
               [matDatepickerFilter]="birthDateFilter"
-              placeholder="აირჩიეთ თარიღი"
+              [placeholder]="'profile.selectDate' | translate"
               readonly
             />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker startView="multi-year"></mat-datepicker>
           </mat-form-field>
         } @else {
-          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!age())">{{ age() ? age() + ' წლის' : 'მითითებული არ არის' }}</p>
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!age())">{{ age() ? age() + ' ' + ('profile.yearsOld' | translate) : ('profile.notSpecified' | translate) }}</p>
         }
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
-        <label class="field-label">იმეილი</label>
+        <label class="field-label">{{ 'profile.email' | translate }}</label>
         @if (isEditing()) {
           <input
             [formControl]="form.controls.email"
@@ -138,7 +138,7 @@
       </div>
 
       <div>
-        <label class="field-label">ტელეფონი</label>
+        <label class="field-label">{{ 'profile.phone' | translate }}</label>
         @if (isEditing()) {
           <div class="flex gap-2">
             <mat-form-field class="country-code-select">
@@ -166,14 +166,14 @@
             />
           </div>
         } @else {
-          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!phoneDisplay())">{{ phoneDisplay() || 'მითითებული არ არის' }}</p>
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!phoneDisplay())">{{ phoneDisplay() || ('profile.notSpecified' | translate) }}</p>
         }
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>
-        <label class="field-label">სქესი</label>
+        <label class="field-label">{{ 'profile.gender' | translate }}</label>
         @if (isEditing()) {
           <mat-form-field class="w-full gender-select">
             <mat-select
@@ -191,7 +191,7 @@
       </div>
 
       <div>
-        <label class="field-label">მისამართი</label>
+        <label class="field-label">{{ 'profile.address' | translate }}</label>
         @if (isEditing()) {
           <input
             [formControl]="form.controls.location"
@@ -199,13 +199,13 @@
             class="field-input"
           />
         } @else {
-          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!formValue().location)">{{ formValue().location || 'მითითებული არ არის' }}</p>
+          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!formValue().location)">{{ formValue().location || ('profile.notSpecified' | translate) }}</p>
         }
       </div>
     </div>
 
     <div>
-      <label class="field-label">ჩემს შესახებ</label>
+      <label class="field-label">{{ 'profile.aboutMe' | translate }}</label>
       @if (isEditing()) {
         <div>
           <textarea
@@ -219,7 +219,7 @@
           </div>
         </div>
       } @else {
-        <p class="field-display-optional leading-relaxed break-words" [class]="formValue().bio ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ formValue().bio || 'მითითებული არ არის' }}</p>
+        <p class="field-display-optional leading-relaxed break-words" [class]="formValue().bio ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ formValue().bio || ('profile.notSpecified' | translate) }}</p>
       }
     </div>
   </div>

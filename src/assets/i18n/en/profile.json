@@ -1,0 +1,36 @@
+{
+  "profile": {
+    "titleAndSettings": "Profile and Settings",
+    "loading": "Loading...",
+    "save": "Save",
+    "edit": "Edit",
+    "memberSince": "Member since",
+    "year": "year",
+    "changePassword": "Change Password",
+    "fullName": "Full Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "birthDate": "Birth Date",
+    "age": "Age",
+    "selectDate": "Select date",
+    "yearsOld": "years old",
+    "email": "Email",
+    "phone": "Phone",
+    "gender": "Gender",
+    "address": "Address",
+    "aboutMe": "About Me",
+    "notSpecified": "Not specified",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "genderNotSpecified": "-",
+    "errors": {
+      "notAuthenticated": "User is not authenticated",
+      "avatarTooLarge": "Avatar size exceeds 5MB",
+      "invalidPhoneFormat": "Invalid phone number format for selected country",
+      "passwordChangeSuccess": "Password changed successfully",
+      "incorrectCurrentPassword": "Current password is incorrect",
+      "authenticationExpired": "Authentication expired. Please sign in again",
+      "userNotFound": "User not found"
+    }
+  }
+}

@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { FormArray, FormControl } from '@angular/forms';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,6 +17,7 @@ import { SNACKBAR_MESSAGES } from 'lib/constants';
 @Component({
   selector: 'vipo-verify',
   imports: [
+    NgClass,
     ReactiveFormsModule,
     RouterLink,
     MatFormFieldModule,
@@ -25,7 +27,7 @@ import { SNACKBAR_MESSAGES } from 'lib/constants';
   ],
   templateUrl: './verify.html',
 })
-export class Verify {
+export class Verify implements OnDestroy {
   private fb = inject(NonNullableFormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
@@ -37,6 +39,8 @@ export class Verify {
   isResending = signal(false);
   resentMessage = signal<string | null>(null);
   serverDownError = signal(false);
+  resendCountdown = signal<number>(0);
+  private countdownInterval: any = null;
 
   form = this.fb.group({
     email: this.fb.control({ value: '', disabled: true }, [
@@ -68,9 +72,46 @@ export class Verify {
 
     this.form.controls.email.setValue(email);
     this.auth.pendingEmail.set(email);
-    
-    // Show the initial message when page loads
-    this.resentMessage.set('კოდი გაიგზავნა ელფოსტაზე');
+
+    // this.resentMessage.set('კოდი გაიგზავნა ელფოსტაზე');
+
+    this.startCountdown();
+  }
+
+  ngOnDestroy(): void {
+    this.clearCountdown();
+  }
+
+  private startCountdown(): void {
+    this.clearCountdown();
+    this.resendCountdown.set(120); 
+
+    this.countdownInterval = setInterval(() => {
+      const current = this.resendCountdown();
+      if (current > 0) {
+        this.resendCountdown.set(current - 1);
+      } else {
+        this.clearCountdown();
+      }
+    }, 1000);
+  }
+
+  private clearCountdown(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+  }
+
+  get formattedCountdown(): string {
+    const seconds = this.resendCountdown();
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  get canResend(): boolean {
+    return this.resendCountdown() === 0 && !this.isResending();
   }
 
 get codeArray(): FormControl<string>[] {
@@ -110,7 +151,7 @@ onDigitInput(index: number, event: Event): void {
   resend(): void {
     const email = this.form.controls.email.getRawValue();
 
-    if (!email) return;
+    if (!email || !this.canResend) return;
 
     this.isResending.set(true);
     this.resentMessage.set(null);
@@ -121,6 +162,7 @@ onDigitInput(index: number, event: Event): void {
       next: (res) => {
         this.resentMessage.set('კოდი ხელახლა გაიგზავნა ელფოსტაზე');
         this.isResending.set(false);
+        this.startCountdown();
       },
       error: (err) => {
         this.isResending.set(false);

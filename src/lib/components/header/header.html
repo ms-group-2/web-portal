@@ -1,4 +1,4 @@
-<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" [ngClass]="headerGradient()">
+<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b" [ngClass]="variant() === 'white' ? 'bg-white border-gray-200' : headerGradient() + ' border-transparent'">
   <nav class="w-full flex items-center px-4 sm:px-8 md:px-12 lg:px-20 py-2 md:py-3">
 
     <a
@@ -7,24 +7,25 @@
       aria-label="Vipo home"
     >
       <img
-        src="assets/logo/logo-white.svg"
+        [src]="variant() === 'white' ? 'assets/logo/logo-purple.svg' : 'assets/logo/logo-white.svg'"
         alt="Vipo Logo"
         class="w-24 h-8 sm:w-28 sm:h-9 md:w-32 md:h-10"
       />
     </a>
 
-    <ul class="hidden lg:flex items-center gap-1 ml-4 lg:ml-10 text-sm lg:text-base font-bold text-white/80 uppercase tracking-wider">
+    <ul class="hidden lg:flex items-center gap-1 ml-4 lg:ml-10 text-sm lg:text-base font-bold uppercase tracking-wider" [ngClass]="variant() === 'white' ? 'text-primary/70' : 'text-white/80'">
       @for (item of navItems(); track item.label) {
         <li>
           <a
             [routerLink]="item.link"
-            routerLinkActive="bg-white/20 rounded-lg font-semibold !text-white"
+            routerLinkActive="active-nav-link"
             [routerLinkActiveOptions]="{ exact: true }"
-            class="hover:text-white font-extrabold transition px-3 lg:px-6 py-2 inline-block"
+            class="nav-link font-extrabold transition px-3 lg:px-6 py-2 inline-block rounded-lg"
           >
             {{ item.label | translate }}
           </a>
         </li>
+
       }
     </ul>
 
@@ -32,7 +33,7 @@
       @if (!isAuthenticated) {
         <a
           routerLink="/auth/register"
-          class="hidden sm:inline-block !px-3 md:!px-5 !py-1.5 md:!py-2 rounded-xl border-2 border-white/40 text-white text-sm md:text-base hover:bg-white/10 transition tracking-wider"
+          class="register-btn hidden sm:inline-block !px-3 md:!px-5 !py-1.5 md:!py-2 rounded-xl border-2 text-sm md:text-base transition tracking-wider"
         >
           {{ 'header.register' | translate }}
         </a>
@@ -47,21 +48,21 @@
 
       <button
         aria-label="Favorites"
-        class="w-9 h-9 md:w-12 md:h-12 bg-gray-100/30 rounded-full flex items-center justify-center"
+        class="header-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
       >
-        <mat-icon class="w-6 h-6 !text-white hover:scale-110 duration-300">favorite_border</mat-icon>
+        <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">favorite_border</mat-icon>
       </button>
 
       <button
         aria-label="Shopping cart"
-        class="w-9 h-9 md:w-12 md:h-12 bg-gray-100/30 rounded-full flex items-center justify-center"
+        class="header-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
       >
-        <mat-icon class="w-6 h-6 !text-white hover:scale-110 duration-300">shopping_cart</mat-icon>
+        <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">shopping_cart</mat-icon>
       </button>
 
       <button
         (click)="toggleLanguage()"
-        class="w-9 h-9 md:w-12 md:h-12 bg-gray-100/30 rounded-full flex items-center justify-center text-white font-semibold text-xs md:text-sm hover:bg-white/20 transition"
+        class="lang-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center font-semibold text-xs md:text-sm transition"
         [attr.aria-label]="isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
       >
         {{ isGeorgian() ? 'EN' : 'KA' }}
@@ -70,9 +71,9 @@
       <button
         [matMenuTriggerFor]="userMenu"
         aria-label="User menu"
-        class="w-9 h-9 md:w-12 md:h-12 bg-gray-100/30 rounded-full flex items-center justify-center"
+        class="header-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
       >
-        <i class="ph ph-user text-2xl !text-white hover:scale-110 duration-300"></i>
+        <i class="header-icon ph ph-user text-2xl hover:scale-110 duration-300"></i>
       </button>
 
       <mat-menu #userMenu="matMenu" class="user-menu z-[60]">
