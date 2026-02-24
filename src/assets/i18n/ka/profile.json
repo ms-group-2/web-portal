@@ -42,6 +42,35 @@
       "confirm": "გასვლა",
       "cancel": "გაუქმება"
     },
+    "changePasswordDialog": {
+      "currentPasswordLabel": "შეიყვანე ახლანდელი პაროლი",
+      "currentPasswordPlaceholder": "მიმდინარე პაროლი",
+      "newPasswordLabel": "ახალი პაროლი",
+      "newPasswordPlaceholder": "ახალი პაროლი",
+      "confirmPasswordLabel": "გაიმეორე ახალი პაროლი",
+      "confirmPasswordPlaceholder": "გაიმეორე ახალი პაროლი",
+      "cancel": "გაუქმება",
+      "save": "შენახვა"
+    },
+    "deletePostDialog": {
+      "title": "წაშლა",
+      "message": "ნამდვილად გსურთ განცხადების წაშლა?",
+      "confirm": "წაშლა",
+      "cancel": "გაუქმება"
+    },
+    "postStatus": {
+      "active": "ხელმისაწვდომი",
+      "inactive": "არააქტიური",
+      "completed": "დასრულებული"
+    },
+    "myPosts": {
+      "title": "ჩემი განცხადებები",
+      "emptyTitle": "განცხადებები არ მოიძებნა",
+      "emptyMessage": "დაიწყე გაცვლა პირველი ნივთის დამატებით!",
+      "lookingFor": "სურს:",
+      "edit": "რედაქტირება",
+      "delete": "წაშლა"
+    },
     "errors": {
       "notAuthenticated": "მომხმარებელი არ არის ავტორიზებული",
       "avatarTooLarge": "ავატარის ზომა აღემატება 5მბ-ს",
@@ -57,6 +86,13 @@
     "minlength": "ძალიან მოკლეა, მინიმუმ {n} სიმბოლო",
     "maxlength": "ძალიან გრძელია, მაქსიმუმ {n} სიმბოლო",
     "emptySpace": "ცარიელი სივრცეები დაუშვებელია",
-    "edgeSpaces": "პაროლი არ უნდა იწყებოდეს ან მთავრდებოდეს სივრცით"
+    "edgeSpaces": "პაროლი არ უნდა იწყებოდეს ან მთავრდებოდეს სივრცით",
+    "mustMatchField": "პაროლები არ ემთხვევა",
+    "passwordsSame": "ახალი პაროლი არ უნდა ემთხვეოდეს ძველ პაროლს",
+    "passwordStrengthDigit": "უნდა შეიცავდეს მინიმუმ 1 ციფრს",
+    "passwordStrengthMinLength": "მინიმუმ 8 სიმბოლო",
+    "passwordStrengthUppercase": "უნდა შეიცავდეს მინიმუმ 1 დიდ ასოს",
+    "passwordStrengthLowercase": "უნდა შეიცავდეს მინიმუმ 1 პატარა ასოს",
+    "passwordStrengthSpecialChar": "უნდა შეიცავდეს მინიმუმ 1 სპეციალურ სიმბოლოს"
   }
 }

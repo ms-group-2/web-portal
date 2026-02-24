@@ -42,6 +42,35 @@
       "confirm": "Logout",
       "cancel": "Cancel"
     },
+    "changePasswordDialog": {
+      "currentPasswordLabel": "Enter Current Password",
+      "currentPasswordPlaceholder": "Current password",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "New password",
+      "confirmPasswordLabel": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "deletePostDialog": {
+      "title": "Delete",
+      "message": "Are you sure you want to delete this post?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "postStatus": {
+      "active": "Available",
+      "inactive": "Inactive",
+      "completed": "Completed"
+    },
+    "myPosts": {
+      "title": "My Posts",
+      "emptyTitle": "No Posts Found",
+      "emptyMessage": "Start swapping by adding your first item!",
+      "lookingFor": "Looking for:",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
     "errors": {
       "notAuthenticated": "User is not authenticated",
       "avatarTooLarge": "Avatar size exceeds 5MB",
@@ -57,7 +86,14 @@
     "minlength": "Too short, minimum {n} characters",
     "maxlength": "Too long, maximum {n} characters",
     "emptySpace": "Empty spaces are not allowed",
-    "edgeSpaces": "Password cannot start or end with spaces"
+    "edgeSpaces": "Password cannot start or end with spaces",
+    "mustMatchField": "Passwords do not match",
+    "passwordsSame": "New password cannot be the same as old password",
+    "passwordStrengthDigit": "Must contain at least 1 digit",
+    "passwordStrengthMinLength": "Minimum 8 characters",
+    "passwordStrengthUppercase": "Must contain at least 1 uppercase letter",
+    "passwordStrengthLowercase": "Must contain at least 1 lowercase letter",
+    "passwordStrengthSpecialChar": "Must contain at least 1 special character"
   }
 }
 

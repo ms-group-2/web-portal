@@ -68,20 +68,34 @@ export class Header {
     this.router.navigateByUrl('/profile');
   }
 
+  // logout() {
+  //   this.confirmDialog.confirm({
+  //     title: 'გასვლა',
+  //     message: 'ნამდვილად გსურთ გასვლა?',
+  //     confirmText: 'გასვლა',
+  //     cancelText: 'გაუქმება',
+  //     confirmColor: 'warn',
+  //   }).subscribe(confirmed => {
+  //     if (confirmed) {
+  //       this.auth.logout();
+  //       this.snackbar.success(SNACKBAR_MESSAGES.LOGOUT_SUCCESS);
+  //     }
+  //   });
+  // }
   logout() {
     this.confirmDialog.confirm({
-      title: 'გასვლა',
-      message: 'ნამდვილად გსურთ გასვლა?',
-      confirmText: 'გასვლა',
-      cancelText: 'გაუქმება',
+      title: this.translation.translate('profile.logoutDialog.title'),
+      message: this.translation.translate('profile.logoutDialog.message'),
+      confirmText: this.translation.translate('profile.logoutDialog.confirm'),
+      cancelText: this.translation.translate('profile.logoutDialog.cancel'),
       confirmColor: 'warn',
     }).subscribe(confirmed => {
       if (confirmed) {
         this.auth.logout();
-        this.snackbar.success(SNACKBAR_MESSAGES.LOGOUT_SUCCESS);
+        this.router.navigateByUrl('/landing');
       }
     });
-  }
+}
 }
 
 

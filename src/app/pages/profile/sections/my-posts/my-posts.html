@@ -1,12 +1,12 @@
 <div>
-  <h1 class="text-3xl font-black text-textBlue uppercase tracking-tight mb-8">ჩემი განცხადებები</h1>
+  <h1 class="text-3xl font-black text-textBlue uppercase tracking-tight mb-8">{{ 'profile.myPosts.title' | translate }}</h1>
 
   @if (postedItems().length === 0) {
     <!-- Empty State -->
     <div class="bg-white rounded-xl p-12 border-2 border-gray-200 text-center">
       <mat-icon class="!w-16 !h-16 !text-[64px] text-gray-300 mx-auto mb-4">inventory_2</mat-icon>
-      <h3 class="text-lg font-black text-gray-900 mb-2">განცხადებები არ მოიძებნა</h3>
-      <p class="text-gray-600 mb-4">დაიწყე გაცვლა პირველი ნივთის დამატებით!</p>
+      <h3 class="text-lg font-black text-gray-900 mb-2">{{ 'profile.myPosts.emptyTitle' | translate }}</h3>
+      <p class="text-gray-600 mb-4">{{ 'profile.myPosts.emptyMessage' | translate }}</p>
     </div>
   } @else {
     <!-- Posted Items Grid -->
@@ -62,7 +62,7 @@
             <!-- Wanted Item/Category -->
             @if (item.wantedItem) {
               <div class="flex items-center gap-2 text-sm text-gray-600">
-                <span class="font-medium">სურს:</span>
+                <span class="font-medium">{{ 'profile.myPosts.lookingFor' | translate }}</span>
                 <span class="px-2 py-1 bg-[#FEF5EF] text-swap rounded text-xs font-bold">
                   {{ item.wantedItem }}
                 </span>
@@ -75,12 +75,12 @@
             <button
               (click)="editPost(item)"
               class="flex-1 px-4 py-2 bg-swap text-white font-black rounded-lg hover:shadow-lg transition-all uppercase text-xs">
-              რედაქტირება
+              {{ 'profile.myPosts.edit' | translate }}
             </button>
             <button
               (click)="deletePost(item)"
               class="flex-1 px-4 py-2 bg-gray-200 text-gray-900 font-black rounded-lg hover:bg-gray-300 transition-all uppercase text-xs">
-              წაშლა
+              {{ 'profile.myPosts.delete' | translate }}
             </button>
           </div>
         </div>

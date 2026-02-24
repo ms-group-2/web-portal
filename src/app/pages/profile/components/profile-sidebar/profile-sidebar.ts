@@ -100,7 +100,7 @@ export class ProfileSidebarComponent implements OnInit {
     }).subscribe(confirmed => {
       if (confirmed) {
         this.auth.logout();
-        this.router.navigateByUrl('/auth/sign-in');
+        this.router.navigateByUrl('/landing');
       }
     });
   }

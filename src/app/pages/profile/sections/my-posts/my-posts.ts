@@ -5,6 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { SwapItemsService } from 'lib/services/swap/swap-items.service';
 import { ConfirmationDialogService } from 'lib/components/confirmation-dialog/confirmation-dialog.service';
 import { SwapListingApiService } from 'lib/services/swap/swap-listing-api.service';
+import { TranslationService } from 'lib/services/translation.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 interface PostItem {
   id: string;
@@ -22,7 +24,7 @@ interface PostItem {
 
 @Component({
   selector: 'app-my-posts',
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './my-posts.html',
   styleUrl: './my-posts.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,14 +33,15 @@ export class MyPostsComponent {
   private swapItemsService = inject(SwapItemsService);
   private confirmDialog = inject(ConfirmationDialogService);
   private api = inject(SwapListingApiService);
+  private translation = inject(TranslationService);
 
   postedItems = this.swapItemsService.postedItems;
 
   getStatusLabel(status: string): string {
     switch (status) {
-      case 'active': return 'ხელმისაწვდომი';
-      case 'inactive': return 'არააქტიური';
-      case 'completed': return 'დასრულებული';
+      case 'active': return this.translation.translate('profile.postStatus.active');
+      case 'inactive': return this.translation.translate('profile.postStatus.inactive');
+      case 'completed': return this.translation.translate('profile.postStatus.completed');
       default: return status;
     }
   }
@@ -58,10 +61,10 @@ export class MyPostsComponent {
 
   deletePost(post: PostItem) {
     this.confirmDialog.confirm({
-      title: 'წაშლა',
-      message: 'ნამდვილად გსურთ განცხადების წაშლა?',
-      confirmText: 'წაშლა',
-      cancelText: 'გაუქმება',
+      title: this.translation.translate('profile.deletePostDialog.title'),
+      message: this.translation.translate('profile.deletePostDialog.message'),
+      confirmText: this.translation.translate('profile.deletePostDialog.confirm'),
+      cancelText: this.translation.translate('profile.deletePostDialog.cancel'),
       confirmColor: 'warn',
     }).subscribe(confirmed => {
       if (confirmed) {

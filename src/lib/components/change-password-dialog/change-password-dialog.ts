@@ -8,9 +8,9 @@ import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angula
 import { passwordStrengthValidator, edgeSpacesValidator } from 'lib/validators/password-strength.validator';
 import { mustMatchField } from 'lib/validators/must-match-validator';
 import { mustNotMatchField } from 'lib/validators/must-not-match-validator';
-import { formatPasswordStrengthErrors } from 'lib/utils/password-strength-error.util';
 import { sanitizePasswordInput } from 'lib/utils/input-sanitizers.util';
-import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { TranslationService } from 'lib/services/translation.service';
 
 export interface ChangePasswordDialogData {
 }
@@ -29,7 +29,8 @@ export interface ChangePasswordResult {
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TranslatePipe
   ],
   templateUrl: './change-password-dialog.html',
   styleUrl: './change-password-dialog.scss',
@@ -38,8 +39,7 @@ export class ChangePasswordDialogComponent implements OnInit {
   dialogRef = inject(MatDialogRef<ChangePasswordDialogComponent>);
   data = inject<ChangePasswordDialogData>(MAT_DIALOG_DATA, { optional: true });
   private fb = inject(NonNullableFormBuilder);
-
-  ERRORS = formInputErrors;
+  private translation = inject(TranslationService);
 
   showCurrentPassword = signal(false);
   showNewPassword = signal(false);
@@ -52,6 +52,8 @@ export class ChangePasswordDialogComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.translation.loadModule('profile').subscribe();
+
     const currentPasswordControl = this.form.controls.currentPassword;
     const newPasswordControl = this.form.controls.newPassword;
     const confirmControl = this.form.controls.confirmPassword;
@@ -93,21 +95,25 @@ export class ChangePasswordDialogComponent implements OnInit {
     const key = Object.keys(errors)[0];
 
     if (key === 'passwordStrength') {
-      const value = this.form.controls.newPassword.value;
-      return formatPasswordStrengthErrors(errors['passwordStrength'], value);
+      const strengthErrors = errors['passwordStrength'];
+      const errorKeys = Object.keys(strengthErrors);
+      if (errorKeys.length > 0) {
+        return this.translation.translate(`validation.passwordStrength${errorKeys[0].charAt(0).toUpperCase() + errorKeys[0].slice(1)}`);
+      }
+      return null;
     }
 
     if (key === 'minlength') {
       const required = errors['minlength'].requiredLength;
-      return this.ERRORS['minlength'].replace('{n}', String(required));
+      return this.translation.translate('validation.minlength').replace('{n}', String(required));
     }
 
     if (key === 'maxlength') {
       const required = errors['maxlength'].requiredLength;
-      return this.ERRORS['maxlength'].replace('{n}', String(required));
+      return this.translation.translate('validation.maxlength').replace('{n}', String(required));
     }
 
-    return this.ERRORS[key] ?? null;
+    return this.translation.translate(`validation.${key}`);
   }
 
   onConfirm(): void {
