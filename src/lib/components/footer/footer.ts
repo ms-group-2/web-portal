@@ -19,13 +19,13 @@ export class Footer {
   footerGradient = computed(() => {
     const route = this.currentRoute();
     if (route.includes('/swap')) {
-      return 'linear-gradient(to right, #F3B582, #FAAF78)';
-    } else if (route.includes('/market')) {
-      return 'linear-gradient(to right, #80CBC4, #2dd4bf)';
+      return 'linear-gradient(to right, var(--color-swap), #FAAF78)';
+    } else if (route.includes('/shop')) {
+      return 'linear-gradient(to right, var(--color-market), #5a70e8)';
     } else if (route.includes('/booking')) {
-      return 'linear-gradient(to right, #3E5AD8, #3b82f6)';
+      return 'linear-gradient(to right, var(--color-booking), #3b82f6)';
     }
-    return 'linear-gradient(to right, #885DDE, #9333ea)';
+    return 'linear-gradient(to right, var(--color-primary), #9333ea)';
   });
 
   constructor() {

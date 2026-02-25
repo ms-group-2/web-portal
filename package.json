@@ -33,6 +33,7 @@
     "@angular/router": "^20.3.0",
     "phosphor-icons": "^1.4.2",
     "rxjs": "~7.8.0",
+    "swiper": "^12.1.2",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },

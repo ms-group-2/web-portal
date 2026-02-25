@@ -62,11 +62,6 @@ export class ProfileSettingsComponent implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private changePasswordDialog = inject(ChangePasswordDialogService);
   private translationService = inject(TranslationService);
-
-  constructor() {
-    // Translations loaded in ProfileShellComponent
-  }
-
   isEditing = signal(false);
   isLoading = signal(false);
   avatarUrl = signal<string | null>(null);
@@ -81,11 +76,12 @@ export class ProfileSettingsComponent implements OnInit {
   stats = PROFILE_STATS;
   countries = COUNTRIES;
   currentYear = new Date().getFullYear();
+  defaultPickerDate = new Date(2000, 0, 1);
 
   birthDateFilter = (date: Date | null): boolean => {
     if (!date) return true;
     const minDate = new Date(1926, 0, 1);
-    const maxDate = new Date(2019, 11, 31);
+    const maxDate = new Date(2015, 11, 31);
     return date >= minDate && date <= maxDate;
   };
 
@@ -102,12 +98,12 @@ export class ProfileSettingsComponent implements OnInit {
   });
 
   form = this.fb.group({
-    firstName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(60), emptySpaceValidator()]),
-    lastName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(60), emptySpaceValidator()]),
+    firstName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50), emptySpaceValidator()]),
+    lastName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50), emptySpaceValidator()]),
     email: this.fb.control(''),
     countryCode: this.fb.control('+995'),
     phoneNumber: this.fb.control(''),
-    location: this.fb.control(''),
+    location: this.fb.control('', [Validators.maxLength(50)]),
     bio: this.fb.control('', [Validators.maxLength(400)]),
     birthDate: this.fb.control<Date | null>(null),
     gender: this.fb.control('-'),
@@ -273,29 +269,35 @@ export class ProfileSettingsComponent implements OnInit {
       return;
     }
 
-    if (!this.hasFormChanged() && !this.selectedAvatarFile() && !this.deleteAvatar()) {
+    if (!this.hasFormChanged()) {
       this.isEditing.set(false);
       return;
     }
 
     const formValues = this.form.getRawValue();
+    console.log('Form values:', formValues);
+
     const fullPhone = formValues.phoneNumber ? `${formValues.countryCode}${formValues.phoneNumber}` : '';
     const normalizedPhone = PhoneUtil.normalizeForApi(fullPhone);
 
-    const updateRequest: UpdateProfileRequest = {
-      name: formValues.firstName ?? '',
-      surname: formValues.lastName ?? '',
-      ...(normalizedPhone && normalizedPhone !== '+995' && { phone_number: normalizedPhone }),
-      ...(formValues.birthDate && { birth_date: this.dateToIso(formValues.birthDate)! }),
-      location: formValues.location ?? '',
-      gender: GenderUtil.toBoolean(formValues.gender ?? '-'),
-      bio: formValues.bio ?? '',
-      ...(this.selectedAvatarFile() && { avatar: this.selectedAvatarFile()! }),
-      ...(this.deleteAvatar() && { delete_avatar: true }),
+    const updateRequest: any = {
+      name: formValues.firstName || '',
+      surname: formValues.lastName || '',
     };
 
+    console.log('Name:', formValues.firstName, 'Surname:', formValues.lastName);
+
+    // Add optional fields with null if empty
+    updateRequest.phone_number = (normalizedPhone && normalizedPhone !== '+995') ? normalizedPhone : null;
+    updateRequest.birth_date = formValues.birthDate ? this.dateToIso(formValues.birthDate)! : null;
+    updateRequest.location = formValues.location || null;
+    updateRequest.gender = (formValues.gender && formValues.gender !== '-') ? GenderUtil.toBoolean(formValues.gender) : null;
+    updateRequest.bio = formValues.bio || null;
+
+    console.log('Update request payload:', JSON.stringify(updateRequest, null, 2));
     this.isLoading.set(true);
-    this.profileApi.updateProfile(userId, updateRequest).subscribe({
+
+    this.profileApi.updateProfile(updateRequest).subscribe({
       next: (profile) => {
         this.isLoading.set(false);
 
@@ -353,11 +355,6 @@ export class ProfileSettingsComponent implements OnInit {
 
     return '';
   }
-
-  getOptionalFieldClasses(hasValue: boolean): string {
-    return hasValue ? 'text-gray-700 font-bold' : 'text-gray-500 font-normal';
-  }
-
   onPhoneInput(event: Event): void {
     sanitizePhoneInput(event, this.form.controls.phoneNumber);
   }
@@ -404,4 +401,3 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
 }
-

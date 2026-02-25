@@ -53,11 +53,9 @@
             type="button"
             class="text-xs font-bold uppercase transition-colors flex flex-col items-center"
             [ngClass]="{
-              'text-primary': canResend,
-              'hover:opacity-80': canResend,
-              'text-gray-400': !canResend,
-              'cursor-not-allowed': !canResend
-            }"
+                  'text-primary hover:opacity-80': canResend,
+                  'text-gray-400 cursor-not-allowed': !canResend,
+                }"
             [disabled]="!canResend"
             (click)="resend()"
           >

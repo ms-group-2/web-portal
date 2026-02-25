@@ -8,7 +8,6 @@ import { TranslationService } from 'lib/services/translation.service';
   selector: 'app-profile-shell',
   imports: [RouterModule, Header, ProfileSidebarComponent],
   templateUrl: './profile-shell.html',
-  styleUrl: './profile-shell.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileShellComponent implements OnInit {

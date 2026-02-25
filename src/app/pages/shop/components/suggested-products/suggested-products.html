@@ -1,0 +1,12 @@
+<section class="pb-16 px-20 lg:px-24 bg-[#f8f4f0]">
+  <div class="container-max py-12">
+    <h2 class="text-3xl font-bold text-gray-900 mb-2">You may also like</h2>
+    <p class="text-gray-600 mb-8">Based on your browsing history</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      @for (product of suggestedProducts(); track product.id) {
+        <app-product-card [product]="product" [compact]="true"></app-product-card>
+      }
+    </div>
+  </div>
+</section>

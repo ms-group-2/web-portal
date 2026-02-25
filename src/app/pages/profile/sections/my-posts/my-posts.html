@@ -1,19 +1,16 @@
 <div>
-  <h1 class="text-3xl font-black text-textBlue uppercase tracking-tight mb-8">ჩემი განცხადებები</h1>
+  <h1 class="text-3xl font-black text-textBlue uppercase tracking-tight mb-8">{{ 'profile.myPosts.title' | translate }}</h1>
 
   @if (postedItems().length === 0) {
-    <!-- Empty State -->
     <div class="bg-white rounded-xl p-12 border-2 border-gray-200 text-center">
       <mat-icon class="!w-16 !h-16 !text-[64px] text-gray-300 mx-auto mb-4">inventory_2</mat-icon>
-      <h3 class="text-lg font-black text-gray-900 mb-2">განცხადებები არ მოიძებნა</h3>
-      <p class="text-gray-600 mb-4">დაიწყე გაცვლა პირველი ნივთის დამატებით!</p>
+      <h3 class="text-lg font-black text-gray-900 mb-2">{{ 'profile.myPosts.emptyTitle' | translate }}</h3>
+      <p class="text-gray-600 mb-4">{{ 'profile.myPosts.emptyMessage' | translate }}</p>
     </div>
   } @else {
-    <!-- Posted Items Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       @for (item of postedItems(); track item.id) {
         <div class="bg-white rounded-xl p-6 border-2 border-swap/30 hover:border-swap transition-all group">
-          <!-- Header: Title + Status Badge -->
           <div class="flex items-start justify-between mb-4">
             <div>
               <h3 class="text-lg font-black text-gray-900 uppercase group-hover:text-swap transition-colors">
@@ -37,7 +34,6 @@
             </div>
           }
 
-          <!-- Item Details -->
           <div class="space-y-2 mb-4">
             <!-- Location -->
             <div class="flex items-center gap-2 text-sm text-gray-600">
@@ -45,7 +41,6 @@
               <span>{{ item.location }}</span>
             </div>
 
-            <!-- Value Range (if applicable) -->
             @if (item.valueRange) {
               <div class="flex items-center gap-2 text-sm">
                 <span class="font-black text-swap">{{ item.valueRange }}</span>
@@ -56,13 +51,11 @@
               </div>
             }
 
-            <!-- Description -->
             <p class="text-sm text-gray-600 line-clamp-2">{{ item.description }}</p>
 
-            <!-- Wanted Item/Category -->
             @if (item.wantedItem) {
               <div class="flex items-center gap-2 text-sm text-gray-600">
-                <span class="font-medium">სურს:</span>
+                <span class="font-medium">{{ 'profile.myPosts.lookingFor' | translate }}</span>
                 <span class="px-2 py-1 bg-[#FEF5EF] text-swap rounded text-xs font-bold">
                   {{ item.wantedItem }}
                 </span>
@@ -70,17 +63,16 @@
             }
           </div>
 
-          <!-- Action Buttons -->
           <div class="flex gap-3 pt-4 border-t border-gray-200">
             <button
               (click)="editPost(item)"
               class="flex-1 px-4 py-2 bg-swap text-white font-black rounded-lg hover:shadow-lg transition-all uppercase text-xs">
-              რედაქტირება
+              {{ 'profile.myPosts.edit' | translate }}
             </button>
             <button
               (click)="deletePost(item)"
               class="flex-1 px-4 py-2 bg-gray-200 text-gray-900 font-black rounded-lg hover:bg-gray-300 transition-all uppercase text-xs">
-              წაშლა
+              {{ 'profile.myPosts.delete' | translate }}
             </button>
           </div>
         </div>

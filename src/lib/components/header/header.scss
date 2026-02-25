@@ -55,10 +55,10 @@ header.bg-white {
   }
 
   .header-btn {
-    background-color: #f3f4f6;
+    background-color: var(--color-backgroundIcon);
 
     &:hover {
-      background-color: #e5e7eb;
+      background-color: var(--color-border);
     }
   }
 
@@ -128,7 +128,7 @@ header.bg-white {
   }
 
   .logout-menu-item {
-    border-top: 1px solid #e5e7eb !important; 
+    border-top: 1px solid var(--color-borderColor) !important; 
     
     &:hover {
       background-color: var(--color-swap) !important;
@@ -136,6 +136,72 @@ header.bg-white {
       span {
         color: black !important;
       }
+    }
+  }
+}
+
+// Shop 
+header.bg-white.shop-header {
+  .active-nav-link {
+    background-color: rgba(62, 90, 216, 0.1);
+    color: var(--color-market) !important;
+  }
+
+  .nav-link {
+    color: rgba(62, 90, 216, 0.7);
+
+    &:hover {
+      color: rgba(62, 90, 216, 0.566);
+    }
+  }
+
+  .header-icon {
+    color: var(--color-market) !important;
+  }
+
+  .lang-btn {
+    color: var(--color-market);
+  }
+
+  .register-btn {
+    border-color: rgba(62, 90, 216, 0.4);
+    color: var(--color-market);
+
+    &:hover {
+      background-color: rgba(62, 90, 216, 0.1);
+    }
+  }
+}
+
+// Swap 
+header.bg-white.swap-header {
+  .active-nav-link {
+    background-color: rgba(243, 181, 130, 0.2);
+    color: var(--color-swap) !important;
+  }
+
+  .nav-link {
+    color: rgba(243, 181, 130, 0.8);
+    
+    &:hover {
+      color: var(--color-swap);
+    }
+  }
+
+  .header-icon {
+    color: var(--color-swap)!important;
+  }
+
+  .lang-btn {
+    color: var(--color-swap);
+  }
+
+  .register-btn {
+    border-color: rgba(243, 181, 130, 0.5);
+    color: var(--color-swap);
+
+    &:hover {
+      background-color: rgba(243, 181, 130, 0.1);
     }
   }
 }

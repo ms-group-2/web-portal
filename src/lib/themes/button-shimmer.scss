@@ -10,7 +10,7 @@
 @layer components {
   .btn-shimmer {
     @apply relative overflow-hidden inline-block;
-    background-color: #F3B582 !important;
+    background-color: var(--color-swap)!important;
     color: #000000;
     
     > * {
@@ -23,9 +23,9 @@
       @apply absolute inset-0;
       background: linear-gradient(
         to right,
-        #F3B582 0%,
+        var(--color-swap) 0%,
         #ded85d 50%,
-        #F3B582 100%
+        var(--color-swap) 100%
       );
       background-size: 200% 100%;
       animation: shimmer 3s ease-in-out infinite;

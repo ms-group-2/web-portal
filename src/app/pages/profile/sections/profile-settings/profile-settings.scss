@@ -111,11 +111,11 @@ h2 {
     background: white !important;
 
     &:hover {
-      background: #f3f4f6 !important;
+      background: var(--color-backgroundIcon) !important;
     }
 
     &.mdc-list-item--selected {
-      background: #e5e7eb !important;
+      background: var(--color-borderColor) !important;
     }
 
     .mat-pseudo-checkbox {

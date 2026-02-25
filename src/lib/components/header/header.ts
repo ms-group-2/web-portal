@@ -30,11 +30,17 @@ export class Header {
   navItems = signal(NAV_ITEMS);
   currentRoute = signal('');
 
+  isShopRoute = computed(() => {
+    return this.currentRoute().includes('/shop');
+  });
+
+  isSwapRoute = computed(() => {
+    return this.currentRoute().includes('/swap');
+  });
+
   headerGradient = computed(() => {
     const route = this.currentRoute();
-    if (route.includes('/swap')) {
-      return 'bg-gradient-to-r from-swap to-[#F3B582]';
-    } else if (route.includes('/market')) {
+    if (route.includes('/shop')) {
       return 'bg-gradient-to-r from-market to-teal-400';
     } else if (route.includes('/booking')) {
       return 'bg-gradient-to-r from-booking to-blue-500';
@@ -79,6 +85,7 @@ export class Header {
       if (confirmed) {
         this.auth.logout();
         this.snackbar.success(SNACKBAR_MESSAGES.LOGOUT_SUCCESS);
+        this.router.navigateByUrl('/auth/landing');
       }
     });
   }

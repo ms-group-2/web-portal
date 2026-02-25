@@ -5,7 +5,7 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#885DDE',
+          DEFAULT: 'var(--color-primary)',
           50: '#f2f2fe',
           100: '#e5e5fc',
           200: '#cccbf9',
@@ -16,11 +16,14 @@ module.exports = {
           800: '#4d3299',
           900: '#341a7f',
         },
-        accent: '#7A1DFF',
-        swap: '#FAAF78',
-        market: '#80CBC4',
-        booking: '#3E5AD8',
-        textBlue: '#3f5ccfd6',
+        accent: 'var(--color-accent)',
+        swap: 'var(--color-swap)',
+        booking: 'var(--color-booking)',
+        market: 'var(--color-market)',
+        textBlue: 'var(--color-textBlue)',
+        background: 'var(--color-background)',
+        backgroundIcon: 'var(--color-backgroundIcon)',
+        borderColor: 'var(--color-borderColor)',
       },
       screens: {
         '2xl': '1440px',

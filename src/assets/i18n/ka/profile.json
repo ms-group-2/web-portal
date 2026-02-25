@@ -50,6 +50,29 @@
       "incorrectCurrentPassword": "შეყვანილი ახლანდელი პაროლი არასწორია",
       "authenticationExpired": "ავტორიზაცია ვადაგასულია. გთხოვთ ხელახლა შეხვიდეთ სისტემაში",
       "userNotFound": "მომხმარებელი ვერ მოიძებნა"
+    },
+    "myPosts": {
+      "title": "ჩემი განცხადებები",
+      "emptyTitle": "განცხადებები არ არის",
+      "emptyMessage": "თქვენ ჯერ არ გაქვთ გამოქვეყნებული განცხადებები",
+      "lookingFor": "ვეძებ",
+      "edit": "რედაქტირება",
+      "delete": "წაშლა"
+    },
+    "favorites": {
+      "title": "ფავორიტები",
+      "addToCart": "კალათაში დამატება"
+    },
+    "deletePostDialog": {
+      "title": "განცხადების წაშლა",
+      "message": "ნამდვილად გსურთ ამ განცხადების წაშლა?",
+      "confirm": "წაშლა",
+      "cancel": "გაუქმება"
+    },
+    "postStatus": {
+      "active": "აქტიური",
+      "inactive": "არააქტიური",
+      "completed": "დასრულებული"
     }
   },
   "validation": {

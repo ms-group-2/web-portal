@@ -16,6 +16,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'shop',
+    loadComponent: () => import('./pages/shop/shop').then(m => m.Shop),
+  },
+
+  {
     path: 'auth',
     children: [
       {

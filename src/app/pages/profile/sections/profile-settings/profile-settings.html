@@ -1,6 +1,6 @@
 <div>
   @if (isLoading()) {
-    <div class="flex flex-col items-center justify-center min-h-[400px] gap-4">
+    <div class="flex flex-col items-center justify-center min-h-[800px] gap-4">
       <mat-spinner diameter="60" color="primary"></mat-spinner>
       <p class="text-gray-600 text-lg text-center">{{ 'profile.loading' | translate }}</p>
     </div>
@@ -26,7 +26,7 @@
       <app-avatar-upload
         [avatarUrl]="avatarUrl()"
         size="md"
-        [editable]="isEditing()"
+        [editable]="false"
         (fileSelected)="onAvatarFileSelected($event)"
         (deleteRequested)="onAvatarDeleteRequested()"
       />
@@ -60,7 +60,7 @@
                 [formControl]="form.controls.firstName"
                 type="text"
                 [placeholder]="'profile.firstName' | translate"
-                maxlength="60"
+                maxlength="50"
                 class="field-input"
                 [class.border-red-500]="form.controls.firstName.invalid && form.controls.firstName.touched"
                 [class.border-gray-300]="!form.controls.firstName.invalid || !form.controls.firstName.touched"
@@ -72,7 +72,7 @@
                 </p>
               }
               <div class="text-xs text-gray-500 mt-1 text-right">
-                {{ form.controls.firstName.value.length || 0 }}/60
+                {{ form.controls.firstName.value.length || 0 }}/50
               </div>
             </div>
             <div class="w-full">
@@ -80,7 +80,7 @@
                 [formControl]="form.controls.lastName"
                 type="text"
                 [placeholder]="'profile.lastName' | translate"
-                maxlength="60"
+                maxlength="50"
                 class="field-input"
                 [class.border-red-500]="form.controls.lastName.invalid && form.controls.lastName.touched"
                 [class.border-gray-300]="!form.controls.lastName.invalid || !form.controls.lastName.touched"
@@ -92,7 +92,7 @@
                 </p>
               }
               <div class="text-xs text-gray-500 mt-1 text-right">
-                {{ form.controls.lastName.value.length || 0 }}/60
+                {{ form.controls.lastName.value.length || 0 }}/50
               </div>
             </div>
           </div>
@@ -114,10 +114,10 @@
               readonly
             />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker startView="multi-year"></mat-datepicker>
+            <mat-datepicker #picker startView="multi-year" [startAt]="defaultPickerDate"></mat-datepicker>
           </mat-form-field>
         } @else {
-          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!age())">{{ age() ? age() + ' ' + ('profile.yearsOld' | translate) : ('profile.notSpecified' | translate) }}</p>
+          <p class="field-display-optional" [ngClass]="{'text-gray-700 font-bold': age(), 'text-gray-500 font-normal': !age()}">{{ age() ? age() + ' ' + ('profile.yearsOld' | translate) : ('profile.notSpecified' | translate) }}</p>
         }
       </div>
     </div>
@@ -166,7 +166,7 @@
             />
           </div>
         } @else {
-          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!phoneDisplay())">{{ phoneDisplay() || ('profile.notSpecified' | translate) }}</p>
+          <p class="field-display-optional" [ngClass]="{'text-gray-700 font-bold': phoneDisplay(), 'text-gray-500 font-normal': !phoneDisplay()}">{{ phoneDisplay() || ('profile.notSpecified' | translate) }}</p>
         }
       </div>
     </div>
@@ -193,13 +193,19 @@
       <div>
         <label class="field-label">{{ 'profile.address' | translate }}</label>
         @if (isEditing()) {
-          <input
-            [formControl]="form.controls.location"
-            type="text"
-            class="field-input"
-          />
+          <div>
+            <input
+              [formControl]="form.controls.location"
+              type="text"
+              maxlength="50"
+              class="field-input"
+            />
+            <div class="text-xs text-gray-500 mt-1 text-right">
+              {{ form.controls.location.value.length || 0 }}/50
+            </div>
+          </div>
         } @else {
-          <p class="field-display-optional" [class]="getOptionalFieldClasses(!!formValue().location)">{{ formValue().location || ('profile.notSpecified' | translate) }}</p>
+          <p class="field-display-optional" [ngClass]="{'text-gray-700 font-bold': formValue().location, 'text-gray-500 font-normal': !formValue().location}">{{ formValue().location || ('profile.notSpecified' | translate) }}</p>
         }
       </div>
     </div>

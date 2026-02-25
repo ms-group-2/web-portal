@@ -13,39 +13,20 @@ export class ProfileApiService {
     return this.http.get<Profile>(`${this.baseUrl}/${profileId}`);
   }
 
-  updateProfile(profileId: string, body: UpdateProfileRequest): Observable<Profile> {
+  updateProfile(body: UpdateProfileRequest): Observable<Profile> {
+    return this.http.put<Profile>(`${this.baseUrl}/me`, body, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  uploadAvatar(avatar: File): Observable<Profile> {
     const formData = new FormData();
+    formData.append('avatar', avatar);
+    return this.http.patch<Profile>(`${this.baseUrl}/avatar`, formData);
+  }
 
-    formData.append('name', body.name);
-    formData.append('surname', body.surname);
-
-    if (body.phone_number !== undefined) {
-      formData.append('phone_number', body.phone_number);
-    }
-
-    if (body.birth_date) {
-      formData.append('birth_date', body.birth_date);
-    }
-
-    formData.append('location', body.location);
-
-    if (body.gender !== null && body.gender !== undefined) {
-      formData.append('gender', String(body.gender));
-    }
-
-    formData.append('bio', body.bio);
-
-    // Only append avatar if it's actually a File object (not null or undefined)
-    if (body.avatar instanceof File) {
-      formData.append('avatar', body.avatar);
-    }
-
-    // Only include delete_avatar flag if explicitly set to true
-    if (body.delete_avatar === true) {
-      formData.append('delete_avatar', 'true');
-    }
-
-    return this.http.put<Profile>(`${this.baseUrl}/${profileId}`, formData);
+  deleteAvatar(): Observable<Profile> {
+    return this.http.delete<Profile>(`${this.baseUrl}/avatar`);
   }
 }
 
