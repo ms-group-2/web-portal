@@ -52,16 +52,32 @@
 
       <button
         aria-label="Favorites"
-        class="header-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
+        class="header-btn relative w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
       >
         <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">favorite_border</mat-icon>
+        @if (favoriteCount() > 0) {
+          <span
+            class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-[10px] md:text-xs font-bold flex items-center justify-center"
+            [ngClass]="cartBadgeClass()"
+          >
+            {{ favoriteCount() }}
+          </span>
+        }
       </button>
 
       <button
         aria-label="Shopping cart"
-        class="header-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
+        class="header-btn relative w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
       >
         <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">shopping_cart</mat-icon>
+        @if (cartCount() > 0) {
+          <span
+            class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-[10px] md:text-xs font-bold flex items-center justify-center"
+            [ngClass]="cartBadgeClass()"
+          >
+            {{ cartCount() }}
+          </span>
+        }
       </button>
 
       <button

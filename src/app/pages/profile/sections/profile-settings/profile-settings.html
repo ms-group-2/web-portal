@@ -117,7 +117,11 @@
             <mat-datepicker #picker startView="multi-year" [startAt]="defaultPickerDate"></mat-datepicker>
           </mat-form-field>
         } @else {
-          <p class="field-display-optional" [ngClass]="{'text-gray-700 font-bold': age(), 'text-gray-500 font-normal': !age()}">{{ age() ? age() + ' ' + ('profile.yearsOld' | translate) : ('profile.notSpecified' | translate) }}</p>
+          @if (age()) {
+            <p class="field-display-optional text-gray-700 font-bold">{{ age() }} {{ 'profile.yearsOld' | translate }}</p>
+          } @else {
+            <p class="field-display-optional text-gray-500 font-normal">{{ 'profile.notSpecified' | translate }}</p>
+          }
         }
       </div>
     </div>

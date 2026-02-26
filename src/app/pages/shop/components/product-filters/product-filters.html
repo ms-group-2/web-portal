@@ -2,66 +2,66 @@
   <div class="flex flex-wrap items-center gap-4">
     <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors">
       <mat-icon class="!w-4 !h-4 !text-[16px]">tune</mat-icon>
-      Filters
+      {{ 'shop.filters.title' | translate }}
     </button>
 
     <div class="relative">
-      <select 
+      <select
         [(ngModel)]="selectedCategory"
         class="w-full appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
-        <option value="all">All Categories</option>
-        <option value="electronics">Electronics</option>
-        <option value="home">Home</option>
-        <option value="lifestyle">Lifestyle</option>
-        <option value="gifts">Gifts</option>
+        <option value="all">{{ 'shop.filters.allCategories' | translate }}</option>
+        <option value="electronics">{{ 'shop.filters.category.electronics' | translate }}</option>
+        <option value="home">{{ 'shop.filters.category.home' | translate }}</option>
+        <option value="lifestyle">{{ 'shop.filters.category.lifestyle' | translate }}</option>
+        <option value="gifts">{{ 'shop.filters.category.gifts' | translate }}</option>
       </select>
       <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
     </div>
 
     <div class="relative">
-      <select 
+      <select
         [(ngModel)]="selectedPriceRange"
         class="w-full appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
-        <option value="all">Price Range</option>
-        <option value="under50">Under $50</option>
-        <option value="50-100">$50 - $100</option>
-        <option value="100-200">$100 - $200</option>
-        <option value="200plus">$200+</option>
+        <option value="all">{{ 'shop.filters.priceRange' | translate }}</option>
+        <option value="under50">{{ 'shop.filters.price.under50' | translate }}</option>
+        <option value="50-100">{{ 'shop.filters.price.50to100' | translate }}</option>
+        <option value="100-200">{{ 'shop.filters.price.100to200' | translate }}</option>
+        <option value="200plus">{{ 'shop.filters.price.200plus' | translate }}</option>
       </select>
       <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
     </div>
 
     <div class="relative">
-      <select 
+      <select
         [(ngModel)]="selectedRating"
         class="w-full appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
-        <option value="all">Rating</option>
-        <option value="4plus">4+ stars</option>
-        <option value="3plus">3+ stars</option>
-        <option value="allratings">All ratings</option>
+        <option value="all">{{ 'shop.filters.rating.title' | translate }}</option>
+        <option value="4plus">{{ 'shop.filters.rating.4plus' | translate }}</option>
+        <option value="3plus">{{ 'shop.filters.rating.3plus' | translate }}</option>
+        <option value="allratings">{{ 'shop.filters.rating.all' | translate }}</option>
       </select>
       <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
     </div>
 
     <button
       (click)="toggleVerified()"
-      [class]="'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ' + 
-        (verifiedOnly() 
-          ? 'bg-market text-white' 
+      [class]="'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ' +
+        (verifiedOnly()
+          ? 'bg-market text-white'
           : 'bg-gray-100 hover:bg-gray-200 text-gray-700')"
     >
       <mat-icon class="!w-4 !h-4 !text-[16px]">verified_user</mat-icon>
-      Verified Sellers Only
+      {{ 'shop.filters.verifiedOnly' | translate }}
     </button>
 
     <div class="ml-auto relative">
-      <select 
+      <select
         [(ngModel)]="sortBy"
         class="w-full appearance-none px-5 py-2.5 pr-10 bg-white hover:bg-gray-50 rounded-xl font-medium text-gray-700 transition-colors border border-gray-200 focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
-        <option value="recommended">Recommended</option>
-        <option value="price-low">Price: Low to High</option>
-        <option value="price-high">Price: High to Low</option>
-        <option value="top-rated">Top Rated</option>
+        <option value="recommended">{{ 'shop.filters.sort.recommended' | translate }}</option>
+        <option value="price-low">{{ 'shop.filters.sort.priceLow' | translate }}</option>
+        <option value="price-high">{{ 'shop.filters.sort.priceHigh' | translate }}</option>
+        <option value="top-rated">{{ 'shop.filters.sort.topRated' | translate }}</option>
       </select>
       <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
     </div>

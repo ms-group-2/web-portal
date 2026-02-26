@@ -1,7 +1,7 @@
 {
   "profile": {
     "hello": "Hello",
-    "back": "Back",
+    "back": "Go back",
     "logout": "Logout",
     "historySection": "History",
     "titleAndSettings": "Profile and Settings",

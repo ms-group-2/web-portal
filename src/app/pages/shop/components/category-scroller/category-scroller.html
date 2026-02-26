@@ -1,41 +1,56 @@
 <div class="relative mb-8">
-  <h2 class="text-2xl font-bold text-gray-900 mb-4">კატეგორიები</h2>
-  <div 
-    #scrollContainer
-    class="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
-  >
-    @for (category of categories; track category.id) {
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ 'shop.categories.title' | translate }}</h2>
+
+  <div class="flex gap-4 pb-4 px-1">
+    <div class="flex-shrink-0 py-1">
       <button
-        (click)="selectCategory(category.id)"
-        [class]="'flex-shrink-0 w-48 rounded-2xl overflow-hidden transition-all group ' +
-          (selectedCategory() === category.id
-            ? 'shadow-lg'
+        (click)="selectCategory(allCategory.id)"
+        [class]="'category-button w-48 rounded-2xl overflow-hidden group ' +
+          (selectedCategory() === allCategory.id
+            ? 'shadow-lg selected'
             : 'hover:shadow-md')"
       >
-        @if (category.image) {
-          <div class="relative h-48 bg-gray-100">
-            <img 
-              [src]="category.image" 
-              [alt]="category.name"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-          </div>
-        } @else {
-          <div class="h-48 bg-gradient-to-br from-market to-[#6B7FE8] flex items-center justify-center">
-            <mat-icon class="!w-16 !h-16 !text-[64px] text-white opacity-80">menu</mat-icon>
-          </div>
-        }
+        <div class="h-48 bg-gradient-to-br from-market to-[#6B7FE8] flex items-center justify-center">
+          <mat-icon class="!w-16 !h-16 !text-6xl text-white opacity-80">menu</mat-icon>
+        </div>
         <div class="bg-white p-4 text-center border-t border-gray-100">
-          <h3 class="font-bold text-gray-900 text-sm">{{ category.name }}</h3>
+          <h3 class="font-bold text-gray-900 text-sm">{{ allCategory.name | translate }}</h3>
         </div>
       </button>
-    }
-    
-    <button 
-      (click)="scrollCategories()"
-      class="flex-shrink-0 w-16 h-48 bg-gray-100 rounded-2xl flex items-center justify-center hover:bg-market hover:text-white transition-all group"
-    >
-      <mat-icon class="text-gray-600 group-hover:text-white">chevron_right</mat-icon>
-    </button>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <app-swiper styleClass="category-swiper">
+        @for (category of categories; track category.id) {
+          <swiper-slide class="!w-48 py-1">
+            <button
+              (click)="selectCategory(category.id)"
+              class="category-button w-full rounded-2xl overflow-hidden group"
+              [ngClass]="{
+                'shadow-lg selected': selectedCategory() === category.id,
+                'hover:shadow-md': selectedCategory() !== category.id
+              }"
+            >
+              @if (category.image) {
+                <div class="relative h-48 bg-gray-100">
+                  <img
+                    [src]="category.image"
+                    [alt]="category.name"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              } @else {
+                <div class="h-48 bg-gradient-to-br from-market to-[#6B7FE8] flex items-center justify-center">
+                  <mat-icon class="!w-16 !h-16 !text-6xl text-white opacity-80">menu</mat-icon>
+                </div>
+              }
+              <div class="bg-white p-4 text-center border-t border-gray-100">
+                <h3 class="font-bold text-gray-900 text-sm">{{ category.name | translate }}</h3>
+              </div>
+            </button>
+          </swiper-slide>
+        }
+      </app-swiper>
+    </div>
   </div>
 </div>

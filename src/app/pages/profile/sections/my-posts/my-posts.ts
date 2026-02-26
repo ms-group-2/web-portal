@@ -2,9 +2,8 @@ import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { SwapItemsService } from 'lib/services/swap/swap-items.service';
+import { SwapItemsService, SwapListingApiService } from 'lib/services/swap';
 import { ConfirmationDialogService } from 'lib/components/confirmation-dialog/confirmation-dialog.service';
-import { SwapListingApiService } from 'lib/services/swap/swap-listing-api.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 

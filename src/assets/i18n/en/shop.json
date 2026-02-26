@@ -1,0 +1,82 @@
+{
+  "shop": {
+    "hero": {
+      "title": "Shop",
+      "subtitle": "Buy verified products from trusted sellers — guaranteed by the platform.",
+      "searchPlaceholder": "Search for products..."
+    },
+    "categories": {
+      "title": "Categories",
+      "all": "All categories",
+      "vouchers": "Vouchers",
+      "electronics": "Electronics",
+      "beauty": "Beauty & Care",
+      "home": "Home & Garden",
+      "gifts": "Gifts",
+      "clothing": "Clothing & Accessories",
+      "sports": "Sports & Outdoors",
+      "books": "Books & Media",
+      "toys": "Toys & Games",
+      "pets": "Pet Supplies",
+      "office": "Office & Stationery",
+      "jewelry": "Jewelry & Watches"
+    },
+    "filters": {
+      "title": "Filters",
+      "allCategories": "All Categories",
+      "category": {
+        "electronics": "Electronics",
+        "home": "Home",
+        "lifestyle": "Lifestyle",
+        "gifts": "Gifts"
+      },
+      "priceRange": "Price Range",
+      "price": {
+        "under50": "Under $50",
+        "50to100": "$50 - $100",
+        "100to200": "$100 - $200",
+        "200plus": "$200+"
+      },
+      "rating": {
+        "title": "Rating",
+        "4plus": "4+ stars",
+        "3plus": "3+ stars",
+        "all": "All ratings"
+      },
+      "verifiedOnly": "Verified Sellers Only",
+      "sort": {
+        "recommended": "Recommended",
+        "priceLow": "Price: Low to High",
+        "priceHigh": "Price: High to Low",
+        "topRated": "Top Rated"
+      }
+    },
+    "promo": {
+      "heroTitle": "Galaxy Unpacked",
+      "heroSubtitle": "Experience the latest innovations. Pre-order now and get exclusive deals.",
+      "heroAlt": "Galaxy Unpacked",
+      "kitchenTitle": "Kitchen Essentials",
+      "kitchenSubtitle": "Up to 40% off",
+      "kitchenAlt": "Home Appliances",
+      "fashionTitle": "Fashion Collection",
+      "fashionSubtitle": "New arrivals daily",
+      "fashionAlt": "Fashion Sale"
+    },
+    "suggested": {
+      "title": "You may also like",
+      "subtitle": "Based on your browsing history"
+    },
+    "trust": {
+      "title": "Why shop with us?",
+      "guaranteeTitle": "Platform Guarantee",
+      "guaranteeBody": "Every product is verified and backed by our quality guarantee",
+      "returnsTitle": "Easy Returns",
+      "returnsBody": "30-day return policy on all verified products",
+      "secureTitle": "Secure Checkout",
+      "secureBody": "Your payment information is always protected"
+    },
+    "card": {
+      "addToCart": "Add to Cart"
+    }
+  }
+}

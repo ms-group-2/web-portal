@@ -2,6 +2,15 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30">
 
   <div class="max-w-7xl mx-auto px-4 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12">
+    <button
+      type="button"
+      (click)="goBack()"
+      class="mb-6 ml-2 flex items-center gap-2 text-primary transition-all uppercase duration-300 font-bold hover:scale-x-110 hover:gap-3"
+    >
+      <mat-icon>arrow_back</mat-icon>
+      <span>{{ 'profile.back' | translate }}</span>
+    </button>
+
     <div class="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
       <app-profile-sidebar></app-profile-sidebar>
 

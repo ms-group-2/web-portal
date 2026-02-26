@@ -2,44 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-
-export interface SwapListing {
-  id: string;
-  profile_id: string;
-  title: string;
-  swap_item_title: string;
-  description: string;
-  created_at: string;
-  updated_at: string;
-  photos: string[];
-}
-
-export interface GetAllListingsResponse {
-  listings: SwapListing[];
-}
-
-export interface CreateListingRequest {
-  title: string;
-  swap_item_title: string;
-  description: string;
-  files: File[];
-}
-
-export interface UpdateListingRequest {
-  title?: string;
-  swap_item_title?: string;
-  description?: string;
-  photos_to_delete?: string[];
-  new_files?: File[];
-}
-
-export interface FilterListingsParams {
-  q?: string;
-  category?: string;
-  status?: string;
-  min_price?: number;
-  max_price?: number;
-}
+import { SwapListing, CreateListingRequest, UpdateListingRequest, FilterListingsParams, GetAllListingsResponse} from './';
 
 @Injectable({
   providedIn: 'root'

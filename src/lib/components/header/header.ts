@@ -11,6 +11,7 @@ import { TranslationService } from 'lib/services/translation.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { ShopService } from 'lib/services/shop/shop.service';
 
 @Component({
   selector: 'app-header',
@@ -24,11 +25,14 @@ export class Header {
   private router = inject(Router);
   private confirmDialog = inject(ConfirmationDialogService);
   translation = inject(TranslationService);
+  private shopService = inject(ShopService);
 
   variant = input<'gradient' | 'white'>('gradient');
 
   navItems = signal(NAV_ITEMS);
   currentRoute = signal('');
+  cartCount = this.shopService.cartCount;
+  favoriteCount = this.shopService.favoriteCount;
 
   isShopRoute = computed(() => {
     return this.currentRoute().includes('/shop');
@@ -36,6 +40,19 @@ export class Header {
 
   isSwapRoute = computed(() => {
     return this.currentRoute().includes('/swap');
+  });
+  cartBadgeClass = computed(() => {
+    const route = this.currentRoute();
+    if (route.includes('/shop')) {
+      return 'bg-market';
+    }
+    if (route.includes('/booking')) {
+      return 'bg-booking';
+    }
+    if (route.includes('/swap')) {
+      return 'bg-swap';
+    }
+    return 'bg-primary';
   });
 
   headerGradient = computed(() => {
@@ -90,5 +107,3 @@ export class Header {
     });
   }
 }
-
-

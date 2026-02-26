@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { AuthService } from '../identity/auth.service';
-import { SwapListingApiService, SwapListing } from './swap-listing-api.service';
+import { SwapListingApiService, SwapListing } from './';
 import { SnackbarService } from '../snackbar.service';
 
 export interface PostedSwapItem {

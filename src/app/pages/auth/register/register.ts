@@ -42,7 +42,7 @@ export class Register implements OnInit {
 
   form = this.fb.group({
     email: this.fb.control('', {
-      validators: [Validators.required, strictEmailValidator(), emptySpaceValidator()],
+      validators: [Validators.required, Validators.maxLength(255), strictEmailValidator(), emptySpaceValidator()],
       updateOn: 'blur'
     }),
     firstName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(60), emptySpaceValidator()]),
@@ -100,11 +100,11 @@ export class Register implements OnInit {
       return `validation.passwordStrength${firstError.charAt(0).toUpperCase() + firstError.slice(1)}`;
     }
 
-    // if (key === 'minlength') {
-    //   const required = errors['minlength'].requiredLength;
-    //   const translated = this.translation.translate('validation.minlength');
-    //   return translated.replace('{n}', String(required));
-    // }
+    if (key === 'minlength') {
+      const required = errors['minlength'].requiredLength;
+      const translated = this.translation.translate('validation.minlength');
+      return translated.replace('{n}', String(required));
+    }
 
     if (key === 'maxlength') {
       const required = errors['maxlength'].requiredLength;

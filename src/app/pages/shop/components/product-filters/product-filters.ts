@@ -2,10 +2,11 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-product-filters',
-  imports: [CommonModule, MatIconModule, FormsModule],
+  imports: [CommonModule, MatIconModule, FormsModule, TranslatePipe],
   templateUrl: './product-filters.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

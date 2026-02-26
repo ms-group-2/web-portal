@@ -1,8 +1,21 @@
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  
-  &::-webkit-scrollbar {
-    display: none;
+.category-swiper {
+  width: 100%;
+
+  ::ng-deep swiper-container {
+    overflow: visible !important;
+    padding: 4px 0;
+  }
+
+  ::ng-deep swiper-slide {
+    overflow: visible !important;
+  }
+}
+
+.category-button {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover,
+  &.selected {
+    transform: translateY(-2px) scale(1.01);
   }
 }

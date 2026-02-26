@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { TranslationService } from 'lib/services/translation.service';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ShopHeroComponent } from './components/shop-hero/shop-hero';
@@ -29,8 +29,10 @@ import { TrustSectionComponent } from './components/trust-section/trust-section'
 })
 export class Shop implements OnInit {
   private shopService = inject(ShopService);
+  private translation = inject(TranslationService);
 
   ngOnInit() {
+    this.translation.loadModule('shop').subscribe();
     this.shopService.getProducts().subscribe();
   }
 }

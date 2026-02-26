@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -10,6 +10,8 @@ export class ShopService {
   private baseUrl = `${environment.apiBaseUrl}/shop`;
 
   cartCount = signal(0);
+  favorites = signal<Set<string>>(new Set());
+  favoriteCount = computed(() => this.favorites().size);
 
   getProducts(): Observable<Product[]> {
     return of(this.getMockProducts());
@@ -18,6 +20,25 @@ export class ShopService {
   addToCart(product: Product): void {
     this.cartCount.update(count => count + 1);
     console.log('Added to cart:', product);
+  }
+
+  toggleFavorite(product: Product): void {
+    this.favorites.update(current => {
+      const next = new Set(current);
+      if (next.has(product.id)) {
+        next.delete(product.id);
+      } else {
+        next.add(product.id);
+      }
+      return next;
+    });
+  }
+
+  isFavorite(productId: string | undefined): boolean {
+    if (!productId) {
+      return false;
+    }
+    return this.favorites().has(productId);
   }
 
   private getMockProducts(): Product[] {

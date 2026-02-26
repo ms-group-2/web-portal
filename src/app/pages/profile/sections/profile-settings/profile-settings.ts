@@ -62,6 +62,7 @@ export class ProfileSettingsComponent implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private changePasswordDialog = inject(ChangePasswordDialogService);
   private translationService = inject(TranslationService);
+
   isEditing = signal(false);
   isLoading = signal(false);
   avatarUrl = signal<string | null>(null);

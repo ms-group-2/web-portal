@@ -41,13 +41,20 @@ header:not(.bg-white) {
 }
 
 header.bg-white {
+  .nav-link {
+    color: var(--color-primary);
+    opacity: 0.7;
+  }
+
   .active-nav-link {
     background-color: rgba(var(--color-primary-rgb), 0.1);
     color: var(--color-primary) !important;
+    opacity: 1;
   }
 
   .nav-link:hover {
     color: var(--color-primary);
+    opacity: 1;
   }
 
   .header-icon {

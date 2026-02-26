@@ -1,11 +1,12 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+// import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-shop-hero',
-  imports: [CommonModule, MatIconModule],
+  imports: [ MatIconModule, TranslatePipe],
   templateUrl: './shop-hero.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

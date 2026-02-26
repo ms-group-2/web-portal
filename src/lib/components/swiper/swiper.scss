@@ -1,0 +1,29 @@
+swiper-container::part(button-next),
+swiper-container::part(button-prev) {
+  width: 17px;
+  height: 17px;
+  padding: 7px;
+  transition: transform 0.3s ease, background-color 0.2s ease;
+  background-color: #f3f4f6;
+  border-radius: 12px;
+
+  &:hover {
+    transform: scale(1.05);
+    background-color: var(--color-market);
+    color: white;
+  }
+
+  color: #6b7280;
+}
+
+swiper-container::part(button-disabled) {
+  opacity: 0.3;
+}
+
+swiper-container::part(bullet) {
+  background: #aaa;
+}
+
+swiper-container::part(bullet-active) {
+  background: var(--color-market);
+}

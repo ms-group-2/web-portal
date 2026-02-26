@@ -1,12 +1,12 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ProductCardComponent } from '../product-card/product-card';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { Product } from '../../shop.models';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-suggested-products',
-  imports: [CommonModule, ProductCardComponent],
+  imports: [ProductCardComponent, TranslatePipe],
   templateUrl: './suggested-products.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
