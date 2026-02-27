@@ -1,0 +1,25 @@
+.category-mega-menu {
+  animation: fadeIn 0.2s ease-out;
+  transition: opacity 0.2s ease-in;
+
+  &.closing {
+    opacity: 0;
+  }
+}
+
+.backdrop {
+  transition: opacity 0.2s ease-in;
+
+  &.closing {
+    opacity: 0 !important;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

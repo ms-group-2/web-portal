@@ -7,13 +7,13 @@
 
     <div class="relative">
       <select
-        [(ngModel)]="selectedCategory"
+        [ngModel]="selectedCategoryId()"
+        (ngModelChange)="onCategoryChange($event === 'all' ? null : +$event)"
         class="w-full appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
         <option value="all">{{ 'shop.filters.allCategories' | translate }}</option>
-        <option value="electronics">{{ 'shop.filters.category.electronics' | translate }}</option>
-        <option value="home">{{ 'shop.filters.category.home' | translate }}</option>
-        <option value="lifestyle">{{ 'shop.filters.category.lifestyle' | translate }}</option>
-        <option value="gifts">{{ 'shop.filters.category.gifts' | translate }}</option>
+        @for (category of categories(); track category.id) {
+          <option [value]="category.id">{{ category.name | translate }}</option>
+        }
       </select>
       <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
     </div>
@@ -63,7 +63,7 @@
         <option value="price-high">{{ 'shop.filters.sort.priceHigh' | translate }}</option>
         <option value="top-rated">{{ 'shop.filters.sort.topRated' | translate }}</option>
       </select>
-      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
+      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-base text-gray-600 pointer-events-none">expand_more</mat-icon>
     </div>
   </div>
 </div>

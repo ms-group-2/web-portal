@@ -8,6 +8,10 @@
     "categories": {
       "title": "Categories",
       "all": "All categories",
+      "browseAll": "All Categories",
+      "viewTree": "Browse all categories",
+      "search": "Search categories...",
+      "noResults": "No categories found",
       "vouchers": "Vouchers",
       "electronics": "Electronics",
       "beauty": "Beauty & Care",

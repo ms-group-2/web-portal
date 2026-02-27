@@ -16,8 +16,8 @@ export class SuggestedProductsComponent implements OnInit {
   suggestedProducts = signal<Product[]>([]);
 
   ngOnInit() {
-    this.shopService.getProducts().subscribe(products => {
-      this.suggestedProducts.set(products.slice(0, 4));
-    });
+    // this.shopService.getProducts().subscribe(products => {
+    //   this.suggestedProducts.set(products.slice(0, 4));
+    // });
   }
 }

@@ -4,50 +4,54 @@
   <div class="flex gap-4 pb-4 px-1">
     <div class="flex-shrink-0 py-1">
       <button
-        (click)="selectCategory(allCategory.id)"
-        [class]="'category-button w-48 rounded-2xl overflow-hidden group ' +
-          (selectedCategory() === allCategory.id
+        (click)="openCategoryBrowser()"
+        [class]="'category-button rounded-2xl overflow-hidden group ' +
+          (selectedCategory() === null
             ? 'shadow-lg selected'
             : 'hover:shadow-md')"
+        style="width: 142px; height: 172px;"
       >
-        <div class="h-48 bg-gradient-to-br from-market to-[#6B7FE8] flex items-center justify-center">
-          <mat-icon class="!w-16 !h-16 !text-6xl text-white opacity-80">menu</mat-icon>
-        </div>
-        <div class="bg-white p-4 text-center border-t border-gray-100">
-          <h3 class="font-bold text-gray-900 text-sm">{{ allCategory.name | translate }}</h3>
+        <div class="relative h-[172px] bg-gradient-to-br from-market to-[#6B7FE8] flex items-center justify-center overflow-hidden rounded-2xl">
+          <mat-icon class="!w-12 !h-12 !text-5xl text-white opacity-80">apps</mat-icon>
+
+          <div class="absolute top-0 left-0 right-0 p-2 bg-gradient-to-b from-black/20 to-transparent">
+            <div class="inline-block backdrop-blur-sm px-3 py-2 rounded-lg">
+              <p class="m-0 font-bold text-white text-xs leading-tight">
+                {{ 'shop.categories.browseAll' | translate }}
+              </p>
+            </div>
+          </div>
         </div>
       </button>
     </div>
 
     <div class="flex-1 min-w-0">
       <app-swiper styleClass="category-swiper">
-        @for (category of categories; track category.id) {
-          <swiper-slide class="!w-48 py-1">
+        @for (category of categories(); track category.id) {
+          <swiper-slide class="py-1" style="width: 142px;">
             <button
-              (click)="selectCategory(category.id)"
-              class="category-button w-full rounded-2xl overflow-hidden group"
+              (click)="selectCategory(typeof category.id === 'number' ? category.id : 0)"
+              class="category-button relative w-full rounded-lg overflow-hidden bg-[#EAEAEA] transition-all hover:bg-[#E0E0E0] flex items-start justify-start pt-6 px-4"
+              style="width: 142px; height: 172px;"
               [ngClass]="{
                 'shadow-lg selected': selectedCategory() === category.id,
                 'hover:shadow-md': selectedCategory() !== category.id
               }"
             >
-              @if (category.image) {
-                <div class="relative h-48 bg-gray-100">
+              <span class="text-sm font-normal text-gray-800 max-w-28 break-words line-clamp-2">
+                {{ category.name | translate }}
+              </span>
+
+              @if (category.image || category.image_url) {
+                <div class="absolute bottom-0 right-0 w-20 h-20 overflow-hidden rounded-tl-lg">
                   <img
-                    [src]="category.image"
+                    [src]="category.image || category.image_url"
                     [alt]="category.name"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    class="w-full h-full object-contain"
                   />
                 </div>
-              } @else {
-                <div class="h-48 bg-gradient-to-br from-market to-[#6B7FE8] flex items-center justify-center">
-                  <mat-icon class="!w-16 !h-16 !text-6xl text-white opacity-80">menu</mat-icon>
-                </div>
               }
-              <div class="bg-white p-4 text-center border-t border-gray-100">
-                <h3 class="font-bold text-gray-900 text-sm">{{ category.name | translate }}</h3>
-              </div>
-            </button>
+          </button>
           </swiper-slide>
         }
       </app-swiper>

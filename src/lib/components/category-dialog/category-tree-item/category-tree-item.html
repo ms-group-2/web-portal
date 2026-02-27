@@ -1,0 +1,59 @@
+<div class="category-item" [style.padding-left.px]="level() * 16">
+  <button
+    (click)="onSelect()"
+    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 transition-all duration-200"
+    [ngClass]="{ 'bg-market/10 border-2 border-market': selected() }">
+
+    @if (hasSubcategories()) {
+      <button
+        (click)="onToggleExpand($event)"
+        class="flex-shrink-0 w-6 h-6 flex items-center justify-center hover:bg-gray-200 rounded transition-colors">
+        <mat-icon class="!w-5 !h-5 !text-[20px] transition-transform duration-200"
+          [class.rotate-90]="expanded()">
+          chevron_right
+        </mat-icon>
+      </button>
+    } @else {
+      <div class="w-6"></div>
+    }
+
+    @if (category().image || category().image_url) {
+      <img
+        [src]="category().image || category().image_url"
+        [alt]="category().name"
+        class="w-10 h-10 rounded-lg object-cover"
+      />
+    } @else {
+      <div class="w-10 h-10 bg-gradient-to-br  flex items-center justify-center">
+        <mat-icon class="!w-5 !h-5 !text-[20px] text-white">category</mat-icon>
+      </div>
+    }
+
+    <span class="flex-1 text-left font-medium text-gray-900">
+      {{ category().name | translate }}
+    </span>
+
+    @if (hasSubcategories()) {
+      <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-medium">
+        {{ subcategoryCount() }}
+      </span>
+    }
+  </button>
+
+  @if (expanded()) {
+    <div class="subcategories ml-4 mt-1 space-y-1 overflow-hidden"
+      [@expandCollapse]>
+      @for (subcategory of loadedSubcategories(); track subcategory.id) {
+        <app-category-tree-item
+          [category]="subcategory"
+          [level]="level() + 1"
+          [expanded]="false"
+          [selected]="false"
+          [subcategoriesMap]="subcategoriesMap()"
+          (toggleExpand)="toggleExpand.emit($event)"
+          (select)="select.emit($event)">
+        </app-category-tree-item>
+      }
+    </div>
+  }
+</div>

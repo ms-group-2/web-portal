@@ -1,0 +1,16 @@
+.category-item {
+  transition: all 0.2s ease;
+
+  button:hover {
+    transform: translateX(2px);
+  }
+
+  &.selected {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.subcategories {
+  border-left: 2px solid #e5e7eb;
+  margin-left: 1rem;
+}

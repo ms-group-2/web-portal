@@ -1,0 +1,97 @@
+@if (isOpen()) {
+
+  <div
+    class="fixed inset-0 bg-black/30 z-40 backdrop transition-opacity duration-300"
+    [class.closing]="isClosing()"
+    (click)="onBackdropClick()">
+  </div>
+
+  <div class="fixed top-16 left-0 right-0 z-40 category-mega-menu" [class.closing]="isClosing()">
+    <div class="bg-white shadow-2xl max-h-[70vh] overflow-hidden flex flex-col">
+
+      <div class="sticky top-0 bg-white z-10">
+        <div class="max-w-6xl mx-auto px-8 pt-8 pb-7 flex items-center justify-between">
+
+          <div class="flex items-center gap-4">
+            @if (breadcrumbs().length > 0) {
+              <button
+                (click)="goBack()"
+                class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"
+                aria-label="Go back">
+                <mat-icon class="text-gray-700">arrow_back</mat-icon>
+              </button>
+            }
+
+            <span class="text-3xl font-bold text-gray-900">
+              {{ 'shop.categories.browseAll' | translate }}
+            </span>
+          </div>
+
+          <button
+            (click)="close()"
+            class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"
+            aria-label="Close">
+            <mat-icon class="text-gray-700">close</mat-icon>
+          </button>
+
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto">
+        <div class="max-w-6xl mx-auto px-8 pb-8">
+
+          @if (loading()) {
+            <app-loading-spinner size="large" color="var(--color-market)"></app-loading-spinner>
+          } 
+          @else if (filteredCategories().length === 0) {
+            <div class="text-center py-12 text-gray-500">
+              {{ 'shop.categories.noResults' | translate }}
+            </div>
+          } 
+          @else {
+
+            <div class="grid grid-cols-4 gap-x-6 gap-y-5">
+
+              @for (category of filteredCategories(); track category.id) {
+
+                <button
+                  (click)="navigateToCategory(category)"
+                  class="relative w-full h-20 flex items-center pl-4 rounded-lg bg-[#EAEAEA] transition-all hover:bg-[#E0E0E0]"
+                  [ngClass]="{
+                    'bg-market/20': shopService.selectedCategoryId() === category.id
+                  }"
+                >
+
+                  <span class="text-sm font-normal text-gray-800 max-w-28 break-words line-clamp-2">
+                    {{ category.name | translate }}
+                  </span>
+
+                  @if (category.image || category.image_url) {
+                    <div class="absolute bottom-0 right-0 w-20 h-20 overflow-hidden rounded-tl-lg">
+                      <img
+                        [src]="category.image || category.image_url"
+                        [alt]="category.name"
+                        class="w-full h-full object-contain"
+                      />
+                    </div>
+                  }
+
+                </button>
+
+              }
+
+            </div>
+            @if (subcategoriesLoading() !== null) {
+              <div class="flex justify-center py-8">
+                <app-loading-spinner size="small" color="var(--color-market)"></app-loading-spinner>
+              </div>
+            }
+
+          }
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+}

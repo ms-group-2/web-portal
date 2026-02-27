@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Product } from '../../shop.models';
@@ -13,19 +13,19 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCardComponent {
-  @Input({ required: true }) product!: Product;
-  @Input() compact = false;
-  
+  product = input.required<Product>();
+  compact = input<boolean>(false);
+
   private shopService = inject(ShopService);
-  isFavorited = computed(() => this.shopService.isFavorite(this.product?.id));
+  isFavorited = computed(() => this.shopService.isFavorite(this.product()?.id));
 
   addToCart(event: Event) {
     event.stopPropagation();
-    this.shopService.addToCart(this.product);
+    this.shopService.addToCart(this.product());
   }
 
   toggleFavorite(event: Event) {
     event.stopPropagation();
-    this.shopService.toggleFavorite(this.product);
+    this.shopService.toggleFavorite(this.product());
   }
 }

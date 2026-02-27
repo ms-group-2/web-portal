@@ -3,6 +3,7 @@ import { ShopService } from 'lib/services/shop/shop.service';
 import { TranslationService } from 'lib/services/translation.service';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
+import { CategoryMenu } from 'lib/components/category-dialog/category-dialog';
 import { ShopHeroComponent } from './components/shop-hero/shop-hero';
 import { CategoryScrollerComponent } from './components/category-scroller/category-scroller';
 import { PromoBannersComponent } from './components/promo-banners/promo-banners';
@@ -16,6 +17,7 @@ import { TrustSectionComponent } from './components/trust-section/trust-section'
   imports: [
     Header,
     Footer,
+    CategoryMenu,
     ShopHeroComponent,
     CategoryScrollerComponent,
     PromoBannersComponent,
@@ -33,6 +35,8 @@ export class Shop implements OnInit {
 
   ngOnInit() {
     this.translation.loadModule('shop').subscribe();
-    this.shopService.getProducts().subscribe();
+
+    // Load main categories
+    this.shopService.getMainCategories().subscribe();
   }
 }

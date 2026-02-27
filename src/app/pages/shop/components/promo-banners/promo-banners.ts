@@ -4,7 +4,7 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-promo-banners',
-  imports: [CommonModule, TranslatePipe],
+  imports: [ TranslatePipe],
   templateUrl: './promo-banners.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
