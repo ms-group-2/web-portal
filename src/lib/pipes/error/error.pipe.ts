@@ -4,7 +4,6 @@ import { IError } from './error.model';
 
 @Pipe({
   name: 'error',
-  standalone: true,
 })
 export class ErrorPipe implements PipeTransform {
   constructor() {}

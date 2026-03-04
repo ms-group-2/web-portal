@@ -9,6 +9,7 @@
       "title": "Categories",
       "all": "All categories",
       "browseAll": "All Categories",
+      "allProducts": "All Products",
       "viewTree": "Browse all categories",
       "search": "Search categories...",
       "noResults": "No categories found",
@@ -81,6 +82,13 @@
     },
     "card": {
       "addToCart": "Add to Cart"
+    },
+    "product": {
+      "brand": "Brand",
+      "quantity": "Quantity",
+      "specifications": "Specifications",
+      "notFound": "Product not found",
+      "back": "Back"
     }
   }
 }

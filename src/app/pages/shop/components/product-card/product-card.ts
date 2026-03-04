@@ -1,13 +1,14 @@
 import { Component, ChangeDetectionStrategy, input, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { Product } from '../../shop.models';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-product-card',
-  imports: [CommonModule, MatIconModule, TranslatePipe],
+  imports: [NgClass, MatIconModule, TranslatePipe, RouterLink],
   templateUrl: './product-card.html',
   styleUrl: './product-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

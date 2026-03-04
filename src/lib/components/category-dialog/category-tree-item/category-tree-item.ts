@@ -3,25 +3,13 @@ import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'src/lib/pipes/translate.pipe';
 import { Category } from 'src/app/pages/shop/shop.models';
-// import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-category-tree-item',
-  standalone: true,
   imports: [ NgClass, MatIconModule, TranslatePipe],
   templateUrl: './category-tree-item.html',
   styleUrls: ['./category-tree-item.scss'],
-  // animations: [
-  //   trigger('expandCollapse', [
-  //     transition(':enter', [
-  //       style({ height: 0, opacity: 0 }),
-  //       animate('200ms ease-out', style({ height: '*', opacity: 1 }))
-  //     ]),
-  //     transition(':leave', [
-  //       animate('200ms ease-in', style({ height: 0, opacity: 0 }))
-  //     ])
-  //   ])
-  // ]
+  
 })
 export class CategoryTreeItemComponent {
   category = input.required<Category>();
@@ -54,7 +42,6 @@ export class CategoryTreeItemComponent {
   });
 
   hasSubcategories = computed(() => {
-    // Check if category has subcategories property or if subcategories exist in the map
     const cat = this.category();
     if (cat.subcategories && cat.subcategories.length > 0) return true;
 

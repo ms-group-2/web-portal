@@ -1,14 +1,30 @@
 export interface Product {
-  id: string;
-  category_id?: number;
-  name: string;
+  id: number;
+  category_id: number;
+  title: string;
+  description?: string;
   price: number;
+  sku: string;
+  image_url: string;
+  images?: string[];
+  brand?: {
+    id: number;
+    name: string;
+    logo_url?: string;
+  };
+  specifications?: Array<{
+    group_name: string;
+    specs: Array<{
+      name: string;
+      value: string;
+    }>;
+  }>;
+  name?: string;
+  image?: string;
   originalPrice?: number;
-  image: string;
   rating?: number;
   reviewCount?: number;
   verified?: boolean;
-  category?: string;
   badge?: string;
 }
 
@@ -19,6 +35,7 @@ export interface Category {
   slug: string;
   image?: string | null;
   image_url?: string | null;
+  has_subcategories: boolean;
   subcategories?: Category[];
 }
 
@@ -27,7 +44,11 @@ export interface CategoriesResponse {
 }
 
 export interface ProductsResponse {
-  products: Product[];
+  items: Product[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
 }
 
 export interface Filters {

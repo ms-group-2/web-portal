@@ -51,26 +51,21 @@ export class TranslationService {
   loadModule(moduleName: string): Observable<any> {
     const lang = this.currentLang();
 
-    // Check if module is already loaded for current language
     if (this.loadedModules[lang].has(moduleName)) {
       return of(null);
     }
 
-    // Load module for both languages to avoid future HTTP calls
     return forkJoin({
       ka: this.http.get<Record<string, any>>(`/assets/i18n/ka/${moduleName}.json`).pipe(catchError(() => of({}))),
       en: this.http.get<Record<string, any>>(`/assets/i18n/en/${moduleName}.json`).pipe(catchError(() => of({})))
     }).pipe(
       tap((result: { ka: any; en: any }) => {
-        // Merge into cache
         this.translationsCache.ka = { ...this.translationsCache.ka, ...result.ka };
         this.translationsCache.en = { ...this.translationsCache.en, ...result.en };
 
-        // Mark as loaded for both languages
         this.loadedModules.ka.add(moduleName);
         this.loadedModules.en.add(moduleName);
 
-        // Update current translations
         const currentLang = this.currentLang();
         this.translations.set(this.translationsCache[currentLang]);
       })
@@ -81,7 +76,6 @@ export class TranslationService {
     localStorage.setItem(this.LOCALE_STORAGE_KEY, lang);
     this.currentLang.set(lang);
 
-    // Just switch to cached translations - no HTTP call!
     this.translations.set(this.translationsCache[lang]);
   }
 

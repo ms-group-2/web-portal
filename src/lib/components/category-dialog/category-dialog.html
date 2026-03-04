@@ -66,13 +66,18 @@
                     {{ category.name | translate }}
                   </span>
 
-                  @if (category.image || category.image_url) {
+                  <!-- Main categories (depth 0) may have images, subcategories always show icon -->
+                  @if (breadcrumbs().length === 0 && (category.image || category.image_url)) {
                     <div class="absolute bottom-0 right-0 w-20 h-20 overflow-hidden rounded-tl-lg">
                       <img
                         [src]="category.image || category.image_url"
                         [alt]="category.name"
                         class="w-full h-full object-contain"
                       />
+                    </div>
+                  } @else {
+                    <div class="absolute bottom-0 right-0 w-20 h-20 flex items-center justify-center">
+                      <mat-icon class="!w-12 !h-12 !text-5xl text-gray-400">{{ getCategoryIcon(category) }}</mat-icon>
                     </div>
                   }
 
@@ -81,11 +86,6 @@
               }
 
             </div>
-            @if (subcategoriesLoading() !== null) {
-              <div class="flex justify-center py-8">
-                <app-loading-spinner size="small" color="var(--color-market)"></app-loading-spinner>
-              </div>
-            }
 
           }
 

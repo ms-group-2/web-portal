@@ -1,0 +1,93 @@
+<app-header></app-header>
+
+<div class="min-h-screen bg-white pt-20">
+  <div class="max-w-7xl mx-auto px-6 py-8 ">
+
+    <nav class="mb-8">
+      <ol class="flex items-center gap-2 text-sm flex-wrap">
+        <li>
+          <a routerLink="/shop" class="text-market hover:underline">{{ 'shop.hero.title' | translate }}</a>
+        </li>
+        <li class="text-gray-400">/</li>
+
+        @for (category of breadcrumbTrail(); track category.id; let isLast = $last) {
+          @if (!isLast) {
+            <li>
+              <a [routerLink]="getCategoryRoute(category.id)" class="text-market hover:underline">
+                {{ category.name | translate }}
+              </a>
+            </li>
+            <li class="text-gray-400">/</li>
+          } @else {
+            <li class="text-gray-900 font-medium">{{ category.name | translate }}</li>
+          }
+        }
+      </ol>
+    </nav>
+
+    <div class="grid grid-cols-12 gap-8">
+
+      <aside class="col-span-3">
+        <div class="bg-white rounded-lg border-2 border-gray-200 p-4 sticky top-24">
+          <h2 class="text-xl font-black text-gray-900 mb-4 uppercase">{{ 'shop.categories.title' | translate }}</h2>
+
+          @if (parentCategory(); as parent) {
+            <a
+              [routerLink]="getCategoryRoute(parent.id)"
+              class="w-full text-left px-4 py-3 rounded-lg transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium flex items-center gap-2 mb-4">
+              <span>← Back</span>
+            </a>
+          }
+
+          <div class="space-y-2">
+            @for (category of childCategories(); track category.id) {
+              <a
+                [routerLink]="getCategoryRoute(category.id)"
+                class="w-full text-left px-4 py-3 rounded-lg transition-all bg-gray-50 text-gray-700 hover:bg-gray-100 font-medium flex items-center justify-between">
+                <span>{{ category.name | translate }}</span>
+                @if (category.has_subcategories) {
+                  <span class="text-xs opacity-70">→</span>
+                }
+              </a>
+            } @empty {
+              <p class="text-sm text-gray-500 px-4 py-2 text-center">No subcategories</p>
+            }
+          </div>
+        </div>
+      </aside>
+
+      <main class="col-span-9">
+
+        <div class="mb-8">
+          <h1 class="text-4xl font-black text-gray-900 mb-2">{{ categoryName() | translate }}</h1>
+          <p class="text-gray-600">{{ products().length }} products</p>
+        </div>
+
+        @if (loading()) {
+          <app-loading-spinner size="large"></app-loading-spinner>
+        } @else if (products().length > 0) {
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 justify-items-center">
+            @for (product of products(); track product.id) {
+              <app-product-card [product]="product"></app-product-card>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-20">
+            <div class="text-6xl mb-4">🛍️</div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ 'shop.categories.noResults' | translate }}</h3>
+            <p class="text-gray-600 mb-6">No products found in this category</p>
+            <a
+              routerLink="/shop"
+              class="inline-block bg-market text-white px-6 py-3 rounded-lg font-bold hover:bg-market/90 transition-all">
+              Back to Shop
+            </a>
+          </div>
+        }
+
+      </main>
+
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

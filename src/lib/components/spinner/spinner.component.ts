@@ -4,7 +4,7 @@ import { SpinnerHandlerService } from 'lib/services/spinner/spinner-handler.serv
 
 @Component({
   selector: 'app-spinner',
-  standalone: true,
+  
   imports: [MatProgressSpinnerModule],
   template: `
     @if (spinnerService.isLoading()) {

@@ -1,0 +1,48 @@
+{
+  "landing": {
+    "nav": {
+      "home": "home",
+      "swap": "swap",
+      "shop": "shop",
+      "book": "book",
+      "signUp": "sign up",
+      "login": "login",
+      "profile": "Profile",
+      "logOut": "Log Out"
+    },
+    "hero": {
+      "title": "swap. shop. book.",
+      "subtitle": "everything you need in one place",
+      "askAnything": "ask anything",
+      "askDescription": "tell us what you're looking for and we'll help you find it",
+      "placeholder": "what do you need?",
+      "swapItems": "swap items",
+      "shopProducts": "shop products",
+      "bookServices": "book services"
+    },
+    "stats": {
+      "users": "users",
+      "listings": "listings",
+      "satisfaction": "satisfaction"
+    },
+    "services": {
+      "swap": {
+        "title": "Swap",
+        "description": "Trade items with others"
+      },
+      "shop": {
+        "title": "Shop",
+        "description": "Buy verified products"
+      },
+      "book": {
+        "title": "Book",
+        "description": "Schedule services easily"
+      }
+    },
+    "footer": {
+      "name": "VIPO",
+      "description": "The all-in-one platform",
+      "copyright": "© 2025 All rights reserved"
+    }
+  }
+}

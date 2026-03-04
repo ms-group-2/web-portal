@@ -15,7 +15,7 @@
           <option [value]="category.id">{{ category.name | translate }}</option>
         }
       </select>
-      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
+      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-sm text-gray-600 pointer-events-none">expand_more</mat-icon>
     </div>
 
     <div class="relative">
@@ -50,7 +50,7 @@
           ? 'bg-market text-white'
           : 'bg-gray-100 hover:bg-gray-200 text-gray-700')"
     >
-      <mat-icon class="!w-4 !h-4 !text-[16px]">verified_user</mat-icon>
+      <mat-icon class="!w-4 !h-4 !text-sm">verified_user</mat-icon>
       {{ 'shop.filters.verifiedOnly' | translate }}
     </button>
 

@@ -1,0 +1,193 @@
+<app-header></app-header>
+
+<div class="min-h-screen bg-white pt-20">
+  @if (loading()) {
+    <div class="max-w-7xl mx-auto px-6 py-20">
+      <app-loading-spinner size="large"></app-loading-spinner>
+    </div>
+  } @else if (product(); as product) {
+    <div class="max-w-7xl mx-auto px-6 py-8">
+
+      <!-- Back Button & Breadcrumb -->
+      <div class="mb-8">
+        <button
+          (click)="goBack()"
+          class="inline-flex items-center gap-2 text-market hover:underline mb-4 font-semibold"
+        >
+          <mat-icon class="!w-5 !h-5 !text-xl">arrow_back</mat-icon>
+          <span>{{ 'shop.product.back' | translate }}</span>
+        </button>
+
+        <nav>
+          <ol class="flex items-center gap-2 text-sm">
+            <li>
+              <a routerLink="/shop" class="text-market hover:underline">{{ 'shop.hero.title' | translate }}</a>
+            </li>
+            <li class="text-gray-400">/</li>
+            <li class="text-gray-900">{{ product.name }}</li>
+          </ol>
+        </nav>
+      </div>
+
+      <!-- Product Detail -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+
+        <!-- Images Section -->
+        <div class="space-y-4">
+          <!-- Main Image -->
+          <div class="aspect-square bg-white rounded-2xl border-2 border-gray-200 p-8 flex items-center justify-center">
+            <img
+              [src]="selectedImage()"
+              [alt]="product.name"
+              class="max-w-full max-h-full object-contain"
+            />
+          </div>
+
+          <!-- Thumbnail Images -->
+          @if (product.images && product.images.length > 1) {
+            <div class="flex gap-4">
+              @for (image of product.images; track $index) {
+                <button
+                  (mouseenter)="selectImage(image)"
+                  (click)="selectImage(image)"
+                  class="w-20 h-20 rounded-lg border-2 overflow-hidden transition-all hover:border-market"
+                  [class.border-market]="selectedImage() === image"
+                  [class.border-gray-200]="selectedImage() !== image"
+                >
+                  <img [src]="image" [alt]="product.name" class="w-full h-full object-cover" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Product Info Section -->
+        <div class="space-y-6">
+          <div>
+            <h1 class="text-4xl font-black text-gray-900 mb-4">{{ product.name }}</h1>
+
+            @if (product.brand) {
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-gray-600">{{ 'shop.product.brand' | translate }}:</span>
+                <span class="font-semibold text-gray-900">{{ product.brand.name }}</span>
+              </div>
+            }
+
+            <div class="flex items-baseline gap-3 mb-6">
+              <div class="text-5xl font-black text-market">{{ product.price.toFixed(2) }} ₾</div>
+              @if (product.originalPrice && product.originalPrice > product.price) {
+                <div class="text-2xl text-gray-400 line-through">{{ product.originalPrice.toFixed(2) }} ₾</div>
+              }
+            </div>
+
+            @if (product.description) {
+              <p class="text-gray-700 leading-relaxed mb-6">{{ product.description }}</p>
+            }
+          </div>
+
+          <!-- Quantity & Add to Cart -->
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <span class="text-gray-700 font-semibold">{{ 'shop.product.quantity' | translate }}:</span>
+              <div class="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  (click)="decrementQuantity()"
+                  class="px-4 py-2 hover:bg-gray-100 transition-colors"
+                >
+                  <mat-icon class="!w-5 !h-5 !text-xl">remove</mat-icon>
+                </button>
+                <div class="px-6 py-2 font-bold text-lg border-x-2 border-gray-200">{{ quantity() }}</div>
+                <button
+                  (click)="incrementQuantity()"
+                  class="px-4 py-2 hover:bg-gray-100 transition-colors"
+                >
+                  <mat-icon class="!w-5 !h-5 !text-xl">add</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <button
+                (click)="addToCart()"
+                class="flex-1 bg-market text-white py-4 px-8 rounded-xl font-bold text-lg hover:bg-[#7a4fd1] transition-all hover:shadow-lg"
+              >
+                {{ 'shop.card.addToCart' | translate }}
+              </button>
+
+              <button
+                (click)="toggleFavorite()"
+                class="w-14 h-14 border-2 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                [class.border-market]="isFavorited()"
+                [class.bg-market]="isFavorited()"
+                [class.border-gray-200]="!isFavorited()"
+              >
+                <mat-icon
+                  class="!w-6 !h-6 !text-2xl transition-colors"
+                  [class.text-white]="isFavorited()"
+                  [class.text-gray-700]="!isFavorited()"
+                >
+                  {{ isFavorited() ? 'favorite' : 'favorite_border' }}
+                </mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Product Details -->
+          <div class="pt-6 border-t-2 border-gray-200">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-600">SKU:</span>
+                <span class="ml-2 font-semibold">{{ product.sku }}</span>
+              </div>
+              @if (product.rating) {
+                <div class="flex items-center gap-2">
+                  <mat-icon class="!w-4 !h-4 !text-base text-amber-400">star</mat-icon>
+                  <span class="font-semibold">{{ product.rating }}</span>
+                  @if (product.reviewCount) {
+                    <span class="text-gray-600">({{ product.reviewCount }} reviews)</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Specifications -->
+      @if (product.specifications && product.specifications.length > 0) {
+        <div class="mb-16">
+          <h2 class="text-3xl font-black text-gray-900 mb-6">{{ 'shop.product.specifications' | translate }}</h2>
+          <div class="bg-gray-50 rounded-2xl p-8 space-y-6">
+            @for (group of product.specifications; track group.group_name) {
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">{{ group.group_name }}</h3>
+                <div class="space-y-2">
+                  @for (spec of group.specs; track spec.name) {
+                    <div class="flex justify-between py-2 border-b border-gray-200">
+                      <span class="text-gray-600">{{ spec.name }}</span>
+                      <span class="font-semibold text-gray-900">{{ spec.value }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="max-w-7xl mx-auto px-6 py-20 text-center">
+      <div class="text-6xl mb-4">🔍</div>
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ 'shop.product.notFound' | translate }}</h2>
+      <p class="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
+      <a
+        routerLink="/shop"
+        class="inline-block bg-market text-white px-6 py-3 rounded-lg font-bold hover:bg-market/90 transition-all"
+      >
+        Back to Shop
+      </a>
+    </div>
+  }
+</div>
+
+<app-footer></app-footer>

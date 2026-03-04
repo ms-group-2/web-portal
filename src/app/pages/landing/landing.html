@@ -1,19 +1,104 @@
-  <app-header></app-header>
-  <div class="landing-container ">
-    <div class="landing-content">
-      <div class="logo-container">
-        <img src="/assets/logo/logo-purple.svg" alt="Vipo Logo" class="logo">
+<app-header></app-header>
+<div class="min-h-screen bg-white">
+
+  <section id="main" class="pt-32 pb-20 px-10 bg-white">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h1 class="text-6xl font-black text-textBlue mb-4 tracking-tight">
+          {{ 'landing.hero.title' | translate }}
+        </h1>
+        <p class="text-lg text-gray-600">{{ 'landing.hero.subtitle' | translate }}</p>
       </div>
 
-      <div class="animated-text-container">
-        @for (item of displayedText; track $index) {
-          <span
-            class="animated-char"
-            [class.vipo-text]="item.isVipo">
-            {{ item.char }}
-          </span>
-        }
+      <div class="mb-16 bg-gradient-to-br from-primary/5 via-swap/5 to-booking/5 rounded-3xl p-8 border-2 border-gray-200">
+        <div class="mb-4 text-center">
+          <h2 class="text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">{{ 'landing.hero.askAnything' | translate }}</h2>
+          <p class="text-sm text-gray-500">{{ 'landing.hero.askDescription' | translate }}</p>
+        </div>
+
+        <div class="flex items-center gap-3 p-2 bg-white border-2 border-gray-300 rounded-xl hover:border-primary transition-all shadow-sm">
+          <div class="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center ml-2">
+            <mat-icon class="text-white">auto_awesome</mat-icon>
+          </div>
+
+          <input
+            type="text"
+            [(ngModel)]="inputValue"
+            (keyup.enter)="handleSend()"
+            [placeholder]="'landing.hero.placeholder' | translate"
+            class="flex-1 px-3 py-3 bg-transparent focus:outline-none placeholder:text-gray-400 text-gray-900 font-medium"
+          />
+
+          <button
+            (click)="handleSend()"
+            [disabled]="!inputValue().trim()"
+            [class]="'w-10 h-10 rounded-lg flex items-center justify-center transition-all mr-2 ' +
+              (inputValue().trim() ? 'bg-primary hover:bg-primary/90' : 'bg-gray-200')">
+            <mat-icon [class]="inputValue().trim() ? 'text-white' : 'text-gray-400'">send</mat-icon>
+          </button>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2 justify-center">
+          <button
+            (click)="handleQuickAction('swap')"
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-primary hover:bg-primary hover:text-white transition-all uppercase tracking-wide">
+            {{ 'landing.hero.swapItems' | translate }}
+          </button>
+          <button
+            (click)="handleQuickAction('shop')"
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-swap hover:bg-swap hover:text-black transition-all uppercase tracking-wide">
+            {{ 'landing.hero.shopProducts' | translate }}
+          </button>
+          <button
+            (click)="handleQuickAction('book')"
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-booking hover:bg-booking hover:text-white transition-all uppercase tracking-wide">
+            {{ 'landing.hero.bookServices' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6 text-center">
+        <div>
+          <div class="text-3xl font-black text-gray-900 mb-1">10K+</div>
+          <div class="text-sm text-gray-500 uppercase tracking-wide">{{ 'landing.stats.users' | translate }}</div>
+        </div>
+        <div>
+          <div class="text-3xl font-black text-gray-900 mb-1">50K+</div>
+          <div class="text-sm text-gray-500 uppercase tracking-wide">{{ 'landing.stats.listings' | translate }}</div>
+        </div>
+        <div>
+          <div class="text-3xl font-black text-gray-900 mb-1">99%</div>
+          <div class="text-sm text-gray-500 uppercase tracking-wide">{{ 'landing.stats.satisfaction' | translate }}</div>
+        </div>
       </div>
     </div>
-  </div>
-  <app-footer></app-footer>
+  </section>
+
+  <section class="py-20 px-10 bg-gray-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-3 gap-8">
+        <button
+          (click)="navigateTo('swap')"
+          class="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-swap transition-all group text-left">
+          <h3 class="text-4xl font-black text-gray-900 mb-3 uppercase group-hover:text-swap transition-colors">{{ 'landing.services.swap.title' | translate }}</h3>
+          <p class="text-gray-600">{{ 'landing.services.swap.description' | translate }}</p>
+        </button>
+
+        <button
+          (click)="navigateTo('shop')"
+          class="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-primary transition-all group text-left">
+          <h3 class="text-4xl font-black text-gray-900 mb-3 uppercase group-hover:text-primary transition-colors">{{ 'landing.services.shop.title' | translate }}</h3>
+          <p class="text-gray-600">{{ 'landing.services.shop.description' | translate }}</p>
+        </button>
+
+        <button
+          (click)="navigateTo('booking')"
+          class="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-booking transition-all group text-left">
+          <h3 class="text-4xl font-black text-gray-900 mb-3 uppercase group-hover:text-booking transition-colors">{{ 'landing.services.book.title' | translate }}</h3>
+          <p class="text-gray-600">{{ 'landing.services.book.description' | translate }}</p>
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+<app-footer></app-footer>
