@@ -31,6 +31,26 @@ export class ProductDetail implements OnInit {
 
   isFavorited = computed(() => this.shopService.isFavorite(this.product()?.id));
 
+  // Build breadcrumb trail from category hierarchy
+  breadcrumbTrail = computed(() => {
+    const product = this.product();
+    if (!product?.category_id) return [];
+
+    const categories = this.shopService.flatCategories();
+    const trail: any[] = [];
+    let currentCategoryId: number | null = product.category_id;
+
+    // Build trail by following parent_id chain
+    while (currentCategoryId !== null) {
+      const category = categories.find(c => Number(c.id) === currentCategoryId);
+      if (!category) break;
+      trail.unshift(category);
+      currentCategoryId = category.parent_id;
+    }
+
+    return trail;
+  });
+
   goBack() {
     this.location.back();
   }
@@ -48,6 +68,9 @@ export class ProductDetail implements OnInit {
   private loadProduct(productId: number) {
     this.loading.set(true);
 
+    // Load categories first to build breadcrumb
+    this.shopService.getMainCategories().subscribe();
+
     // For now, fetch all products and find the one we need
     // TODO: Add a dedicated API endpoint for single product fetch
     this.shopService.getProducts().subscribe({
@@ -56,6 +79,11 @@ export class ProductDetail implements OnInit {
         if (product) {
           this.product.set(product);
           this.selectedImage.set(product.image || product.image_url || '');
+
+          // Load category hierarchy for breadcrumb
+          if (product.category_id) {
+            this.loadCategoryHierarchy(product.category_id);
+          }
         }
         this.loading.set(false);
       },
@@ -63,6 +91,24 @@ export class ProductDetail implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  private loadCategoryHierarchy(categoryId: number) {
+    // Find the category and load its parents
+    const categories = this.shopService.flatCategories();
+    let currentCategoryId: number | null = categoryId;
+
+    while (currentCategoryId !== null) {
+      const category = categories.find(c => Number(c.id) === currentCategoryId);
+      if (!category) break;
+
+      // Load subcategories for this parent if it has a parent
+      if (category.parent_id !== null) {
+        this.shopService.getSubcategories(category.parent_id).subscribe();
+      }
+
+      currentCategoryId = category.parent_id;
+    }
   }
 
   selectImage(image: string) {

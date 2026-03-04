@@ -8,7 +8,6 @@
   } @else if (product(); as product) {
     <div class="max-w-7xl mx-auto px-6 py-8">
 
-      <!-- Back Button & Breadcrumb -->
       <div class="mb-8">
         <button
           (click)="goBack()"
@@ -19,12 +18,22 @@
         </button>
 
         <nav>
-          <ol class="flex items-center gap-2 text-sm">
+          <ol class="flex items-center gap-2 text-sm flex-wrap">
             <li>
               <a routerLink="/shop" class="text-market hover:underline">{{ 'shop.hero.title' | translate }}</a>
             </li>
             <li class="text-gray-400">/</li>
-            <li class="text-gray-900">{{ product.name }}</li>
+
+            @for (category of breadcrumbTrail(); track category.id) {
+              <li>
+                <a [routerLink]="['/shop/category', category.id]" class="text-market hover:underline">
+                  {{ category.name | translate }}
+                </a>
+              </li>
+              <li class="text-gray-400">/</li>
+            }
+
+            <li class="text-gray-900 font-medium">{{ product.name }}</li>
           </ol>
         </nav>
       </div>
