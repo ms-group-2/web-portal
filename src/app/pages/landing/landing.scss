@@ -16,17 +16,14 @@ nav {
   }
 }
 
-// Hover effects
 button {
   transition: all 0.2s ease;
 }
 
-// Input focus styles
 input:focus {
   outline: none;
 }
 
-// Responsive adjustments
 @media (max-width: 768px) {
   nav {
     padding-left: 1rem;

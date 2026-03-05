@@ -41,12 +41,12 @@
         <div class="mt-4 flex flex-wrap gap-2 justify-center">
           <button
             (click)="handleQuickAction('swap')"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-primary hover:bg-primary hover:text-white transition-all uppercase tracking-wide">
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-swap  hover:bg-swap hover:text-white transition-all uppercase tracking-wide">
             {{ 'landing.hero.swapItems' | translate }}
           </button>
           <button
             (click)="handleQuickAction('shop')"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-swap hover:bg-swap hover:text-black transition-all uppercase tracking-wide">
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-market hover:bg-market hover:text-white transition-all uppercase tracking-wide">
             {{ 'landing.hero.shopProducts' | translate }}
           </button>
           <button
@@ -86,8 +86,8 @@
 
         <button
           (click)="navigateTo('shop')"
-          class="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-primary transition-all group text-left">
-          <h3 class="text-4xl font-black text-gray-900 mb-3 uppercase group-hover:text-primary transition-colors">{{ 'landing.services.shop.title' | translate }}</h3>
+          class="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-market transition-all group text-left">
+          <h3 class="text-4xl font-black text-gray-900 mb-3 uppercase group-hover:text-market transition-colors">{{ 'landing.services.shop.title' | translate }}</h3>
           <p class="text-gray-600">{{ 'landing.services.shop.description' | translate }}</p>
         </button>
 

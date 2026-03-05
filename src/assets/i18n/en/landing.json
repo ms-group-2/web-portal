@@ -3,7 +3,7 @@
     "nav": {
       "home": "home",
       "swap": "swap",
-      "shop": "shop",
+      "shop": "market",
       "book": "book",
       "signUp": "sign up",
       "login": "login",
@@ -31,7 +31,7 @@
         "description": "Trade items with others"
       },
       "shop": {
-        "title": "Shop",
+        "title": "Market",
         "description": "Buy verified products"
       },
       "book": {

@@ -4,7 +4,7 @@
   [ngClass]="
     compact()
       ? 'shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1'
-      : 'w-[233px] h-[325px] hover:shadow-xl flex flex-col'
+      : 'w-[272px] h-[325px] hover:shadow-xl flex flex-col'
   "
 >
   @if (!compact()) {
@@ -41,7 +41,7 @@
         {{ product().name }}
       </h3>
 
-      <div class="flex items-center gap-2 mb-3">
+      <div class="flex items-center gap-2 mb-5">
         <div class="text-xl font-black text-gray-900 inline-flex items-baseline gap-0.5">
           {{ product().price.toFixed(2) }}
           <span class="text-base">₾</span>

@@ -44,12 +44,24 @@ export class CategoryProducts implements OnInit {
     return this.shopService.subcategoriesByParentId()[id] || [];
   });
 
+  // Build full breadcrumb trail recursively
   breadcrumbTrail = computed(() => {
     const current = this.currentCategory();
     if (!current) return [];
 
-    const parent = this.parentCategory();
-    return parent ? [parent, current] : [current];
+    const categories = this.shopService.flatCategories();
+    const trail: any[] = [];
+    let currentCategoryId: number | null = Number(current.id);
+
+    // Build trail by following parent_id chain all the way up
+    while (currentCategoryId !== null) {
+      const category = categories.find(c => Number(c.id) === currentCategoryId);
+      if (!category) break;
+      trail.unshift(category); // Add to front of array
+      currentCategoryId = category.parent_id;
+    }
+
+    return trail;
   });
 
   ngOnInit() {
@@ -58,31 +70,26 @@ export class CategoryProducts implements OnInit {
     this.route.params.subscribe(params => {
       const categoryId = +params['categoryId'];
       this.categoryId.set(categoryId);
-      this.loadProducts(categoryId);
-      this.loadSubcategories(categoryId);
+      this.loading.set(true);
+
+      // Ensure main categories are loaded (will use cache if already loaded)
+      this.shopService.getMainCategories().subscribe(() => {
+        // Load products from category tree (includes all subcategories)
+        this.shopService.getAllProductsInCategoryTree(categoryId).subscribe({
+          next: (products) => {
+            this.products.set(products);
+            this.loading.set(false);
+          },
+          error: () => {
+            this.products.set([]);
+            this.loading.set(false);
+          }
+        });
+      });
     });
   }
 
   getCategoryRoute(categoryId: number | string): string[] {
     return ['/shop/category', String(categoryId)];
-  }
-
-  private loadProducts(categoryId: number) {
-    this.loading.set(true);
-
-    this.shopService.getAllProductsInCategoryTree(categoryId).subscribe({
-      next: (products) => {
-        this.products.set(products);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.products.set([]);
-        this.loading.set(false);
-      }
-    });
-  }
-
-  private loadSubcategories(categoryId: number) {
-    this.shopService.getSubcategories(categoryId).subscribe();
   }
 }

@@ -36,7 +36,6 @@ export class Shop implements OnInit {
   ngOnInit() {
     this.translation.loadModule('shop').subscribe();
 
-    // Load main categories
     this.shopService.getMainCategories().subscribe();
   }
 }

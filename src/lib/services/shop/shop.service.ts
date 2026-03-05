@@ -19,6 +19,12 @@ export class ShopService {
   categoriesByParentId = signal<Partial<Record<number | 'root', Category[]>>>({});
   categoriesLoadingFor = signal<number | 'root' | null>(null);
 
+  // Cache products by category ID
+  productsByCategoryId = signal<Record<number, Product[]>>({});
+
+  // Cache products for entire category trees (includes all subcategories)
+  productsByCategoryTree = signal<Record<number, Product[]>>({});
+
   mainCategories = computed(() => this.categoriesByParentId()['root'] || []);
 
   subcategoriesByParentId = computed(() => {
@@ -138,6 +144,18 @@ export class ShopService {
     max_price?: number;
     sort_by?: string;
   }): Observable<Product[]> {
+    // Check cache if we're fetching by category_id without filters
+    const hasFilters = params?.min_price !== undefined ||
+                      params?.max_price !== undefined ||
+                      params?.sort_by !== undefined;
+
+    if (params?.category_id && !hasFilters && params?.page === 1) {
+      const cached = this.productsByCategoryId()[params.category_id];
+      if (cached) {
+        return of(cached);
+      }
+    }
+
     const queryParams: any = {
       page: params?.page ?? 1,
       limit: params?.limit ?? 20,
@@ -173,6 +191,15 @@ export class ShopService {
             name: product.title || product.name,
             image: product.image_url || product.image,
           }));
+        }),
+        tap(products => {
+          // Cache the products if fetching by category without filters
+          if (params?.category_id && !hasFilters && params?.page === 1) {
+            this.productsByCategoryId.update(cache => ({
+              ...cache,
+              [params.category_id!]: products
+            }));
+          }
         }),
         catchError(err => {
           console.error('Failed to load products:', err);
@@ -233,6 +260,21 @@ export class ShopService {
     max_price?: number;
     sort_by?: string;
   }): Observable<Product[]> {
+    // Check cache if no filters are applied
+    const hasFilters = params?.min_price !== undefined ||
+                      params?.max_price !== undefined ||
+                      params?.sort_by !== undefined;
+
+    if (!hasFilters) {
+      const cached = this.productsByCategoryTree()[categoryId];
+      if (cached) {
+        console.log(`✅ Using cached products for category tree ${categoryId} (${cached.length} products)`);
+        return of(cached);
+      }
+    }
+
+    console.log(`🔄 Fetching products for category tree ${categoryId}...`);
+
     // First, get all subcategory IDs
     return this.getAllSubcategoryIds(categoryId).pipe(
       switchMap(subcategoryIds => {
@@ -272,6 +314,15 @@ export class ShopService {
             );
 
             return uniqueProducts;
+          }),
+          tap(products => {
+            // Cache the category tree products if no filters applied
+            if (!hasFilters) {
+              this.productsByCategoryTree.update(cache => ({
+                ...cache,
+                [categoryId]: products
+              }));
+            }
           })
         );
       }),
