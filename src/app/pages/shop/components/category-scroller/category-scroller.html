@@ -26,39 +26,47 @@
     </div>
 
     <div class="flex-1 min-w-0">
-      <app-swiper styleClass="category-swiper">
-        @for (category of categories(); track category.id) {
-          <swiper-slide class="py-1" style="width: 142px;">
-            <button
-                (click)="selectCategory(category)"
-                class="category-button relative w-full rounded-lg overflow-hidden bg-[#EAEAEA] transition-all hover:bg-[#E0E0E0] flex items-start justify-start pt-6 px-4"
-                style="width: 142px; height: 172px;"
-                [ngClass]="{
-                  'shadow-lg selected': selectedCategory() === category.id,
-                  'hover:shadow-md': selectedCategory() !== category.id
-                }"
-            >
-              <span class="text-sm font-normal text-gray-800 max-w-28 break-words line-clamp-2">
-                {{ category.name | translate }}
-              </span>
+      @if (isLoading()) {
+        <div class="flex gap-4 overflow-hidden">
+          @for (i of skeletonArray; track i) {
+            <app-category-card-skeleton></app-category-card-skeleton>
+          }
+        </div>
+      } @else {
+        <app-swiper styleClass="category-swiper">
+          @for (category of categories(); track category.id) {
+            <swiper-slide class="py-1" style="width: 142px;">
+              <button
+                  (click)="selectCategory(category)"
+                  class="category-button relative w-full rounded-lg overflow-hidden bg-[#EAEAEA] transition-all hover:bg-[#E0E0E0] flex items-start justify-start pt-6 px-4"
+                  style="width: 142px; height: 172px;"
+                  [ngClass]="{
+                    'shadow-lg selected': selectedCategory() === category.id,
+                    'hover:shadow-md': selectedCategory() !== category.id
+                  }"
+              >
+                <span class="text-sm font-normal text-gray-800 max-w-28 break-words line-clamp-2">
+                  {{ category.name | translate }}
+                </span>
 
-              @if (category.image || category.image_url) {
-                <div class="absolute bottom-0 right-0 w-20 h-20 overflow-hidden rounded-tl-lg">
-                  <img
-                    [src]="category.image || category.image_url"
-                    [alt]="category.name"
-                    class="w-full h-full object-contain"
-                  />
-                </div>
-              } @else {
-                <div class="absolute bottom-0 right-0 w-20 h-20 flex items-center justify-center">
-                  <mat-icon class="!w-12 !h-12 !text-5xl text-gray-400">{{ getCategoryIcon(category) }}</mat-icon>
-                </div>
-              }
-          </button>
-          </swiper-slide>
-        }
-      </app-swiper>
+                @if (category.image || category.image_url) {
+                  <div class="absolute bottom-0 right-0 w-20 h-20 overflow-hidden rounded-tl-lg">
+                    <img
+                      [src]="category.image || category.image_url"
+                      [alt]="category.name"
+                      class="w-full h-full object-contain"
+                    />
+                  </div>
+                } @else {
+                  <div class="absolute bottom-0 right-0 w-20 h-20 flex items-center justify-center">
+                    <mat-icon class="!w-12 !h-12 !text-5xl text-gray-400">{{ getCategoryIcon(category) }}</mat-icon>
+                  </div>
+                }
+            </button>
+            </swiper-slide>
+          }
+        </app-swiper>
+      }
     </div>
   </div>
 </div>

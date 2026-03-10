@@ -1,5 +1,6 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, DestroyRef, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +18,7 @@ import { TranslationService } from 'lib/services/translation.service';
 export class Landing implements OnInit {
   private router = inject(Router);
   translation = inject(TranslationService);
+  private destroyRef = inject(DestroyRef);
 
   currentPage = signal<string>('home');
   isProfileOpen = signal<boolean>(false);
@@ -69,7 +71,9 @@ export class Landing implements OnInit {
   cartCount = signal<number>(3);
 
   ngOnInit() {
-    this.translation.loadModule('landing').subscribe();
+    this.translation.loadModule('landing')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   navigateTo(page: string) {

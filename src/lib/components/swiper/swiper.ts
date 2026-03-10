@@ -25,7 +25,10 @@ export class Swiper {
 
   styleClass = input<string>('');
 
-  get breakpointsJson(): string {
-    return JSON.stringify(this.config().breakpoints || {});
+  get breakpointsJson(): string | null {
+    const breakpoints = this.config().breakpoints;
+    return breakpoints && Object.keys(breakpoints).length > 0
+      ? JSON.stringify(breakpoints)
+      : null;
   }
 }

@@ -149,6 +149,10 @@ export class ResetPassword implements OnInit, OnDestroy {
         this.resendCountdown.set(current - 1);
       } else {
         this.clearCountdown();
+        const errors = this.form.controls.code.errors;
+        if (errors && errors['rateLimitExceeded']) {
+          this.form.controls.code.setErrors(null);
+        }
       }
     }, 1000);
   }
@@ -169,8 +173,12 @@ export class ResetPassword implements OnInit, OnDestroy {
     return this.resendCountdown() === 0 && !this.isLoading();
   }
 
-  get isGeorgian(): boolean {
-    return this.translation.getCurrentLanguage() === 'ka';
+  isGeorgian(): boolean {
+    return this.translation.isGeorgian();
+  }
+
+  toggleLanguage(): void {
+    this.translation.toggleLanguage();
   }
 
   showError(name: keyof typeof this.form.controls): boolean {
@@ -188,12 +196,14 @@ export class ResetPassword implements OnInit, OnDestroy {
       return formatPasswordStrengthErrors(errors['passwordStrength'], value) || '';
     }
 
-    if (key === 'minlength' || key === 'maxlength') {
-      const required = errors[key].requiredLength;
-      return this.translation.translate(`validation.${key}`).replace('{n}', String(required));
+    if (key === 'minlength' && errors[key]?.requiredLength) {
+      return this.translation.translate(`validation.${key}`, { n: errors[key].requiredLength });
+    }
+    if (key === 'maxlength' && errors[key]?.requiredLength) {
+      return this.translation.translate(`validation.${key}`, { n: errors[key].requiredLength });
     }
 
-    return `validation.${key}`;
+    return this.translation.translate(`validation.${key}`);
   }
 
   resend(): void {
@@ -210,6 +220,10 @@ export class ResetPassword implements OnInit, OnDestroy {
         this.infoMessage.set(this.translation.translate('auth.resetPassword.codeResentToEmail'));
         this.startCountdown();
 
+        setTimeout(() => {
+          this.infoMessage.set(null);
+        }, 3000);
+
         const newResetToken = (res as any).reset_token;
         if (newResetToken) {
           this.resetToken.set(newResetToken);
@@ -221,6 +235,7 @@ export class ResetPassword implements OnInit, OnDestroy {
         if (err?.status === 429) {
           this.form.controls.code.setErrors({ rateLimitExceeded: true });
           this.form.controls.code.markAsTouched();
+          this.startCountdown();
         } else {
           this.serverDownError.set(true);
         }

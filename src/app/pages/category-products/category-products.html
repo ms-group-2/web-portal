@@ -1,4 +1,4 @@
-<app-header></app-header>
+<app-header variant="white"></app-header>
 
 <div class="min-h-screen bg-white pt-20">
   <div class="pt-8 pb-8 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
@@ -64,7 +64,11 @@
         </div>
 
         @if (loading()) {
-          <app-loading-spinner size="large"></app-loading-spinner>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @for (i of skeletonArray; track i) {
+              <app-product-card-skeleton></app-product-card-skeleton>
+            }
+          </div>
         } @else if (products().length > 0) {
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @for (product of products(); track product.id) {

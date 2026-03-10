@@ -1,9 +1,9 @@
 <swiper-container
   [attr.slides-per-view]="config().slidesPerView"
   [attr.space-between]="config().spaceBetween"
-  [attr.pagination]="config().pagination"
-  [attr.navigation]="config().navigation"
-  [attr.breakpoints]="breakpointsJson"
+  [attr.pagination]="config().pagination ? 'true' : null"
+  [attr.navigation]="config().navigation ? 'true' : null"
+  [attr.breakpoints]="breakpointsJson || null"
   [class]="styleClass()">
   <ng-content></ng-content>
 </swiper-container>

@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -35,6 +36,7 @@ export class Register implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
   translation = inject(TranslationService);
+  private destroyRef = inject(DestroyRef);
 
   showPassword = signal(false);
   showConfirmPassword = signal(false);
@@ -52,15 +54,22 @@ export class Register implements OnInit {
   });
 
   ngOnInit(): void {
-    this.translation.loadModule('auth').subscribe();
-    this.translation.loadModule('validation').subscribe();
+    this.translation.loadModule('auth')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+
+    this.translation.loadModule('validation')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
 
     const passwordControl = this.form.controls.password;
     const confirmControl = this.form.controls.confirmPassword;
 
-    passwordControl.valueChanges.subscribe(() => {
-      confirmControl.updateValueAndValidity();
-    });
+    passwordControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        confirmControl.updateValueAndValidity();
+      });
 
     const pending = this.auth.pendingRegistration();
     if (pending) {
@@ -100,21 +109,25 @@ export class Register implements OnInit {
       return `validation.passwordStrength${firstError.charAt(0).toUpperCase() + firstError.slice(1)}`;
     }
 
-    if (key === 'minlength') {
-      const required = errors['minlength'].requiredLength;
-      const translated = this.translation.translate('validation.minlength');
-      return translated.replace('{n}', String(required));
+    if (key === 'minlength' && errors['minlength']?.requiredLength) {
+      return this.translation.translate('validation.minlength', { n: errors['minlength'].requiredLength });
     }
 
-    if (key === 'maxlength') {
-      const required = errors['maxlength'].requiredLength;
-      const translated = this.translation.translate('validation.maxlength');
-      return translated.replace('{n}', String(required));
+    if (key === 'maxlength' && errors['maxlength']?.requiredLength) {
+      return this.translation.translate('validation.maxlength', { n: errors['maxlength'].requiredLength });
     }
 
     return `validation.${key}`;
   }
-  
+
+  isGeorgian(): boolean {
+    return this.translation.isGeorgian();
+  }
+
+  toggleLanguage(): void {
+    this.translation.toggleLanguage();
+  }
+
   onGoogle(): void {
       this.auth.googleLoginRedirect();
     }

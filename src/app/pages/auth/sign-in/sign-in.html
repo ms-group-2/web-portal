@@ -4,6 +4,14 @@
     <span class="font-bold uppercase text-sm">{{ 'auth.back' | translate }}</span>
   </a>
 
+  <button
+    (click)="toggleLanguage()"
+    class="absolute top-8 right-8 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition bg-gray-100 hover:bg-gray-200 text-gray-700"
+    [attr.aria-label]="isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
+  >
+    {{ isGeorgian() ? 'EN' : 'KA' }}
+  </button>
+
   <div class="w-full max-w-lg ">
     <div class="text-center mb-10">
       <div class="flex justify-center mb-2">
@@ -68,6 +76,21 @@
         @for (error of errorSignals; track error.translationKey) {
           <div [hidden]="!error.signal()" class="text-red-600 text-sm text-center pb-1">
             {{ error.translationKey | translate }}
+          </div>
+        }
+
+        @if (notVerifiedError()) {
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+            <p class="text-amber-900 text-sm font-semibold mb-3">
+              {{ 'auth.signIn.pleaseFinishVerification' | translate }}
+            </p>
+            <button
+              type="button"
+              (click)="goToVerify()"
+              class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-sm uppercase tracking-wide transition-colors"
+            >
+              {{ 'auth.signIn.completeVerification' | translate }}
+            </button>
           </div>
         }
 

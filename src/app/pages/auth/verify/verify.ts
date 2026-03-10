@@ -66,6 +66,7 @@ export class Verify implements OnInit, OnDestroy {
 
     const emailFromQuery = this.route.snapshot.queryParamMap.get('email');
     const emailFromSignal = this.auth.pendingEmail();
+    const shouldResend = this.route.snapshot.queryParamMap.get('resend') === 'true';
 
     const email = emailFromQuery ?? emailFromSignal;
 
@@ -77,7 +78,11 @@ export class Verify implements OnInit, OnDestroy {
     this.form.controls.email.setValue(email);
     this.auth.pendingEmail.set(email);
 
-    this.startCountdown();
+    if (shouldResend) {
+      this.resend();
+    } else {
+      this.startCountdown();
+    }
   }
 
   ngOnDestroy(): void {
@@ -86,7 +91,7 @@ export class Verify implements OnInit, OnDestroy {
 
   private startCountdown(): void {
     this.clearCountdown();
-    this.resendCountdown.set(120); 
+    this.resendCountdown.set(120);
 
     this.countdownInterval = setInterval(() => {
       const current = this.resendCountdown();
@@ -94,6 +99,10 @@ export class Verify implements OnInit, OnDestroy {
         this.resendCountdown.set(current - 1);
       } else {
         this.clearCountdown();
+        const errors = this.form.controls.code.errors;
+        if (errors && errors['rateLimitExceeded']) {
+          this.form.controls.code.setErrors(null);
+        }
       }
     }, 1000);
   }
@@ -148,8 +157,27 @@ onDigitInput(index: number, event: Event): void {
     if (!errors) return '';
 
     const key = Object.keys(errors)[0];
-    return `validation.${key}`;
+    const translationKey = `validation.${key}`;
+
+    // Handle minlength and maxlength interpolation
+    if (key === 'minlength' && errors[key]?.requiredLength) {
+      return this.translation.translate(translationKey, { n: errors[key].requiredLength });
+    }
+    if (key === 'maxlength' && errors[key]?.requiredLength) {
+      return this.translation.translate(translationKey, { n: errors[key].requiredLength });
+    }
+
+    return this.translation.translate(translationKey);
   }
+
+  isGeorgian(): boolean {
+    return this.translation.isGeorgian();
+  }
+
+  toggleLanguage(): void {
+    this.translation.toggleLanguage();
+  }
+
   resend(): void {
     const email = this.form.controls.email.getRawValue();
 
@@ -165,6 +193,10 @@ onDigitInput(index: number, event: Event): void {
         this.resentMessage.set(this.translation.translate('auth.verify.codeResentToEmail'));
         this.isResending.set(false);
         this.startCountdown();
+
+        setTimeout(() => {
+          this.resentMessage.set(null);
+        }, 3000);
       },
       error: (err) => {
         this.isResending.set(false);
@@ -172,6 +204,7 @@ onDigitInput(index: number, event: Event): void {
         if (err?.status === 429) {
           this.form.controls.code.setErrors({ rateLimitExceeded: true });
           this.form.controls.code.markAsTouched();
+          this.startCountdown();
         } else {
           this.serverDownError.set(true);
         }
@@ -227,6 +260,7 @@ onDigitInput(index: number, event: Event): void {
         } else if (err?.status === 429) {
           this.form.controls.code.setErrors({ rateLimitExceeded: true });
           this.form.controls.code.markAsTouched();
+          this.startCountdown();
         } else {
           this.form.controls.code.setErrors({ verificationFailed: true });
           this.form.controls.code.markAsTouched();

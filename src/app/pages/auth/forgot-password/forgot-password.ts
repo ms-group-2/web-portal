@@ -56,6 +56,14 @@ export class ForgotPassword implements OnInit {
     return `validation.${key}`;
   }
 
+  isGeorgian(): boolean {
+    return this.translation.isGeorgian();
+  }
+
+  toggleLanguage(): void {
+    this.translation.toggleLanguage();
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

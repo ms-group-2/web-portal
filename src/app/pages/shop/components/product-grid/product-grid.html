@@ -1,5 +1,11 @@
 <div class="flex flex-wrap gap-7 justify-start">
-  @for (product of products(); track product.id) {
-    <app-product-card [product]="product"></app-product-card>
+  @if (isLoading()) {
+    @for (i of skeletonArray; track i) {
+      <app-product-card-skeleton></app-product-card-skeleton>
+    }
+  } @else {
+    @for (product of products(); track product.id) {
+      <app-product-card [product]="product"></app-product-card>
+    }
   }
 </div>

@@ -10,8 +10,6 @@ import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
@@ -29,6 +27,7 @@ import { SnackbarService } from 'lib/services/snackbar.service';
 import { sanitizeTextInput, sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
+import { ProfileSettingsSkeletonComponent } from '../../components/skeletons/profile-settings-skeleton';
 
 @Component({
   selector: 'app-profile-settings',
@@ -42,10 +41,10 @@ import { TranslationService } from 'lib/services/translation.service';
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatProgressSpinnerModule,
     ReactiveFormsModule,
     AvatarUploadComponent,
     TranslatePipe,
+    ProfileSettingsSkeletonComponent,
 
   ],
   templateUrl: './profile-settings.html',

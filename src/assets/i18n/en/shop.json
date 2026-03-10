@@ -89,6 +89,11 @@
       "specifications": "Specifications",
       "notFound": "Product not found",
       "back": "Back"
+    },
+    "search": {
+      "searching": "Searching...",
+      "suggestions": "Suggested Products",
+      "noResults": "No products found"
     }
   }
 }

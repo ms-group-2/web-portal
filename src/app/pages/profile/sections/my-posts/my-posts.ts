@@ -1,5 +1,6 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SwapItemsService, SwapListingApiService } from 'lib/services/swap';
@@ -33,6 +34,7 @@ export class MyPostsComponent {
   private confirmDialog = inject(ConfirmationDialogService);
   private api = inject(SwapListingApiService);
   private translation = inject(TranslationService);
+  private destroyRef = inject(DestroyRef);
 
   postedItems = this.swapItemsService.postedItems;
 
@@ -65,11 +67,13 @@ export class MyPostsComponent {
       confirmText: this.translation.translate('profile.deletePostDialog.confirm'),
       cancelText: this.translation.translate('profile.deletePostDialog.cancel'),
       confirmColor: 'warn',
-    }).subscribe(confirmed => {
-      if (confirmed) {
-        this.swapItemsService.deleteItem(post.id);
-      }
-    });
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.swapItemsService.deleteItem(post.id);
+        }
+      });
   }
 
   getItemPhoto(item: PostItem): string {

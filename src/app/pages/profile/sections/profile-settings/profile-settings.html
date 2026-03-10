@@ -1,9 +1,6 @@
 <div>
   @if (isLoading()) {
-    <div class="flex flex-col items-center justify-center min-h-[800px] gap-4">
-      <mat-spinner diameter="60" color="primary"></mat-spinner>
-      <p class="text-gray-600 text-lg text-center">{{ 'profile.loading' | translate }}</p>
-    </div>
+    <app-profile-settings-skeleton></app-profile-settings-skeleton>
   } @else {
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
       <h1 class="text-2xl sm:text-3xl font-bold text-textBlue uppercase tracking-tight">{{ 'profile.titleAndSettings' | translate }}</h1>

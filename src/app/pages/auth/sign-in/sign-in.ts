@@ -1,6 +1,8 @@
-import { Component, OnInit, inject, signal} from '@angular/core';
+import { Component, OnInit, DestroyRef, inject, signal} from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap, tap } from 'rxjs/operators';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -34,11 +36,14 @@ export class SignIn implements OnInit {
   private router = inject(Router);
   private snackbar = inject(SnackbarService);
   translation = inject(TranslationService);
+  private destroyRef = inject(DestroyRef);
 
   showPassword = signal(false);
   serverDownError = signal(false);
   invalidCredentialsError = signal(false);
   userNotFoundError = signal(false);
+  notVerifiedError = signal(false);
+  pendingVerificationEmail = signal<string | null>(null);
 
   errorSignals = [
     { signal: this.serverDownError, translationKey: 'validation.serverDown' },
@@ -52,8 +57,13 @@ export class SignIn implements OnInit {
   });
 
   ngOnInit(): void {
-    this.translation.loadModule('auth').subscribe();
-    this.translation.loadModule('validation').subscribe();
+    this.translation.loadModule('auth')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+
+    this.translation.loadModule('validation')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   showError(controlName: keyof typeof this.form.controls): boolean {
@@ -74,6 +84,21 @@ export class SignIn implements OnInit {
       this.auth.googleLoginRedirect();
     }
 
+  isGeorgian(): boolean {
+    return this.translation.isGeorgian();
+  }
+
+  toggleLanguage(): void {
+    this.translation.toggleLanguage();
+  }
+
+  goToVerify(): void {
+    const email = this.pendingVerificationEmail();
+    if (email) {
+      this.router.navigate(['/auth/verify'], { queryParams: { email, resend: 'true' } });
+    }
+  }
+
   submit(): void {
   if (this.form.invalid) {
     this.form.markAllAsTouched();
@@ -84,42 +109,47 @@ export class SignIn implements OnInit {
   this.serverDownError.set(false);
   this.invalidCredentialsError.set(false);
   this.userNotFoundError.set(false);
+  this.notVerifiedError.set(false);
+  this.pendingVerificationEmail.set(null);
 
-  this.auth.login(email, password).subscribe({
-    next: (res) => {
-      this.auth.setTokensFromResponse(res);
-      this.auth.loadMe().subscribe({
-        next: () => {
+  this.auth.login(email, password)
+    .pipe(
+      tap(res => this.auth.setTokensFromResponse(res)),
+      switchMap(() => this.auth.loadMe()),
+      takeUntilDestroyed(this.destroyRef)
+    )
+    .subscribe({
+      next: () => {
+        this.router.navigateByUrl('/landing');
+        this.snackbar.success(SNACKBAR_MESSAGES.LOGIN_SUCCESS);
+      },
+      error: (err) => {
+        if (err?.status === 404) {
+          this.userNotFoundError.set(true);
+          return;
+        }
+
+        if (err?.status === 401) {
+          const message = err?.error?.detail?.toLowerCase() ?? '';
+
+          if (message.includes('not verified')) {
+            this.form.controls.email.setErrors({ notVerified: true });
+            this.notVerifiedError.set(true);
+            this.pendingVerificationEmail.set(email);
+          } else {
+            this.invalidCredentialsError.set(true);
+          }
+          return;
+        }
+
+        if (this.auth.isAuthenticated()) {
           this.router.navigateByUrl('/landing');
           this.snackbar.success(SNACKBAR_MESSAGES.LOGIN_SUCCESS);
-        },
-        error: () => {
-          this.router.navigateByUrl('/landing');
-          this.snackbar.success(SNACKBAR_MESSAGES.LOGIN_SUCCESS);
-        },
-      });
-    },
-    error: (err) => {
-
-      if (err?.status === 404) {
-        this.userNotFoundError.set(true);
-        return;
-      }
-
-      if (err?.status === 401) {
-        const message = err?.error?.detail?.toLowerCase() ?? '';
-
-        if (message.includes('not verified')) {
-          this.form.controls.email.setErrors({ notVerified: true });
         } else {
           this.invalidCredentialsError.set(true);
         }
-        return;
-      }
-
-      this.invalidCredentialsError.set(true);
-    },
-  });
+      },
+    });
 
   }
 }

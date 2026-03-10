@@ -1,17 +1,19 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, DestroyRef, signal, computed, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap, tap } from 'rxjs/operators';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { Product } from '../shop/shop.models';
-import { LoadingSpinner } from 'lib/components/spinner/loading-spinner';
 import { ProductCardComponent } from '../shop/components/product-card/product-card';
+import { ProductCardSkeletonComponent } from '../shop/components/skeletons/product-card-skeleton';
 
 @Component({
   selector: 'app-category-products',
-  imports: [Header, Footer, TranslatePipe, RouterLink, LoadingSpinner, ProductCardComponent],
+  imports: [Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, ProductCardSkeletonComponent],
   templateUrl: './category-products.html',
   styleUrls: ['./category-products.scss']
 })
@@ -19,10 +21,12 @@ export class CategoryProducts implements OnInit {
   private route = inject(ActivatedRoute);
   private shopService = inject(ShopService);
   private translation = inject(TranslationService);
+  private destroyRef = inject(DestroyRef);
 
   categoryId = signal<number | null>(null);
   products = signal<Product[]>([]);
   loading = signal<boolean>(true);
+  skeletonArray = Array(8).fill(0);
 
   currentCategory = computed(() => {
     const id = this.categoryId();
@@ -57,7 +61,7 @@ export class CategoryProducts implements OnInit {
     while (currentCategoryId !== null) {
       const category = categories.find(c => Number(c.id) === currentCategoryId);
       if (!category) break;
-      trail.unshift(category); // Add to front of array
+      trail.unshift(category);
       currentCategoryId = category.parent_id;
     }
 
@@ -65,28 +69,39 @@ export class CategoryProducts implements OnInit {
   });
 
   ngOnInit() {
-    this.translation.loadModule('shop').subscribe();
+    this.translation.loadModule('shop')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
 
-    this.route.params.subscribe(params => {
-      const categoryId = +params['categoryId'];
-      this.categoryId.set(categoryId);
-      this.loading.set(true);
-
-      // Ensure main categories are loaded (will use cache if already loaded)
-      this.shopService.getMainCategories().subscribe(() => {
-        // Load products from category tree (includes all subcategories)
-        this.shopService.getAllProductsInCategoryTree(categoryId).subscribe({
-          next: (products) => {
-            this.products.set(products);
-            this.loading.set(false);
-          },
-          error: () => {
-            this.products.set([]);
-            this.loading.set(false);
-          }
-        });
+    this.route.params
+      .pipe(
+        tap(params => {
+          const categoryId = +params['categoryId'];
+          this.categoryId.set(categoryId);
+          this.loading.set(true);
+        }),
+        switchMap(params => {
+          const categoryId = +params['categoryId'];
+          // Ensure main categories are loaded (will use cache if already loaded)
+          return this.shopService.getMainCategories().pipe(
+            switchMap(() =>
+              // Load products from category tree (includes all subcategories)
+              this.shopService.getAllProductsInCategoryTree(categoryId)
+            )
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (products) => {
+          this.products.set(products);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.products.set([]);
+          this.loading.set(false);
+        }
       });
-    });
   }
 
   getCategoryRoute(categoryId: number | string): string[] {

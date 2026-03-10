@@ -7,6 +7,14 @@
     <span class="font-bold uppercase text-sm tracking-wide">{{ 'auth.back' | translate }}</span>
   </a>
 
+  <button
+    (click)="toggleLanguage()"
+    class="absolute top-8 right-8 w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition bg-gray-100 hover:bg-gray-200 text-gray-700"
+    [attr.aria-label]="isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
+  >
+    {{ isGeorgian() ? 'EN' : 'KA' }}
+  </button>
+
   <div class="w-full max-w-lg relative z-10">
     <div class="text-center mb-10">
       <div class="flex justify-center mb-2">
