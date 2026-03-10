@@ -28,6 +28,8 @@
     },
     "filters": {
       "title": "Filters",
+      "clear": "Clear All",
+      "price": "Price Range",
       "allCategories": "All Categories",
       "category": {
         "electronics": "Electronics",
@@ -36,12 +38,6 @@
         "gifts": "Gifts"
       },
       "priceRange": "Price Range",
-      "price": {
-        "under50": "Under $50",
-        "50to100": "$50 - $100",
-        "100to200": "$100 - $200",
-        "200plus": "$200+"
-      },
       "rating": {
         "title": "Rating",
         "4plus": "4+ stars",
@@ -49,11 +45,13 @@
         "all": "All ratings"
       },
       "verifiedOnly": "Verified Sellers Only",
+      "sortBy": "Sort By",
       "sort": {
+        "newest": "Newest First",
         "recommended": "Recommended",
         "priceLow": "Price: Low to High",
         "priceHigh": "Price: High to Low",
-        "topRated": "Top Rated"
+        "rating": "Top Rated"
       }
     },
     "promo": {

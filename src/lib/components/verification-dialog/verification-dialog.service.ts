@@ -11,11 +11,10 @@ export class VerificationDialogService {
 
   open(): Observable<string | undefined> {
     const dialogRef = this.dialog.open(VerificationDialogComponent, {
-      width: '480px',
-      maxWidth: '90vw',
-      panelClass: 'modern-dialog',
+      width: '500px',
+      panelClass: 'verification-dialog',
+      hasBackdrop: true,
       disableClose: false,
-      autoFocus: true,
     });
 
     return dialogRef.afterClosed();

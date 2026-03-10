@@ -14,7 +14,14 @@
         [alt]="product().name"
         class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
       />
-      
+
+      @if (product().verified) {
+        <div class="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-1 bg-green-600 rounded-full shadow-md">
+          <mat-icon class="!w-3 !h-3 !text-xs text-white">verified</mat-icon>
+          <span class="text-[10px] font-bold text-white uppercase leading-none">Verified</span>
+        </div>
+      }
+
       <div class="absolute top-2 right-2 flex flex-col gap-1.5">
         <button
           (click)="toggleFavorite($event)"
@@ -68,6 +75,12 @@
         [alt]="product().name"
         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
       />
+      @if (product().verified) {
+        <div class="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-1 bg-green-600 rounded-full shadow-md">
+          <mat-icon class="!w-3 !h-3 !text-xs text-white">verified</mat-icon>
+          <span class="text-[10px] font-bold text-white uppercase leading-none">Verified</span>
+        </div>
+      }
     </div>
 
     <div class="p-4">

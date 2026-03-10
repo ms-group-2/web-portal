@@ -28,6 +28,7 @@ export class ProfileSidebarComponent implements OnInit {
     { route: '/profile/my-posts', icon: 'post_add', label: 'profile.nav.myPosts', activeClass: 'bg-primary text-white' },
     { route: '/profile/wishlist', icon: 'favorite_border', label: 'profile.nav.favorites', activeClass: 'bg-primary text-white' },
     { route: '/profile/addresses', icon: 'location_on', label: 'profile.nav.addresses', activeClass: 'bg-primary text-white' },
+    { route: '/profile/business', icon: 'store', label: 'profile.nav.business', activeClass: 'bg-market text-white' },
     { route: '/profile/settings', icon: 'settings', label: 'profile.nav.settings', activeClass: 'bg-primary text-white' },
   ];
 

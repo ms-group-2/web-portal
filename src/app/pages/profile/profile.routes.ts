@@ -54,6 +54,13 @@ export const profileRoutes: Routes = [
             (m) => m.BookingHistoryComponent
           ),
       },
+      {
+        path: 'business',
+        loadComponent: () =>
+          import('./sections/vendor-dashboard/vendor-dashboard').then(
+            (m) => m.VendorDashboardComponent
+          ),
+      },
     ],
   },
 ];

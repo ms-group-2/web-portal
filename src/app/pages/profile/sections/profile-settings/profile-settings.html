@@ -34,14 +34,15 @@
           <h2 class="text-xl sm:text-2xl font-black text-textBlue break-all overflow-hidden">{{ name() }}</h2>
           @if (isVerified()) {
             <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-600 rounded-full shadow-md animate-scaleIn">
-              <mat-icon class="!w-4 !h-4 !text-base text-white">verified</mat-icon>
-              <span class="text-xs font-bold text-white uppercase">{{ 'profile.verification.verified' | translate }}</span>
+              <mat-icon class="!w-4 !h-4 !text-base !leading-none text-white">verified</mat-icon>
+              <span class="text-xs font-bold text-white ">{{ 'profile.verification.verified' | translate }}</span>
             </div>
           }
         </div>
         <p class="text-gray-500 text-sm">{{ 'profile.memberSince' | translate }} {{ currentYear }} {{'profile.year' | translate}}</p>
         @if (!isVerified()) {
           <button
+            (click)="openVerificationDialog()"
             class="mt-3 inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-xs transition-all duration-300 hover:shadow-lg hover:shadow-red-400/50 hover:-translate-y-0.5 active:translate-y-0"
           >
             <mat-icon class="!w-4 !h-4 !text-base !leading-none flex items-center">shield_person</mat-icon>

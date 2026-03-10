@@ -31,6 +31,7 @@
       "myPosts": "My Posts",
       "favorites": "Favorites",
       "addresses": "Current Addresses",
+      "business": "Your Business",
       "settings": "Profile and Settings",
       "swapHistory": "Swap History",
       "shopHistory": "Order History",
@@ -90,6 +91,36 @@
       "verified": "Verified",
       "getVerified": "Get Verified",
       "verifiedBadge": "Verified User"
+    },
+    "vendor": {
+      "title": "Become a Seller",
+      "subtitle": "Register your business to start selling on our platform",
+      "registrationTitle": "Seller Registration",
+      "alreadyRegistered": "You are already registered as a seller",
+      "dashboard": "Vendor Dashboard",
+      "myProducts": "My Products",
+      "addProduct": "Add Product",
+      "editProduct": "Edit Product",
+      "deleteProduct": "Delete Product",
+      "noProducts": "No Products",
+      "noProductsMessage": "You haven't added any products yet",
+      "form": {
+        "identificationNumber": "Identification Number",
+        "identificationPlaceholder": "Enter your business ID number",
+        "legalAddress": "Legal Address",
+        "legalAddressPlaceholder": "Enter your business address",
+        "contactPhone": "Contact Phone",
+        "contactPhonePlaceholder": "Enter your contact phone",
+        "contactEmail": "Contact Email",
+        "contactEmailPlaceholder": "Enter your contact email",
+        "bankAccount": "Bank Account Number",
+        "bankAccountPlaceholder": "Enter your bank account number",
+        "submit": "Register as Seller",
+        "submitting": "Registering...",
+        "cancel": "Cancel"
+      },
+      "success": "Successfully registered as a seller!",
+      "error": "Failed to register as seller. Please try again."
     }
   },
   "validation": {

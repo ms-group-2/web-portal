@@ -1,0 +1,18 @@
+::ng-deep .mdc-slider {
+  --mdc-slider-handle-color: #F47C33;
+  --mdc-slider-focus-handle-color: #F47C33;
+  --mdc-slider-hover-handle-color: #F47C33;
+  --mdc-slider-active-track-color: #F47C33;
+  --mdc-slider-inactive-track-color: #E5E7EB;
+  --mdc-slider-with-tick-marks-inactive-container-color: #E5E7EB;
+  --mdc-slider-handle-height: 20px;
+  --mdc-slider-handle-width: 20px;
+}
+
+::ng-deep .mat-mdc-checkbox.mat-primary {
+  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-focus-icon-color: #F47C33;
+  --mdc-checkbox-selected-hover-icon-color: #F47C33;
+  --mdc-checkbox-selected-icon-color: #F47C33;
+  --mdc-checkbox-selected-pressed-icon-color: #F47C33;
+}

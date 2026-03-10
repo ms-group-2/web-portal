@@ -7,6 +7,7 @@ import { SwapItemsService, SwapListingApiService } from 'lib/services/swap';
 import { ConfirmationDialogService } from 'lib/components/confirmation-dialog/confirmation-dialog.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
+import { VerificationService } from 'lib/services/verification/verification.service';
 
 interface PostItem {
   id: string;
@@ -35,8 +36,10 @@ export class MyPostsComponent {
   private api = inject(SwapListingApiService);
   private translation = inject(TranslationService);
   private destroyRef = inject(DestroyRef);
+  private verificationService = inject(VerificationService);
 
   postedItems = this.swapItemsService.postedItems;
+  isVerified = this.verificationService.isVerified;
 
   getStatusLabel(status: string): string {
     switch (status) {

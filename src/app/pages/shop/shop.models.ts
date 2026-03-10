@@ -58,3 +58,25 @@ export interface Filters {
   verifiedOnly: boolean;
   sortBy: string;
 }
+
+export interface FilterOption {
+  option_id: number;
+  option_value: string;
+}
+
+export interface FilterField {
+  field_id: number;
+  field_name: string;
+  is_required: boolean;
+  options: FilterOption[];
+}
+
+export interface FilterGroup {
+  group_id: number;
+  group_name: string;
+  fields: FilterField[];
+}
+
+export interface GetFiltersResponse {
+  filters: FilterGroup[];
+}

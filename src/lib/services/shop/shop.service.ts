@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, tap, catchError, forkJoin, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CategoriesResponse, ProductsResponse, Category, Product } from 'src/app/pages/shop/shop.models';
+import { CategoriesResponse, ProductsResponse, Category, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -459,6 +459,26 @@ export class ShopService {
           }));
         }),
         catchError(err => {
+          return of([]);
+        })
+      );
+  }
+
+  getFilterOptions(categoryId?: number): Observable<FilterGroup[]> {
+    const params: any = {};
+    if (categoryId) {
+      params.category_id = categoryId;
+    }
+
+    return this.http
+      .get<GetFiltersResponse>(`${this.baseUrl}/ecommerce/products/filters`, {
+        headers: this.headers,
+        params,
+      })
+      .pipe(
+        map(response => response.filters || []),
+        catchError(err => {
+          console.error('Failed to load filter options:', err);
           return of([]);
         })
       );

@@ -1,104 +1,11 @@
-/* Modern field styles for mat-form-field */
-.modern-field {
-  ::ng-deep {
-    .mat-mdc-text-field-wrapper {
-      @apply bg-gray-50 rounded-xl;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-      &:hover {
-        @apply bg-gray-100;
-      }
-    }
-
-    .mat-mdc-form-field-focus-overlay {
-      @apply bg-transparent;
-    }
-
-    .mdc-notched-outline {
-      .mdc-notched-outline__leading,
-      .mdc-notched-outline__notch,
-      .mdc-notched-outline__trailing {
-        @apply border-gray-200;
-        transition: border-color 0.3s ease;
-      }
-    }
-
-    &.mat-focused .mdc-notched-outline {
-      .mdc-notched-outline__leading,
-      .mdc-notched-outline__notch,
-      .mdc-notched-outline__trailing {
-        @apply border-yellow-400;
-        border-width: 2px !important;
-      }
-    }
-  }
+::ng-deep .verification-dialog {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
 
-/* Custom animations */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes rotateIn {
-  from {
-    opacity: 0;
-    transform: rotate(-180deg) scale(0.5);
-  }
-  to {
-    opacity: 1;
-    transform: rotate(0) scale(1);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slideUp {
-  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-scaleIn {
-  animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-}
-
-.animate-rotateIn {
-  animation: rotateIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
-}
-
-.animate-fadeInUp {
-  animation: fadeInUp 0.5s ease-out both;
-
-  &.animation-delay-100 {
-    animation-delay: 0.1s;
-  }
-
-  &.animation-delay-200 {
-    animation-delay: 0.2s;
-  }
+::ng-deep .verification-dialog .mat-mdc-dialog-container {
+  background-color: white !important;
+  border-radius: 20px !important;
 }
