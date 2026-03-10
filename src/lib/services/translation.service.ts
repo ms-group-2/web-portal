@@ -91,7 +91,7 @@ export class TranslationService {
   isGeorgian = computed(() => this.currentLang() === 'ka');
   isEnglish = computed(() => this.currentLang() === 'en');
 
-  translate(key: string): string {
+  translate(key: string, params?: Record<string, any>): string {
     const keys = key.split('.');
     let value: any = this.translations();
 
@@ -103,7 +103,15 @@ export class TranslationService {
       }
     }
 
-    return value || key;
+    let result = value || key;
+
+    if (params && typeof result === 'string') {
+      Object.keys(params).forEach(param => {
+        result = result.replace(new RegExp(`{${param}}`, 'g'), params[param]);
+      });
+    }
+
+    return result;
   }
 
   instant = computed(() => (key: string) => this.translate(key));

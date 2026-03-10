@@ -22,11 +22,13 @@ export class ProductCardComponent {
 
   addToCart(event: Event) {
     event.stopPropagation();
+    event.preventDefault();
     this.shopService.addToCart(this.product());
   }
 
   toggleFavorite(event: Event) {
     event.stopPropagation();
+    event.preventDefault();
     this.shopService.toggleFavorite(this.product());
   }
 }

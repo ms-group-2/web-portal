@@ -1,10 +1,10 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { TranslationService } from 'lib/services/translation.service';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { CategoryMenu } from 'lib/components/category-dialog/category-dialog';
-import { ShopHeroComponent } from './components/shop-hero/shop-hero';
 import { CategoryScrollerComponent } from './components/category-scroller/category-scroller';
 import { PromoBannersComponent } from './components/promo-banners/promo-banners';
 import { ProductFiltersComponent } from './components/product-filters/product-filters';
@@ -18,7 +18,6 @@ import { TrustSectionComponent } from './components/trust-section/trust-section'
     Header,
     Footer,
     CategoryMenu,
-    ShopHeroComponent,
     CategoryScrollerComponent,
     PromoBannersComponent,
     ProductFiltersComponent,
@@ -32,10 +31,15 @@ import { TrustSectionComponent } from './components/trust-section/trust-section'
 export class Shop implements OnInit {
   private shopService = inject(ShopService);
   private translation = inject(TranslationService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
-    this.translation.loadModule('shop').subscribe();
+    this.translation.loadModule('shop')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
 
-    this.shopService.getMainCategories().subscribe();
+    this.shopService.getMainCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 }

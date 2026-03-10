@@ -19,11 +19,9 @@ export class ShopService {
   categoriesByParentId = signal<Partial<Record<number | 'root', Category[]>>>({});
   categoriesLoadingFor = signal<number | 'root' | null>(null);
 
-  // Cache products by category ID
-  productsByCategoryId = signal<Record<number, Product[]>>({});
-
-  // Cache products for entire category trees (includes all subcategories)
+  productsByCategoryId = signal<Partial<Record<number | 'all', Product[]>>>({});
   productsByCategoryTree = signal<Record<number, Product[]>>({});
+  productsById = signal<Record<number, Product>>({});
 
   mainCategories = computed(() => this.categoriesByParentId()['root'] || []);
 
@@ -34,6 +32,7 @@ export class ShopService {
   });
 
   selectedCategoryId = signal<number | null>(null);
+  searchQuery = signal<string>('');
 
   selectedCategory = computed(() => {
     const id = this.selectedCategoryId();
@@ -48,7 +47,6 @@ export class ShopService {
     return null;
   });
 
-  // Flat list of all categories from all levels
   flatCategories = computed(() => {
     const result: Category[] = [];
     const cache = this.categoriesByParentId();
@@ -64,7 +62,6 @@ export class ShopService {
   });
 
   getMainCategories(): Observable<Category[]> {
-    // Check if already cached
     const cache = this.categoriesByParentId();
     if (cache['root']) {
       return of(cache['root']);
@@ -94,12 +91,10 @@ export class ShopService {
   }
 
   getSubcategories(parentId: number | null): Observable<Category[]> {
-    // If parentId is null, get main categories
     if (parentId === null) {
       return this.getMainCategories();
     }
 
-    // Check cache
     const cache = this.categoriesByParentId();
     if (cache[parentId]) {
       return of(cache[parentId]);
@@ -136,28 +131,35 @@ export class ShopService {
     this.selectedCategoryId.set(categoryId);
   }
 
+  setSearchQuery(query: string): void {
+    this.searchQuery.set(query);
+  }
+
   getProducts(params?: {
     category_id?: number | null;
     page?: number;
     limit?: number;
+    search?: string;
     min_price?: number;
     max_price?: number;
     sort_by?: string;
   }): Observable<Product[]> {
-    // Check cache if we're fetching by category_id without filters
     const hasFilters = params?.min_price !== undefined ||
                       params?.max_price !== undefined ||
                       params?.sort_by !== undefined;
 
-    if (params?.category_id && !hasFilters && params?.page === 1) {
-      const cached = this.productsByCategoryId()[params.category_id];
+    const page = params?.page ?? 1;
+    const categoryKey: number | 'all' = params?.category_id ?? 'all';
+
+    if (!hasFilters && page === 1) {
+      const cached = this.productsByCategoryId()[categoryKey];
       if (cached) {
         return of(cached);
       }
     }
 
     const queryParams: any = {
-      page: params?.page ?? 1,
+      page: page,
       limit: params?.limit ?? 20,
     };
 
@@ -173,6 +175,9 @@ export class ShopService {
     if (params?.sort_by) {
       queryParams.sort_by = params.sort_by;
     }
+    if (params?.search) {
+      queryParams.search = params.search;
+    }
 
     return this.http
       .get<ProductsResponse>(`${this.baseUrl}/ecommerce/products/`, {
@@ -185,7 +190,6 @@ export class ShopService {
           if (!response || !response.items) {
             return [];
           }
-          // Map API fields to component fields
           return response.items.map(product => ({
             ...product,
             name: product.title || product.name,
@@ -193,11 +197,10 @@ export class ShopService {
           }));
         }),
         tap(products => {
-          // Cache the products if fetching by category without filters
-          if (params?.category_id && !hasFilters && params?.page === 1) {
+          if (!hasFilters && page === 1) {
             this.productsByCategoryId.update(cache => ({
               ...cache,
-              [params.category_id!]: products
+              [categoryKey]: products
             }));
           }
         }),
@@ -208,7 +211,6 @@ export class ShopService {
       );
   }
 
-  // Convenience method to get products by category (single category only)
   getProductsByCategory(categoryId: number, page: number = 1, limit: number = 20): Observable<Product[]> {
     return this.getProducts({
       category_id: categoryId,
@@ -217,7 +219,6 @@ export class ShopService {
     });
   }
 
-  // Get all subcategory IDs recursively for a given category (all levels)
   private getAllSubcategoryIds(categoryId: number): Observable<number[]> {
     return this.getSubcategories(categoryId).pipe(
       switchMap(subcategories => {
@@ -227,7 +228,6 @@ export class ShopService {
 
         const directSubIds = subcategories.map(sub => Number(sub.id));
 
-        // Recursively get subcategories of each subcategory
         const nestedRequests = directSubIds.map(subId =>
           this.getAllSubcategoryIds(subId).pipe(
             catchError(() => of([]))
@@ -238,12 +238,9 @@ export class ShopService {
           return of(directSubIds);
         }
 
-        // Wait for all nested subcategory fetches to complete
         return forkJoin(nestedRequests).pipe(
           map(nestedResults => {
-            // Flatten all nested subcategory IDs
             const allNestedIds = nestedResults.flat();
-            // Combine direct subcategories with all nested ones
             return [...directSubIds, ...allNestedIds];
           })
         );
@@ -252,7 +249,6 @@ export class ShopService {
     );
   }
 
-  // Get products from a category AND all its direct subcategories
   getAllProductsInCategoryTree(categoryId: number, params?: {
     page?: number;
     limit?: number;
@@ -260,7 +256,6 @@ export class ShopService {
     max_price?: number;
     sort_by?: string;
   }): Observable<Product[]> {
-    // Check cache if no filters are applied
     const hasFilters = params?.min_price !== undefined ||
                       params?.max_price !== undefined ||
                       params?.sort_by !== undefined;
@@ -268,25 +263,21 @@ export class ShopService {
     if (!hasFilters) {
       const cached = this.productsByCategoryTree()[categoryId];
       if (cached) {
-        console.log(`✅ Using cached products for category tree ${categoryId} (${cached.length} products)`);
         return of(cached);
       }
     }
 
     console.log(`🔄 Fetching products for category tree ${categoryId}...`);
 
-    // First, get all subcategory IDs
     return this.getAllSubcategoryIds(categoryId).pipe(
       switchMap(subcategoryIds => {
-        // Include the parent category ID as well
         const allCategoryIds = [categoryId, ...subcategoryIds];
 
-        // Fetch products from all categories in parallel
         const productRequests = allCategoryIds.map(catId =>
           this.getProducts({
             category_id: catId,
-            page: 1, // Always fetch first page for each category
-            limit: 100, // Fetch more per category to get all products
+            page: 1, 
+            limit: 100, 
             min_price: params?.min_price,
             max_price: params?.max_price,
             sort_by: params?.sort_by,
@@ -298,17 +289,14 @@ export class ShopService {
           )
         );
 
-        // Wait for all requests to complete
         if (productRequests.length === 0) {
           return of([]);
         }
 
         return forkJoin(productRequests).pipe(
           map(resultsArray => {
-            // Flatten all products from all categories
             const allProducts = resultsArray.flat();
 
-            // Deduplicate by product ID
             const uniqueProducts = Array.from(
               new Map(allProducts.map(p => [p.id, p])).values()
             );
@@ -316,7 +304,6 @@ export class ShopService {
             return uniqueProducts;
           }),
           tap(products => {
-            // Cache the category tree products if no filters applied
             if (!hasFilters) {
               this.productsByCategoryTree.update(cache => ({
                 ...cache,
@@ -349,5 +336,76 @@ export class ShopService {
   isFavorite(productId: number | undefined): boolean {
     return !!productId && this.favorites().has(productId);
   }
-  
+
+  getProductById(productId: number): Observable<Product | null> {
+    const cached = this.productsById()[productId];
+    if (cached) {
+      return of(cached);
+    }
+
+    return this.http
+      .get<{ product: Product }>(`${this.baseUrl}/ecommerce/products/${productId}`, {
+        headers: this.headers,
+      })
+      .pipe(
+        map(response => {
+          console.log('getProductById API response:', response);
+          if (!response || !response.product) {
+            return null;
+          }
+          const product = response.product;
+          return {
+            ...product,
+            name: product.title || product.name,
+            image: product.image_url || product.image,
+          };
+        }),
+        tap(product => {
+          if (product) {
+            this.productsById.update(cache => ({
+              ...cache,
+              [productId]: product
+            }));
+          }
+        }),
+        catchError(err => {
+          console.error('Failed to load product:', err);
+          return of(null);
+        })
+      );
+  }
+
+  searchProducts(query: string, page: number = 1, limit: number = 20): Observable<Product[]> {
+    if (!query || query.trim().length < 2) {
+      return of([]);
+    }
+
+    const queryParams = {
+      q: query.trim(),
+      page,
+      limit,
+    };
+
+    return this.http
+      .get<ProductsResponse>(`${this.baseUrl}/ecommerce/products/search`, {
+        headers: this.headers,
+        params: queryParams,
+      })
+      .pipe(
+        map(response => {
+          if (!response || !response.items) {
+            return [];
+          }
+          return response.items.map(product => ({
+            ...product,
+            name: product.title || product.name,
+            image: product.image_url || product.image,
+          }));
+        }),
+        catchError(err => {
+          return of([]);
+        })
+      );
+  }
+
 }

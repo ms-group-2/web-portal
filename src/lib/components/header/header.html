@@ -4,7 +4,7 @@
   isShopRoute() ? 'shop-header' : '',
   isSwapRoute() ? 'swap-header' : ''
 ]">
-  <nav class="max-w-7xl mx-auto flex items-center py-2 md:py-3">
+  <nav class="px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32 flex items-center py-2 md:py-3">
 
     <a
       routerLink="/"
@@ -33,6 +33,81 @@
 
       }
     </ul>
+
+    @if (isShopRoute()) {
+      <div class="flex-1 max-w-xl mx-4 relative" #searchContainer>
+        <div class="relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !w-5 !h-5 !text-[20px]"
+            [ngClass]="variant() === 'white' ? 'text-gray-400' : 'text-white/60'">
+            search
+          </mat-icon>
+          <input
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+            (focus)="onSearchFocus()"
+            [placeholder]="'shop.hero.searchPlaceholder' | translate"
+            class="w-full pl-11 py-2 rounded-full font-medium text-sm transition-all focus:outline-none focus:ring-2"
+            [ngClass]="[
+              variant() === 'white'
+                ? 'bg-gray-100 text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-market/30'
+                : 'bg-white/20 text-white placeholder-white/70 focus:bg-white/30 focus:ring-white/50',
+              searchQuery().length > 0 ? 'pr-11' : 'pr-4'
+            ]"
+          />
+          @if (searchQuery().length > 0) {
+            <button
+              (click)="clearSearch()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-all"
+              type="button"
+            >
+              <mat-icon class="!w-4 !h-4 !text-[16px]"
+                [ngClass]="variant() === 'white' ? 'text-gray-500' : 'text-white/70'">
+                close
+              </mat-icon>
+            </button>
+          }
+        </div>
+
+        @if (showSearchDropdown() && searchQuery().length > 0) {
+          <div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[500px] overflow-y-auto">
+            @if (searchLoading()) {
+              <div class="p-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-market border-t-transparent"></div>
+                <p class="mt-3 text-sm text-gray-500 font-medium">{{ 'shop.search.searching' | translate }}</p>
+              </div>
+            } @else if (suggestedProducts().length > 0) {
+              <div class="p-3">
+                <p class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-gray-500">{{ 'shop.search.suggestions' | translate }}</p>
+                @for (product of suggestedProducts(); track product.id) {
+                  <a
+                    [routerLink]="['/shop/product', product.id]"
+                    (click)="closeSearchDropdown()"
+                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    <img
+                      [src]="product.image || product.image_url || 'assets/placeholder-product.png'"
+                      [alt]="product.name || product.title"
+                      class="w-12 h-12 object-cover rounded-lg bg-gray-100"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <p class="font-semibold text-sm text-gray-900 truncate">{{ product.name || product.title }}</p>
+                      <p class="text-xs text-gray-500 truncate">{{ product.description }}</p>
+                    </div>
+                    <p class="font-bold text-market">${{ product.price }}</p>
+                  </a>
+                }
+              </div>
+            } @else {
+              <div class="p-8 text-center">
+                <mat-icon class="!w-16 !h-16 !text-[64px] text-gray-300">search_off</mat-icon>
+                <p class="mt-3 text-sm text-gray-600 font-medium">{{ 'shop.search.noResults' | translate }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
 
     <div class="ml-auto flex items-center gap-2 sm:gap-3 md:gap-5">
       @if (!isAuthenticated) {

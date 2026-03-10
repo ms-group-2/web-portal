@@ -1,5 +1,4 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-// import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';

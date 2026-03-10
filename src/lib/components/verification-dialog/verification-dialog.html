@@ -1,0 +1,63 @@
+<div class="p-6 sm:p-8 max-w-md w-full">
+  <div class="animate-slideUp">
+    <!-- Header with animated icon -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-green-600 rounded-full mb-6 animate-scaleIn shadow-lg shadow-green-400/30">
+        <mat-icon class="!w-12 !h-12 !text-5xl text-white animate-rotateIn">verified</mat-icon>
+      </div>
+      <h2 class="text-3xl font-black text-gray-900 mb-2 animate-fadeInUp">{{ 'verification.title' | translate }}</h2>
+      <p class="text-gray-600 text-sm leading-relaxed animate-fadeInUp animation-delay-100">{{ 'verification.subtitle' | translate }}</p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4 animate-fadeInUp animation-delay-200">
+      <mat-form-field class="w-full modern-field" appearance="outline">
+        <mat-label>{{ 'verification.idNumber' | translate }}</mat-label>
+        <input
+          matInput
+          formControlName="idNumber"
+          type="text"
+          maxlength="11"
+          class="font-medium"
+          [placeholder]="'verification.idPlaceholder' | translate"
+        />
+        @if (form.controls.idNumber.invalid && form.controls.idNumber.touched) {
+          <mat-error class="text-xs">
+            {{ 'verification.idError' | translate }}
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Info box -->
+      <div class="flex gap-3 p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+        <mat-icon class="!w-5 !h-5 !text-xl text-blue-600 flex-shrink-0">info</mat-icon>
+        <p class="text-sm text-blue-900 leading-relaxed m-0">{{ 'verification.infoText' | translate }}</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3 mt-8 flex-col-reverse sm:flex-row">
+        <button
+          type="button"
+          (click)="close()"
+          [disabled]="isSubmitting()"
+          class="flex-1 px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {{ 'verification.cancel' | translate }}
+        </button>
+        <button
+          type="submit"
+          [disabled]="isSubmitting()"
+          class="flex-1 px-6 py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-sm transition-all duration-300 hover:shadow-lg hover:shadow-green-400/50 hover:-translate-y-1 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          @if (isSubmitting()) {
+            <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <span>{{ 'verification.verifying' | translate }}</span>
+          } @else {
+            <mat-icon class="!w-5 !h-5 !text-xl">check_circle</mat-icon>
+            <span>{{ 'verification.verify' | translate }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

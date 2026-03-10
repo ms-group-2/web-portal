@@ -28,6 +28,8 @@ import { sanitizeTextInput, sanitizePhoneInput } from 'lib/utils/input-sanitizer
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { ProfileSettingsSkeletonComponent } from '../../components/skeletons/profile-settings-skeleton';
+// import { VerificationService } from 'lib/services/verification/verification.service';
+// import { VerificationDialogService } from 'lib/components/verification-dialog/verification-dialog.service';
 
 @Component({
   selector: 'app-profile-settings',
@@ -61,6 +63,8 @@ export class ProfileSettingsComponent implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private changePasswordDialog = inject(ChangePasswordDialogService);
   private translationService = inject(TranslationService);
+  // private verificationService = inject(VerificationService);
+  // private verificationDialog = inject(VerificationDialogService);
 
   isEditing = signal(false);
   isLoading = signal(false);
@@ -71,6 +75,7 @@ export class ProfileSettingsComponent implements OnInit {
   originalFormValue: ReturnType<typeof this.form.getRawValue> | null = null;
 
   profileId = computed(() => this.auth.user()?.id ?? null);
+  isVerified = signal(false); // this.verificationService.isVerified;
 
   ERRORS = formInputErrors;
   stats = PROFILE_STATS;
@@ -399,5 +404,14 @@ export class ProfileSettingsComponent implements OnInit {
       }
     });
   }
+
+  // openVerificationDialog(): void {
+  //   this.verificationDialog.open().subscribe(idNumber => {
+  //     if (idNumber) {
+  //       this.verificationService.verify(idNumber);
+  //       this.snackbar.success(this.translationService.translate('profile.verification.verified'));
+  //     }
+  //   });
+  // }
 
 }

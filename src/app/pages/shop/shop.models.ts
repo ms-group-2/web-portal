@@ -14,7 +14,7 @@ export interface Product {
   };
   specifications?: Array<{
     group_name: string;
-    specs: Array<{
+    specifications: Array<{
       name: string;
       value: string;
     }>;

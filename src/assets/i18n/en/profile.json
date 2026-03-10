@@ -73,6 +73,20 @@
       "active": "Active",
       "inactive": "Inactive",
       "completed": "Completed"
+    },
+    "verification": {
+      "title": "Get Verified",
+      "subtitle": "Verify your identity to unlock exclusive features and become a seller",
+      "idNumber": "ID Number",
+      "idPlaceholder": "Enter your ID number",
+      "idError": "Please enter a valid ID number (9-11 digits)",
+      "infoText": "Your information is securely encrypted and will only be used for verification purposes.",
+      "cancel": "Cancel",
+      "verify": "Verify Now",
+      "verifying": "Verifying...",
+      "verified": "Verified",
+      "getVerified": "Get Verified",
+      "verifiedBadge": "Verified User"
     }
   },
   "validation": {
