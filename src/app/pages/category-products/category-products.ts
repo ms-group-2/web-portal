@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, tap } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+// import { CommonModule } from '@angular/common';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ShopService } from 'lib/services/shop/shop.service';
@@ -14,7 +14,7 @@ import { ProductCardComponent } from '../shop/components/product-card/product-ca
 
 @Component({
   selector: 'app-category-products',
-  imports: [CommonModule, Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, FormsModule],
+  imports: [ Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, FormsModule],
   templateUrl: './category-products.html',
   styleUrls: ['./category-products.scss']
 })
@@ -77,7 +77,6 @@ export class CategoryProducts implements OnInit {
     return this.shopService.subcategoriesByParentId()[id] || [];
   });
 
-  // Build full breadcrumb trail recursively
   breadcrumbTrail = computed(() => {
     const current = this.currentCategory();
     if (!current) return [];
@@ -86,7 +85,6 @@ export class CategoryProducts implements OnInit {
     const trail: any[] = [];
     let currentCategoryId: number | null = Number(current.id);
 
-    // Build trail by following parent_id chain all the way up
     while (currentCategoryId !== null) {
       const category = categories.find(c => Number(c.id) === currentCategoryId);
       if (!category) break;
@@ -111,14 +109,11 @@ export class CategoryProducts implements OnInit {
         }),
         switchMap(params => {
           const categoryId = +params['categoryId'];
-          // Ensure main categories are loaded (will use cache if already loaded)
           return this.shopService.getMainCategories().pipe(
             switchMap(() =>
-              // Load products from category tree (includes all subcategories)
               this.shopService.getAllProductsInCategoryTree(categoryId)
             ),
             tap(() => {
-              // Load filters if this is a leaf category (no subcategories)
               if (this.childCategories().length === 0) {
                 this.loadFilters(categoryId);
               }
@@ -191,7 +186,6 @@ export class CategoryProducts implements OnInit {
       const index = selected.indexOf(optionId);
 
       if (index > -1) {
-        // Remove option
         const newSelected = selected.filter(id => id !== optionId);
         if (newSelected.length === 0) {
           const { [fieldId]: _, ...rest } = current;
@@ -199,7 +193,6 @@ export class CategoryProducts implements OnInit {
         }
         return { ...current, [fieldId]: newSelected };
       } else {
-        // Add option
         return { ...current, [fieldId]: [...selected, optionId] };
       }
     });
@@ -246,20 +239,16 @@ export class CategoryProducts implements OnInit {
   applyFilters(): void {
     let filtered = [...this.products()];
 
-    // Filter by price
     filtered = filtered.filter(p => p.price <= this.maxPrice());
 
-    // Filter by rating
     if (this.minRating() > 0) {
       filtered = filtered.filter(p => (p.rating || 0) >= this.minRating());
     }
 
-    // Filter by verified
     if (this.verifiedOnly()) {
       filtered = filtered.filter(p => p.verified === true);
     }
 
-    // Sort
     switch (this.sortBy()) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -272,7 +261,6 @@ export class CategoryProducts implements OnInit {
         break;
       case 'newest':
       default:
-        // Keep original order (newest first from API)
         break;
     }
 

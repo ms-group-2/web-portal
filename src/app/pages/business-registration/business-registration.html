@@ -1,0 +1,106 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30 flex flex-col">
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
+    <nav class="max-w-6xl mx-auto  flex items-center justify-between py-3">
+      <a routerLink="/" class="flex items-center gap-2 shrink-0" aria-label="Vipo home">
+        <img
+          src="assets/logo/logo-blue.svg"
+          alt="Vipo Logo"
+          class="w-24 h-8 sm:w-28 sm:h-9 md:w-32 md:h-10"
+        />
+      </a>
+
+      <button
+        (click)="translation.toggleLanguage()"
+        class="w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-registerBusiness"
+        [attr.aria-label]="translation.isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
+      >
+        {{ translation.isGeorgian() ? 'EN' : 'KA' }}
+      </button>
+    </nav>
+  </header>
+
+  <div class="flex-1 max-w-7xl mx-auto px-4 pt-20 pb-12 w-full">
+    @if (!isVerified()) {
+      <!-- Not Verified Redirect -->
+      <div class="max-w-2xl mx-auto text-center py-16">
+        <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <mat-icon class="w-10 h-10 text-amber-600">verified_user</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase">
+          {{ 'profile.vendor.notVerified.title' | translate }}
+        </h3>
+        <p class="text-gray-600 mb-6">
+          {{ 'profile.vendor.notVerified.message' | translate }}
+        </p>
+        <button
+          (click)="goBack()"
+          class="px-8 py-3 bg-[#f6c55c] text-white font-black rounded-xl hover:bg-[#7C3AED] transition-all uppercase"
+        >
+          {{ 'profile.vendor.back' | translate }}
+        </button>
+      </div>
+    } @else if (isVerified() && !isVendor()) {
+      <div class="max-w-6xl mx-auto mt-6">
+        <button
+          (click)="goBack()"
+          class="mb-6 flex items-center gap-2 text-registerBusiness transition-all uppercase duration-300 font-bold hover:gap-3"
+        >
+          <mat-icon>arrow_back</mat-icon>
+          <span>{{ 'profile.vendor.back' | translate }}</span>
+        </button>
+
+        <h1 class="text-4xl font-black text-gray-900 uppercase tracking-tight mb-10">
+          {{ 'profile.vendor.registration' | translate }}
+        </h1>
+
+        <app-progress-stepper
+          [currentStep]="currentStep()"
+          [steps]="steps()"
+        />
+
+        @if (currentStep() === 1) {
+          <app-vendor-step-one
+            [selectedType]="businessType()"
+            (typeSelected)="onTypeSelected($event)"
+            (nextStep)="onStepOneNext()"
+          />
+        }
+
+        @if (currentStep() === 2) {
+          <app-vendor-step-two
+            [formData]="formData()"
+            (previousStep)="onStepTwoBack()"
+            (nextStep)="onStepTwoNext($event)"
+          />
+        }
+
+        @if (currentStep() === 3) {
+          <app-vendor-step-three
+            [formData]="$any(formData())"
+            [businessType]="businessType()"
+            [submitting]="submitting()"
+            (previousStep)="onStepThreeBack()"
+            (submit)="onSubmit()"
+          />
+        }
+      </div>
+    } @else if (isVendor()) {
+      <div class="max-w-2xl mx-auto text-center py-16">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <mat-icon class="w-10 h-10 text-green-600">check_circle</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase">
+          {{ 'profile.vendor.alreadyRegistered' | translate }}
+        </h3>
+        <button
+          (click)="goBack()"
+          class="px-8 py-3 mt-4 bg-primary text-white font-black rounded-xl transition-all uppercase"
+        >
+          {{ 'profile.vendor.goToDashboard' | translate }}
+        </button>
+      </div>
+    }
+  </div>
+
+  <app-footer />
+</div>

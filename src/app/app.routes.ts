@@ -87,5 +87,16 @@ export const routes: Routes = [
     loadChildren: () => import('./pages/profile/profile.routes').then(m => m.profileRoutes),
   },
 
+  {
+    path: 'business',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'register',
+        loadComponent: () => import('./pages/business-registration/business-registration').then(m => m.BusinessRegistrationComponent),
+      }
+    ]
+  },
+
   { path: '**', redirectTo: 'landing' },
 ];

@@ -24,6 +24,7 @@ module.exports = {
         background: 'var(--color-background)',
         backgroundIcon: 'var(--color-backgroundIcon)',
         borderColor: 'var(--color-borderColor)',
+        registerBusiness: 'var(--color-registerBusiness)',
       },
       screens: {
         '2xl': '1440px',

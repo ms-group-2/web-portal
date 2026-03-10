@@ -2,6 +2,8 @@
   "validation": {
     "required": "This field is required",
     "email": "Please enter a valid email address",
+    "pattern": "Please enter a valid format",
+    "minLength": "Too short, minimum characters required",
     "minlength": "Too short, minimum {n} characters",
     "maxlength": "Too long, maximum {n} characters",
     "emptySpace": "Empty spaces are not allowed",

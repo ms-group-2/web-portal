@@ -1,5 +1,4 @@
 import { Component, ChangeDetectionStrategy, DestroyRef, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,7 +24,7 @@ interface PostItem {
 
 @Component({
   selector: 'app-my-posts',
-  imports: [CommonModule, MatButtonModule, MatIconModule, TranslatePipe],
+  imports: [ MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './my-posts.html',
   styleUrl: './my-posts.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

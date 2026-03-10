@@ -95,32 +95,118 @@
     "vendor": {
       "title": "Become a Seller",
       "subtitle": "Register your business to start selling on our platform",
-      "registrationTitle": "Seller Registration",
-      "alreadyRegistered": "You are already registered as a seller",
+      "registration": "Business Registrations",
       "dashboard": "Vendor Dashboard",
-      "myProducts": "My Products",
-      "addProduct": "Add Product",
-      "editProduct": "Edit Product",
-      "deleteProduct": "Delete Product",
-      "noProducts": "No Products",
-      "noProductsMessage": "You haven't added any products yet",
+      "dashboardComingSoon": "Product management coming soon!",
+      "back": "Back",
+      "alreadyRegistered": "You are already registered as a business",
+      "goToDashboard": "Go to Dashboard",
+      "notVerified": {
+        "title": "Verification Required",
+        "message": "You need to verify your identity before registering as a business. Please complete the verification process first."
+      },
+      "landing": {
+        "title": "Business Account",
+        "upgradeTitle": "Upgrade to Business",
+        "upgradeSubtitle": "Unlock Premium Features",
+        "description": "Transform your passion into profit. Start selling products on our Shop marketplace or offer booking services through our Book platform. Reach thousands of active users and grow your business with our all-in-one platform.",
+        "ready": "Ready to Get Started?",
+        "readyDescription": "Join our platform and start growing your business today.",
+        "startButton": "Start Registration"
+      },
+      "features": {
+        "sellProducts": {
+          "title": "Sell Products",
+          "description": "List unlimited products on our Shop marketplace with integrated payment processing"
+        },
+        "offerServices": {
+          "title": "Offer Services",
+          "description": "Manage bookings and appointments through our Book platform (Coming Soon)"
+        },
+        "orderManagement": {
+          "title": "Order Management",
+          "description": "Track all orders and bookings in one centralized dashboard"
+        },
+        "securePayments": {
+          "title": "Secure Payments",
+          "description": "Get paid fast with our integrated payment system and automated payouts"
+        }
+      },
+      "steps": {
+        "type": "Type",
+        "details": "Details",
+        "verify": "Verify"
+      },
+      "step1": {
+        "intro": {
+          "title": "Upgrade to Business",
+          "description": "Start selling products on our Shop marketplace or offer booking services through our Book platform. Reach thousands of active users!"
+        },
+        "features": {
+          "unlimited": "List unlimited products or services",
+          "management": "Manage orders & bookings in one place",
+          "payment": "Integrated payment processing",
+          "support": "24/7 customer support"
+        },
+        "chooseType": "Choose Your Business Type",
+        "types": {
+          "seller": {
+            "title": "Product Seller",
+            "description": "Sell physical or digital products",
+            "subtitle": "Register as a Seller"
+          },
+          "service": {
+            "title": "Service Provider",
+            "description": "Offer bookable services",
+            "subtitle": "Book Platform →"
+          },
+          "both": {
+            "title": "Both",
+            "description": "Products + Services",
+            "subtitle": "Full Access →"
+          }
+        },
+        "comingSoon": {
+          "title": "Coming Soon",
+          "subtitle": "Available Q2 2026"
+        },
+        "continue": "Continue to Business Details"
+      },
+      "step2": {
+        "title": "Business Information",
+        "continue": "Continue to Verification"
+      },
+      "step3": {
+        "title": "Review & Submit",
+        "businessInfo": "Business Information",
+        "businessType": "Business Type",
+        "termsTitle": "Terms & Conditions",
+        "termsAgreementTitle": "Business Account Agreement",
+        "termsText1": "By registering as a business on our platform, you agree to comply with all applicable laws and regulations regarding the sale of products and/or provision of services.",
+        "termsText2": "You confirm that all information provided is accurate and truthful, and you agree to update this information promptly if it changes.",
+        "termsText3": "Platform fees: 5% commission on all sales. Payment processing fees may apply.",
+        "termsText4": "Violation of our terms may result in suspension or termination of your business account without prior notice.",
+        "agreeText": "I agree to the Terms & Conditions and Privacy Policy. I confirm that all information provided is accurate and I have the authority to register this business.",
+        "submit": "Submit Application",
+        "readyTitle": "Ready to Submit!",
+        "readyText": "Your application will be reviewed within 24-48 hours. You'll receive an email notification once approved.",
+        "contact": "Questions? Contact us at business@vipoapp.com"
+      },
       "form": {
         "identificationNumber": "Identification Number",
-        "identificationPlaceholder": "Enter your business ID number",
         "legalAddress": "Legal Address",
-        "legalAddressPlaceholder": "Enter your business address",
         "contactPhone": "Contact Phone",
-        "contactPhonePlaceholder": "Enter your contact phone",
         "contactEmail": "Contact Email",
-        "contactEmailPlaceholder": "Enter your contact email",
         "bankAccount": "Bank Account Number",
-        "bankAccountPlaceholder": "Enter your bank account number",
-        "submit": "Register as Seller",
         "submitting": "Registering...",
-        "cancel": "Cancel"
-      },
-      "success": "Successfully registered as a seller!",
-      "error": "Failed to register as seller. Please try again."
+        "placeholders": {
+          "identificationNumber": "Enter your identification number",
+          "legalAddress": "Enter your legal address",
+          "contactPhone": "+1 (555) 000-0000",
+          "contactEmail": "business@example.com",
+          "bankAccount": "Enter your bank account number"
+        }
+      }
     }
   },
   "validation": {

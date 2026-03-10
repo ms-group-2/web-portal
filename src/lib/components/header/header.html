@@ -1,10 +1,10 @@
 <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b" 
   [ngClass]="[
-  variant() === 'white' ? 'bg-white border-gray-200' : headerGradient() + ' border-transparent',
-  isShopRoute() ? 'shop-header' : '',
-  isSwapRoute() ? 'swap-header' : ''
-]">
-  <nav class="px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32 flex items-center py-2 md:py-3">
+    variant() === 'white' ? 'bg-white border-gray-200' : headerGradient() + ' border-transparent',
+    isShopRoute() ? 'shop-header' : '',
+    isSwapRoute() ? 'swap-header' : ''
+  ]">
+  <nav [class]="'flex items-center py-2 md:py-3 ' + (navContainerClass() || 'px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32')">
 
     <a
       routerLink="/"

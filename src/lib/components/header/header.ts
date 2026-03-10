@@ -1,18 +1,20 @@
 import { Component, inject, signal, computed, input, OnDestroy, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { filter, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
+
 import { AuthService } from 'lib/services/identity/auth.service';
 import { NAV_ITEMS, SNACKBAR_MESSAGES } from 'lib/constants';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { ConfirmationDialogService } from '../confirmation-dialog/confirmation-dialog.service';
 import { TranslationService } from 'lib/services/translation.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
-import { filter, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
-import { CommonModule } from '@angular/common';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 
@@ -31,6 +33,7 @@ export class Header implements OnDestroy {
   private shopService = inject(ShopService);
 
   variant = input<'gradient' | 'white'>('gradient');
+  navContainerClass = input<string>('');
 
   navItems = signal(NAV_ITEMS);
   currentRoute = signal('');

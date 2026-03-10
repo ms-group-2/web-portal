@@ -1,0 +1,39 @@
+<button
+  (click)="onClick()"
+  [disabled]="option().disabled"
+  [class]="'p-8 w-full h-full rounded-2xl border-2 transition-all text-left group relative overflow-hidden flex flex-col ' +
+           (selected()
+            ? option().borderColor + ' ' + option().bgColor + ' shadow-lg'
+            : 'border-gray-200 hover:' + option().borderColor + ' hover:' + option().bgColor)"
+>
+  @if (option().comingSoon) {
+    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-[2px] flex items-center justify-center z-10 rounded-2xl">
+      <div class="text-center">
+        <div class="text-white font-black text-2xl uppercase tracking-wider mb-1">
+          {{ $any(option().comingSoon?.title) | translate }}
+        </div>
+      </div>
+    </div>
+  }
+
+  <div
+    [class]="'w-14 h-14 rounded-xl flex items-center justify-center mb-5 ' +
+             (!option().disabled ? 'group-hover:scale-110 transition-transform ' : '') +
+             option().color"
+  >
+    <mat-icon class="w-7 h-7 text-white">{{ option().icon }}</mat-icon>
+  </div>
+
+  <h4 class="text-xl font-black text-gray-900 mb-2 uppercase flex items-center gap-2">
+    {{ option().title | translate }}
+    @if (option().type === 'both') {
+      <span class="px-2 py-1 bg-primary text-white text-xs rounded-md">Popular</span>
+    }
+  </h4>
+
+  <p class="text-sm text-gray-600 mb-4 flex-1">{{ option().description | translate }}</p>
+
+  <span [class]="'text-xs font-bold ' + (option().type === 'seller' ? 'text-primary' : option().type === 'service' ? 'text-market' : 'text-[#885dde]')">
+    {{ option().subtitle | translate }}
+  </span>
+</button>

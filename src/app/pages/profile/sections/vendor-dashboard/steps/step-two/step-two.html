@@ -1,0 +1,55 @@
+<div class="space-y-6">
+  <div class="bg-white rounded-3xl p-10 border-2 border-gray-200">
+    <h3 class="text-3xl font-black text-gray-900 mb-8 uppercase">
+      {{ 'profile.vendor.step2.title' | translate }}
+    </h3>
+
+    <form [formGroup]="businessForm" (ngSubmit)="onContinue()">
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        @for (field of formFields; track field.name) {
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">
+              {{ field.label | translate }}
+              <span class="text-red-500">*</span>
+            </label>
+            <mat-form-field appearance="outline" class="w-full">
+              <input
+                matInput
+                [type]="field.type"
+                [formControlName]="field.name"
+                [placeholder]="field.placeholder | translate"
+                [attr.maxlength]="field.name === 'identification_number' ? 11 : null"
+                (input)="onInput($event, field.name)"
+              />
+              @if (businessForm.get(field.name)?.invalid && businessForm.get(field.name)?.touched) {
+                <mat-error>
+                  {{ getErrorMessage(field.name) | translate }}
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+        }
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-8 gap-4">
+        <button
+          type="button"
+          (click)="onBack()"
+          class="px-10 py-4 bg-gray-200 text-gray-900 font-black rounded-xl hover:bg-gray-300 transition-all uppercase tracking-wide"
+        >
+          {{ 'profile.vendor.back' | translate }}
+        </button>
+        <button
+          type="submit"
+          [disabled]="businessForm.invalid"
+          [class]="'px-10 py-4 font-black rounded-xl transition-all uppercase tracking-wide shadow-lg ' +
+                   (businessForm.valid
+                     ? 'bg-registerBusiness text-white hover:bg-[#3E4FC8]'
+                     : 'bg-gray-200 text-gray-400 cursor-not-allowed')"
+        >
+          {{ 'profile.vendor.step2.continue' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

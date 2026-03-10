@@ -1,0 +1,111 @@
+<div class="space-y-6">
+  <div class="bg-white rounded-3xl p-10 border-2 border-gray-200">
+    <h3 class="text-3xl font-black text-gray-900 mb-8 uppercase">
+      {{ 'profile.vendor.step3.title' | translate }}
+    </h3>
+
+    <div class="mb-10">
+      <h4 class="text-xl font-black text-gray-900 mb-6 uppercase">
+        {{ 'profile.vendor.step3.businessInfo' | translate }}
+      </h4>
+      <div class="grid grid-cols-2 gap-6">
+        @for (field of reviewFields(); track field.label) {
+          <div>
+            <div class="text-xs font-black text-gray-500 uppercase tracking-wide mb-2">
+              {{ field.label | translate }}
+            </div>
+            <div class="text-base font-bold text-gray-900">
+              @if (field.isTranslatable) {
+                {{ field.value | translate }}
+              } @else {
+                {{ field.value }}
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl p-10 border-2 border-gray-200">
+    <h3 class="text-3xl font-black text-gray-900 mb-8 uppercase">
+      {{ 'profile.vendor.step3.termsTitle' | translate }}
+    </h3>
+
+    <div class="bg-gray-50 rounded-2xl p-8 mb-8 max-h-72 overflow-y-auto border-2 border-gray-200">
+      <h4 class="font-black text-gray-900 mb-4 text-lg">
+        {{ 'profile.vendor.step3.termsAgreementTitle' | translate }}
+      </h4>
+      @for (paragraph of termsParagraphs; track paragraph; let isLast = $last) {
+        <p [class]="'text-sm text-gray-600 leading-relaxed' + (!isLast ? ' mb-4' : '')">
+          {{ paragraph | translate }}
+        </p>
+      }
+    </div>
+
+    <label class="flex items-center gap-4 cursor-pointer group mb-8">
+      <div class="relative">
+        <input
+          type="checkbox"
+          [checked]="agreedToTerms()"
+          (change)="toggleTerms($any($event.target).checked)"
+          class="sr-only peer"
+        />
+        <div class="w-7 h-7 border-2 border-gray-300 rounded-lg peer-checked:bg-registerBusiness peer-checked:border-registerBusiness flex items-center justify-center transition-all">
+          @if (agreedToTerms()) {
+            <mat-icon class="w-5 h-5 text-white">check</mat-icon>
+          }
+        </div>
+      </div>
+      <span class="text-sm text-gray-700 leading-relaxed">
+        {{ 'profile.vendor.step3.agreeText' | translate }}
+      </span>
+    </label>
+
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-8 border-t-2 border-gray-200 gap-4">
+      <button
+        type="button"
+        (click)="onBack()"
+        class="px-10 py-4 bg-gray-200 text-gray-900 font-black rounded-xl hover:bg-gray-300 transition-all uppercase tracking-wide"
+      >
+         {{ 'profile.vendor.back' | translate }}
+      </button>
+      <button
+        type="button"
+        (click)="onSubmit()"
+        [disabled]="!agreedToTerms() || submitting()"
+        [class]="'px-10 py-4 font-black rounded-xl transition-all uppercase tracking-wide shadow-lg ' +
+                 (agreedToTerms() && !submitting()
+                  ? 'bg-green-500 text-white hover:bg-green-600'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed')"
+      >
+        @if (submitting()) {
+          {{ 'profile.vendor.form.submitting' | translate }}
+        } @else {
+          {{ 'profile.vendor.step3.submit' | translate }} ✓
+        }
+      </button>
+    </div>
+  </div>
+
+  <div [class]="'border-2 rounded-3xl p-10 text-center transition-all ' +
+               (agreedToTerms()
+                ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
+                : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200')">
+    <div [class]="'w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 transition-all ' +
+                  (agreedToTerms() ? 'bg-green-500' : 'bg-gray-300')">
+      <mat-icon [class]="'w-10 h-10 transition-all ' + (agreedToTerms() ? 'text-white' : 'text-gray-400')">check</mat-icon>
+    </div>
+    @for (element of readyMessageElements; track element.translationKey) {
+      @if (element.type === 'title') {
+        <h3 [class]="element.className + (agreedToTerms() ? '' : ' !text-gray-400')">
+          {{ element.translationKey | translate }}
+        </h3>
+      } @else {
+        <p [class]="element.className + (agreedToTerms() ? '' : ' !text-gray-400')">
+          {{ element.translationKey | translate }}
+        </p>
+      }
+    }
+  </div>
+</div>

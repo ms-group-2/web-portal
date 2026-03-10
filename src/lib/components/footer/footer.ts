@@ -24,6 +24,8 @@ export class Footer {
       return 'linear-gradient(to right, var(--color-market), #5a70e8)';
     } else if (route.includes('/booking')) {
       return 'linear-gradient(to right, var(--color-booking), #3b82f6)';
+    } else if (route.includes('/business')) {
+      return 'var(--color-registerBusiness)';
     }
     return 'linear-gradient(to right, var(--color-primary), #9333ea)';
   });
