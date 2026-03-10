@@ -94,6 +94,16 @@ export class AuthService {
     this.pendingEmail.set(null);
     this.pendingRegistration.set(null);
     this.pendingPasswordReset.set(null);
+
+    const keysToRemove = [
+      'vipo_user_firstName',
+      'vipo_user_lastName',
+      'vipo_user_email',
+      'vipo_user_id_number',
+      'vipo_user_verified'
+    ];
+
+    keysToRemove.forEach(key => localStorage.removeItem(key));
   }
 
   resendVerification(email: string) {

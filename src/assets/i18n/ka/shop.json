@@ -88,7 +88,12 @@
       "quantity": "რაოდენობა",
       "specifications": "სპეციფიკაციები",
       "notFound": "პროდუქტი ვერ მოიძებნა",
-      "back": "უკან"
+      "back": "უკან",
+      "verified": "ვერიფიცირებული",
+      "off": "ფასდაკლება",
+      "sku": "SKU",
+      "rating": "რეიტინგი",
+      "category": "კატეგორია"
     },
     "search": {
       "searching": "მოძიება...",

@@ -9,13 +9,13 @@ import { ShopService } from 'lib/services/shop/shop.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { Product } from '../shop/shop.models';
-import { LoadingSpinner } from 'lib/components/spinner/loading-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { ProductDetailSkeletonComponent } from './components/product-detail-skeleton';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [Header, Footer, TranslatePipe, RouterLink, LoadingSpinner, MatIconModule, CommonModule],
+  imports: [Header, Footer, TranslatePipe, RouterLink, MatIconModule, CommonModule, ProductDetailSkeletonComponent],
   templateUrl: './product-detail.html',
   styleUrls: ['./product-detail.scss']
 })

@@ -60,13 +60,26 @@
 
         <div class="mb-8">
           <h1 class="text-4xl font-black text-gray-900 mb-2">{{ categoryName() | translate }}</h1>
-          <p class="text-gray-600">{{ products().length }} products</p>
+          @if (!loading()) {
+            <p class="text-gray-600">{{ products().length }} products</p>
+          }
         </div>
 
         @if (loading()) {
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            @for (i of skeletonArray; track i) {
-              <app-product-card-skeleton></app-product-card-skeleton>
+            @for (item of skeletonArray; track item) {
+              <div class="bg-white rounded-2xl overflow-hidden w-full h-[325px] flex flex-col animate-pulse">
+                <div class="relative h-[180px] bg-gray-200 flex-shrink-0"></div>
+                <div class="px-4 pb-4 flex flex-col flex-grow pt-4">
+                  <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                  <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                  <div class="flex items-center gap-2 mb-5">
+                    <div class="h-6 bg-gray-200 rounded w-20"></div>
+                    <div class="h-4 bg-gray-200 rounded w-16"></div>
+                  </div>
+                  <div class="w-full h-10 bg-gray-200 rounded-xl mt-auto"></div>
+                </div>
+              </div>
             }
           </div>
         } @else if (products().length > 0) {

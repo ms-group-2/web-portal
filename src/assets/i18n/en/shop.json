@@ -88,7 +88,12 @@
       "quantity": "Quantity",
       "specifications": "Specifications",
       "notFound": "Product not found",
-      "back": "Back"
+      "back": "Back",
+      "verified": "Verified",
+      "off": "OFF",
+      "sku": "SKU",
+      "rating": "Rating",
+      "category": "Category"
     },
     "search": {
       "searching": "Searching...",

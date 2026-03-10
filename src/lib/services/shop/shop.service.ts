@@ -1,19 +1,74 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, tap, catchError, forkJoin, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CategoriesResponse, ProductsResponse, Category, Product } from 'src/app/pages/shop/shop.models';
+import { AuthService } from 'lib/services/identity/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShopService {
   private http = inject(HttpClient);
+  private authService = inject(AuthService);
   private baseUrl = environment.apiBaseUrl;
 
   private headers = { 'ngrok-skip-browser-warning': 'true' };
+  private readonly FAVORITES_STORAGE_KEY_PREFIX = 'vipo_favorites_';
 
   cartCount = signal(0);
   favorites = signal<Set<number>>(new Set());
   favoriteCount = computed(() => this.favorites().size);
+
+  constructor() {
+    this.loadFavoritesForCurrentUser();
+
+    effect(() => {
+      this.authService.user();
+      this.loadFavoritesForCurrentUser();
+    });
+  }
+
+  private getCurrentUserId(): string | null {
+    return this.authService.user()?.id ?? null;
+  }
+
+  private getFavoritesStorageKey(userId: string | null): string {
+    return userId ? `${this.FAVORITES_STORAGE_KEY_PREFIX}${userId}` : `${this.FAVORITES_STORAGE_KEY_PREFIX}guest`;
+  }
+
+  private loadFavoritesForCurrentUser(): void {
+    const userId = this.getCurrentUserId();
+    const favorites = this.loadFavoritesFromStorage(userId);
+    this.favorites.set(favorites);
+  }
+
+  private loadFavoritesFromStorage(userId: string | null): Set<number> {
+    try {
+      const key = this.getFavoritesStorageKey(userId);
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const ids = JSON.parse(stored) as number[];
+        return new Set(ids);
+      }
+    } catch (error) {
+      console.error('Failed to load favorites from localStorage:', error);
+    }
+    return new Set();
+  }
+
+  private saveFavoritesToStorage(favorites: Set<number>): void {
+    try {
+      const userId = this.getCurrentUserId();
+      const key = this.getFavoritesStorageKey(userId);
+      const ids = Array.from(favorites);
+      localStorage.setItem(key, JSON.stringify(ids));
+    } catch (error) {
+      console.error('Failed to save favorites to localStorage:', error);
+    }
+  }
+
+  clearFavorites(): void {
+    this.favorites.set(new Set());
+  }
 
 
   categoriesByParentId = signal<Partial<Record<number | 'root', Category[]>>>({});
@@ -329,6 +384,7 @@ export class ShopService {
       const next = new Set(current);
       if (next.has(product.id)) next.delete(product.id);
       else next.add(product.id);
+      this.saveFavoritesToStorage(next);
       return next;
     });
   }

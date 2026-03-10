@@ -9,11 +9,10 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { Product } from '../shop/shop.models';
 import { ProductCardComponent } from '../shop/components/product-card/product-card';
-import { ProductCardSkeletonComponent } from '../shop/components/skeletons/product-card-skeleton';
 
 @Component({
   selector: 'app-category-products',
-  imports: [Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, ProductCardSkeletonComponent],
+  imports: [Header, Footer, TranslatePipe, RouterLink, ProductCardComponent],
   templateUrl: './category-products.html',
   styleUrls: ['./category-products.scss']
 })

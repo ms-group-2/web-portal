@@ -61,7 +61,10 @@
     },
     "favorites": {
       "title": "Favorites",
-      "addToCart": "Add to Cart"
+      "addToCart": "Add to Cart",
+      "empty": "No favorites yet",
+      "emptyMessage": "Start adding products to your favorites and they'll appear here",
+      "browseShop": "Browse Shop"
     },
     "deletePostDialog": {
       "title": "Delete Post",

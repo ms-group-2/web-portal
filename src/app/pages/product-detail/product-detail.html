@@ -2,9 +2,7 @@
 
 <div class="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 pt-20">
   @if (loading()) {
-    <div class="max-w-7xl mx-auto px-6 py-20">
-      <app-loading-spinner size="large"></app-loading-spinner>
-    </div>
+    <app-product-detail-skeleton></app-product-detail-skeleton>
   } @else if (product(); as product) {
     <div class="max-w-7xl mx-auto px-6 py-8">
 
@@ -12,7 +10,7 @@
         <button
       type="button"
       (click)="goBack()"
-      class="mb-6 flex items-center gap-2 text-market transition-all uppercase duration-300 font-bold hover:scale-x-110 hover:gap-3"
+      class="mb-6 flex items-center gap-2 text-market transition-all uppercase duration-300 font-bold  hover:gap-3"
     >
       <mat-icon>arrow_back</mat-icon>
       <span>{{ 'shop.product.back' | translate }}</span>
@@ -156,15 +154,18 @@
 
               <button
                 (click)="toggleFavorite()"
-                class="w-12 h-12 sm:w-14 sm:h-14 border-2 rounded-xl flex items-center justify-center transition-all hover:scale-110 bg-white"
-                [class.border-market]="isFavorited()"
-                [class.bg-market]="isFavorited()"
-                [class.border-gray-200]="!isFavorited()"
+                class="w-12 h-12 sm:w-14 sm:h-14 border-2 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                [ngClass]="{
+                  'border-market !bg-market': isFavorited(),
+                  'border-gray-200 !bg-white': !isFavorited()
+                }"
               >
                 <mat-icon
-                  class="!w-6 !h-6 !text-2xl transition-colors"
-                  [class.text-white]="isFavorited()"
-                  [class.text-gray-700]="!isFavorited()"
+                  class="!w-6 !h-6 !text-2xl !leading-none flex items-center justify-center transition-colors"
+                  [ngClass]="{
+                    'text-white': isFavorited(),
+                    'text-gray-700': !isFavorited()
+                  }"
                 >
                   {{ isFavorited() ? 'favorite' : 'favorite_border' }}
                 </mat-icon>
