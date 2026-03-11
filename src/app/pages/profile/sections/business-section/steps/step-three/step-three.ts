@@ -16,7 +16,6 @@ import { VENDOR_TERMS_PARAGRAPHS, READY_MESSAGE_ELEMENTS } from 'lib/constants/v
   templateUrl: './step-three.html',
   styleUrls: ['./step-three.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true
 })
 export class VendorStepThreeComponent {
   formData = input.required<VendorRegistration>();

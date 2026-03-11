@@ -16,7 +16,6 @@ import { BUSINESS_TYPE_OPTIONS, VENDOR_FEATURES } from 'lib/constants/vendor.con
   ],
   templateUrl: './step-one.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true
 })
 export class VendorStepOneComponent {
   selectedType = input<BusinessType | null>(null);

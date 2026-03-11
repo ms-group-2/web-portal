@@ -136,17 +136,17 @@
         <div class="mb-8">
           <h1 class="text-4xl font-black text-gray-900 mb-2">{{ categoryName() | translate }}</h1>
           @if (!loading()) {
-            @if (childCategories().length === 0) {
-              <p class="text-gray-600">{{ filteredProducts().length }} products</p>
+            @if (subcategoriesWithProducts().length > 0) {
+              <p class="text-gray-600">{{ subcategoriesWithProducts().length }} {{ 'shop.categories.title' | translate }}</p>
             } @else {
-              <p class="text-gray-600">{{ products().length }} products</p>
+              <p class="text-gray-600">{{ filteredProducts().length }} products</p>
             }
           }
         </div>
 
         @if (loading()) {
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            @for (item of skeletonArray; track item) {
+            @for (item of skeletonArray; track $index) {
               <div class="bg-white rounded-2xl overflow-hidden w-full h-[325px] flex flex-col animate-pulse">
                 <div class="relative h-[180px] bg-gray-200 flex-shrink-0"></div>
                 <div class="px-4 pb-4 flex flex-col flex-grow pt-4">
@@ -161,15 +161,41 @@
               </div>
             }
           </div>
-        } @else if (childCategories().length === 0 ? filteredProducts().length > 0 : products().length > 0) {
+        } @else if (subcategoriesWithProducts().length > 0) {
+          <!-- Parent category: show products grouped by subcategory -->
+          @for (subcat of subcategoriesWithProducts(); track subcat.id) {
+            <div class="mb-10">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-900">{{ subcat.name | translate }}</h2>
+                <a
+                  [routerLink]="getCategoryRoute(subcat.id)"
+                  class="text-sm font-semibold text-market hover:underline">
+                  {{ 'shop.categories.viewAll' | translate }}
+                </a>
+              </div>
+              @if (subcat.products.length > 0) {
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  @for (product of subcat.products.slice(0, 4); track product.id) {
+                    <app-product-card [product]="product"></app-product-card>
+                  }
+                </div>
+              } @else {
+                <p class="text-sm text-gray-400 py-4">{{ 'shop.categories.noProducts' | translate }}</p>
+              }
+            </div>
+          }
+        } @else if (filteredProducts().length > 0) {
+          <!-- Leaf category: flat product grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            @for (product of (childCategories().length === 0 ? filteredProducts() : products()); track product.id) {
+            @for (product of filteredProducts(); track product.id) {
               <app-product-card [product]="product"></app-product-card>
             }
           </div>
         } @else {
           <div class="text-center py-20">
-            <div class="text-6xl mb-4">🛍️</div>
+            <div class="flex justify-center mb-3">
+              <mat-icon fontSet="material-icons-outlined" class="text-7xl !w-20 !h-20 text-gray-300">shopping_cart</mat-icon>
+            </div>
             <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ 'shop.categories.noResults' | translate }}</h3>
             <p class="text-gray-600 mb-6">No products found in this category</p>
             <a

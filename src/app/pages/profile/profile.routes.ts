@@ -57,7 +57,7 @@ export const profileRoutes: Routes = [
       {
         path: 'business',
         loadComponent: () =>
-          import('./sections/vendor-dashboard/vendor-dashboard').then(
+          import('./sections/business-section/vendor-dashboard').then(
             (m) => m.VendorDashboardComponent
           ),
       },

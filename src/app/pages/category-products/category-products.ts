@@ -1,7 +1,8 @@
 import { Component, OnInit, DestroyRef, signal, computed, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 // import { CommonModule } from '@angular/common';
 import { Header } from 'lib/components/header/header';
@@ -9,12 +10,13 @@ import { Footer } from 'lib/components/footer/footer';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
-import { Product, FilterGroup } from '../shop/shop.models';
+import { Product, FilterGroup, CategoryWithProducts } from '../shop/shop.models';
 import { ProductCardComponent } from '../shop/components/product-card/product-card';
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
   selector: 'app-category-products',
-  imports: [ Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, FormsModule],
+  imports: [Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, FormsModule, MatIcon],
   templateUrl: './category-products.html',
   styleUrls: ['./category-products.scss']
 })
@@ -27,6 +29,7 @@ export class CategoryProducts implements OnInit {
   categoryId = signal<number | null>(null);
   products = signal<Product[]>([]);
   filteredProducts = signal<Product[]>([]);
+  subcategoriesWithProducts = signal<CategoryWithProducts[]>([]);
   loading = signal<boolean>(true);
   filtersLoading = signal<boolean>(false);
   skeletonArray = Array(8).fill(0);
@@ -102,60 +105,52 @@ export class CategoryProducts implements OnInit {
 
     this.route.params
       .pipe(
-        tap(params => {
+        switchMap(params => {
           const categoryId = +params['categoryId'];
           this.categoryId.set(categoryId);
           this.loading.set(true);
-        }),
-        switchMap(params => {
-          const categoryId = +params['categoryId'];
-          return this.shopService.getMainCategories().pipe(
-            switchMap(() =>
-              this.shopService.getAllProductsInCategoryTree(categoryId)
-            ),
-            tap(() => {
-              if (this.childCategories().length === 0) {
-                this.loadFilters(categoryId);
+          this.filterGroups.set([]);
+          this.filtersLoading.set(true);
+
+          // Load filters independently — don't block product rendering
+          this.shopService.getFilterOptions(categoryId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (filters) => {
+                this.filterGroups.set(filters);
+                this.filtersLoading.set(false);
+              },
+              error: () => {
+                this.filterGroups.set([]);
+                this.filtersLoading.set(false);
               }
-            })
-          );
+            });
+
+          // Load categories + products in parallel (fast calls)
+          return forkJoin({
+            mainCategories: this.shopService.getMainCategories(),
+            categoriesWithProducts: this.shopService.getCategoriesWithProducts(categoryId),
+            directProducts: this.shopService.getProducts({ category_id: categoryId, limit: 100 }),
+          });
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (products) => {
-          this.products.set(products);
+        next: (result) => {
+          this.subcategoriesWithProducts.set(result.categoriesWithProducts);
+          this.products.set(result.directProducts);
           this.applyFilters();
           this.loading.set(false);
         },
         error: () => {
           this.products.set([]);
           this.filteredProducts.set([]);
+          this.subcategoriesWithProducts.set([]);
           this.loading.set(false);
         }
       });
   }
 
-  private loadFilters(categoryId: number): void {
-    console.log('🔍 Loading filters for category ID:', categoryId);
-    this.filtersLoading.set(true);
-    this.shopService.getFilterOptions(categoryId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (filters) => {
-          console.log('📦 Received filters:', filters);
-          console.log('📊 Number of filter groups:', filters.length);
-          console.log('📋 FULL JSON FOR BACKEND TEAM:', JSON.stringify(filters, null, 2));
-          this.filterGroups.set(filters);
-          this.filtersLoading.set(false);
-        },
-        error: (err) => {
-          console.error('❌ Failed to load filters:', err);
-          this.filterGroups.set([]);
-          this.filtersLoading.set(false);
-        }
-      });
-  }
 
   getCategoryRoute(categoryId: number | string): string[] {
     return ['/shop/category', String(categoryId)];

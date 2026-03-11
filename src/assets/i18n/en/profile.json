@@ -114,6 +114,12 @@
         "readyDescription": "Join our platform and start growing your business today.",
         "startButton": "Start Registration"
       },
+      "registered": {
+        "title": "Your Business is Registered!",
+        "subtitle": "Manage your products and orders",
+        "description": "Access your full vendor dashboard to add products, manage orders, and grow your business.",
+        "dashboardButton": "Go to My Business Dashboard"
+      },
       "features": {
         "sellProducts": {
           "title": "Sell Products",
@@ -194,6 +200,7 @@
       },
       "form": {
         "identificationNumber": "Identification Number",
+        "businessName": "Business Name",
         "legalAddress": "Legal Address",
         "contactPhone": "Contact Phone",
         "contactEmail": "Contact Email",
@@ -201,6 +208,7 @@
         "submitting": "Registering...",
         "placeholders": {
           "identificationNumber": "Enter your identification number",
+          "businessName": "Enter your business name",
           "legalAddress": "Enter your legal address",
           "contactPhone": "+1 (555) 000-0000",
           "contactEmail": "business@example.com",

@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, map, tap, catchError, forkJoin, switchMap } from 'rxjs';
+import { Observable, of, map, tap, catchError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CategoriesResponse, ProductsResponse, Category, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
+import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -75,7 +75,7 @@ export class ShopService {
   categoriesLoadingFor = signal<number | 'root' | null>(null);
 
   productsByCategoryId = signal<Partial<Record<number | 'all', Product[]>>>({});
-  productsByCategoryTree = signal<Record<number, Product[]>>({});
+
   productsById = signal<Record<number, Product>>({});
 
   mainCategories = computed(() => this.categoriesByParentId()['root'] || []);
@@ -241,14 +241,13 @@ export class ShopService {
       })
       .pipe(
         map(response => {
-          console.log('Products API response:', response);
           if (!response || !response.items) {
             return [];
           }
           return response.items.map(product => ({
             ...product,
             name: product.title || product.name,
-            image: product.image_url || product.image,
+            image: product.cover_image_url || product.image_url || product.image,
           }));
         }),
         tap(products => {
@@ -274,105 +273,43 @@ export class ShopService {
     });
   }
 
-  private getAllSubcategoryIds(categoryId: number): Observable<number[]> {
-    return this.getSubcategories(categoryId).pipe(
-      switchMap(subcategories => {
-        if (!subcategories || subcategories.length === 0) {
-          return of([]);
-        }
-
-        const directSubIds = subcategories.map(sub => Number(sub.id));
-
-        const nestedRequests = directSubIds.map(subId =>
-          this.getAllSubcategoryIds(subId).pipe(
-            catchError(() => of([]))
-          )
-        );
-
-        if (nestedRequests.length === 0) {
-          return of(directSubIds);
-        }
-
-        return forkJoin(nestedRequests).pipe(
-          map(nestedResults => {
-            const allNestedIds = nestedResults.flat();
-            return [...directSubIds, ...allNestedIds];
-          })
-        );
-      }),
-      catchError(() => of([]))
-    );
-  }
-
-  getAllProductsInCategoryTree(categoryId: number, params?: {
-    page?: number;
-    limit?: number;
-    min_price?: number;
-    max_price?: number;
-    sort_by?: string;
-  }): Observable<Product[]> {
-    const hasFilters = params?.min_price !== undefined ||
-                      params?.max_price !== undefined ||
-                      params?.sort_by !== undefined;
-
-    if (!hasFilters) {
-      const cached = this.productsByCategoryTree()[categoryId];
-      if (cached) {
-        return of(cached);
-      }
+  getCategoriesWithProducts(parentId?: number): Observable<CategoryWithProducts[]> {
+    const params: any = {};
+    if (parentId !== undefined) {
+      params.parent_id = parentId;
     }
 
-    console.log(`🔄 Fetching products for category tree ${categoryId}...`);
-
-    return this.getAllSubcategoryIds(categoryId).pipe(
-      switchMap(subcategoryIds => {
-        const allCategoryIds = [categoryId, ...subcategoryIds];
-
-        const productRequests = allCategoryIds.map(catId =>
-          this.getProducts({
-            category_id: catId,
-            page: 1, 
-            limit: 100, 
-            min_price: params?.min_price,
-            max_price: params?.max_price,
-            sort_by: params?.sort_by,
-          }).pipe(
-            catchError(err => {
-              console.error(`Error fetching products for category ${catId}:`, err);
-              return of([]);
-            })
-          )
-        );
-
-        if (productRequests.length === 0) {
+    return this.http
+      .get<CategoriesWithProductsResponse>(
+        `${this.baseUrl}/ecommerce/products/categories/products`,
+        { headers: this.headers, params }
+      )
+      .pipe(
+        map(response => {
+          if (!response?.categories) return [];
+          return response.categories.map(cat => ({
+            ...cat,
+            products: (cat.products || []).map(product => ({
+              ...product,
+              name: product.title || product.name,
+              image: product.cover_image_url || product.image_url || product.image,
+            })),
+          }));
+        }),
+        tap(categories => {
+          // Cache subcategories
+          if (parentId !== undefined) {
+            this.categoriesByParentId.update(prev => ({
+              ...prev,
+              [parentId]: categories,
+            }));
+          }
+        }),
+        catchError(err => {
+          console.error('Failed to load categories with products:', err);
           return of([]);
-        }
-
-        return forkJoin(productRequests).pipe(
-          map(resultsArray => {
-            const allProducts = resultsArray.flat();
-
-            const uniqueProducts = Array.from(
-              new Map(allProducts.map(p => [p.id, p])).values()
-            );
-
-            return uniqueProducts;
-          }),
-          tap(products => {
-            if (!hasFilters) {
-              this.productsByCategoryTree.update(cache => ({
-                ...cache,
-                [categoryId]: products
-              }));
-            }
-          })
-        );
-      }),
-      catchError(err => {
-        console.error('Error in getAllProductsInCategoryTree:', err);
-        return of([]);
-      })
-    );
+        })
+      );
   }
 
   addToCart(product: Product): void {
@@ -405,7 +342,6 @@ export class ShopService {
       })
       .pipe(
         map(response => {
-          console.log('getProductById API response:', response);
           if (!response || !response.product) {
             return null;
           }
@@ -413,7 +349,7 @@ export class ShopService {
           return {
             ...product,
             name: product.title || product.name,
-            image: product.image_url || product.image,
+            image: product.cover_image_url || product.image_url || product.image,
           };
         }),
         tap(product => {
@@ -455,7 +391,7 @@ export class ShopService {
           return response.items.map(product => ({
             ...product,
             name: product.title || product.name,
-            image: product.image_url || product.image,
+            image: product.cover_image_url || product.image_url || product.image,
           }));
         }),
         catchError(err => {

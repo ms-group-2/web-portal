@@ -8,7 +8,6 @@ import { RegistrationStep } from 'lib/models/vendor.models';
   imports: [MatIconModule, TranslatePipe],
   templateUrl: './progress-stepper.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true
 })
 export class ProgressStepperComponent {
   currentStep = input.required<number>();

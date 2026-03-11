@@ -4,6 +4,7 @@ export interface VendorProfile {
   supplier_id: number;
   user_id: string;
   identification_number: string;
+  name: string;
   legal_address: string;
   contact_phone: string;
   contact_email: string;
@@ -13,6 +14,7 @@ export interface VendorProfile {
 
 export interface VendorRegistration {
   identification_number: string;
+  name: string;
   legal_address: string;
   contact_phone: string;
   contact_email: string;
@@ -67,7 +69,7 @@ export interface VendorProductUpdate {
 }
 
 export interface VendorProductsResponse {
-  items: any[]; // Will be typed properly once we see the actual response
+  items: any[]; 
   total: number;
   page: number;
   limit: number;

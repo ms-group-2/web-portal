@@ -75,10 +75,13 @@ export class VendorService {
   }
 
   createProduct(supplierId: number, product: VendorProductCreate): Observable<string> {
+    const formData = new FormData();
+    formData.append('product_data_json', JSON.stringify(product));
     return this.http
-      .post<string>(`${this.baseUrl}/vendors/${supplierId}/products/`, product, {
-        headers: this.headers,
-      })
+      .post<string>(`${this.baseUrl}/vendors/${supplierId}/products/`,
+        formData,
+        { headers: this.headers }
+      )
       .pipe(
         catchError(err => {
           console.error('Failed to create product:', err);
@@ -110,9 +113,25 @@ export class VendorService {
         })
       );
   }
+
+  getProductById(supplierId: number, productId: string | number): Observable<any> {
+    return this.getMyProducts(supplierId, 1, 100).pipe(
+      map(products => {
+        const product = products.find(p => p.id === productId || p.id === String(productId) || p.id === Number(productId));
+        if (!product) {
+          throw new Error('Product not found');
+        }
+        return product;
+      }),
+      catchError(err => {
+        console.error('Failed to find product:', err);
+        throw err;
+      })
+    );
+  }
   updateProduct(
     supplierId: number,
-    productId: number,
+    productId: number | string,
     updates: VendorProductUpdate
   ): Observable<string> {
     return this.http
@@ -129,7 +148,7 @@ export class VendorService {
       );
   }
 
-  deleteProduct(supplierId: number, productId: number): Observable<string> {
+  deleteProduct(supplierId: number, productId: number | string): Observable<string> {
     return this.http
       .delete<string>(`${this.baseUrl}/vendors/${supplierId}/products/${productId}`, {
         headers: this.headers,

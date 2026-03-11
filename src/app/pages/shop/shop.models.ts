@@ -6,6 +6,7 @@ export interface Product {
   price: number;
   sku: string;
   image_url: string;
+  cover_image_url?: string;
   images?: string[];
   brand?: {
     id: number;
@@ -39,8 +40,16 @@ export interface Category {
   subcategories?: Category[];
 }
 
+export interface CategoryWithProducts extends Category {
+  products: Product[];
+}
+
 export interface CategoriesResponse {
   categories: Category[];
+}
+
+export interface CategoriesWithProductsResponse {
+  categories: CategoryWithProducts[];
 }
 
 export interface ProductsResponse {

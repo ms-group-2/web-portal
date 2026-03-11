@@ -1,0 +1,110 @@
+{
+  "vendor": {
+    "dashboard": "დეშბორდი",
+    "products": "პროდუქტები",
+    "orders": "შეკვეთები",
+    "settings": "პარამეტრები",
+    "systemSettings": "სისტემის პარამეტრები",
+    "helpCenter": "დახმარების ცენტრი",
+    "returnToProfile": "პროფილზე დაბრუნება",
+    "businessInformation": "ბიზნესის ინფორმაცია",
+    "identificationNumber": "საიდენტიფიკაციო ნომერი",
+    "legalAddress": "იურიდიული მისამართი",
+    "contactPhone": "საკონტაქტო ტელეფონი",
+    "contactEmail": "საკონტაქტო ელ-ფოსტა",
+    "bankAccountNumber": "ბანკის ანგარიშის ნომერი",
+    "businessType": "ბიზნესის ტიპი",
+    "businessTypes": {
+      "seller": "პროდუქტის გამყიდველი",
+      "service": "სერვისის პროვაიდერი",
+      "both": "პროდუქტი და სერვისი"
+    },
+    "quickActions": {
+      "title": "სწრაფი ქმედებები",
+      "addProduct": {
+        "title": "პროდუქტის დამატება",
+        "description": "დაამატეთ ახალი პროდუქტი თქვენს ინვენტარს"
+      },
+      "salesReport": {
+        "title": "გაყიდვების ანგარიში",
+        "description": "მოკლედ დაგენერირეთ გაყიდვების შეჯამება"
+      },
+      "importData": {
+        "title": "მონაცემების იმპორტი",
+        "description": "ატვირთეთ ფაილი არსებული ან გაყიდვების სიების განახლებისთვის"
+      }
+    },
+    "statistics": "სტატისტიკა",
+    "statisticsComingSoon": "სტატისტიკა მალე დაემატება!",
+    "addProduct": "პროდუქტის დამატება",
+    "stats": {
+      "totalProducts": "სულ პროდუქტები",
+      "active": "აქტიური",
+      "percentOfTotal": "100% მთლიანიდან",
+      "withVariants": "ვარიანტებით",
+      "zeroPercent": "0% მთლიანიდან",
+      "categories": "კატეგორიები",
+      "available": "ხელმისაწვდომი"
+    },
+    "loadingProducts": "პროდუქტების ჩატვირთვა...",
+    "noProductsFound": "პროდუქტები არ მოიძებნა",
+    "addFirstProduct": "დაამატეთ თქვენი პირველი პროდუქტი დასაწყებად",
+    "table": {
+      "product": "პროდუქტი",
+      "sku": "SKU",
+      "price": "ფასი",
+      "actions": "ქმედებები"
+    },
+    "noOrdersYet": "შეკვეთები ჯერ არ არის",
+    "ordersWillAppear": "შეკვეთები გამოჩნდება აქ, როგორც კი კლიენტები დაიწყებენ თქვენი პროდუქტების შეძენას",
+    "settingsComingSoon": "ბიზნესის პარამეტრები მალე დაემატება!",
+    "backToProducts": "პროდუქტებზე დაბრუნება",
+    "addNewProduct": "ახალი პროდუქტის დამატება",
+    "editProduct": "პროდუქტის რედაქტირება",
+    "cancel": "გაუქმება",
+    "publishing": "გამოქვეყნება...",
+    "publishProduct": "პროდუქტის გამოქვეყნება",
+    "updating": "განახლება...",
+    "updateProduct": "პროდუქტის განახლება",
+    "loadingProduct": "პროდუქტის ჩატვირთვა...",
+    "skuCannotChange": "SKU არ შეიძლება შეიცვალოს შექმნის შემდეგ",
+    "deleteProduct": "პროდუქტის წაშლა",
+    "confirmDelete": "დარწმუნებული ხართ, რომ გსურთ ამ პროდუქტის წაშლა?",
+    "confirmDeleteTitle": "წავშალოთ პროდუქტი?",
+    "deleteSuccess": "პროდუქტი წარმატებით წაიშალა",
+    "deleteFailed": "პროდუქტის წაშლა ვერ მოხერხდა",
+    "basicInformation": "ძირითადი ინფორმაცია",
+    "productTitle": "პროდუქტის დასახელება",
+    "description": "აღწერა",
+    "descriptionHint": "მიაწოდეთ დეტალური აღწერა თქვენი პროდუქტის შესახებ",
+    "pricingInventory": "ფასი და ინვენტარი",
+    "price": "ფასი",
+    "sku": "SKU",
+    "productImages": "პროდუქტის სურათები",
+    "coverImage": "მთავარი სურათის URL",
+    "coverImageHint": "ეს იქნება პროდუქტის მთავარი სურათი",
+    "additionalImages": "დამატებითი სურათები",
+    "addImage": "სურათის დამატება",
+    "productVariants": "პროდუქტის ვარიანტები",
+    "fieldOptions": "ველის ოფციების ID-ები",
+    "fieldOptionsHint": "შეიყვანეთ რიცხვითი ID-ები პროდუქტის ვარიანტებისთვის (მაგ., ზომა, ფერი)",
+    "addVariant": "ვარიანტის დამატება",
+    "organization": "ორგანიზაცია",
+    "category": "კატეგორია",
+    "categoryHint": "რიცხვითი ID კატეგორიების სიიდან",
+    "brand": "ბრენდი",
+    "brandHint": "რიცხვითი ID ბრენდების სიიდან",
+    "needHelp": "დახმარება გჭირდებათ?",
+    "helpText": "გაეცანით ჩვენს სახელმძღვანელოს პროდუქტების ეფექტურად დამატების შესახებ.",
+    "viewGuide": "სახელმძღვანელოს ნახვა",
+    "placeholders": {
+      "title": "შეიყვანეთ პროდუქტის დასახელება",
+      "description": "შეიყვანეთ პროდუქტის აღწერა",
+      "sku": "მაგ., WH-PRO-001",
+      "imageUrl": "https://example.com/image.jpg",
+      "optionId": "შეიყვანეთ ოფციის ID",
+      "categoryId": "შეიყვანეთ კატეგორიის ID",
+      "brandId": "შეიყვანეთ ბრენდის ID"
+    }
+  }
+}

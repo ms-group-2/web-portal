@@ -7,10 +7,10 @@ import { TranslationService } from 'lib/services/translation.service';
 import { VerificationService } from 'lib/services/verification/verification.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { BusinessType, VendorRegistration } from 'lib/models/vendor.models';
-import { ProgressStepperComponent } from '../profile/sections/vendor-dashboard/components/progress-stepper/progress-stepper';
-import { VendorStepOneComponent } from '../profile/sections/vendor-dashboard/steps/step-one/step-one';
-import { VendorStepTwoComponent } from '../profile/sections/vendor-dashboard/steps/step-two/step-two';
-import { VendorStepThreeComponent } from '../profile/sections/vendor-dashboard/steps/step-three/step-three';
+import { ProgressStepperComponent } from '../profile/sections/business-section/components/progress-stepper/progress-stepper';
+import { VendorStepOneComponent } from '../profile/sections/business-section/steps/step-one/step-one';
+import { VendorStepTwoComponent } from '../profile/sections/business-section/steps/step-two/step-two';
+import { VendorStepThreeComponent } from '../profile/sections/business-section/steps/step-three/step-three';
 import { REGISTRATION_STEPS } from 'lib/constants/vendor.constants';
 import { Footer } from 'lib/components/footer/footer';
 
@@ -92,7 +92,7 @@ export class BusinessRegistrationComponent implements OnInit {
           duration: 3000
         });
         this.submitting.set(false);
-        this.router.navigate(['/profile/business']);
+        this.router.navigate(['/business/dashboard']);
       },
       error: () => {
         this.snackBar.open('Failed to register. Please try again.', 'Close', {

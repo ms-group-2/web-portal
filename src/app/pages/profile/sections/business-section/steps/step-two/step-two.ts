@@ -50,6 +50,13 @@ export class VendorStepTwoComponent implements OnInit {
       validators: [Validators.required, Validators.minLength(9), Validators.maxLength(11),Validators.pattern(/^\d+$/)]
     },
     {
+      name: 'name',
+      label: 'profile.vendor.form.businessName',
+      type: 'text',
+      placeholder: 'profile.vendor.form.placeholders.businessName',
+      validators: [Validators.required, Validators.minLength(2), Validators.maxLength(100)]
+    },
+    {
       name: 'legal_address',
       label: 'profile.vendor.form.legalAddress',
       type: 'text',

@@ -1,0 +1,110 @@
+{
+  "vendor": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "settings": "Settings",
+    "systemSettings": "System Settings",
+    "helpCenter": "Help Center",
+    "returnToProfile": "Return to Profile",
+    "businessInformation": "Business Information",
+    "identificationNumber": "Identification Number",
+    "legalAddress": "Legal Address",
+    "contactPhone": "Contact Phone",
+    "contactEmail": "Contact Email",
+    "bankAccountNumber": "Bank Account Number",
+    "businessType": "Business Type",
+    "businessTypes": {
+      "seller": "Product Seller",
+      "service": "Service Provider",
+      "both": "Product & Service"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "addProduct": {
+        "title": "Add New Product",
+        "description": "Add a new product to your inventory"
+      },
+      "salesReport": {
+        "title": "Generate Sales Report",
+        "description": "Instantly generate a summary of sales"
+      },
+      "importData": {
+        "title": "Import Data",
+        "description": "Upload a file to update existing or sales lists"
+      }
+    },
+    "statistics": "Statistics",
+    "statisticsComingSoon": "Statistics coming soon!",
+    "addProduct": "Add Product",
+    "stats": {
+      "totalProducts": "Total Products",
+      "active": "Active",
+      "percentOfTotal": "100% of total",
+      "withVariants": "With Variants",
+      "zeroPercent": "0% of total",
+      "categories": "Categories",
+      "available": "Available"
+    },
+    "loadingProducts": "Loading products...",
+    "noProductsFound": "No products found",
+    "addFirstProduct": "Add your first product to get started",
+    "table": {
+      "product": "Product",
+      "sku": "SKU",
+      "price": "Price",
+      "actions": "Actions"
+    },
+    "noOrdersYet": "No orders yet",
+    "ordersWillAppear": "Orders will appear here once customers start purchasing your products",
+    "settingsComingSoon": "Business settings coming soon!",
+    "backToProducts": "Back to Products",
+    "addNewProduct": "Add New Product",
+    "editProduct": "Edit Product",
+    "cancel": "Cancel",
+    "publishing": "Publishing...",
+    "publishProduct": "Publish Product",
+    "updating": "Updating...",
+    "updateProduct": "Update Product",
+    "loadingProduct": "Loading product...",
+    "skuCannotChange": "SKU cannot be changed after creation",
+    "deleteProduct": "Delete Product",
+    "confirmDelete": "Are you sure you want to delete this product?",
+    "confirmDeleteTitle": "Delete Product?",
+    "deleteSuccess": "Product deleted successfully",
+    "deleteFailed": "Failed to delete product",
+    "basicInformation": "Basic Information",
+    "productTitle": "Product Title",
+    "description": "Description",
+    "descriptionHint": "Provide a detailed description of your product",
+    "pricingInventory": "Pricing & Inventory",
+    "price": "Price",
+    "sku": "SKU",
+    "productImages": "Product Images",
+    "coverImage": "Cover Image URL",
+    "coverImageHint": "This will be the main product image",
+    "additionalImages": "Additional Images",
+    "addImage": "Add Image",
+    "productVariants": "Product Variants",
+    "fieldOptions": "Field Option IDs",
+    "fieldOptionsHint": "Enter numeric IDs for product variants (e.g., size, color options)",
+    "addVariant": "Add Variant",
+    "organization": "Organization",
+    "category": "Category",
+    "categoryHint": "Numeric ID from category list",
+    "brand": "Brand",
+    "brandHint": "Numeric ID from brand list",
+    "needHelp": "Need Help?",
+    "helpText": "Check our guide on how to add products effectively.",
+    "viewGuide": "View Guide",
+    "placeholders": {
+      "title": "Enter product title",
+      "description": "Enter product description",
+      "sku": "e.g., WH-PRO-001",
+      "imageUrl": "https://example.com/image.jpg",
+      "optionId": "Enter option ID",
+      "categoryId": "Enter category ID",
+      "brandId": "Enter brand ID"
+    }
+  }
+}
