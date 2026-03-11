@@ -1,6 +1,5 @@
 <mat-dialog-content class="!pt-10">
-  <!-- Header with icon -->
-  <div class="text-center mb-6">
+    <div class="text-center mb-6">
     <div class="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full mb-4 shadow-lg shadow-green-400/30">
       <mat-icon class="!w-10 !h-10 !text-4xl text-white">verified</mat-icon>
     </div>
@@ -8,12 +7,50 @@
     <p class="text-gray-600 text-sm leading-relaxed">{{ 'profile.verification.subtitle' | translate }}</p>
   </div>
 
-  <!-- Form -->
   <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'profile.firstName' | translate }}</label>
+        <mat-form-field appearance="outline" class="w-full">
+          <input
+            matInput
+            formControlName="firstName"
+            type="text"
+            maxlength="50"
+            class="font-medium"
+            [placeholder]="'profile.firstName' | translate"
+          />
+          @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+            <mat-error class="text-xs">
+              {{ 'validation.required' | translate }}
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div>
+        <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'profile.lastName' | translate }}</label>
+        <mat-form-field appearance="outline" class="w-full">
+          <input
+            matInput
+            formControlName="lastName"
+            type="text"
+            maxlength="50"
+            class="font-medium"
+            [placeholder]="'profile.lastName' | translate"
+          />
+          @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+            <mat-error class="text-xs">
+              {{ 'validation.required' | translate }}
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
     <div>
       <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'profile.verification.idNumber' | translate }}</label>
       <mat-form-field appearance="outline" class="w-full">
-        <mat-icon matPrefix class="text-gray-400 mr-2">badge</mat-icon>
         <input
           matInput
           formControlName="idNumber"

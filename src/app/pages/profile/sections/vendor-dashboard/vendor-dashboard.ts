@@ -7,6 +7,7 @@ import { TranslationService } from 'lib/services/translation.service';
 import { VerificationService } from 'lib/services/verification/verification.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { VENDOR_FEATURES } from 'lib/constants/vendor.constants';
+import { AuthService } from 'lib/services/identity/auth.service';
 
 @Component({
   selector: 'app-vendor-dashboard',
@@ -24,6 +25,7 @@ export class VendorDashboardComponent implements OnInit {
   private translation = inject(TranslationService);
   private vendorService = inject(VendorService);
   private verificationService = inject(VerificationService);
+  private auth = inject(AuthService);
 
   isVerified = this.verificationService.isVerified;
   isVendor = this.vendorService.isVendor;
@@ -35,6 +37,11 @@ export class VendorDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.translation.loadModule('profile').subscribe();
+
+    // Re-hydrate vendor state on page revisit / refresh
+    if (this.auth.isAuthenticated()) {
+      this.vendorService.getMyProfile().subscribe();
+    }
   }
 
   startRegistration() {

@@ -103,7 +103,7 @@
       "goToDashboard": "Go to Dashboard",
       "notVerified": {
         "title": "Verification Required",
-        "message": "You need to verify your identity before registering as a business. Please complete the verification process first."
+        "message": "You need to verify your identity before registering as a business.<br>Please complete the verification process first."
       },
       "landing": {
         "title": "Business Account",

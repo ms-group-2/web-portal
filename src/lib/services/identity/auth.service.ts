@@ -95,15 +95,20 @@ export class AuthService {
     this.pendingRegistration.set(null);
     this.pendingPasswordReset.set(null);
 
-    const keysToRemove = [
+    // Clear basic cached user data (keep mocked verification keys)
+    const prefixes = [
       'vipo_user_firstName',
       'vipo_user_lastName',
       'vipo_user_email',
-      'vipo_user_id_number',
-      'vipo_user_verified'
     ];
 
-    keysToRemove.forEach(key => localStorage.removeItem(key));
+    const allKeys = Object.keys(localStorage);
+
+    allKeys.forEach(key => {
+      if (prefixes.some(prefix => key.startsWith(prefix))) {
+        localStorage.removeItem(key);
+      }
+    });
   }
 
   resendVerification(email: string) {

@@ -406,9 +406,9 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   openVerificationDialog(): void {
-    this.verificationDialog.open().subscribe(idNumber => {
-      if (idNumber) {
-        this.verificationService.verify(idNumber);
+    this.verificationDialog.open().subscribe(data => {
+      if (data) {
+        this.verificationService.verify(data.idNumber);
         this.snackbar.success(this.translationService.translate('profile.verification.verified'));
       }
     });

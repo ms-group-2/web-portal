@@ -9,7 +9,7 @@ import { VerificationDialogComponent } from './verification-dialog';
 export class VerificationDialogService {
   private dialog = inject(MatDialog);
 
-  open(): Observable<string | undefined> {
+  open(): Observable<{ firstName: string; lastName: string; idNumber: string } | undefined> {
     const dialogRef = this.dialog.open(VerificationDialogComponent, {
       width: '500px',
       panelClass: 'verification-dialog',

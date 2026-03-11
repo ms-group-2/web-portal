@@ -106,7 +106,8 @@ export class Register implements OnInit {
       if (errorKeys.length === 0) return '';
 
       const firstError = errorKeys[0];
-      return `validation.passwordStrength${firstError.charAt(0).toUpperCase() + firstError.slice(1)}`;
+      const pascalCase = firstError.charAt(0).toUpperCase() + firstError.slice(1);
+      return this.translation.translate(`validation.passwordStrength${pascalCase}`);
     }
 
     if (key === 'minlength' && errors['minlength']?.requiredLength) {
@@ -117,7 +118,7 @@ export class Register implements OnInit {
       return this.translation.translate('validation.maxlength', { n: errors['maxlength'].requiredLength });
     }
 
-    return `validation.${key}`;
+    return this.translation.translate(`validation.${key}`);
   }
 
   isGeorgian(): boolean {

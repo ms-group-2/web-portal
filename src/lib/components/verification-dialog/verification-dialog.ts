@@ -31,6 +31,8 @@ export class VerificationDialogComponent {
   isSubmitting = signal(false);
 
   form = this.fb.group({
+    firstName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]),
+    lastName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]),
     idNumber: this.fb.control('', [Validators.required, Validators.minLength(9), Validators.maxLength(11)]),
   });
 
@@ -46,10 +48,10 @@ export class VerificationDialogComponent {
 
     this.isSubmitting.set(true);
 
-    // Simulate API delay for realistic feel
+    //mocking API call with timeout
     setTimeout(() => {
       this.isSubmitting.set(false);
-      this.dialogRef.close(this.form.value.idNumber);
+      this.dialogRef.close(this.form.value);
     }, 1500);
   }
 }

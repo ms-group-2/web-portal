@@ -29,9 +29,7 @@
         <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase">
           {{ 'profile.vendor.notVerified.title' | translate }}
         </h3>
-        <p class="text-gray-600 mb-6">
-          {{ 'profile.vendor.notVerified.message' | translate }}
-        </p>
+        <p class="text-gray-600 mb-6" [innerHTML]="'profile.vendor.notVerified.message' | translate"></p>
         <button
           (click)="goBack()"
           class="px-8 py-3 bg-[#f6c55c] text-white font-black rounded-xl hover:bg-[#7C3AED] transition-all uppercase"
