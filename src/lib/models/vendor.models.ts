@@ -52,8 +52,8 @@ export interface VendorProductCreate {
   description: string;
   price: number;
   sku: string;
-  cover_image_url: string;
-  images: string[];
+  cover_image_url?: string;
+  images?: string[];
   field_options: number[];
 }
 

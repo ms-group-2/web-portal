@@ -1,18 +1,26 @@
-::ng-deep .mdc-slider {
-  --mdc-slider-handle-color: #F47C33;
-  --mdc-slider-focus-handle-color: #F47C33;
-  --mdc-slider-hover-handle-color: #F47C33;
-  --mdc-slider-active-track-color: #F47C33;
-  --mdc-slider-inactive-track-color: #E5E7EB;
-  --mdc-slider-with-tick-marks-inactive-container-color: #E5E7EB;
-  --mdc-slider-handle-height: 20px;
-  --mdc-slider-handle-width: 20px;
+.price-slider {
+  --mdc-slider-active-track-height: 4px;
+  --mdc-slider-inactive-track-height: 4px;
+  --mdc-slider-handle-width: 18px;
+  --mdc-slider-handle-height: 18px;
+  display: block;
 }
 
-::ng-deep .mat-mdc-checkbox.mat-primary {
-  --mdc-checkbox-selected-checkmark-color: #fff;
-  --mdc-checkbox-selected-focus-icon-color: #F47C33;
-  --mdc-checkbox-selected-hover-icon-color: #F47C33;
-  --mdc-checkbox-selected-icon-color: #F47C33;
-  --mdc-checkbox-selected-pressed-icon-color: #F47C33;
+.price-slider ::ng-deep .mdc-slider__track--active_fill {
+  border-color: currentColor !important;
+}
+
+.price-slider ::ng-deep .mdc-slider__track--inactive,
+.price-slider ::ng-deep .mdc-slider__track--inactive::before {
+  border-color: #d1d5db !important;
+}
+
+.price-slider ::ng-deep .mdc-slider__thumb-knob {
+  background-color: white !important;
+  border-color: currentColor !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.price-slider {
+  color: #4f46e5;
 }

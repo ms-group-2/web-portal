@@ -1,15 +1,28 @@
 <!-- Vendor Dashboard Full Page -->
 <div class="min-h-screen bg-[#F5F6FA] flex">
+
+  <!-- Mobile sidebar overlay -->
+  @if (sidebarOpen()) {
+    <div class="fixed inset-0 bg-black/40 z-40 lg:hidden" (click)="toggleSidebar()"></div>
+  }
+
   <!-- Left Sidebar -->
-  <div class="w-64 bg-[#E8E9F3] flex flex-col min-h-screen sticky top-0">
+  <div
+    [ngClass]="{ '-translate-x-full': !sidebarOpen(), 'translate-x-0': sidebarOpen() }"
+    class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#E8E9F3] flex flex-col min-h-screen lg:translate-x-0 transition-transform duration-200">
     <!-- Logo/Brand -->
     <div class="p-6">
       <div class="relative mb-6">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <i class="ph ph-storefront text-white text-xl"></i>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <i class="ph ph-storefront text-white text-xl"></i>
+            </div>
+            <span class="font-black text-gray-900 text-lg">VIPO</span>
           </div>
-          <span class="font-black text-gray-900 text-lg">VIPO</span>
+          <button (click)="toggleSidebar()" class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/50">
+            <i class="ph ph-x text-gray-600 text-xl"></i>
+          </button>
         </div>
       </div>
 
@@ -25,7 +38,7 @@
     <div class="flex-1 px-4 space-y-1">
       @for (tab of mainNavigationTabs; track tab.id) {
         <button
-          (click)="setActiveTab(tab.id)"
+          (click)="setActiveTab(tab.id); sidebarOpen.set(false)"
           [ngClass]="{
             'bg-white shadow-sm': activeTab() === tab.id,
             'text-gray-600 hover:bg-white/50': activeTab() !== tab.id
@@ -43,7 +56,7 @@
 
       @for (tab of settingsNavigationTabs; track tab.id) {
         <button
-          (click)="setActiveTab(tab.id)"
+          (click)="setActiveTab(tab.id); sidebarOpen.set(false)"
           [ngClass]="{
             'bg-white shadow-sm': activeTab() === tab.id,
             'text-gray-600 hover:bg-white/50': activeTab() !== tab.id
@@ -63,19 +76,24 @@
   </div>
 
   <!-- Main Content -->
-  <div class="flex-1 overflow-auto">
+  <div class="flex-1 overflow-auto w-full">
     <!-- Top Header -->
-    <div class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+    <div class="bg-white border-b border-gray-200 px-4 sm:px-8 py-4 flex items-center justify-between sticky top-0 z-10">
       <div class="flex items-center gap-3">
+        <!-- Hamburger for mobile -->
+        <button (click)="toggleSidebar()" class="lg:hidden w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center hover:bg-gray-100">
+          <i class="ph ph-list text-gray-600 text-xl"></i>
+        </button>
+
         @for (tab of allNavigationTabs; track tab.id) {
           @if (activeTab() === tab.id) {
-            <button class="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+            <button class="w-9 h-9 bg-primary rounded-lg hidden sm:flex items-center justify-center">
               <i class="ph {{ tab.icon }} text-white text-xl"></i>
             </button>
           }
         }
         <div class="flex items-center gap-2 text-sm text-gray-500">
-          <span>/</span>
+          <span class="hidden sm:inline">/</span>
           @for (tab of allNavigationTabs; track tab.id) {
             @if (activeTab() === tab.id) {
               <span class="text-gray-900 font-medium">{{ tab.translationKey | translate }}</span>
@@ -84,7 +102,7 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 sm:gap-4">
         <button
           (click)="translation.toggleLanguage()"
           class="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-all"
@@ -97,7 +115,7 @@
         </button>
 
         @if (userProfile()) {
-          <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+          <div class="hidden sm:flex items-center gap-3 pl-4 border-l border-gray-200">
             <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center overflow-hidden">
               @if (userProfile()!.avatar_url) {
                 <img [src]="userProfile()!.avatar_url" alt="{{ userProfile()!.name }}" class="w-full h-full object-cover" />
@@ -114,8 +132,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <div class="p-8">
-      <!-- Dashboard Tab -->
+    <div class="p-4 sm:p-6 lg:p-8">
       @if (activeTab() === 'dashboard') {
         <app-dashboard-section
           [vendorProfile]="vendorProfile()"
@@ -123,7 +140,6 @@
         />
       }
 
-      <!-- Products Tab -->
       @if (activeTab() === 'products') {
         <app-products-section
           [products]="products()"
@@ -134,12 +150,10 @@
         />
       }
 
-      <!-- Orders Tab -->
       @if (activeTab() === 'orders') {
         <app-orders-section />
       }
 
-      <!-- Settings Tab -->
       @if (activeTab() === 'settings') {
         <app-settings-section />
       }

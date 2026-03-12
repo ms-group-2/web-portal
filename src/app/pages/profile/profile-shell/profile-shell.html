@@ -2,22 +2,28 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30">
 
   <div class="max-w-7xl mx-auto px-4 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12">
-    <button
-      type="button"
-      (click)="goBack()"
-      class="mb-6 ml-2 flex items-center gap-2 text-primary transition-all uppercase duration-300 font-bold  hover:gap-3"
-    >
-      <mat-icon>arrow_back</mat-icon>
-      <span>{{ 'profile.back' | translate }}</span>
-    </button>
-
-    <div class="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
-      <app-profile-sidebar></app-profile-sidebar>
-
-      <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200/50">
+    @if (isCartRoute()) {
+      <div class="max-w-5xl mx-auto">
         <router-outlet></router-outlet>
       </div>
-    </div>
+    } @else {
+      <button
+        type="button"
+        (click)="goBack()"
+        class="mb-6 ml-2 flex items-center gap-2 text-primary transition-all uppercase duration-300 font-bold hover:gap-3"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        <span>{{ 'profile.back' | translate }}</span>
+      </button>
+
+      <div class="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
+        <app-profile-sidebar></app-profile-sidebar>
+
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200/50">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    }
   </div>
 </div>
 

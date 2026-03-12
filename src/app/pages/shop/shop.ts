@@ -22,7 +22,7 @@ import { TrustSectionComponent } from './components/trust-section/trust-section'
     PromoBannersComponent,
     ProductFiltersComponent,
     ProductGridComponent,
-    SuggestedProductsComponent,
+    // SuggestedProductsComponent,
     TrustSectionComponent,
   ],
   templateUrl: './shop.html',

@@ -4,7 +4,7 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-products-section',
-  imports: [CurrencyPipe, TranslatePipe],
+  imports: [ TranslatePipe],
   templateUrl: './products-section.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

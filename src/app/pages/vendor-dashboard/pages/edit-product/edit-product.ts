@@ -1,17 +1,22 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
+import { ShopService } from 'lib/services/shop/shop.service';
+import { Category, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { VendorProductUpdate } from 'lib/models/vendor.models';
-import { DynamicArrayInput } from '../../components/dynamic-array-input/dynamic-array-input';
 import { DeleteConfirmationDialog } from '../../components/delete-confirmation-dialog/delete-confirmation-dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-edit-product',
-  imports: [ReactiveFormsModule, TranslatePipe, DynamicArrayInput, DeleteConfirmationDialog],
+  imports: [ReactiveFormsModule, TranslatePipe, DeleteConfirmationDialog, MatFormFieldModule, MatSelectModule, MatIconModule, MatInputModule],
   templateUrl: './edit-product.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -21,7 +26,9 @@ export class EditProduct implements OnInit {
   private fb = inject(FormBuilder);
   translation = inject(TranslationService);
   private vendorService = inject(VendorService);
+  private shopService = inject(ShopService);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   vendorProfile = this.vendorService.vendorProfile;
   isSubmitting = signal<boolean>(false);
@@ -30,6 +37,23 @@ export class EditProduct implements OnInit {
   productId = signal<string | null>(null);
   showDeleteDialog = signal<boolean>(false);
   currentProduct = signal<any>(null);
+
+  mainCategories = signal<Category[]>([]);
+  subcategories = signal<Category[]>([]);
+  subSubcategories = signal<Category[]>([]);
+
+  filterGroups = signal<FilterGroup[]>([]);
+  filtersLoading = signal<boolean>(false);
+  selectedSpecFieldId = signal<number | null>(null);
+
+  // Image uploads
+  coverImageFile: File | null = null;
+  coverImagePreview = signal<string | null>(null);
+  additionalFiles: File[] = [];
+  additionalPreviews = signal<string[]>([]);
+  // Track existing images from server (URLs)
+  existingCoverUrl = signal<string | null>(null);
+  existingImageUrls = signal<string[]>([]);
 
   productForm!: FormGroup;
 
@@ -40,10 +64,165 @@ export class EditProduct implements OnInit {
     if (productId) {
       this.productId.set(productId);
       this.initForm();
+      this.loadCategories();
       this.loadProductData();
     } else {
       this.router.navigate(['/business/dashboard']);
     }
+  }
+
+  private loadCategories() {
+    this.shopService.getMainCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(cats => this.mainCategories.set(cats));
+  }
+
+  onParentCategoryChange(id: number) {
+    this.subcategories.set([]);
+    this.subSubcategories.set([]);
+    this.productForm.patchValue({ category_id: '', brand_id: '' });
+    this.filterGroups.set([]);
+    if (id) {
+      this.shopService.getSubcategories(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(subs => {
+          this.subcategories.set(subs);
+          if (subs.length === 0) this.selectLeafCategory(id);
+        });
+    }
+  }
+
+  onSubCategoryChange(id: number) {
+    this.subSubcategories.set([]);
+    this.productForm.patchValue({ category_id: '', brand_id: '' });
+    this.filterGroups.set([]);
+    if (id) {
+      const selected = this.subcategories().find(c => Number(c.id) === id);
+      if (selected?.has_subcategories) {
+        this.shopService.getSubcategories(id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(subs => {
+            this.subSubcategories.set(subs);
+            if (subs.length === 0) this.selectLeafCategory(id);
+          });
+      } else {
+        this.selectLeafCategory(id);
+      }
+    }
+  }
+
+  onSubSubCategoryChange(id: number) {
+    if (id) this.selectLeafCategory(id);
+  }
+
+  private selectLeafCategory(id: number) {
+    this.productForm.patchValue({ category_id: id, brand_id: '' });
+    this.filtersLoading.set(true);
+    this.shopService.getFilterOptions(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: filters => { this.filterGroups.set(filters); this.filtersLoading.set(false); },
+        error: () => { this.filterGroups.set([]); this.filtersLoading.set(false); }
+      });
+  }
+
+  getBrandOptions(): { option_id: number; option_value: string }[] {
+    for (const group of this.filterGroups()) {
+      for (const field of group.fields) {
+        if (field.field_name.toLowerCase().includes('brand') || field.field_name.toLowerCase().includes('ბრენდ')) {
+          return field.options;
+        }
+      }
+    }
+    return [];
+  }
+
+  getNonBrandFilterGroups(): FilterGroup[] {
+    return this.filterGroups().map(group => ({
+      ...group,
+      fields: group.fields.filter(f =>
+        !f.field_name.toLowerCase().includes('brand') &&
+        !f.field_name.toLowerCase().includes('ბრენდ')
+      )
+    })).filter(g => g.fields.length > 0);
+  }
+
+  getAllSpecFields(): { field_id: number; field_name: string; options: { option_id: number; option_value: string }[] }[] {
+    const fields: any[] = [];
+    for (const group of this.getNonBrandFilterGroups()) {
+      fields.push(...group.fields);
+    }
+    return fields;
+  }
+
+  getAvailableSpecFields() {
+    return this.getAllSpecFields().filter(f => !this.getSelectedOptionForField(f.field_id));
+  }
+
+  getSelectedSpecField() {
+    const id = this.selectedSpecFieldId();
+    if (!id) return null;
+    return this.getAllSpecFields().find(f => f.field_id === id) || null;
+  }
+
+  onSpecFieldSelect(fieldId: number) {
+    this.selectedSpecFieldId.set(fieldId);
+  }
+
+  toggleFieldOption(fieldId: number, optionId: number) {
+    const fieldOptions = this.getOptionsForField(fieldId);
+    const fieldOptionIds = fieldOptions.map(o => o.option_id);
+
+    for (let i = this.fieldOptionsArray.length - 1; i >= 0; i--) {
+      if (fieldOptionIds.includes(this.fieldOptionsArray.at(i).value)) {
+        this.fieldOptionsArray.removeAt(i);
+      }
+    }
+
+    const wasSelected = (this.fieldOptionsArray.value as number[]).includes(optionId);
+    if (!wasSelected) {
+      this.fieldOptionsArray.push(this.fb.control(optionId));
+      this.selectedSpecFieldId.set(null);
+    }
+    this.cdr.markForCheck();
+  }
+
+  isFieldOptionSelected(optionId: number): boolean {
+    return (this.fieldOptionsArray.value as number[]).includes(optionId);
+  }
+
+  getSelectedOptionForField(fieldId: number): { option_id: number; option_value: string } | null {
+    const fieldOptions = this.getOptionsForField(fieldId);
+    const fieldOptionIds = fieldOptions.map(o => o.option_id);
+    const selectedId = (this.fieldOptionsArray.value as number[]).find(id => fieldOptionIds.includes(id));
+    if (selectedId === undefined) return null;
+    return fieldOptions.find(o => o.option_id === selectedId) || null;
+  }
+
+  removeFieldSelection(fieldId: number) {
+    const currentSelected = this.selectedSpecFieldId();
+    const fieldOptions = this.getOptionsForField(fieldId);
+    const fieldOptionIds = fieldOptions.map(o => o.option_id);
+    for (let i = this.fieldOptionsArray.length - 1; i >= 0; i--) {
+      if (fieldOptionIds.includes(this.fieldOptionsArray.at(i).value)) {
+        this.fieldOptionsArray.removeAt(i);
+      }
+    }
+    this.cdr.markForCheck();
+    if (currentSelected !== null && currentSelected !== fieldId) {
+      const preserved = currentSelected;
+      this.selectedSpecFieldId.set(null);
+      setTimeout(() => this.selectedSpecFieldId.set(preserved));
+    }
+  }
+
+  private getOptionsForField(fieldId: number): { option_id: number; option_value: string }[] {
+    for (const group of this.filterGroups()) {
+      for (const field of group.fields) {
+        if (field.field_id === fieldId) return field.options;
+      }
+    }
+    return [];
   }
 
   initForm() {
@@ -51,12 +230,14 @@ export class EditProduct implements OnInit {
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       category_id: ['', [Validators.required, Validators.min(1)]],
-      brand_id: ['', [Validators.required, Validators.min(1)]],
+      brand_id: [''],
       price: ['', [Validators.required, Validators.min(1)]],
-      cover_image_url: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
-      images: this.fb.array([this.fb.control('', [Validators.pattern(/^https?:\/\/.+/)])]),
-      field_options: this.fb.array([this.fb.control('', [Validators.min(1)])]),
+      field_options: this.fb.array([]),
     });
+  }
+
+  get fieldOptionsArray(): FormArray {
+    return this.productForm.get('field_options') as FormArray;
   }
 
   loadProductData() {
@@ -72,33 +253,56 @@ export class EditProduct implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (product) => {
+          console.log('Loaded product for editing:', product);
           this.currentProduct.set(product);
 
           this.productForm.patchValue({
-            title: product.title || '',
-            description: product.description || '',
-            category_id: product.category_id || '',
-            brand_id: product.brand_id || '',
-            price: product.price || '',
-            cover_image_url: product.cover_image_url || '',
+            title: product.title ?? '',
+            description: product.description ?? '',
+            category_id: product.category_id ?? '',
+            brand_id: product.brand_id ?? '',
+            price: product.price ?? '',
           });
 
-          this.imagesArray.clear();
-          if (product.images && product.images.length > 0) {
-            product.images.forEach((img: string) => {
-              this.imagesArray.push(this.fb.control(img, [Validators.pattern(/^https?:\/\/.+/)]));
-            });
-          } else {
-            this.imagesArray.push(this.fb.control('', [Validators.pattern(/^https?:\/\/.+/)]));
+          // Load existing images as previews
+          if (product.cover_image_url) {
+            this.existingCoverUrl.set(product.cover_image_url);
+            this.coverImagePreview.set(product.cover_image_url);
+          }
+          if (product.images?.length > 0) {
+            this.existingImageUrls.set(product.images);
+            this.additionalPreviews.set([...product.images]);
           }
 
+          // Load field options
           this.fieldOptionsArray.clear();
-          if (product.field_options && product.field_options.length > 0) {
+          if (product.field_options?.length > 0) {
             product.field_options.forEach((opt: number) => {
-              this.fieldOptionsArray.push(this.fb.control(opt.toString(), [Validators.min(1)]));
+              this.fieldOptionsArray.push(this.fb.control(opt));
             });
-          } else {
-            this.fieldOptionsArray.push(this.fb.control('', [Validators.min(1)]));
+          }
+
+          // Load filters for the product's category (without resetting brand_id)
+          if (product.category_id) {
+            const savedBrandId = product.brand_id;
+            this.filtersLoading.set(true);
+            this.productForm.patchValue({ category_id: product.category_id });
+            this.shopService.getFilterOptions(product.category_id)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
+                next: filters => {
+                  this.filterGroups.set(filters);
+                  this.filtersLoading.set(false);
+                  // Restore brand_id after filters load
+                  if (savedBrandId) {
+                    this.productForm.patchValue({ brand_id: savedBrandId });
+                  }
+                },
+                error: () => {
+                  this.filterGroups.set([]);
+                  this.filtersLoading.set(false);
+                }
+              });
           }
 
           this.isLoading.set(false);
@@ -111,32 +315,64 @@ export class EditProduct implements OnInit {
       });
   }
 
-  get imagesArray(): FormArray {
-    return this.productForm.get('images') as FormArray;
+  // Cover image upload
+  onCoverImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) return;
+
+    this.coverImageFile = file;
+    this.existingCoverUrl.set(null);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.coverImagePreview.set(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
   }
 
-  get fieldOptionsArray(): FormArray {
-    return this.productForm.get('field_options') as FormArray;
+  removeCoverImage() {
+    this.coverImageFile = null;
+    this.existingCoverUrl.set(null);
+    this.coverImagePreview.set(null);
   }
 
-  addImage() {
-    this.imagesArray.push(this.fb.control('', [Validators.pattern(/^https?:\/\/.+/)]));
+  // Additional images upload
+  onAdditionalImagesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+
+    const totalCurrent = this.existingImageUrls().length + this.additionalFiles.length;
+    const newFiles = Array.from(input.files).filter(
+      f => f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024
+    );
+    const remaining = 5 - totalCurrent;
+    const filesToAdd = newFiles.slice(0, remaining);
+
+    filesToAdd.forEach(file => {
+      this.additionalFiles.push(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.additionalPreviews.update(prev => [...prev, e.target?.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+    input.value = '';
   }
 
-  removeImage(index: number) {
-    if (this.imagesArray.length > 1) {
-      this.imagesArray.removeAt(index);
+  removeAdditionalImage(index: number) {
+    const existingCount = this.existingImageUrls().length;
+    if (index < existingCount) {
+      // Removing an existing server image
+      this.existingImageUrls.update(urls => urls.filter((_, i) => i !== index));
+    } else {
+      // Removing a newly added file
+      const fileIndex = index - existingCount;
+      this.additionalFiles.splice(fileIndex, 1);
     }
-  }
-
-  addFieldOption() {
-    this.fieldOptionsArray.push(this.fb.control('', [Validators.min(1)]));
-  }
-
-  removeFieldOption(index: number) {
-    if (this.fieldOptionsArray.length > 1) {
-      this.fieldOptionsArray.removeAt(index);
-    }
+    this.additionalPreviews.update(prev => prev.filter((_, i) => i !== index));
   }
 
   handleCancel() {
@@ -163,15 +399,15 @@ export class EditProduct implements OnInit {
     const formValue = this.productForm.value;
     const productData: VendorProductUpdate = {
       category_id: parseInt(formValue.category_id),
-      brand_id: parseInt(formValue.brand_id),
+      brand_id: parseInt(formValue.brand_id) || 0,
       title: formValue.title,
       description: formValue.description,
       price: parseFloat(formValue.price),
-      cover_image_url: formValue.cover_image_url,
-      images: formValue.images.filter((img: string) => img.trim() !== ''),
-      field_options: formValue.field_options
-        .filter((opt: string) => opt.trim() !== '')
-        .map((opt: string) => parseInt(opt)),
+      cover_image_url: this.existingCoverUrl() || undefined,
+      images: this.existingImageUrls().length > 0 ? this.existingImageUrls() : undefined,
+      field_options: (formValue.field_options || [])
+        .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
+        .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
     };
 
     this.isSubmitting.set(true);

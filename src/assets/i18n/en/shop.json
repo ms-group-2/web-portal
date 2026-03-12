@@ -31,7 +31,13 @@
     "filters": {
       "title": "Filters",
       "clear": "Clear All",
-      "price": "Price Range",
+      "price": {
+        "title": "Price Range",
+        "under50": "Under ₾50",
+        "50to100": "₾50 – ₾100",
+        "100to200": "₾100 – ₾200",
+        "200plus": "₾200+"
+      },
       "allCategories": "All Categories",
       "category": {
         "electronics": "Electronics",
@@ -51,11 +57,9 @@
       "verifiedOnly": "Verified Sellers Only",
       "sortBy": "Sort By",
       "sort": {
-        "newest": "Newest First",
-        "recommended": "Recommended",
+        "default": "Default",
         "priceLow": "Price: Low to High",
-        "priceHigh": "Price: High to Low",
-        "rating": "Top Rated"
+        "priceHigh": "Price: High to Low"
       }
     },
     "promo": {

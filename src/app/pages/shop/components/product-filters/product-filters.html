@@ -1,69 +1,69 @@
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-  <div class="flex flex-wrap items-center gap-4">
-    <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors">
-      <mat-icon class="!w-4 !h-4 !text-[16px]">tune</mat-icon>
-      {{ 'shop.filters.title' | translate }}
-    </button>
+<div class="bg-white rounded-3xl border border-gray-200 shadow-sm p-5 lg:p-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-    <div class="relative">
-      <select
-        [ngModel]="selectedCategoryId()"
-        (ngModelChange)="onCategoryChange($event === 'all' ? null : +$event)"
-        class="w-full appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
-        <option value="all">{{ 'shop.filters.allCategories' | translate }}</option>
-        @for (category of categories(); track category.id) {
-          <option [value]="category.id">{{ category.name | translate }}</option>
+    <!-- Price -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <label class="block text-xs font-black uppercase tracking-[0.12em] text-gray-500">
+          {{ 'shop.filters.priceRange' | translate }}
+        </label>
+
+        <div class="text-xs font-bold text-market">
+          ₾{{ minPrice() }} — ₾{{ maxPrice() }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">₾</span>
+            <input
+              type="number"
+              [value]="minPrice()"
+              (change)="onMinPriceChange($event)"
+              min="0"
+              [max]="maxPriceLimit()"
+              placeholder="0"
+              class="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 pl-8 pr-3 text-sm font-semibold text-gray-900 outline-none transition focus:border-market focus:ring-4 focus:ring-market/10"
+            />
+          </div>
+
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">₾</span>
+            <input
+              type="number"
+              [value]="maxPrice()"
+              (change)="onMaxPriceChange($event)"
+              min="0"
+              [max]="maxPriceLimit()"
+              [placeholder]="maxPriceLimit()"
+              class="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 pl-8 pr-3 text-sm font-semibold text-gray-900 outline-none transition focus:border-market focus:ring-4 focus:ring-market/10"
+            />
+          </div>
+        </div>
+    </div>
+
+    <!-- Sort -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <label class="block text-xs font-black uppercase tracking-[0.12em] text-gray-500">
+          {{ 'shop.filters.sortBy' | translate }}
+        </label>
+
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        @for (option of sortOptions; track option.value) {
+          <button
+            type="button"
+            (click)="setSortBy(option.value)"
+            [class]="sortBy() === option.value
+              ? 'h-12 rounded-2xl border border-market/20 bg-market text-white px-4 text-sm font-semibold shadow-sm transition'
+              : 'h-12 rounded-2xl border border-gray-200 bg-gray-50 hover:bg-white hover:border-gray-300 px-4 text-sm font-semibold text-gray-700 transition'">
+            {{ option.label | translate }}
+          </button>
         }
-      </select>
-      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-sm text-gray-600 pointer-events-none">expand_more</mat-icon>
+      </div>
     </div>
 
-    <div class="relative">
-      <select
-        [(ngModel)]="selectedPriceRange"
-        class="w-full appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
-        <option value="all">{{ 'shop.filters.priceRange' | translate }}</option>
-        <option value="under50">{{ 'shop.filters.price.under50' | translate }}</option>
-        <option value="50-100">{{ 'shop.filters.price.50to100' | translate }}</option>
-        <option value="100-200">{{ 'shop.filters.price.100to200' | translate }}</option>
-        <option value="200plus">{{ 'shop.filters.price.200plus' | translate }}</option>
-      </select>
-      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
-    </div>
-
-    <div class="relative">
-      <select
-        [(ngModel)]="selectedRating"
-        class="w-full appearance-none px-5 py-2.5 pr-10 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors border-none focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
-        <option value="all">{{ 'shop.filters.rating.title' | translate }}</option>
-        <option value="4plus">{{ 'shop.filters.rating.4plus' | translate }}</option>
-        <option value="3plus">{{ 'shop.filters.rating.3plus' | translate }}</option>
-        <option value="allratings">{{ 'shop.filters.rating.all' | translate }}</option>
-      </select>
-      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-600 pointer-events-none">expand_more</mat-icon>
-    </div>
-
-    <button
-      (click)="toggleVerified()"
-      [class]="'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ' +
-        (verifiedOnly()
-          ? 'bg-market text-white'
-          : 'bg-gray-100 hover:bg-gray-200 text-gray-700')"
-    >
-      <mat-icon class="!w-4 !h-4 !text-sm">verified_user</mat-icon>
-      {{ 'shop.filters.verifiedOnly' | translate }}
-    </button>
-
-    <div class="ml-auto relative">
-      <select
-        [(ngModel)]="sortBy"
-        class="w-full appearance-none px-5 py-2.5 pr-10 bg-white hover:bg-gray-50 rounded-xl font-medium text-gray-700 transition-colors border border-gray-200 focus:outline-none focus:ring-2 focus:ring-market/30 cursor-pointer">
-        <option value="recommended">{{ 'shop.filters.sort.recommended' | translate }}</option>
-        <option value="price-low">{{ 'shop.filters.sort.priceLow' | translate }}</option>
-        <option value="price-high">{{ 'shop.filters.sort.priceHigh' | translate }}</option>
-        <option value="top-rated">{{ 'shop.filters.sort.topRated' | translate }}</option>
-      </select>
-      <mat-icon class="absolute right-3 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-base text-gray-600 pointer-events-none">expand_more</mat-icon>
-    </div>
   </div>
 </div>

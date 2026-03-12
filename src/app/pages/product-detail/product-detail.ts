@@ -1,4 +1,4 @@
-import { Component, OnInit, DestroyRef, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, DestroyRef, signal, computed, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Location } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,10 +12,13 @@ import { Product } from '../shop/shop.models';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { ProductDetailSkeletonComponent } from './components/product-detail-skeleton';
+import { ProductCardComponent } from '../shop/components/product-card/product-card';
+import { Swiper } from 'lib/components/swiper/swiper';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [Header, Footer, TranslatePipe, RouterLink, MatIconModule, CommonModule, ProductDetailSkeletonComponent],
+  imports: [Header, Footer, TranslatePipe, RouterLink, MatIconModule, CommonModule, ProductDetailSkeletonComponent, ProductCardComponent, Swiper],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './product-detail.html',
   styleUrls: ['./product-detail.scss']
 })
@@ -31,6 +34,7 @@ export class ProductDetail implements OnInit {
   loading = signal<boolean>(true);
   selectedImage = signal<string>('');
   quantity = signal<number>(1);
+  similarProducts = signal<Product[]>([]);
 
   isFavorited = computed(() => this.shopService.isFavorite(this.product()?.id));
 
@@ -84,6 +88,7 @@ export class ProductDetail implements OnInit {
             // Load category hierarchy for breadcrumb
             if (product.category_id) {
               this.loadCategoryHierarchy(product.category_id);
+              this.loadSimilarProducts(product.category_id, product.id);
             }
           }
           this.loading.set(false);
@@ -113,6 +118,16 @@ export class ProductDetail implements OnInit {
 
       currentCategoryId = category.parent_id;
     }
+  }
+
+  private loadSimilarProducts(categoryId: number, currentProductId: number) {
+    this.shopService.getProducts({ category_id: categoryId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(products => {
+        this.similarProducts.set(
+          products.filter(p => p.id !== currentProductId)
+        );
+      });
   }
 
   selectImage(image: string) {

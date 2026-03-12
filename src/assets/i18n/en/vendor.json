@@ -85,9 +85,9 @@
     "coverImageHint": "This will be the main product image",
     "additionalImages": "Additional Images",
     "addImage": "Add Image",
-    "productVariants": "Product Variants",
+    "productVariants": "Product Specifications",
     "fieldOptions": "Field Option IDs",
-    "fieldOptionsHint": "Enter numeric IDs for product variants (e.g., size, color options)",
+    "fieldOptionsHint": "Enter product specifications",
     "addVariant": "Add Variant",
     "organization": "Organization",
     "category": "Category",
@@ -104,7 +104,9 @@
       "imageUrl": "https://example.com/image.jpg",
       "optionId": "Enter option ID",
       "categoryId": "Enter category ID",
-      "brandId": "Enter brand ID"
+      "brandId": "Enter brand ID",
+      "selectCategory": "Select a category",
+      "selectSubcategory": "Select a subcategory"
     }
   }
 }

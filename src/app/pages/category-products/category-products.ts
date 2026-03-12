@@ -48,27 +48,17 @@ export class CategoryProducts implements OnInit {
 
   minPrice = signal<number>(0);
   maxPrice = signal<number>(10000);
-  minRating = signal<number>(0);
-  verifiedOnly = signal<boolean>(false);
-  sortBy = signal<string>('newest');
+  sortBy = signal<string>('');
 
   sortOptions = [
-    { value: 'newest', label: 'shop.filters.sort.newest' },
-    { value: 'price-low', label: 'shop.filters.sort.priceLow' },
-    { value: 'price-high', label: 'shop.filters.sort.priceHigh' },
-    { value: 'rating', label: 'shop.filters.sort.rating' },
+    { value: 'price_asc', label: 'shop.filters.sort.priceLow' },
+    { value: 'price_desc', label: 'shop.filters.sort.priceHigh' },
+    { value: '', label: 'shop.filters.sort.default' },
   ];
 
   formatPrice(value: number): string {
     return `₾${value}`;
   }
-
-  ratingOptions = [
-    { value: 4, label: '4+ Stars' },
-    { value: 3, label: '3+ Stars' },
-    { value: 2, label: '2+ Stars' },
-    { value: 0, label: 'All Ratings' },
-  ];
 
   currentCategory = computed(() => {
     const id = this.categoryId();
@@ -150,6 +140,10 @@ export class CategoryProducts implements OnInit {
           this.maxPrice.set(this.categoryMaxPrice());
           this.applyFilters();
           this.loading.set(false);
+
+          // Load ancestor categories for breadcrumb
+          const id = this.categoryId();
+          if (id) this.loadBreadcrumbChain(id);
         },
         error: () => {
           this.products.set([]);
@@ -161,13 +155,34 @@ export class CategoryProducts implements OnInit {
   }
 
 
-  getCategoryRoute(categoryId: number | string): string[] {
-    return ['/shop/category', String(categoryId)];
+  /**
+   * Load ancestor category levels so breadcrumbTrail can resolve.
+   * Walks down from roots loading subcategories one level at a time
+   * until the target category appears in flatCategories.
+   */
+  private loadBreadcrumbChain(targetId: number) {
+    if (this.shopService.flatCategories().find(c => Number(c.id) === targetId)) return;
+
+    const parents = this.shopService.mainCategories().filter(c => c.has_subcategories);
+    if (parents.length === 0) return;
+
+    forkJoin(parents.map(c => this.shopService.getSubcategories(Number(c.id))))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(results => {
+        if (this.shopService.flatCategories().find(c => Number(c.id) === targetId)) return;
+
+        // Go one level deeper
+        const nextParents = results.flat().filter(c => c.has_subcategories);
+        if (nextParents.length === 0) return;
+
+        forkJoin(nextParents.map(c => this.shopService.getSubcategories(Number(c.id))))
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
+      });
   }
 
-  setMinRating(rating: number): void {
-    this.minRating.set(rating);
-    this.applyFilters();
+  getCategoryRoute(categoryId: number | string): string[] {
+    return ['/shop/category', String(categoryId)];
   }
 
   onMinPriceChange(event: Event): void {
@@ -188,9 +203,7 @@ export class CategoryProducts implements OnInit {
   clearFilters(): void {
     this.minPrice.set(0);
     this.maxPrice.set(this.categoryMaxPrice());
-    this.minRating.set(0);
-    this.verifiedOnly.set(false);
-    this.sortBy.set('newest');
+    this.sortBy.set('');
     this.selectedFilters.set({});
     this.applyFilters();
   }
@@ -256,25 +269,13 @@ export class CategoryProducts implements OnInit {
 
     filtered = filtered.filter(p => p.price >= this.minPrice() && p.price <= this.maxPrice());
 
-    if (this.minRating() > 0) {
-      filtered = filtered.filter(p => (p.rating || 0) >= this.minRating());
-    }
-
-    if (this.verifiedOnly()) {
-      filtered = filtered.filter(p => p.verified === true);
-    }
-
     switch (this.sortBy()) {
-      case 'price-low':
+      case 'price_asc':
         filtered.sort((a, b) => a.price - b.price);
         break;
-      case 'price-high':
+      case 'price_desc':
         filtered.sort((a, b) => b.price - a.price);
         break;
-      case 'rating':
-        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        break;
-      case 'newest':
       default:
         break;
     }

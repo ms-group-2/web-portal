@@ -1,11 +1,74 @@
-<div class="flex flex-wrap gap-7 justify-start">
-  @if (isLoading()) {
-    @for (i of skeletonArray; track i) {
-      <app-product-card-skeleton></app-product-card-skeleton>
+<div>
+  <div class="flex flex-wrap gap-7 justify-start">
+    @if (isLoading()) {
+      @for (i of skeletonArray; track $index) {
+        <app-product-card-skeleton></app-product-card-skeleton>
+      }
+    } @else if (products().length === 0) {
+      <div class="w-full text-center py-16">
+        <p class="text-gray-400 text-sm">No products found</p>
+      </div>
+    } @else {
+      @for (product of products(); track product.id) {
+        <app-product-card [product]="product"></app-product-card>
+      }
     }
-  } @else {
-    @for (product of products(); track product.id) {
-      <app-product-card [product]="product"></app-product-card>
-    }
+  </div>
+
+  <!-- Pagination -->
+  @if (!isLoading() && totalPages() > 1) {
+    <div class="flex items-center justify-center gap-2 mt-10">
+      <!-- Previous -->
+      <button
+        (click)="goToPage(currentPage() - 1)"
+        [disabled]="currentPage() === 1"
+        class="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+        <i class="ph ph-caret-left text-sm"></i>
+      </button>
+
+      <!-- First page + ellipsis -->
+      @if (visiblePages()[0] > 1) {
+        <button
+          (click)="goToPage(1)"
+          class="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all">
+          1
+        </button>
+        @if (visiblePages()[0] > 2) {
+          <span class="text-gray-400 text-sm px-1">...</span>
+        }
+      }
+
+      <!-- Page numbers -->
+      @for (page of visiblePages(); track page) {
+        <button
+          (click)="goToPage(page)"
+          [class]="page === currentPage()
+            ? 'w-10 h-10 rounded-xl bg-market text-white flex items-center justify-center text-sm font-bold shadow-sm'
+            : 'w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all'">
+          {{ page }}
+        </button>
+      }
+
+      <!-- Last page + ellipsis -->
+      @if (visiblePages()[visiblePages().length - 1] < totalPages()) {
+        @if (visiblePages()[visiblePages().length - 1] < totalPages() - 1) {
+          <span class="text-gray-400 text-sm px-1">...</span>
+        }
+        <button
+          (click)="goToPage(totalPages())"
+          class="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all">
+          {{ totalPages() }}
+        </button>
+      }
+
+      <!-- Next -->
+      <button
+        (click)="goToPage(currentPage() + 1)"
+        [disabled]="currentPage() === totalPages()"
+        class="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+        <i class="ph ph-caret-right text-sm"></i>
+      </button>
+    </div>
+
   }
 </div>

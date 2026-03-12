@@ -54,6 +54,11 @@ export class VendorDashboard implements OnInit {
   loading = signal<boolean>(false);
   showDeleteDialog = signal<boolean>(false);
   productToDelete = signal<string | number | null>(null);
+  sidebarOpen = signal<boolean>(false);
+
+  toggleSidebar() {
+    this.sidebarOpen.update(v => !v);
+  }
 
   ngOnInit() {
     // Load vendor translation module only once

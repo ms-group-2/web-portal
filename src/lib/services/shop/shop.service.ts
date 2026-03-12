@@ -13,17 +13,21 @@ export class ShopService {
 
   private headers = { 'ngrok-skip-browser-warning': 'true' };
   private readonly FAVORITES_STORAGE_KEY_PREFIX = 'vipo_favorites_';
+  private readonly CART_STORAGE_KEY_PREFIX = 'vipo_cart_';
 
-  cartCount = signal(0);
+  cartItems = signal<number[]>([]);
+  cartCount = computed(() => this.cartItems().length);
   favorites = signal<Set<number>>(new Set());
   favoriteCount = computed(() => this.favorites().size);
 
   constructor() {
     this.loadFavoritesForCurrentUser();
+    this.loadCartForCurrentUser();
 
     effect(() => {
       this.authService.user();
       this.loadFavoritesForCurrentUser();
+      this.loadCartForCurrentUser();
     });
   }
 
@@ -33,6 +37,10 @@ export class ShopService {
 
   private getFavoritesStorageKey(userId: string | null): string {
     return userId ? `${this.FAVORITES_STORAGE_KEY_PREFIX}${userId}` : `${this.FAVORITES_STORAGE_KEY_PREFIX}guest`;
+  }
+
+  private getCartStorageKey(userId: string | null): string {
+    return userId ? `${this.CART_STORAGE_KEY_PREFIX}${userId}` : `${this.CART_STORAGE_KEY_PREFIX}guest`;
   }
 
   private loadFavoritesForCurrentUser(): void {
@@ -70,11 +78,43 @@ export class ShopService {
     this.favorites.set(new Set());
   }
 
+  private loadCartForCurrentUser(): void {
+    try {
+      const userId = this.getCurrentUserId();
+      const key = this.getCartStorageKey(userId);
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const ids = JSON.parse(stored) as number[];
+        this.cartItems.set(ids);
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to load cart from localStorage:', error);
+    }
+    this.cartItems.set([]);
+  }
+
+  private saveCartToStorage(items: number[]): void {
+    try {
+      const userId = this.getCurrentUserId();
+      const key = this.getCartStorageKey(userId);
+      localStorage.setItem(key, JSON.stringify(items));
+    } catch (error) {
+      console.error('Failed to save cart to localStorage:', error);
+    }
+  }
+
+  clearCart(): void {
+    this.cartItems.set([]);
+    this.saveCartToStorage([]);
+  }
+
 
   categoriesByParentId = signal<Partial<Record<number | 'root', Category[]>>>({});
   categoriesLoadingFor = signal<number | 'root' | null>(null);
 
   productsByCategoryId = signal<Partial<Record<number | 'all', Product[]>>>({});
+  paginatedCache = signal<Record<string, ProductsResponse>>({});
   categoriesWithProductsCache = signal<Record<number, CategoryWithProducts[]>>({});
   filterOptionsCache = signal<Record<number, FilterGroup[]>>({});
 
@@ -90,6 +130,11 @@ export class ShopService {
 
   selectedCategoryId = signal<number | null>(null);
   searchQuery = signal<string>('');
+
+  // Shared filter state for shop page
+  shopSortBy = signal<string>('popular');
+  shopMinPrice = signal<number>(0);
+  shopMaxPrice = signal<number>(10000);
 
   selectedCategory = computed(() => {
     const id = this.selectedCategoryId();
@@ -190,6 +235,59 @@ export class ShopService {
 
   setSearchQuery(query: string): void {
     this.searchQuery.set(query);
+  }
+
+  getProductsPaginated(params?: {
+    category_id?: number | null;
+    page?: number;
+    limit?: number;
+    search?: string;
+    sort_by?: string;
+    min_price?: number;
+    max_price?: number;
+  }): Observable<ProductsResponse> {
+    const queryParams: any = {
+      page: params?.page ?? 1,
+      limit: params?.limit ?? 20,
+    };
+    if (params?.category_id) queryParams.category_id = params.category_id;
+    if (params?.search) queryParams.search = params.search;
+    if (params?.sort_by) queryParams.sort_by = params.sort_by;
+    if (params?.min_price !== undefined) queryParams.min_price = params.min_price;
+    if (params?.max_price !== undefined) queryParams.max_price = params.max_price;
+
+    // Cache key based on all params
+    const cacheKey = JSON.stringify(queryParams);
+    const cached = this.paginatedCache()[cacheKey];
+    if (cached) return of(cached);
+
+    return this.http
+      .get<ProductsResponse>(`${this.baseUrl}/ecommerce/products/`, {
+        headers: this.headers,
+        params: queryParams,
+      })
+      .pipe(
+        map(response => {
+          if (!response || !response.items) {
+            return { items: [], total: 0, page: 1, limit: 20, total_pages: 0 };
+          }
+          return {
+            ...response,
+            items: response.items.map(product => ({
+              ...product,
+              name: product.title || product.name,
+              image: product.cover_image_url || product.image_url || product.image,
+            })),
+          };
+        }),
+        tap(response => {
+          this.paginatedCache.update(cache => ({ ...cache, [cacheKey]: response }));
+        }),
+        catchError(err => {
+          console.error('Failed to load products:', err);
+          return of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse);
+        })
+      );
   }
 
   getProducts(params?: {
@@ -323,7 +421,10 @@ export class ShopService {
   }
 
   addToCart(product: Product): void {
-    this.cartCount.update(count => count + 1);
+    const current = this.cartItems();
+    const next = [...current, product.id];
+    this.cartItems.set(next);
+    this.saveCartToStorage(next);
   }
 
   toggleFavorite(product: Product): void {
@@ -374,6 +475,34 @@ export class ShopService {
           console.error('Failed to load product:', err);
           return of(null);
         })
+      );
+  }
+
+  searchProductsPaginated(query: string, page: number = 1, limit: number = 20): Observable<ProductsResponse> {
+    if (!query || query.trim().length < 2) {
+      return of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse);
+    }
+
+    return this.http
+      .get<ProductsResponse>(`${this.baseUrl}/ecommerce/products/search`, {
+        headers: this.headers,
+        params: { q: query.trim(), page, limit },
+      })
+      .pipe(
+        map(response => {
+          if (!response || !response.items) {
+            return { items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse;
+          }
+          return {
+            ...response,
+            items: response.items.map(product => ({
+              ...product,
+              name: product.title || product.name,
+              image: product.cover_image_url || product.image_url || product.image,
+            })),
+          };
+        }),
+        catchError(() => of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse))
       );
   }
 
@@ -442,6 +571,28 @@ export class ShopService {
           return of([]);
         })
       );
+  }
+
+  private updateCart(next: number[]): void {
+    this.cartItems.set(next);
+    this.saveCartToStorage(next);
+  }
+
+  removeOneFromCart(productId: number): void {
+    const current = this.cartItems();
+    const index = current.indexOf(productId);
+    if (index === -1) {
+      return;
+    }
+    const next = [...current];
+    next.splice(index, 1);
+    this.updateCart(next);
+  }
+
+  removeAllFromCart(productId: number): void {
+    const current = this.cartItems();
+    const next = current.filter(id => id !== productId);
+    this.updateCart(next);
   }
 
 }

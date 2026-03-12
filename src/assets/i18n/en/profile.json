@@ -30,6 +30,7 @@
     "nav": {
       "myPosts": "My Posts",
       "favorites": "Favorites",
+      "cart": "Cart",
       "addresses": "Current Addresses",
       "business": "Your Business",
       "settings": "Profile and Settings",
@@ -66,6 +67,11 @@
       "empty": "No favorites yet",
       "emptyMessage": "Start adding products to your favorites and they'll appear here",
       "browseShop": "Browse Shop"
+    },
+    "cart": {
+      "title": "Cart",
+      "empty": "Your cart is empty",
+      "emptyMessage": "Start adding products to your cart and they'll appear here"
     },
     "deletePostDialog": {
       "title": "Delete Post",

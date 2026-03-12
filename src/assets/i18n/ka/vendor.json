@@ -85,10 +85,10 @@
     "coverImageHint": "ეს იქნება პროდუქტის მთავარი სურათი",
     "additionalImages": "დამატებითი სურათები",
     "addImage": "სურათის დამატება",
-    "productVariants": "პროდუქტის ვარიანტები",
+    "productVariants": "პროდუქტის სპეციფიკაციები",
     "fieldOptions": "ველის ოფციების ID-ები",
-    "fieldOptionsHint": "შეიყვანეთ რიცხვითი ID-ები პროდუქტის ვარიანტებისთვის (მაგ., ზომა, ფერი)",
-    "addVariant": "ვარიანტის დამატება",
+    "fieldOptionsHint": "შეიყვანეთ რიცხვითი ID-ები პროდუქტის სპეციფიკაციებისთვის (მაგ., ზომა, ფერი)",
+    "addVariant": "სპეციფიკაციის დამატება",
     "organization": "ორგანიზაცია",
     "category": "კატეგორია",
     "categoryHint": "რიცხვითი ID კატეგორიების სიიდან",
@@ -104,7 +104,9 @@
       "imageUrl": "https://example.com/image.jpg",
       "optionId": "შეიყვანეთ ოფციის ID",
       "categoryId": "შეიყვანეთ კატეგორიის ID",
-      "brandId": "შეიყვანეთ ბრენდის ID"
+      "brandId": "შეიყვანეთ ბრენდის ID",
+      "selectCategory": "აირჩიეთ კატეგორია",
+      "selectSubcategory": "აირჩიეთ ქვეკატეგორია"
     }
   }
 }

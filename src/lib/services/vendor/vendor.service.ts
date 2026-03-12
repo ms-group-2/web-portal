@@ -80,9 +80,22 @@ export class VendorService {
       );
   }
 
-  createProduct(supplierId: number, product: VendorProductCreate): Observable<string> {
+  createProduct(
+    supplierId: number,
+    product: VendorProductCreate,
+    coverImage?: File,
+    additionalImages?: File[]
+  ): Observable<string> {
     const formData = new FormData();
     formData.append('product_data_json', JSON.stringify(product));
+    if (coverImage) {
+      formData.append('cover_image', coverImage);
+    }
+    if (additionalImages?.length) {
+      additionalImages.forEach(file => {
+        formData.append('images', file);
+      });
+    }
     return this.http
       .post<string>(`${this.baseUrl}/vendors/${supplierId}/products/`,
         formData,
@@ -106,12 +119,14 @@ export class VendorService {
         map(response => {
           if (typeof response === 'string') {
             try {
-              return JSON.parse(response);
+              response = JSON.parse(response);
             } catch {
               return [];
             }
           }
-          return response?.items || response || [];
+          const liveProducts = response?.live_products?.items || [];
+          const drafts = (response?.drafts || []).map((d: any) => ({ ...d, isDraft: true }));
+          return [...liveProducts, ...drafts];
         }),
         catchError(err => {
           console.error('Failed to load products:', err);

@@ -80,5 +80,29 @@ textarea.mat-mdc-input-element:focus::placeholder {
 // .mat-mdc-form-field-icon-suffix button[mat-icon-button]:hover mat-icon,
 // .mat-mdc-form-field-icon-suffix button.mat-mdc-icon-button:hover mat-icon,
 // .mat-mdc-form-field-icon-suffix button.mat-mdc-icon-button:hover .mat-icon {
-//   color: #341b66 !important; 
+//   color: #341b66 !important;
 // }
+
+// Mat Select panel
+.mat-mdc-select-panel {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.mat-mdc-option {
+  font-size: 14px !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text {
+  color: var(--color-market) !important;
+}
+
+.mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background: #f3f4f6 !important;
+}
+
+// Fix notch line when label floats
+.mat-mdc-form-field .mdc-notched-outline__notch {
+  border-right: none;
+}
