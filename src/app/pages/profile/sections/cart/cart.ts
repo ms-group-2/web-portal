@@ -2,8 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, computed, signal, OnInit, D
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
-import { ShopService } from 'lib/services/shop/shop.service';
-import { ProductCardComponent } from 'src/app/pages/shop/components/product-card/product-card';
+import { ShopService, MockOrderItem } from 'lib/services/shop/shop.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { TranslationService } from 'lib/services/translation.service';
 import { forkJoin, of } from 'rxjs';
@@ -11,8 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-cart',
-  standalone: true,
-  imports: [RouterModule, MatIconModule, TranslatePipe, ProductCardComponent],
+  imports: [RouterModule, MatIconModule, TranslatePipe],
   templateUrl: './cart.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -22,6 +20,8 @@ export class CartComponent implements OnInit {
   private translation = inject(TranslationService);
 
   loading = signal(true);
+  orderPlaced = signal(false);
+  mockOrderId = '';
 
   cartProducts = computed(() => {
     const ids = this.shopService.cartItems();
@@ -66,7 +66,24 @@ export class CartComponent implements OnInit {
     this.shopService.removeAllFromCart(productId);
   }
 
+  checkout(): void {
+    const products = this.cartProducts();
+    const items: MockOrderItem[] = products.map(p => ({
+      productId: p.id,
+      title: p.title || p.name || '',
+      imageUrl: p.cover_image_url || p.image_url || p.image || '',
+      price: p.price,
+      quantity: this.getQuantity(p.id),
+    }));
+    const total = this.totalPrice();
+    this.mockOrderId = this.shopService.placeOrder(items, total);
+    this.orderPlaced.set(true);
+  }
+
   ngOnInit() {
+    this.translation.loadModule('profile')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
     this.translation.loadModule('shop')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();

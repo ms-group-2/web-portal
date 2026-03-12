@@ -5,6 +5,22 @@ import { environment } from 'src/environments/environment';
 import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
 
+export interface MockOrderItem {
+  productId: number;
+  title: string;
+  imageUrl: string;
+  price: number;
+  quantity: number;
+}
+
+export interface MockOrder {
+  id: string;
+  items: MockOrderItem[];
+  total: number;
+  status: 'confirmed' | 'shipped' | 'delivered';
+  date: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ShopService {
   private http = inject(HttpClient);
@@ -14,20 +30,24 @@ export class ShopService {
   private headers = { 'ngrok-skip-browser-warning': 'true' };
   private readonly FAVORITES_STORAGE_KEY_PREFIX = 'vipo_favorites_';
   private readonly CART_STORAGE_KEY_PREFIX = 'vipo_cart_';
+  private readonly ORDERS_STORAGE_KEY_PREFIX = 'vipo_orders_';
 
   cartItems = signal<number[]>([]);
   cartCount = computed(() => this.cartItems().length);
   favorites = signal<Set<number>>(new Set());
   favoriteCount = computed(() => this.favorites().size);
+  orders = signal<MockOrder[]>([]);
 
   constructor() {
     this.loadFavoritesForCurrentUser();
     this.loadCartForCurrentUser();
+    this.loadOrdersForCurrentUser();
 
     effect(() => {
       this.authService.user();
       this.loadFavoritesForCurrentUser();
       this.loadCartForCurrentUser();
+      this.loadOrdersForCurrentUser();
     });
   }
 
@@ -109,6 +129,50 @@ export class ShopService {
     this.saveCartToStorage([]);
   }
 
+  private getOrdersStorageKey(userId: string | null): string {
+    return userId ? `${this.ORDERS_STORAGE_KEY_PREFIX}${userId}` : `${this.ORDERS_STORAGE_KEY_PREFIX}guest`;
+  }
+
+  private loadOrdersForCurrentUser(): void {
+    try {
+      const userId = this.getCurrentUserId();
+      const key = this.getOrdersStorageKey(userId);
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        this.orders.set(JSON.parse(stored) as MockOrder[]);
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to load orders from localStorage:', error);
+    }
+    this.orders.set([]);
+  }
+
+  private saveOrdersToStorage(orders: MockOrder[]): void {
+    try {
+      const userId = this.getCurrentUserId();
+      const key = this.getOrdersStorageKey(userId);
+      localStorage.setItem(key, JSON.stringify(orders));
+    } catch (error) {
+      console.error('Failed to save orders to localStorage:', error);
+    }
+  }
+
+  placeOrder(items: MockOrderItem[], total: number): string {
+    const orderId = 'VPO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    const order: MockOrder = {
+      id: orderId,
+      items,
+      total,
+      status: 'confirmed',
+      date: new Date().toISOString(),
+    };
+    const updated = [order, ...this.orders()];
+    this.orders.set(updated);
+    this.saveOrdersToStorage(updated);
+    this.clearCart();
+    return orderId;
+  }
 
   categoriesByParentId = signal<Partial<Record<number | 'root', Category[]>>>({});
   categoriesLoadingFor = signal<number | 'root' | null>(null);

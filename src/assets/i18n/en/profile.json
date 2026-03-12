@@ -70,8 +70,42 @@
     },
     "cart": {
       "title": "Cart",
+      "item": "item",
+      "items": "items",
+      "product": "Product",
+      "unitPrice": "Price",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "summary": "Order Summary",
+      "subtotalLabel": "Subtotal",
+      "shipping": "Shipping",
+      "free": "Free",
+      "couponPlaceholder": "Coupon code",
+      "apply": "Apply",
+      "total": "Total",
+      "checkout": "Proceed to Checkout",
+      "continueShopping": "Continue Shopping",
       "empty": "Your cart is empty",
-      "emptyMessage": "Start adding products to your cart and they'll appear here"
+      "emptyMessage": "Start adding products to your cart and they'll appear here",
+      "orderSuccess": "Order Placed Successfully!",
+      "orderSuccessMessage": "Thank you for your purchase. You will receive a confirmation email shortly.",
+      "orderId": "Order ID",
+      "orderStatus": "Status",
+      "confirmed": "Confirmed",
+      "estimatedDelivery": "Estimated Delivery",
+      "businessDays": "business days",
+      "viewOrders": "View My Orders"
+    },
+    "orders": {
+      "title": "Order History",
+      "empty": "No orders yet",
+      "emptyMessage": "Your order history will appear here after your first purchase",
+      "browseShop": "Browse Shop",
+      "status": {
+        "confirmed": "Confirmed",
+        "shipped": "Shipped",
+        "delivered": "Delivered"
+      }
     },
     "deletePostDialog": {
       "title": "Delete Post",

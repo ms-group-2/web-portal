@@ -61,6 +61,11 @@ export const profileRoutes: Routes = [
             (m) => m.VendorDashboardComponent
           ),
       },
+      {
+        path: 'cart',
+        loadComponent: () =>
+          import('./sections/cart/cart').then((m) => m.CartComponent),
+      },
     ],
   },
 ];

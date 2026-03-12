@@ -48,7 +48,8 @@ export class Header implements OnDestroy {
   suggestedProducts = signal<Product[]>([]);
 
   isShopRoute = computed(() => {
-    return this.currentRoute().includes('/shop');
+    const route = this.currentRoute();
+    return route.includes('/shop') || route.includes('/profile/cart');
   });
 
   isSwapRoute = computed(() => {
@@ -56,7 +57,7 @@ export class Header implements OnDestroy {
   });
   cartBadgeClass = computed(() => {
     const route = this.currentRoute();
-    if (route.includes('/shop')) {
+    if (route.includes('/shop') || route.includes('/profile/cart')) {
       return 'bg-market';
     }
     if (route.includes('/booking')) {

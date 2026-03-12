@@ -1,69 +1,74 @@
 <div>
-  <h1 class="text-3xl font-black text-booking uppercase tracking-tight mb-8 hover">შეკვეთების ისტორია</h1>
-  <div class="space-y-4">
-    <div class="bg-white rounded-xl p-6 border-2 border-primary/20">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-            <mat-icon class="w-6 h-6 text-white">shopping_bag</mat-icon>
-          </div>
-          <div>
-            <span class="text-sm font-black text-gray-900 uppercase">Nike Air Max შეკვეთა</span>
-            <p class="text-xs text-gray-500 mt-1">ნაყიდია თებერვალი 5, 2025 ჯ.</p>
-            <p class="text-sm text-gray-600 mt-2">შეკვეთა #12345 • 189.99 ლარი</p>
-          </div>
-        </div>
-        <span class="px-3 py-1 bg-market/20 text-market rounded-lg text-xs font-black uppercase">გამოგზავნილი</span>
-      </div>
-    </div>
+  <h1 class="text-3xl font-black text-market uppercase tracking-tight mb-8">
+    {{ 'profile.orders.title' | translate }}
+  </h1>
 
-    <div class="bg-white rounded-xl p-6 border-2 border-primary/20">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-            <mat-icon class="w-6 h-6 text-white">shopping_bag</mat-icon>
+  @if (orders().length > 0) {
+    <div class="space-y-4">
+      @for (order of orders(); track order.id) {
+        <div class="bg-white rounded-xl p-5 border border-gray-200 hover:border-gray-300 transition-all">
+          <!-- Order header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-market/10 rounded-lg flex items-center justify-center">
+                <mat-icon class="!w-5 !h-5 !text-[20px] !leading-5 text-market">receipt_long</mat-icon>
+              </div>
+              <div>
+                <span class="text-sm font-bold text-gray-900 font-mono">{{ order.id }}</span>
+                <p class="text-xs text-gray-400 mt-0.5">{{ order.date | date:'mediumDate' }}</p>
+              </div>
+            </div>
+            <span class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide"
+                  [class]="getStatusClass(order.status)">
+              {{ 'profile.orders.status.' + order.status | translate }}
+            </span>
           </div>
-          <div>
-            <span class="text-sm font-black text-gray-900 uppercase">ვინტაჟური ვინილების კოლექცია</span>
-            <p class="text-xs text-gray-500 mt-1">ნაყიდია იანვარი 20, 2025 ჯ.</p>
-            <p class="text-sm text-gray-600 mt-2">შეკვეთა #12343 • 75.50 ლარი</p>
-          </div>
-        </div>
-        <span class="px-3 py-1 bg-market/20 text-market rounded-lg text-xs font-black uppercase">გამოგზავნილი</span>
-      </div>
-    </div>
 
-    <div class="bg-white rounded-xl p-6 border-2 border-primary/20">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-            <mat-icon class="w-6 h-6 text-white">shopping_bag</mat-icon>
+          <!-- Order items -->
+          <div class="space-y-3">
+            @for (item of order.items; track item.productId) {
+              <div class="flex items-center gap-3">
+                <a [routerLink]="['/shop/product', item.productId]"
+                   class="w-12 h-12 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+                  <img [src]="item.imageUrl" [alt]="item.title" class="w-full h-full object-cover" />
+                </a>
+                <div class="flex-1 min-w-0">
+                  <a [routerLink]="['/shop/product', item.productId]"
+                     class="text-sm font-semibold text-gray-900 hover:text-market transition-colors truncate block">
+                    {{ item.title }}
+                  </a>
+                  <span class="text-xs text-gray-400">x{{ item.quantity }}</span>
+                </div>
+                <span class="text-sm font-bold text-gray-900">₾{{ (item.price * item.quantity).toFixed(2) }}</span>
+              </div>
+            }
           </div>
-          <div>
-            <span class="text-sm font-black text-gray-900 uppercase">ვინტაჟური პოსტერი</span>
-            <p class="text-xs text-gray-500 mt-1">ნაყიდია იანვარი 12, 2025 ჯ.</p>
-            <p class="text-sm text-gray-600 mt-2">შეკვეთა #12341 • 45.00 ლარი</p>
-          </div>
-        </div>
-        <span class="px-3 py-1 bg-market/20 text-market rounded-lg text-xs font-black uppercase">გამოგზავნილი</span>
-      </div>
-    </div>
 
-    <div class="bg-white rounded-xl p-6 border-2 border-primary/20">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-            <mat-icon class="w-6 h-6 text-gray-400">shopping_bag</mat-icon>
-          </div>
-          <div>
-            <span class="text-sm font-black text-gray-900 uppercase">ტყავის ბაქპაქი</span>
-            <p class="text-xs text-gray-500 mt-1">ნაყიდია თებერვალი 8, 2025 ჯ.</p>
-            <p class="text-sm text-gray-600 mt-2">შეკვეთა #12346 • 129.99 ლარი</p>
+          <!-- Order total -->
+          <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+            <span class="text-xs text-gray-400 uppercase font-semibold">{{ 'profile.cart.total' | translate }}</span>
+            <span class="text-base font-black text-gray-900">₾{{ order.total.toFixed(2) }}</span>
           </div>
         </div>
-        <span class="px-3 py-1 bg-swap/20 text-swap rounded-lg text-xs font-black uppercase">გზაშია</span>
-      </div>
+      }
     </div>
-  </div>
+  } @else {
+    <!-- Empty state -->
+    <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
+      <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+        <mat-icon class="!w-8 !h-8 !text-[32px] !leading-8 text-gray-300">receipt_long</mat-icon>
+      </div>
+      <h3 class="text-lg font-black text-gray-900 mb-2">
+        {{ 'profile.orders.empty' | translate }}
+      </h3>
+      <p class="text-sm text-gray-500 mb-6">
+        {{ 'profile.orders.emptyMessage' | translate }}
+      </p>
+      <a routerLink="/shop"
+         class="inline-flex items-center justify-center gap-2 bg-market text-white px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-wide hover:bg-market/90 transition-colors">
+        <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">storefront</mat-icon>
+        {{ 'profile.orders.browseShop' | translate }}
+      </a>
+    </div>
+  }
 </div>
-
