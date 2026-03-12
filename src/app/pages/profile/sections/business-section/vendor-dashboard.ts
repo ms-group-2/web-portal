@@ -30,6 +30,7 @@ export class VendorDashboardComponent implements OnInit {
 
   isVerified = this.verificationService.isVerified;
   isVendor = this.vendorService.isVendor;
+  isPending = this.vendorService.isPendingApproval;
   vendorProfile = this.vendorService.vendorProfile;
 
   readonly features = VENDOR_FEATURES;
@@ -57,7 +58,6 @@ export class VendorDashboardComponent implements OnInit {
   setActiveTab(tab: 'dashboard' | 'products' | 'orders' | 'settings') {
     this.activeTab.set(tab);
 
-    // Load products when switching to products tab
     if (tab === 'products' && this.products().length === 0 && this.vendorProfile()) {
       this.loadProducts();
     }
@@ -85,10 +85,6 @@ export class VendorDashboardComponent implements OnInit {
     this.showBusinessDropdown.update(v => !v);
   }
 
-  openAddProductModal() {
-    // TODO: Open add product modal
-    console.log('Open add product modal');
-  }
 
   goBack() {
     this.router.navigate(['/profile']);

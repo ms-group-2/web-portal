@@ -92,7 +92,7 @@ export class BusinessRegistrationComponent implements OnInit {
           duration: 3000
         });
         this.submitting.set(false);
-        this.router.navigate(['/business/dashboard']);
+        this.router.navigate(['/profile/business']);
       },
       error: () => {
         this.snackBar.open('Failed to register. Please try again.', 'Close', {

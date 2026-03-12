@@ -40,6 +40,8 @@
         "gifts": "Gifts"
       },
       "priceRange": "Price Range",
+      "from": "From",
+      "to": "To",
       "rating": {
         "title": "Rating",
         "4plus": "4+ stars",

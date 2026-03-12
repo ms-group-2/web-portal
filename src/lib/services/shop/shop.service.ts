@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, map, tap, catchError } from 'rxjs';
+import { Observable, of, map, tap, catchError, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
@@ -75,6 +75,8 @@ export class ShopService {
   categoriesLoadingFor = signal<number | 'root' | null>(null);
 
   productsByCategoryId = signal<Partial<Record<number | 'all', Product[]>>>({});
+  categoriesWithProductsCache = signal<Record<number, CategoryWithProducts[]>>({});
+  filterOptionsCache = signal<Record<number, FilterGroup[]>>({});
 
   productsById = signal<Record<number, Product>>({});
 
@@ -274,6 +276,11 @@ export class ShopService {
   }
 
   getCategoriesWithProducts(parentId?: number): Observable<CategoryWithProducts[]> {
+    if (parentId !== undefined) {
+      const cached = this.categoriesWithProductsCache()[parentId];
+      if (cached) return of(cached);
+    }
+
     const params: any = {};
     if (parentId !== undefined) {
       params.parent_id = parentId;
@@ -297,9 +304,12 @@ export class ShopService {
           }));
         }),
         tap(categories => {
-          // Cache subcategories
           if (parentId !== undefined) {
             this.categoriesByParentId.update(prev => ({
+              ...prev,
+              [parentId]: categories,
+            }));
+            this.categoriesWithProductsCache.update(prev => ({
               ...prev,
               [parentId]: categories,
             }));
@@ -401,6 +411,11 @@ export class ShopService {
   }
 
   getFilterOptions(categoryId?: number): Observable<FilterGroup[]> {
+    if (categoryId) {
+      const cached = this.filterOptionsCache()[categoryId];
+      if (cached) return of(cached);
+    }
+
     const params: any = {};
     if (categoryId) {
       params.category_id = categoryId;
@@ -412,7 +427,16 @@ export class ShopService {
         params,
       })
       .pipe(
+        // timeout(15000),
         map(response => response.filters || []),
+        tap(filters => {
+          if (categoryId) {
+            this.filterOptionsCache.update(prev => ({
+              ...prev,
+              [categoryId]: filters,
+            }));
+          }
+        }),
         catchError(err => {
           console.error('Failed to load filter options:', err);
           return of([]);

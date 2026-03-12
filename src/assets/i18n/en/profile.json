@@ -105,6 +105,11 @@
         "title": "Verification Required",
         "message": "You need to verify your identity before registering as a business.<br>Please complete the verification process first."
       },
+      "pending": {
+        "title": "Application Under Review",
+        "message": "Your business registration has been submitted and is currently being reviewed by our team. This usually takes 1-2 business days. We'll notify you once your application is approved.",
+        "status": "Pending Approval"
+      },
       "landing": {
         "title": "Business Account",
         "upgradeTitle": "Upgrade to Business",
@@ -199,7 +204,7 @@
         "contact": "Questions? Contact us at business@vipoapp.com"
       },
       "form": {
-        "identificationNumber": "Identification Number",
+        "identificationNumber": "Business Identification Number",
         "businessName": "Business Name",
         "legalAddress": "Legal Address",
         "contactPhone": "Contact Phone",
@@ -207,7 +212,7 @@
         "bankAccount": "Bank Account Number",
         "submitting": "Registering...",
         "placeholders": {
-          "identificationNumber": "Enter your identification number",
+          "identificationNumber": "XXXXXXXXXX",
           "businessName": "Enter your business name",
           "legalAddress": "Enter your legal address",
           "contactPhone": "+1 (555) 000-0000",

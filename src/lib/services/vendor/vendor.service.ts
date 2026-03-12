@@ -16,8 +16,11 @@ export class VendorService {
   private baseUrl = environment.apiBaseUrl;
   private headers = { 'ngrok-skip-browser-warning': 'true' };
 
+  private readonly PENDING_KEY = 'vipo_vendor_pending';
+
   vendorProfile = signal<VendorProfile | null>(null);
   isVendor = signal<boolean>(false);
+  isPendingApproval = signal<boolean>(this.loadPendingState());
 
   getMyProfile(): Observable<VendorProfile | null> {
     return this.http
@@ -30,6 +33,9 @@ export class VendorService {
           if (profile) {
             this.vendorProfile.set(profile);
             this.isVendor.set(true);
+            // Approved — clear pending state
+            this.isPendingApproval.set(false);
+            localStorage.removeItem(this.PENDING_KEY);
           } else {
             this.vendorProfile.set(null);
             this.isVendor.set(false);
@@ -50,9 +56,9 @@ export class VendorService {
         headers: this.headers,
       })
       .pipe(
-        tap(profile => {
-          this.vendorProfile.set(profile);
-          this.isVendor.set(true);
+        tap(() => {
+          this.isPendingApproval.set(true);
+          localStorage.setItem(this.PENDING_KEY, 'true');
         }),
         catchError(err => {
           console.error('Failed to register as vendor:', err);
@@ -164,5 +170,11 @@ export class VendorService {
   clearVendorState(): void {
     this.vendorProfile.set(null);
     this.isVendor.set(false);
+    this.isPendingApproval.set(false);
+    localStorage.removeItem(this.PENDING_KEY);
+  }
+
+  private loadPendingState(): boolean {
+    return localStorage.getItem(this.PENDING_KEY) === 'true';
   }
 }

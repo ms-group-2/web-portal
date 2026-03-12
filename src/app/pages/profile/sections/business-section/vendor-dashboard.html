@@ -9,6 +9,54 @@
       </h3>
       <p class="text-gray-600 mb-6" [innerHTML]="'profile.vendor.notVerified.message' | translate"></p>
     </div>
+  } @else if (isVendor()) {
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-4xl font-black text-registerBusiness uppercase tracking-tight mb-10">
+        {{ 'profile.vendor.dashboard' | translate }}
+      </h1>
+      <div class="bg-gradient-to-br from-[#E8ECFF] to-[#F3F5FF] rounded-3xl p-12 mb-8 border border-[#D5DCFF]">
+        <div class="flex items-center gap-6 mb-8">
+          <div class="w-14 h-14 bg-registerBusiness rounded-2xl flex items-center justify-center">
+            <mat-icon class="w-7 h-7 text-white">store</mat-icon>
+          </div>
+          <div>
+            <h2 class="text-3xl font-black text-gray-900 mb-2">
+              {{ 'profile.vendor.registered.title' | translate }}
+            </h2>
+            <p class="text-registerBusiness font-bold text-sm uppercase tracking-wide">
+              {{ 'profile.vendor.registered.subtitle' | translate }}
+            </p>
+          </div>
+        </div>
+        <p class="text-gray-700 text-lg leading-relaxed mb-8 max-w-3xl">
+          {{ 'profile.vendor.registered.description' | translate }}
+        </p>
+        <button
+          (click)="goToDashboard()"
+          class="px-10 py-4 bg-registerBusiness text-white font-bold rounded-xl hover:bg-[#3E4FC8] transition-all uppercase tracking-wide text-sm shadow-lg">
+          {{ 'profile.vendor.registered.dashboardButton' | translate }}
+        </button>
+      </div>
+    </div>
+  } @else if (isPending()) {
+    <!-- Pending approval state -->
+    <div class="max-w-2xl mx-auto text-center py-16">
+      <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <mat-icon class="!text-4xl !w-10 !h-10 text-amber-600">hourglass_top</mat-icon>
+      </div>
+      <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase">
+        {{ 'profile.vendor.pending.title' | translate }}
+      </h3>
+      <p class="text-gray-600 mb-6 max-w-lg mx-auto">
+        {{ 'profile.vendor.pending.message' | translate }}
+      </p>
+      <div class="inline-flex items-center gap-2 px-5 py-3 bg-amber-50 border border-amber-200 rounded-xl">
+        <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+        <span class="text-sm font-semibold text-amber-700">
+          {{ 'profile.vendor.pending.status' | translate }}
+        </span>
+      </div>
+    </div>
   } @else if (isVerified() && !isVendor()) {
     <h1 class="text-4xl font-black text-registerBusiness uppercase tracking-tight mb-8">
       {{ 'profile.vendor.landing.title' | translate }}
@@ -104,38 +152,6 @@
             </p>
           </div>
         </div>
-      </div>
-    </div>
-  } @else if (isVendor()) {
-    <div class="max-w-6xl mx-auto">
-      <h1 class="text-4xl font-black text-registerBusiness uppercase tracking-tight mb-10">
-        {{ 'profile.vendor.dashboard' | translate }}
-      </h1>
-      <div class="bg-gradient-to-br from-[#E8ECFF] to-[#F3F5FF] rounded-3xl p-12 mb-8 border border-[#D5DCFF]">
-        <div class="flex items-center gap-6 mb-8">
-          <div class="w-14 h-14 bg-registerBusiness rounded-2xl flex items-center justify-center">
-            <mat-icon class="w-7 h-7 text-white">store</mat-icon>
-          </div>
-          <div>
-            <h2 class="text-3xl font-black text-gray-900 mb-2">
-              {{ 'profile.vendor.registered.title' | translate }}
-            </h2>
-            <p class="text-registerBusiness font-bold text-sm uppercase tracking-wide">
-              {{ 'profile.vendor.registered.subtitle' | translate }}
-            </p>
-          </div>
-        </div>
-
-        <p class="text-gray-700 text-lg leading-relaxed mb-8 max-w-3xl">
-          {{ 'profile.vendor.registered.description' | translate }}
-        </p>
-
-        <button
-          (click)="goToDashboard()"
-          class="px-10 py-4 bg-registerBusiness text-white font-bold rounded-xl hover:bg-[#3E4FC8] transition-all uppercase tracking-wide text-sm shadow-lg"
-        >
-          {{ 'profile.vendor.registered.dashboardButton' | translate }}
-        </button>
       </div>
     </div>
   }

@@ -13,10 +13,11 @@ import { TranslationService } from 'lib/services/translation.service';
 import { Product, FilterGroup, CategoryWithProducts } from '../shop/shop.models';
 import { ProductCardComponent } from '../shop/components/product-card/product-card';
 import { MatIcon } from "@angular/material/icon";
+import { MatSlider, MatSliderRangeThumb } from "@angular/material/slider";
 
 @Component({
   selector: 'app-category-products',
-  imports: [Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, FormsModule, MatIcon],
+  imports: [Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, FormsModule, MatIcon, MatSlider, MatSliderRangeThumb],
   templateUrl: './category-products.html',
   styleUrls: ['./category-products.scss']
 })
@@ -34,13 +35,18 @@ export class CategoryProducts implements OnInit {
   filtersLoading = signal<boolean>(false);
   skeletonArray = Array(8).fill(0);
 
-  // Dynamic filters from backend
   filterGroups = signal<FilterGroup[]>([]);
   selectedFilters = signal<Record<number, number[]>>({});
   expandedGroups = signal<Set<number>>(new Set());
   expandedFields = signal<Set<number>>(new Set());
 
-  // Filter properties (for basic filters like price, rating, etc)
+  categoryMaxPrice = computed(() => {
+    const prices = this.products().map(p => p.price).filter(p => p > 0);
+    if (prices.length === 0) return 10000;
+    return Math.ceil(Math.max(...prices) / 100) * 100; 
+  });
+
+  minPrice = signal<number>(0);
   maxPrice = signal<number>(10000);
   minRating = signal<number>(0);
   verifiedOnly = signal<boolean>(false);
@@ -52,6 +58,10 @@ export class CategoryProducts implements OnInit {
     { value: 'price-high', label: 'shop.filters.sort.priceHigh' },
     { value: 'rating', label: 'shop.filters.sort.rating' },
   ];
+
+  formatPrice(value: number): string {
+    return `₾${value}`;
+  }
 
   ratingOptions = [
     { value: 4, label: '4+ Stars' },
@@ -112,7 +122,6 @@ export class CategoryProducts implements OnInit {
           this.filterGroups.set([]);
           this.filtersLoading.set(true);
 
-          // Load filters independently — don't block product rendering
           this.shopService.getFilterOptions(categoryId)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
@@ -126,7 +135,6 @@ export class CategoryProducts implements OnInit {
               }
             });
 
-          // Load categories + products in parallel (fast calls)
           return forkJoin({
             mainCategories: this.shopService.getMainCategories(),
             categoriesWithProducts: this.shopService.getCategoriesWithProducts(categoryId),
@@ -139,6 +147,7 @@ export class CategoryProducts implements OnInit {
         next: (result) => {
           this.subcategoriesWithProducts.set(result.categoriesWithProducts);
           this.products.set(result.directProducts);
+          this.maxPrice.set(this.categoryMaxPrice());
           this.applyFilters();
           this.loading.set(false);
         },
@@ -161,13 +170,24 @@ export class CategoryProducts implements OnInit {
     this.applyFilters();
   }
 
+  onMinPriceChange(event: Event): void {
+    this.minPrice.set(+(event.target as HTMLInputElement).value || 0);
+    this.applyFilters();
+  }
+
+  onMaxPriceChange(event: Event): void {
+    this.maxPrice.set(+(event.target as HTMLInputElement).value || 10000);
+    this.applyFilters();
+  }
+
   setSortBy(sortValue: string): void {
     this.sortBy.set(sortValue);
     this.applyFilters();
   }
 
   clearFilters(): void {
-    this.maxPrice.set(10000);
+    this.minPrice.set(0);
+    this.maxPrice.set(this.categoryMaxPrice());
     this.minRating.set(0);
     this.verifiedOnly.set(false);
     this.sortBy.set('newest');
@@ -234,7 +254,7 @@ export class CategoryProducts implements OnInit {
   applyFilters(): void {
     let filtered = [...this.products()];
 
-    filtered = filtered.filter(p => p.price <= this.maxPrice());
+    filtered = filtered.filter(p => p.price >= this.minPrice() && p.price <= this.maxPrice());
 
     if (this.minRating() > 0) {
       filtered = filtered.filter(p => (p.rating || 0) >= this.minRating());
