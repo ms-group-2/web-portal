@@ -141,7 +141,6 @@ export class VendorDashboard implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          // Remove product from local state
           this.products.set(this.products().filter(p => p.id !== productId));
           this.showDeleteDialog.set(false);
           this.productToDelete.set(null);

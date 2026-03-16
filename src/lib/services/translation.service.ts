@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, forkJoin } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -9,6 +10,13 @@ export type Language = 'ka' | 'en';
   providedIn: 'root'
 })
 export class TranslationService {
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
+  private isClientRuntime =
+    typeof window !== 'undefined' && typeof document !== 'undefined';
+  private hasLocalStorage =
+    typeof localStorage !== 'undefined' && localStorage !== null;
+
   private readonly LOCALE_STORAGE_KEY = 'app_locale';
   private currentLang = signal<Language>('ka');
   private translations = signal<Record<string, any>>({});
@@ -27,10 +35,16 @@ export class TranslationService {
   constructor(private http: HttpClient) {
     const savedLocale = this.getSavedLocale();
     this.currentLang.set(savedLocale);
-    this.loadBothLanguages();
+    // During SSR/prerender, avoid HttpClient calls to /assets which can fail.
+    if (this.isClientRuntime) {
+      this.loadBothLanguages();
+    }
   }
 
   private getSavedLocale(): Language {
+    if (!this.hasLocalStorage) {
+      return 'ka';
+    }
     const saved = localStorage.getItem(this.LOCALE_STORAGE_KEY);
     return (saved === 'en' || saved === 'ka') ? saved : 'ka';
   }
@@ -49,6 +63,9 @@ export class TranslationService {
   }
 
   loadModule(moduleName: string): Observable<any> {
+    if (!this.isClientRuntime) {
+      return of(null);
+    }
     const lang = this.currentLang();
 
     if (this.loadedModules[lang].has(moduleName)) {
@@ -73,7 +90,9 @@ export class TranslationService {
   }
 
   switchLanguage(lang: Language): void {
-    localStorage.setItem(this.LOCALE_STORAGE_KEY, lang);
+    if (this.hasLocalStorage) {
+      localStorage.setItem(this.LOCALE_STORAGE_KEY, lang);
+    }
     this.currentLang.set(lang);
 
     this.translations.set(this.translationsCache[lang]);

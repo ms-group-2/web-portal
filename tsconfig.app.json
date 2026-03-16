@@ -4,8 +4,10 @@
     "rootDir": "./src",
     "outDir": "./out-tsc/app",
     "types": [
-      "@angular/localize"
-    ]
+      "@angular/localize",
+      "node"
+    ],
+    // "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts"]

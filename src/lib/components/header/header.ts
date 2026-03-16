@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, input, OnDestroy, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { filter, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { CommonModule } from '@angular/common';
+import {  NgClass } from '@angular/common';
 import { Subject } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -20,7 +20,7 @@ import { Product } from 'src/app/pages/shop/shop.models';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, RouterLink, RouterLinkActive, TranslatePipe, FormsModule],
+  imports: [NgClass, MatButtonModule, MatIconModule, MatMenuModule, RouterLink, RouterLinkActive, TranslatePipe, FormsModule],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

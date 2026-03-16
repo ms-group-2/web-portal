@@ -17,6 +17,7 @@ import { spinnerInterceptor } from 'lib/interceptors/spinner.interceptor';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { TokenManagementService } from 'lib/services/identity/token-management.service';
 import { firstValueFrom } from 'rxjs';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 
 function initAuth(auth: AuthService, tokens: TokenManagementService) {
@@ -54,6 +55,6 @@ export const appConfig: ApplicationConfig = {
       useFactory: initAuth,
       deps: [AuthService, TokenManagementService],
       multi: true,
-    },
+    }, provideClientHydration(withEventReplay()),
   ],
 };
