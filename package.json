@@ -34,6 +34,7 @@
     "@angular/platform-server": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@angular/ssr": "^20.3.20",
+    "@phosphor-icons/web": "^2.1.2",
     "express": "^5.1.0",
     "phosphor-icons": "^1.4.2",
     "rxjs": "~7.8.0",

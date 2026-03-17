@@ -15,10 +15,8 @@
     }
   </div>
 
-  <!-- Pagination -->
   @if (!isLoading() && totalPages() > 1) {
     <div class="flex items-center justify-center gap-2 mt-10">
-      <!-- Previous -->
       <button
         (click)="goToPage(currentPage() - 1)"
         [disabled]="currentPage() === 1"
@@ -26,7 +24,6 @@
         <i class="ph ph-caret-left text-sm"></i>
       </button>
 
-      <!-- First page + ellipsis -->
       @if (visiblePages()[0] > 1) {
         <button
           (click)="goToPage(1)"
@@ -38,7 +35,6 @@
         }
       }
 
-      <!-- Page numbers -->
       @for (page of visiblePages(); track page) {
         <button
           (click)="goToPage(page)"
@@ -49,7 +45,6 @@
         </button>
       }
 
-      <!-- Last page + ellipsis -->
       @if (visiblePages()[visiblePages().length - 1] < totalPages()) {
         @if (visiblePages()[visiblePages().length - 1] < totalPages() - 1) {
           <span class="text-gray-400 text-sm px-1">...</span>
@@ -61,7 +56,6 @@
         </button>
       }
 
-      <!-- Next -->
       <button
         (click)="goToPage(currentPage() + 1)"
         [disabled]="currentPage() === totalPages()"

@@ -118,7 +118,7 @@
       <div>
         <label class="field-label">{{ isEditing() ? ('profile.birthDate' | translate) : ('profile.age' | translate) }}</label>
         @if (isEditing()) {
-          <mat-form-field class="w-full birthdate-picker">
+          <mat-form-field appearance="outline" class="w-full birthdate-picker">
             <input
               matInput
               [matDatepicker]="picker"
@@ -159,7 +159,7 @@
         <label class="field-label">{{ 'profile.phone' | translate }}</label>
         @if (isEditing()) {
           <div class="flex gap-2">
-            <mat-form-field class="country-code-select">
+            <mat-form-field appearance="outline" class="country-code-select">
               <mat-select
                 [formControl]="form.controls.countryCode"
                 panelClass="country-dropdown-panel"
@@ -193,7 +193,7 @@
       <div>
         <label class="field-label">{{ 'profile.gender' | translate }}</label>
         @if (isEditing()) {
-          <mat-form-field class="w-full gender-select">
+          <mat-form-field appearance="outline" class="w-full gender-select">
             <mat-select
               [formControl]="form.controls.gender"
               panelClass="gender-dropdown-panel"
@@ -219,7 +219,7 @@
               class="field-input"
             />
             <div class="text-xs text-gray-500 mt-1 text-right">
-              {{ form.controls.location.value.length || 0 }}/50
+              {{ (form.controls.location.value || '').length }}/50
             </div>
           </div>
         } @else {
@@ -239,7 +239,7 @@
             maxlength="400"
           ></textarea>
           <div class="text-xs text-gray-500 mt-1 text-right">
-            {{ form.controls.bio.value.length || 0 }}/400
+            {{ (form.controls.bio.value || '').length }}/400
           </div>
         </div>
       } @else {

@@ -47,8 +47,6 @@ export class ProfileSidebarComponent implements OnInit {
     this.loadUserName();
 
     window.addEventListener('storage', this.handleStorageChange.bind(this));
-    // Listen for storage changes (from profile updates)
-    // Listen for custom event from same tab
     window.addEventListener('profileUpdated', this.loadUserName.bind(this));
   }
 

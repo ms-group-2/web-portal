@@ -19,7 +19,6 @@ export class ProductGridComponent {
   isLoading = signal(false);
   skeletonArray = Array(8).fill(0);
 
-  // Pagination
   currentPage = signal(1);
   totalPages = signal(0);
   totalItems = signal(0);
@@ -41,9 +40,7 @@ export class ProductGridComponent {
   });
 
   constructor() {
-    // Single effect that tracks all filter/sort/category/search signals
     effect(() => {
-      // Read all reactive dependencies
       this.shopService.selectedCategoryId();
       this.shopService.searchQuery();
       this.shopService.shopSortBy();

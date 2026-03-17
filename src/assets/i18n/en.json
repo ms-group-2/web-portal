@@ -8,7 +8,8 @@
       "main": "Main",
       "swap": "Swap",
       "market": "Market",
-      "booking": "Booking"
+      "booking": "Booking",
+      "back": "Back"
     }
   },
   "footer": {

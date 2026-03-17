@@ -177,8 +177,8 @@ export class ProfileSettingsComponent implements OnInit {
       email: this.auth.user()?.email || '',
       countryCode: code,
       phoneNumber: number,
-      location: profile.location,
-      bio: profile.bio,
+      location: profile.location || '',
+      bio: profile.bio || '',
       birthDate: this.isoToDate(profile.birth_date),
       gender: GenderUtil.toString(profile.gender),
     });
@@ -306,7 +306,6 @@ export class ProfileSettingsComponent implements OnInit {
       next: (profile) => {
         this.isLoading.set(false);
 
-        // Update localStorage for sidebar sync
         localStorage.setItem('vipo_user_firstName', profile.name);
         localStorage.setItem('vipo_user_lastName', profile.surname);
         window.dispatchEvent(new Event('profileUpdated'));

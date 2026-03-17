@@ -37,7 +37,7 @@
     @if (isShopRoute()) {
       <div class="flex-1 max-w-xl mx-4 relative" #searchContainer>
         <div class="relative">
-          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 !w-5 !h-5 !text-[20px]"
+          <mat-icon class="absolute left-3 inset-y-0 my-auto !w-5 !h-5 !text-xl !leading-5"
             [ngClass]="variant() === 'white' ? 'text-gray-400' : 'text-white/60'">
             search
           </mat-icon>
@@ -61,7 +61,7 @@
               class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-all"
               type="button"
             >
-              <mat-icon class="!w-4 !h-4 !text-[16px]"
+              <mat-icon class="!w-4 !h-4 !text-base"
                 [ngClass]="variant() === 'white' ? 'text-gray-500' : 'text-white/70'">
                 close
               </mat-icon>
@@ -134,7 +134,7 @@
         <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">favorite_border</mat-icon>
         @if (favoriteCount() > 0) {
           <span
-            class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-[10px] md:text-xs font-bold flex items-center justify-center"
+            class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-xs md:text-xs font-bold flex items-center justify-center"
             [ngClass]="cartBadgeClass()"
           >
             {{ favoriteCount() }}
@@ -150,7 +150,7 @@
         <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">shopping_cart</mat-icon>
         @if (cartCount() > 0) {
           <span
-            class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-[10px] md:text-xs font-bold flex items-center justify-center"
+            class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-xs md:text-xs font-bold flex items-center justify-center"
             [ngClass]="cartBadgeClass()"
           >
             {{ cartCount() }}

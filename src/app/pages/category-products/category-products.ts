@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-// import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ShopService } from 'lib/services/shop/shop.service';
@@ -17,7 +17,7 @@ import { MatSlider, MatSliderRangeThumb } from "@angular/material/slider";
 
 @Component({
   selector: 'app-category-products',
-  imports: [Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, FormsModule, MatIcon, MatSlider, MatSliderRangeThumb],
+  imports: [Header, Footer, TranslatePipe, RouterLink, ProductCardComponent, FormsModule, MatIcon, MatSlider, MatSliderRangeThumb, NgClass],
   templateUrl: './category-products.html',
   styleUrls: ['./category-products.scss']
 })

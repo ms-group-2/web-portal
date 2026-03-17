@@ -32,7 +32,11 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/swiper/swiper-bundle.min.css",
+              "node_modules/swiper/modules/navigation.css",
+              "node_modules/swiper/modules/pagination.css",
+              "node_modules/@phosphor-icons/web/src/regular/style.css"
             ],
             "server": "src/main.server.ts",
             "outputMode": "server",

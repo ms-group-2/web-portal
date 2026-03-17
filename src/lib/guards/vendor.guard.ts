@@ -11,7 +11,7 @@ export const vendorGuard: CanActivateFn = () => {
     return true;
   }
 
-  return vendorService.getMyProfile().pipe(
+  return vendorService.ensureProfileLoaded().pipe(
     map(profile => {
       if (profile) {
         return true;

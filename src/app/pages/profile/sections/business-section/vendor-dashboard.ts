@@ -43,9 +43,8 @@ export class VendorDashboardComponent implements OnInit {
   ngOnInit() {
     this.translation.loadModule('profile').subscribe();
 
-    // Re-hydrate vendor state on page revisit / refresh
     if (this.auth.isAuthenticated()) {
-      this.vendorService.getMyProfile()
+      this.vendorService.ensureProfileLoaded()
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe();
     }
