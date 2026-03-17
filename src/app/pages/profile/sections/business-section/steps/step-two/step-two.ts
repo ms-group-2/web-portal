@@ -40,6 +40,8 @@ export class VendorStepTwoComponent implements OnInit {
   nextStep = output<VendorRegistration>();
 
   businessForm!: FormGroup;
+  readonly COUNTRY_CODE = '+995';
+  readonly PHONE_NATIONAL_CONTROL = 'contact_phone_national';
 
   formFields: FormFieldConfig[] = [
     {
@@ -62,13 +64,6 @@ export class VendorStepTwoComponent implements OnInit {
       type: 'text',
       placeholder: 'profile.vendor.form.placeholders.legalAddress',
       validators: [Validators.required, Validators.maxLength(50)]
-    },
-    {
-      name: 'contact_phone',
-      label: 'profile.vendor.form.contactPhone',
-      type: 'tel',
-      placeholder: 'profile.vendor.form.placeholders.contactPhone',
-      validators: [Validators.required, Validators.minLength(9), Validators.maxLength(15), Validators.pattern(/^\d+$/)]
     },
     {
       name: 'contact_email',
@@ -98,6 +93,17 @@ export class VendorStepTwoComponent implements OnInit {
         formControls[field.name] = [this.formData()[field.name] || '', field.validators];
       }
     });
+
+    const existingPhone = (this.formData().contact_phone ?? '').toString();
+    const nationalDefault = existingPhone.startsWith(this.COUNTRY_CODE)
+      ? existingPhone.slice(this.COUNTRY_CODE.length)
+      : existingPhone.replace(/^\+?995/, '');
+
+    formControls[this.PHONE_NATIONAL_CONTROL] = [
+      nationalDefault || '',
+      [Validators.required, Validators.minLength(9), Validators.maxLength(9), Validators.pattern(/^\d+$/)],
+    ];
+
     this.businessForm = this.fb.group(formControls);
   }
 
@@ -107,14 +113,23 @@ export class VendorStepTwoComponent implements OnInit {
 
   onContinue() {
     if (this.businessForm.valid) {
-      this.nextStep.emit(this.businessForm.value);
+      const raw = this.businessForm.getRawValue() as any;
+      const national = (raw[this.PHONE_NATIONAL_CONTROL] ?? '').toString();
+
+      const payload: VendorRegistration = {
+        ...(raw as Omit<VendorRegistration, 'contact_phone'>),
+        contact_phone: `${this.COUNTRY_CODE}${national}`,
+      } as VendorRegistration;
+
+      delete (payload as any)[this.PHONE_NATIONAL_CONTROL];
+      this.nextStep.emit(payload);
     } else {
       this.businessForm.markAllAsTouched();
     }
   }
 
   onInput(event: Event, fieldName: keyof VendorRegistration) {
-    if (fieldName === 'contact_phone' || fieldName === 'identification_number') {
+    if (fieldName === 'identification_number') {
       const control = this.businessForm.get(fieldName) as FormControl | null;
       if (!control) {
         return;
@@ -122,6 +137,14 @@ export class VendorStepTwoComponent implements OnInit {
 
       sanitizePhoneInput(event, control);
     }
+  }
+
+  onPhoneNationalInput(event: Event) {
+    const control = this.businessForm.get(this.PHONE_NATIONAL_CONTROL) as FormControl | null;
+    if (!control) {
+      return;
+    }
+    sanitizePhoneInput(event, control);
   }
 
   getErrorMessage(fieldName: string): string {

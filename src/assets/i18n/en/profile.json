@@ -255,7 +255,7 @@
           "identificationNumber": "XXXXXXXXXX",
           "businessName": "Enter your business name",
           "legalAddress": "Enter your legal address",
-          "contactPhone": "+1 (555) 000-0000",
+          "contactPhone": "XXX XX XX XX",
           "contactEmail": "business@example.com",
           "bankAccount": "Enter your bank account number"
         }
