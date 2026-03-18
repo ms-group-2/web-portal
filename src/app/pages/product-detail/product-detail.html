@@ -55,8 +55,7 @@
                   (mouseenter)="selectImage(image)"
                   (click)="selectImage(image)"
                   class="w-20 h-20 rounded-xl border-2 overflow-hidden transition-all hover:border-market hover:-translate-y-0.5 hover:shadow-md"
-                  [class.border-market]="selectedImage() === image"
-                  [class.border-gray-200]="selectedImage() !== image"
+                  [ngClass]="selectedImage() === image ? 'border-market' : 'border-gray-200'"
                 >
                   <img [src]="image" [alt]="product.name || product.title" class="w-full h-full object-cover" />
                 </button>

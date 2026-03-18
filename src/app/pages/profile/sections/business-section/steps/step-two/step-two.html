@@ -38,12 +38,17 @@
               <span class="text-red-500">*</span>
             </label>
             <mat-form-field appearance="outline" class="w-full">
+              @if (field.name === 'contact_phone') {
+                <span matTextPrefix>+995&nbsp;</span>
+              }
               <input
                 matInput
                 [type]="field.type"
                 [formControlName]="field.name"
                 [placeholder]="field.placeholder | translate"
-                [attr.maxlength]="field.name === 'identification_number' ? 11 : null"
+                [attr.inputmode]="field.name === 'contact_phone' ? 'numeric' : null"
+                [attr.autocomplete]="field.name === 'contact_phone' ? 'tel-national' : null"
+                [attr.maxlength]="field.name === 'contact_phone' ? 9 : (field.name === 'identification_number' ? 11 : null)"
                 (input)="onInput($event, field.name)"
               />
               @if (businessForm.get(field.name)?.invalid && businessForm.get(field.name)?.touched) {

@@ -1,10 +1,10 @@
 <a
   [routerLink]="['/shop/product', product().id]"
-  class="bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer block"
+  class="bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer flex flex-col"
   [ngClass]="
     compact()
       ? 'shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1'
-      : 'w-[272px] h-[325px] hover:shadow-xl flex flex-col'
+      : 'hover:shadow-xl flex flex-col h-full w-full'
   "
 >
   @if (!compact()) {
@@ -18,7 +18,7 @@
       @if (product().verified) {
         <div class="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-1 bg-green-600 rounded-full shadow-md">
           <mat-icon class="!w-3 !h-3 !text-xs text-white">verified</mat-icon>
-          <span class="text-[10px] font-bold text-white uppercase leading-none">Verified</span>
+          <span class="text-xs font-bold text-white uppercase leading-none">Verified</span>
         </div>
       }
 
@@ -78,7 +78,7 @@
       @if (product().verified) {
         <div class="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-1 bg-green-600 rounded-full shadow-md">
           <mat-icon class="!w-3 !h-3 !text-xs text-white">verified</mat-icon>
-          <span class="text-[10px] font-bold text-white uppercase leading-none">Verified</span>
+          <span class="text-xs font-bold text-white uppercase leading-none">Verified</span>
         </div>
       }
     </div>

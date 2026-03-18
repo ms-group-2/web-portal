@@ -1,82 +1,27 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of, forkJoin } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
-
-export type Language = 'ka' | 'en';
+import { Observable, of } from 'rxjs';
+import { getSavedLanguage, I18N, Language, saveLanguage } from 'lib/i18n/i18n';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TranslationService {
-  private readonly LOCALE_STORAGE_KEY = 'app_locale';
   private currentLang = signal<Language>('ka');
   private translations = signal<Record<string, any>>({});
-
-//davcacho
-  private translationsCache = {
-    ka: {} as Record<string, any>,
-    en: {} as Record<string, any>
-  };
-
-  private loadedModules = {
-    ka: new Set<string>(),
-    en: new Set<string>()
-  };
-
-  constructor(private http: HttpClient) {
-    const savedLocale = this.getSavedLocale();
+  constructor() {
+    const savedLocale = getSavedLanguage();
     this.currentLang.set(savedLocale);
-    this.loadBothLanguages();
-  }
-
-  private getSavedLocale(): Language {
-    const saved = localStorage.getItem(this.LOCALE_STORAGE_KEY);
-    return (saved === 'en' || saved === 'ka') ? saved : 'ka';
-  }
-
-  private loadBothLanguages(): void {
-    forkJoin({
-      ka: this.http.get<Record<string, any>>('/assets/i18n/ka.json').pipe(catchError(() => of({}))),
-      en: this.http.get<Record<string, any>>('/assets/i18n/en.json').pipe(catchError(() => of({})))
-    }).subscribe(({ ka, en }) => {
-      this.translationsCache.ka = ka as Record<string, any>;
-      this.translationsCache.en = en as Record<string, any>;
-
-      const currentLang = this.currentLang();
-      this.translations.set(this.translationsCache[currentLang]);
-    });
+    this.translations.set(I18N[savedLocale]);
   }
 
   loadModule(moduleName: string): Observable<any> {
-    const lang = this.currentLang();
-
-    if (this.loadedModules[lang].has(moduleName)) {
-      return of(null);
-    }
-
-    return forkJoin({
-      ka: this.http.get<Record<string, any>>(`/assets/i18n/ka/${moduleName}.json`).pipe(catchError(() => of({}))),
-      en: this.http.get<Record<string, any>>(`/assets/i18n/en/${moduleName}.json`).pipe(catchError(() => of({})))
-    }).pipe(
-      tap((result: { ka: any; en: any }) => {
-        this.translationsCache.ka = { ...this.translationsCache.ka, ...result.ka };
-        this.translationsCache.en = { ...this.translationsCache.en, ...result.en };
-
-        this.loadedModules.ka.add(moduleName);
-        this.loadedModules.en.add(moduleName);
-
-        const currentLang = this.currentLang();
-        this.translations.set(this.translationsCache[currentLang]);
-      })
-    );
+    return of(null);
   }
 
   switchLanguage(lang: Language): void {
-    localStorage.setItem(this.LOCALE_STORAGE_KEY, lang);
+    saveLanguage(lang);
     this.currentLang.set(lang);
-
-    this.translations.set(this.translationsCache[lang]);
+    this.translations.set(I18N[lang]);
   }
 
   toggleLanguage(): void {

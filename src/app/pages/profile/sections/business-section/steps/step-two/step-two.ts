@@ -9,14 +9,8 @@ import { VendorRegistration } from 'lib/models/vendor.models';
 import { strictEmailValidator } from 'lib/validators/strict-email.validator';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
-
-interface FormFieldConfig {
-  name: keyof VendorRegistration;
-  label: string;
-  type: string;
-  placeholder: string;
-  validators: any[];
-}
+import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
+import { FormFieldConfig } from '../../models/form-field-config.model';
 
 @Component({
   selector: 'app-vendor-step-two',
@@ -66,6 +60,13 @@ export class VendorStepTwoComponent implements OnInit {
       validators: [Validators.required, Validators.maxLength(50)]
     },
     {
+      name: 'contact_phone',
+      label: 'profile.vendor.form.contactPhone',
+      type: 'tel',
+      placeholder: 'profile.vendor.form.placeholders.contactPhone',
+      validators: [Validators.required, Validators.minLength(9), Validators.maxLength(9), Validators.pattern(/^\d+$/)]
+    },
+    {
       name: 'contact_email',
       label: 'profile.vendor.form.contactEmail',
       type: 'email',
@@ -90,7 +91,13 @@ export class VendorStepTwoComponent implements OnInit {
           updateOn: 'blur'
         });
       } else {
-        formControls[field.name] = [this.formData()[field.name] || '', field.validators];
+        const rawValue = (this.formData()[field.name] || '').toString();
+        const initialValue =
+          field.name === 'contact_phone'
+            ? PhoneUtil.sanitize(rawValue).replace(/^\+?995/, '').replace(/[^\d]/g, '')
+            : rawValue;
+
+        formControls[field.name] = [initialValue, field.validators];
       }
     });
 

@@ -61,15 +61,7 @@ export class VendorDashboard implements OnInit {
   }
 
   ngOnInit() {
-    // Load vendor translation module only once
     this.translation.loadModule('vendor').subscribe();
-
-    // Load vendor profile if not already loaded
-    if (!this.vendorProfile()) {
-      this.vendorService.getMyProfile()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
-    }
 
     // Load user profile (ProfileApiService caches this internally)
     const userId = this.auth.user()?.id;
@@ -89,7 +81,6 @@ export class VendorDashboard implements OnInit {
   setActiveTab(tab: TabType) {
     this.activeTab.set(tab);
 
-    // Load products when switching to products tab
     if (tab === 'products' && this.vendorProfile()) {
       this.loadProducts();
     }
@@ -141,7 +132,6 @@ export class VendorDashboard implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          // Remove product from local state
           this.products.set(this.products().filter(p => p.id !== productId));
           this.showDeleteDialog.set(false);
           this.productToDelete.set(null);

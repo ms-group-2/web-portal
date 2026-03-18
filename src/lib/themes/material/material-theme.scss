@@ -1,4 +1,7 @@
 @use '@angular/material' as mat;
+@use 'lib/themes/material/form-field.scss';
+@use 'lib/themes/material/button.scss';
+
 
 $vipo-primary-palette: (
   0: #000000,
@@ -38,5 +41,3 @@ html {
   ));
 }
 
-@import './form-field.scss';
-@import './button.scss';

@@ -1,5 +1,8 @@
 <app-header variant="white"></app-header>
 
+
+
+
 <div class="min-h-screen bg-white pt-20">
   <div class="pt-8 pb-8 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
 
@@ -31,23 +34,20 @@
         <div class="bg-white rounded-lg border-2 border-gray-200 p-4 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
 
           @if (loading()) {
-            <!-- Sidebar skeleton while loading -->
             <div class="animate-pulse space-y-3">
               <div class="h-6 bg-gray-200 rounded w-2/3"></div>
-              <div class="h-10 bg-gray-200 rounded"></div>
-              <div class="h-10 bg-gray-200 rounded"></div>
-              <div class="h-10 bg-gray-200 rounded"></div>
-              <div class="h-10 bg-gray-200 rounded"></div>
+              @for (item of [1, 2, 3, 4]; track $index) {
+                <div class="h-10 bg-gray-200 rounded"></div>
+              }
             </div>
           } @else if (childCategories().length > 0) {
-            <!-- Show subcategories -->
             <h2 class="text-xl font-black text-gray-900 mb-4 uppercase">{{ 'shop.categories.title' | translate }}</h2>
 
             @if (parentCategory(); as parent) {
               <a
                 [routerLink]="getCategoryRoute(parent.id)"
                 class="w-full text-left px-4 py-3 rounded-lg transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium flex items-center gap-2 mb-4">
-                <span>← Back</span>
+                <span>{{ 'header.nav.back' | translate }}</span>
               </a>
             }
 
@@ -64,7 +64,6 @@
               }
             </div>
           } @else {
-            <!-- Show filters when no subcategories -->
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-xl font-black text-gray-900 uppercase">{{ 'shop.filters.title' | translate }}</h2>
               <button
@@ -82,8 +81,6 @@
               </a>
             }
 
-            <!-- Sort -->
-           <!-- Sort -->
       <div class="mb-5 pb-5 border-b border-gray-100">
         <div class="flex items-center justify-between mb-3">
           <span class="text-sm font-black text-gray-900 uppercase tracking-wide">
@@ -91,7 +88,7 @@
           </span>
 
           @if (sortBy()) {
-            <span class="text-[11px] font-bold uppercase text-market bg-market/10 px-2.5 py-1 rounded-full">
+            <span class="text-xs font-bold uppercase text-market bg-market/10 px-2.5 py-1 rounded-full">
               Active
             </span>
           }
@@ -101,18 +98,20 @@
           @for (option of sortOptions; track option.value) {
             <button
               (click)="setSortBy(option.value)"
-              [class]="sortBy() === option.value
-                ? 'w-full flex items-center justify-between px-3 py-3 rounded-xl bg-white border border-market/20 shadow-sm text-market'
-                : 'w-full flex items-center justify-between px-3 py-3 rounded-xl text-gray-700 hover:bg-white hover:border-gray-200 border border-transparent transition-all'"
+              class="w-full flex items-center justify-between px-3 py-3 rounded-xl border"
+              [ngClass]="sortBy() === option.value
+                ? 'bg-white border-market/20 shadow-sm text-market'
+                : 'text-gray-700 hover:bg-white hover:border-gray-200 border-transparent transition-all'"
             >
               <span class="text-sm font-semibold">
                 {{ option.label | translate }}
               </span>
 
               <span
-                [class]="sortBy() === option.value
-                  ? 'w-5 h-5 rounded-full bg-market text-white flex items-center justify-center text-[11px] font-bold'
-                  : 'w-5 h-5 rounded-full border border-gray-300'">
+                class="w-5 h-5 rounded-full"
+                [ngClass]="sortBy() === option.value
+                  ? 'bg-market text-white flex items-center justify-center text-xs font-bold'
+                  : 'border border-gray-300'">
                 @if (sortBy() === option.value) {
                   ✓
                 }
@@ -121,7 +120,6 @@
           }
         </div>
       </div>
-            <!-- Price Range -->
            <div class="mb-5 pb-5 border-b border-gray-100">
         <div class="flex items-center justify-between mb-3">
           <span class="text-sm font-black text-gray-900 uppercase tracking-wide">
@@ -134,7 +132,7 @@
         </div>
 
   <div class="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4">
-    <div class="flex items-center justify-between text-[11px] font-bold text-gray-400 uppercase mb-2">
+    <div class="flex items-center justify-between text-xs font-bold text-gray-400 uppercase mb-2">
       <span>Min</span>
       <span>Max</span>
     </div>
@@ -161,7 +159,7 @@
 
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">
+        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">
           From
         </label>
         <div class="relative">
@@ -178,7 +176,7 @@
       </div>
 
       <div>
-        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">
+        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">
           To
         </label>
         <div class="relative">
@@ -202,7 +200,6 @@
                 <div class="w-8 h-8 border-4 border-market border-t-transparent rounded-full animate-spin"></div>
               </div>
             } @else {
-              <!-- Dynamic filters from backend -->
               @if (filterGroups().length > 0) {
                 @for (group of filterGroups(); track group.group_id) {
                   <div class="mb-2">
@@ -272,7 +269,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @for (item of skeletonArray; track $index) {
               <div class="bg-white rounded-2xl overflow-hidden w-full h-[325px] flex flex-col animate-pulse">
-                <div class="relative h-[180px] bg-gray-200 flex-shrink-0"></div>
+                <div class="relative h-44 bg-gray-200 flex-shrink-0"></div>
                 <div class="px-4 pb-4 flex flex-col flex-grow pt-4">
                   <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
                   <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
@@ -286,7 +283,6 @@
             }
           </div>
         } @else if (subcategoriesWithProducts().length > 0) {
-          <!-- Parent category: show products grouped by subcategory -->
           @for (subcat of subcategoriesWithProducts(); track subcat.id) {
             <div class="mb-10">
               <div class="flex items-center justify-between mb-4">
@@ -309,7 +305,6 @@
             </div>
           }
         } @else if (filteredProducts().length > 0) {
-          <!-- Leaf category: flat product grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @for (product of filteredProducts(); track product.id) {
               <app-product-card [product]="product"></app-product-card>

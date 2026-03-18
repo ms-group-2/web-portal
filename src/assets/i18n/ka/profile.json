@@ -254,7 +254,6 @@
           "identificationNumber": "XXXXXXXXXXXX",
           "businessName": "შეიყვანეთ ბიზნესის სახელი",
           "legalAddress": "შეიყვანეთ იურიდიული მისამართი",
-          "contactPhone": "XXX XX XX XX",
           "contactEmail": "business@example.com",
           "bankAccount": "შეიყვანეთ საბანკო ანგარიშის ნომერი"
         }

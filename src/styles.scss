@@ -1,24 +1,19 @@
 @use 'lib/themes/material/material-theme.scss';
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
-@import 'phosphor-icons/src/css/icons.css';
-@import 'lib/themes/button-shimmer.scss';
-@import 'lib/themes/material/snack-bar.scss';
-@import 'lib/themes/material/slider.scss';
+@use 'lib/themes/button-shimmer.scss';
+@use 'lib/themes/material/snack-bar.scss';
+@use 'lib/themes/material/slider.scss';
 
-@import 'swiper/css';
-@import 'swiper/css/navigation';
-@import 'swiper/css/pagination';
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .container-max {
-    max-width: 1600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+.container-max {
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 :root {
@@ -35,6 +30,7 @@
 
   --color-background: #faf8f5;
   --color-backgroundIcon: #f3f4f6;
+  --color-vendorPageBackground: #F5F6FA;
 
   --color-feature: var(--color-primary);
 

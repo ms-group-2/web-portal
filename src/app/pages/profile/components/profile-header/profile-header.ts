@@ -12,15 +12,13 @@ import { TranslationService } from 'lib/services/translation.service';
   styleUrl: './profile-header.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileHeaderComponent implements OnInit {
+export class ProfileHeaderComponent  {
   private router = inject(Router);
   translation = inject(TranslationService);
 
-  ngOnInit() {
-  }
+
 
   goBack() {
-    // Try to go back in history, otherwise navigate to home
     if (window.history.length > 1) {
       this.router.navigateByUrl('/landing`');
     } else {

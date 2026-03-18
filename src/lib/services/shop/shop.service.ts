@@ -1,4 +1,5 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import { Injectable, inject, signal, computed, effect, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, tap, catchError, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -25,6 +26,10 @@ export interface MockOrder {
 export class ShopService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
+  private hasLocalStorage =
+    typeof localStorage !== 'undefined' && localStorage !== null;
   private baseUrl = environment.apiBaseUrl;
 
   private headers = { 'ngrok-skip-browser-warning': 'true' };
@@ -39,6 +44,12 @@ export class ShopService {
   orders = signal<MockOrder[]>([]);
 
   constructor() {
+    // SSR/prerender: skip any localStorage-backed state hydration.
+    // (Signals still exist; they just start empty on the server.)
+    if (!this.hasLocalStorage) {
+      return;
+    }
+
     this.loadFavoritesForCurrentUser();
     this.loadCartForCurrentUser();
     this.loadOrdersForCurrentUser();
@@ -71,6 +82,9 @@ export class ShopService {
 
   private loadFavoritesFromStorage(userId: string | null): Set<number> {
     try {
+      if (!this.hasLocalStorage) {
+        return new Set();
+      }
       const key = this.getFavoritesStorageKey(userId);
       const stored = localStorage.getItem(key);
       if (stored) {
@@ -85,6 +99,9 @@ export class ShopService {
 
   private saveFavoritesToStorage(favorites: Set<number>): void {
     try {
+      if (!this.hasLocalStorage) {
+        return;
+      }
       const userId = this.getCurrentUserId();
       const key = this.getFavoritesStorageKey(userId);
       const ids = Array.from(favorites);
@@ -100,6 +117,10 @@ export class ShopService {
 
   private loadCartForCurrentUser(): void {
     try {
+      if (!this.hasLocalStorage) {
+        this.cartItems.set([]);
+        return;
+      }
       const userId = this.getCurrentUserId();
       const key = this.getCartStorageKey(userId);
       const stored = localStorage.getItem(key);
@@ -116,6 +137,9 @@ export class ShopService {
 
   private saveCartToStorage(items: number[]): void {
     try {
+      if (!this.hasLocalStorage) {
+        return;
+      }
       const userId = this.getCurrentUserId();
       const key = this.getCartStorageKey(userId);
       localStorage.setItem(key, JSON.stringify(items));
@@ -135,6 +159,10 @@ export class ShopService {
 
   private loadOrdersForCurrentUser(): void {
     try {
+      if (!this.hasLocalStorage) {
+        this.orders.set([]);
+        return;
+      }
       const userId = this.getCurrentUserId();
       const key = this.getOrdersStorageKey(userId);
       const stored = localStorage.getItem(key);
@@ -150,6 +178,9 @@ export class ShopService {
 
   private saveOrdersToStorage(orders: MockOrder[]): void {
     try {
+      if (!this.hasLocalStorage) {
+        return;
+      }
       const userId = this.getCurrentUserId();
       const key = this.getOrdersStorageKey(userId);
       localStorage.setItem(key, JSON.stringify(orders));

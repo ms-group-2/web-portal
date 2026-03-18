@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap, catchError, map } from 'rxjs';
+import { Observable, of, tap, catchError, map, shareReplay } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   VendorProfile,
@@ -21,6 +21,23 @@ export class VendorService {
   vendorProfile = signal<VendorProfile | null>(null);
   isVendor = signal<boolean>(false);
   isPendingApproval = signal<boolean>(this.loadPendingState());
+
+  private profileRequest$: Observable<VendorProfile | null> | null = null;
+
+  ensureProfileLoaded(): Observable<VendorProfile | null> {
+    if (this.vendorProfile()) return of(this.vendorProfile());
+    if (!this.profileRequest$) {
+      this.profileRequest$ = this.getMyProfile().pipe(
+        tap(() => this.profileRequest$ = null),
+        catchError(err => {
+          this.profileRequest$ = null;
+          throw err;
+        }),
+        shareReplay(1)
+      );
+    }
+    return this.profileRequest$;
+  }
 
   getMyProfile(): Observable<VendorProfile | null> {
     return this.http

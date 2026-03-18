@@ -28,7 +28,7 @@
     <div class="flex-1 min-w-0">
       @if (isLoading()) {
         <div class="flex gap-4 overflow-hidden">
-          @for (i of skeletonArray; track i) {
+          @for (i of skeletonArray; track $index) {
             <app-category-card-skeleton></app-category-card-skeleton>
           }
         </div>
