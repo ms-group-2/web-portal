@@ -3,6 +3,8 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./out-tsc/spec",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "types": ["jasmine"]
   },
   "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]

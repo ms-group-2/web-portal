@@ -1,10 +1,10 @@
 <a
   [routerLink]="['/shop/product', product().id]"
-  class="bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer block"
+  class="bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer flex flex-col"
   [ngClass]="
     compact()
       ? 'shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1'
-      : 'w-[272px] h-[325px] hover:shadow-xl flex flex-col'
+      : 'hover:shadow-xl flex flex-col h-full w-full'
   "
 >
   @if (!compact()) {

@@ -1,12 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { TranslationService } from 'lib/services/translation.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'vipo-google-callback',
+  imports: [TranslatePipe],
   template: `
     <div class="min-h-screen flex items-center justify-center">
-      <p class="text-sm text-gray-600 font-semibold">შედიხართ Google-ით…</p>
+      <p class="text-sm text-gray-600 font-semibold">{{ 'auth.signInWithGoogle' | translate }}</p>
     </div>
   `,
 })
@@ -14,6 +17,7 @@ export class GoogleCallback {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
+  translation = inject(TranslationService);
 
   ngOnInit() {
     const qp = this.route.snapshot.queryParamMap;

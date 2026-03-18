@@ -3,7 +3,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 @Component({
   selector: 'app-product-card-skeleton',
   template: `
-    <div class="bg-white rounded-2xl overflow-hidden w-[272px] h-[325px] flex flex-col animate-pulse">
+    <div class="bg-white rounded-2xl overflow-hidden flex flex-col animate-pulse h-full min-h-[325px]">
       <div class="relative h-[180px] bg-gray-200 flex-shrink-0"></div>
 
       <div class="px-4 pb-4 flex flex-col flex-grow pt-4">

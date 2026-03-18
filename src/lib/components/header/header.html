@@ -58,10 +58,10 @@
           @if (searchQuery().length > 0) {
             <button
               (click)="clearSearch()"
-              class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-all"
+              class="absolute right-3 top-1 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-all"
               type="button"
             >
-              <mat-icon class="!w-4 !h-4 !text-base"
+              <mat-icon class="!w-4 !h-4 !text-base  !leading-5"
                 [ngClass]="variant() === 'white' ? 'text-gray-500' : 'text-white/70'">
                 close
               </mat-icon>
