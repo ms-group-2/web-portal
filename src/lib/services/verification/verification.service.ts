@@ -1,11 +1,13 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { StorageService } from 'lib/services/storage/storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VerificationService {
   private authService = inject(AuthService);
+  private storage = inject(StorageService);
   private readonly STORAGE_KEY_PREFIX = 'vipo_user_verified_';
   private readonly ID_NUMBER_KEY_PREFIX = 'vipo_user_id_number_';
 
@@ -38,7 +40,7 @@ export class VerificationService {
 
   private getVerificationStatus(userId: string | null): boolean {
     const key = this.getStorageKey(userId, this.STORAGE_KEY_PREFIX);
-    return localStorage.getItem(key) === 'true';
+    return this.storage.getItem(key) === 'true';
   }
 
   verify(idNumber: string): void {
@@ -46,8 +48,8 @@ export class VerificationService {
     const verifiedKey = this.getStorageKey(userId, this.STORAGE_KEY_PREFIX);
     const idNumberKey = this.getStorageKey(userId, this.ID_NUMBER_KEY_PREFIX);
 
-    localStorage.setItem(verifiedKey, 'true');
-    localStorage.setItem(idNumberKey, idNumber);
+    this.storage.setItem(verifiedKey, 'true');
+    this.storage.setItem(idNumberKey, idNumber);
     this._isVerified.set(true);
   }
 
@@ -56,8 +58,8 @@ export class VerificationService {
     const verifiedKey = this.getStorageKey(userId, this.STORAGE_KEY_PREFIX);
     const idNumberKey = this.getStorageKey(userId, this.ID_NUMBER_KEY_PREFIX);
 
-    localStorage.removeItem(verifiedKey);
-    localStorage.removeItem(idNumberKey);
+    this.storage.removeItem(verifiedKey);
+    this.storage.removeItem(idNumberKey);
     this._isVerified.set(false);
   }
 }

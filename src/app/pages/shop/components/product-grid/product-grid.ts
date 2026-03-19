@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, PLATFORM_ID, inject, signal, computed, effect } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductCardComponent } from '../product-card/product-card';
 import { ProductCardSkeletonComponent } from '../skeletons/product-card-skeleton';
@@ -14,6 +15,7 @@ import { Product } from '../../shop.models';
 export class ProductGridComponent {
   private shopService = inject(ShopService);
   private destroyRef = inject(DestroyRef);
+  private platformId = inject(PLATFORM_ID);
 
   products = signal<Product[]>([]);
   isLoading = signal(false);
@@ -56,7 +58,9 @@ export class ProductGridComponent {
     if (page < 1 || page > this.totalPages() || page === this.currentPage()) return;
     this.currentPage.set(page);
     this.fetchProducts(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   private fetchProducts(page: number) {

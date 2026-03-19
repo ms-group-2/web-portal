@@ -9,12 +9,14 @@ import {
   VendorProductUpdate,
   VendorProductsResponse,
 } from 'lib/models/vendor.models';
+import { StorageService } from 'lib/services/storage/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class VendorService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiBaseUrl;
   private headers = { 'ngrok-skip-browser-warning': 'true' };
+  private storage = inject(StorageService);
 
   private readonly PENDING_KEY = 'vipo_vendor_pending';
 
@@ -50,9 +52,8 @@ export class VendorService {
           if (profile) {
             this.vendorProfile.set(profile);
             this.isVendor.set(true);
-            // Approved — clear pending state
             this.isPendingApproval.set(false);
-            localStorage.removeItem(this.PENDING_KEY);
+            this.storage.removeItem(this.PENDING_KEY);
           } else {
             this.vendorProfile.set(null);
             this.isVendor.set(false);
@@ -75,7 +76,7 @@ export class VendorService {
       .pipe(
         tap(() => {
           this.isPendingApproval.set(true);
-          localStorage.setItem(this.PENDING_KEY, 'true');
+          this.storage.setItem(this.PENDING_KEY, 'true');
         }),
         catchError(err => {
           console.error('Failed to register as vendor:', err);
@@ -203,10 +204,10 @@ export class VendorService {
     this.vendorProfile.set(null);
     this.isVendor.set(false);
     this.isPendingApproval.set(false);
-    localStorage.removeItem(this.PENDING_KEY);
+    this.storage.removeItem(this.PENDING_KEY);
   }
 
   private loadPendingState(): boolean {
-    return localStorage.getItem(this.PENDING_KEY) === 'true';
+    return this.storage.getItem(this.PENDING_KEY) === 'true';
   }
 }

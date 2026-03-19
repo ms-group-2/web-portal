@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, PLATFORM_ID, inject, signal, computed, OnInit, OnDestroy, input, WritableSignal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from 'lib/services/identity/auth.service';
@@ -15,13 +16,16 @@ import { TranslationService } from 'lib/services/translation.service';
   styleUrl: './profile-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileSidebarComponent implements OnInit {
+export class ProfileSidebarComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private auth = inject(AuthService);
   private profileApi = inject(ProfileApiService);
   private confirmDialog = inject(ConfirmationDialogService);
   translation = inject(TranslationService);
+  private platformId = inject(PLATFORM_ID);
 
+  sidebarOpen = input<WritableSignal<boolean>>();
+  showCloseButton = input<boolean>(false);
   firstName = signal('');
 
   mainNavItems: NavItem[] = [
@@ -46,14 +50,21 @@ export class ProfileSidebarComponent implements OnInit {
   ngOnInit() {
     this.loadUserName();
 
-    window.addEventListener('storage', this.handleStorageChange.bind(this));
-    window.addEventListener('profileUpdated', this.loadUserName.bind(this));
+    if (isPlatformBrowser(this.platformId)) {
+      window.addEventListener('storage', this.handleStorageChangeBound);
+      window.addEventListener('profileUpdated', this.loadUserNameBound);
+    }
   }
 
   ngOnDestroy() {
-    window.removeEventListener('storage', this.handleStorageChange.bind(this));
-    window.removeEventListener('profileUpdated', this.loadUserName.bind(this));
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('storage', this.handleStorageChangeBound);
+      window.removeEventListener('profileUpdated', this.loadUserNameBound);
+    }
   }
+
+  private handleStorageChangeBound = this.handleStorageChange.bind(this);
+  private loadUserNameBound = this.loadUserName.bind(this);
 
   handleStorageChange(event: StorageEvent) {
     if (event.key === 'vipo_user_firstName') {
@@ -65,15 +76,18 @@ export class ProfileSidebarComponent implements OnInit {
     const userId = this.auth.user()?.id;
     
     if (userId) {
-      const storedFirstName = localStorage.getItem('vipo_user_firstName');
+      const storedFirstName = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('vipo_user_firstName') : null;
       
       if (storedFirstName) {
         this.firstName.set(storedFirstName);
       } else {
         this.profileApi.getProfile(userId).subscribe({
           next: (profile) => {
-            localStorage.setItem('vipo_user_firstName', profile.name);
-            localStorage.setItem('vipo_user_lastName', profile.surname);
+            if (typeof localStorage !== 'undefined') {
+              localStorage.setItem('vipo_user_firstName', profile.name);
+              localStorage.setItem('vipo_user_lastName', profile.surname);
+            }
             this.firstName.set(profile.name);
           },
           error: () => {
@@ -82,11 +96,16 @@ export class ProfileSidebarComponent implements OnInit {
         });
       }
     } else {
-      const storedFirstName = localStorage.getItem('vipo_user_firstName') || '';
+      const storedFirstName = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('vipo_user_firstName') || '' : '';
       const pendingReg = this.auth.pendingRegistration();
       const firstNameFromPending = pendingReg?.firstName || '';
       this.firstName.set(storedFirstName || firstNameFromPending || 'User');
     }
+  }
+
+  closeSidebar() {
+    this.sidebarOpen()?.set(false);
   }
 
   logout() {

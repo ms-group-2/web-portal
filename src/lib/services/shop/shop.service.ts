@@ -1,10 +1,10 @@
-import { Injectable, inject, signal, computed, effect, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, tap, catchError, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { StorageService } from 'lib/services/storage/storage.service';
 
 export interface MockOrderItem {
   productId: number;
@@ -26,10 +26,7 @@ export interface MockOrder {
 export class ShopService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  private platformId = inject(PLATFORM_ID);
-  private isBrowser = isPlatformBrowser(this.platformId);
-  private hasLocalStorage =
-    typeof localStorage !== 'undefined' && localStorage !== null;
+  private storage = inject(StorageService);
   private baseUrl = environment.apiBaseUrl;
 
   private headers = { 'ngrok-skip-browser-warning': 'true' };
@@ -46,10 +43,6 @@ export class ShopService {
   constructor() {
     // SSR/prerender: skip any localStorage-backed state hydration.
     // (Signals still exist; they just start empty on the server.)
-    if (!this.hasLocalStorage) {
-      return;
-    }
-
     this.loadFavoritesForCurrentUser();
     this.loadCartForCurrentUser();
     this.loadOrdersForCurrentUser();
@@ -81,33 +74,28 @@ export class ShopService {
   }
 
   private loadFavoritesFromStorage(userId: string | null): Set<number> {
-    try {
-      if (!this.hasLocalStorage) {
-        return new Set();
-      }
-      const key = this.getFavoritesStorageKey(userId);
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        const ids = JSON.parse(stored) as number[];
-        return new Set(ids);
-      }
-    } catch (error) {
-      console.error('Failed to load favorites from localStorage:', error);
+    const key = this.getFavoritesStorageKey(userId);
+    const stored = this.storage.getItem(key);
+    if (!stored) {
+      return new Set();
     }
-    return new Set();
+    try {
+      const ids = JSON.parse(stored) as number[];
+      return new Set(ids);
+    } catch (error) {
+      console.error('Failed to parse favorites from storage:', error);
+      return new Set();
+    }
   }
 
   private saveFavoritesToStorage(favorites: Set<number>): void {
+    const userId = this.getCurrentUserId();
+    const key = this.getFavoritesStorageKey(userId);
+    const ids = Array.from(favorites);
     try {
-      if (!this.hasLocalStorage) {
-        return;
-      }
-      const userId = this.getCurrentUserId();
-      const key = this.getFavoritesStorageKey(userId);
-      const ids = Array.from(favorites);
-      localStorage.setItem(key, JSON.stringify(ids));
+      this.storage.setItem(key, JSON.stringify(ids));
     } catch (error) {
-      console.error('Failed to save favorites to localStorage:', error);
+      console.error('Failed to save favorites to storage:', error);
     }
   }
 
@@ -116,35 +104,29 @@ export class ShopService {
   }
 
   private loadCartForCurrentUser(): void {
-    try {
-      if (!this.hasLocalStorage) {
-        this.cartItems.set([]);
-        return;
-      }
-      const userId = this.getCurrentUserId();
-      const key = this.getCartStorageKey(userId);
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        const ids = JSON.parse(stored) as number[];
-        this.cartItems.set(ids);
-        return;
-      }
-    } catch (error) {
-      console.error('Failed to load cart from localStorage:', error);
+    const userId = this.getCurrentUserId();
+    const key = this.getCartStorageKey(userId);
+    const stored = this.storage.getItem(key);
+    if (!stored) {
+      this.cartItems.set([]);
+      return;
     }
-    this.cartItems.set([]);
+    try {
+      const ids = JSON.parse(stored) as number[];
+      this.cartItems.set(ids);
+    } catch (error) {
+      console.error('Failed to load cart from storage:', error);
+      this.cartItems.set([]);
+    }
   }
 
   private saveCartToStorage(items: number[]): void {
+    const userId = this.getCurrentUserId();
+    const key = this.getCartStorageKey(userId);
     try {
-      if (!this.hasLocalStorage) {
-        return;
-      }
-      const userId = this.getCurrentUserId();
-      const key = this.getCartStorageKey(userId);
-      localStorage.setItem(key, JSON.stringify(items));
+      this.storage.setItem(key, JSON.stringify(items));
     } catch (error) {
-      console.error('Failed to save cart to localStorage:', error);
+      console.error('Failed to save cart to storage:', error);
     }
   }
 
@@ -158,34 +140,28 @@ export class ShopService {
   }
 
   private loadOrdersForCurrentUser(): void {
-    try {
-      if (!this.hasLocalStorage) {
-        this.orders.set([]);
-        return;
-      }
-      const userId = this.getCurrentUserId();
-      const key = this.getOrdersStorageKey(userId);
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        this.orders.set(JSON.parse(stored) as MockOrder[]);
-        return;
-      }
-    } catch (error) {
-      console.error('Failed to load orders from localStorage:', error);
+    const userId = this.getCurrentUserId();
+    const key = this.getOrdersStorageKey(userId);
+    const stored = this.storage.getItem(key);
+    if (!stored) {
+      this.orders.set([]);
+      return;
     }
-    this.orders.set([]);
+    try {
+      this.orders.set(JSON.parse(stored) as MockOrder[]);
+    } catch (error) {
+      console.error('Failed to load orders from storage:', error);
+      this.orders.set([]);
+    }
   }
 
   private saveOrdersToStorage(orders: MockOrder[]): void {
+    const userId = this.getCurrentUserId();
+    const key = this.getOrdersStorageKey(userId);
     try {
-      if (!this.hasLocalStorage) {
-        return;
-      }
-      const userId = this.getCurrentUserId();
-      const key = this.getOrdersStorageKey(userId);
-      localStorage.setItem(key, JSON.stringify(orders));
+      this.storage.setItem(key, JSON.stringify(orders));
     } catch (error) {
-      console.error('Failed to save orders to localStorage:', error);
+      console.error('Failed to save orders to storage:', error);
     }
   }
 

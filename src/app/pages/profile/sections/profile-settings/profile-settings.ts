@@ -1,4 +1,5 @@
-import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -65,6 +66,8 @@ export class ProfileSettingsComponent implements OnInit {
   private translationService = inject(TranslationService);
   private verificationService = inject(VerificationService);
   private verificationDialog = inject(VerificationDialogService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
   isEditing = signal(false);
   isLoading = signal(false);
@@ -306,9 +309,15 @@ export class ProfileSettingsComponent implements OnInit {
       next: (profile) => {
         this.isLoading.set(false);
 
-        localStorage.setItem('vipo_user_firstName', profile.name);
-        localStorage.setItem('vipo_user_lastName', profile.surname);
-        window.dispatchEvent(new Event('profileUpdated'));
+        if (this.isBrowser) {
+          try {
+            localStorage.setItem('vipo_user_firstName', profile.name);
+            localStorage.setItem('vipo_user_lastName', profile.surname);
+            window.dispatchEvent(new Event('profileUpdated'));
+          } catch {
+            // ignore
+          }
+        }
 
         this.patchFormWithProfile(profile);
         this.clearAvatarState();
