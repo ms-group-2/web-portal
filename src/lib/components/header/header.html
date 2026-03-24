@@ -1,14 +1,15 @@
-<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b" 
+<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
   [ngClass]="[
     variant() === 'white' ? 'bg-white border-gray-200' : headerGradient() + ' border-transparent',
     isShopRoute() ? 'shop-header' : '',
     isSwapRoute() ? 'swap-header' : ''
   ]">
-  <nav [class]="'flex items-center py-2 md:py-3 ' + (navContainerClass() || 'px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32')">
+  <nav
+    [class]="'flex flex-wrap items-center gap-x-2 gap-y-2 py-2 md:py-3 ' + (navContainerClass() || 'px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32')">
 
     <a
       routerLink="/"
-      class="flex items-center gap-2 shrink-0"
+      class="flex items-center gap-2 shrink-0 order-1"
       aria-label="Vipo home"
     >
       <img
@@ -18,24 +19,27 @@
       />
     </a>
 
-    <ul class="hidden lg:flex items-center gap-1 ml-4 lg:ml-10 text-sm lg:text-base font-bold uppercase tracking-wider" [ngClass]="variant() === 'white' ? (isShopRoute() || isSwapRoute() ? '' : 'text-primary/70') : 'text-white/80'">
+    <ul
+      class="hidden md:flex flex-wrap items-center justify-center xl:justify-start gap-x-0.5 sm:gap-1 order-4 xl:order-2 w-full xl:w-auto basis-full xl:basis-auto text-xs sm:text-sm md:text-base font-bold uppercase tracking-wider xl:ml-10"
+      [ngClass]="variant() === 'white' ? (isShopRoute() || isSwapRoute() ? '' : 'text-primary/70') : 'text-white/80'"
+      aria-label="Primary"
+    >
       @for (item of navItems(); track item.label) {
         <li>
           <a
             [routerLink]="item.link"
             routerLinkActive="active-nav-link"
             [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-link font-extrabold transition px-3 lg:px-6 py-2 inline-block rounded-lg"
+            class="nav-link font-extrabold transition px-2 sm:px-3 xl:px-6 py-1.5 sm:py-2 inline-block rounded-lg"
           >
             {{ item.label | translate }}
           </a>
         </li>
-
       }
     </ul>
 
     @if (isShopRoute()) {
-      <div class="flex-1 max-w-xl mx-4 relative" #searchContainer>
+      <div class="order-2 xl:order-3 flex-1 min-w-0 max-w-xl mx-1 sm:mx-4 relative" #searchContainer>
         <div class="relative">
           <mat-icon class="absolute left-3 inset-y-0 my-auto !w-5 !h-5 !text-xl !leading-5"
             [ngClass]="variant() === 'white' ? 'text-gray-400' : 'text-white/60'">
@@ -109,18 +113,33 @@
       </div>
     }
 
-    <div class="ml-auto flex items-center gap-2 sm:gap-3 md:gap-5">
+    <div class="order-3 xl:order-4 ml-auto flex items-center gap-1.5 sm:gap-3 md:gap-5 shrink-0">
+      <button
+        type="button"
+        class="md:hidden header-btn w-9 h-9 rounded-full flex items-center justify-center transition"
+        (click)="toggleMobileNav()"
+        [attr.aria-expanded]="mobileNavOpen()"
+        aria-controls="header-mobile-nav"
+        aria-label="Menu"
+      >
+        @if (mobileNavOpen()) {
+          <mat-icon class="header-icon !w-6 !h-6">close</mat-icon>
+        } @else {
+          <mat-icon class="header-icon !w-6 !h-6">menu</mat-icon>
+        }
+      </button>
+
       @if (!isAuthenticated) {
         <a
           routerLink="/auth/register"
-          class="register-btn hidden sm:inline-block !px-3 md:!px-5 !py-1.5 md:!py-2 rounded-xl border-2 text-sm md:text-base transition tracking-wider"
+          class="register-btn hidden md:inline-block !px-3 md:!px-5 !py-1.5 md:!py-2 rounded-xl border-2 text-sm md:text-base transition tracking-wider"
         >
           {{ 'header.register' | translate }}
         </a>
 
         <a
           routerLink="/auth/sign-in"
-          class="btn-shimmer px-3 md:px-5 py-1.5 md:py-2 rounded-xl text-sm md:text-base transition tracking-wider inline-block"
+          class="btn-shimmer hidden md:inline-block px-3 md:px-5 py-1.5 md:py-2 rounded-xl text-sm md:text-base transition tracking-wider"
         >
           <span class="relative z-10 text-black font-medium">{{ 'header.signIn' | translate }}</span>
         </a>
@@ -129,7 +148,7 @@
       <a
         routerLink="/profile/wishlist"
         aria-label="Favorites"
-        class="header-btn relative w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
+        class="header-btn hidden md:flex relative w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center transition"
       >
         <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">favorite_border</mat-icon>
         @if (favoriteCount() > 0) {
@@ -160,7 +179,7 @@
 
       <button
         (click)="toggleLanguage()"
-        class="lang-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center font-semibold text-xs md:text-sm transition"
+        class="lang-btn hidden md:flex w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center font-semibold text-xs md:text-sm transition"
         [attr.aria-label]="isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
       >
         {{ isGeorgian() ? 'EN' : 'KA' }}
@@ -188,4 +207,108 @@
       </mat-menu>
     </div>
   </nav>
+
+  @if (mobileNavOpen()) {
+    <div
+      class="fixed inset-0 z-[60] md:hidden bg-black/40 backdrop-blur-sm"
+      (click)="closeMobileNav()"
+      aria-hidden="true"
+    ></div>
+    <div
+      id="header-mobile-nav"
+      class="header-mobile-drawer fixed top-0 right-0 z-[70] h-full w-[min(100%,20rem)] md:hidden shadow-2xl border-l border-gray-200 bg-white flex flex-col pt-[max(1rem,env(safe-area-inset-top))]"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <span class="font-bold uppercase tracking-wider text-sm text-gray-900">
+          {{ 'header.menu' | translate }}
+        </span>
+        <button
+          type="button"
+          class="header-btn w-10 h-10 rounded-full flex items-center justify-center transition"
+          (click)="closeMobileNav()"
+          aria-label="Close menu"
+        >
+          <mat-icon class="header-icon">close</mat-icon>
+        </button>
+      </div>
+      <nav class="flex-1 overflow-y-auto p-4" aria-label="Mobile primary">
+        <ul class="flex flex-col gap-1">
+          @for (item of navItems(); track item.label) {
+            <li>
+              <a
+                [routerLink]="item.link"
+                routerLinkActive="active-nav-link"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="nav-link font-extrabold transition px-4 py-3 rounded-xl block"
+                (click)="closeMobileNav()"
+              >
+                {{ item.label | translate }}
+              </a>
+            </li>
+          }
+        </ul>
+        <a
+          routerLink="/profile/wishlist"
+          routerLinkActive="active-nav-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link mobile-drawer-favorites font-extrabold transition px-4 py-3 rounded-xl flex items-center gap-3 mt-1"
+          (click)="closeMobileNav()"
+        >
+          <mat-icon class="!w-6 !h-6 flex-shrink-0 drawer-inline-icon">favorite_border</mat-icon>
+          <span class="flex-1">{{ 'profile.nav.favorites' | translate }}</span>
+          @if (favoriteCount() > 0) {
+            <span
+              class="min-w-6 h-6 px-1.5 text-white rounded-full text-xs font-bold flex items-center justify-center"
+              [ngClass]="cartBadgeClass()"
+            >
+              {{ favoriteCount() }}
+            </span>
+          }
+        </a>
+        <button
+          type="button"
+          class="nav-link mobile-drawer-language w-full font-extrabold transition px-4 py-3 rounded-xl flex items-center gap-3 mt-1 border-0 bg-transparent text-left cursor-pointer"
+          (click)="toggleLanguage()"
+          [attr.aria-label]="isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
+        >
+          <mat-icon class="!w-6 !h-6 flex-shrink-0 drawer-inline-icon">translate</mat-icon>
+          <span class="flex-1">
+            <span class="block text-[0.65rem] font-bold uppercase tracking-wider opacity-60">{{ 'header.language' | translate }}</span>
+            <span class="block text-sm mt-0.5">{{ (isGeorgian() ? 'header.switchToEnglish' : 'header.switchToGeorgian') | translate }}</span>
+          </span>
+        </button>
+        @if (!isAuthenticated) {
+          <div class="mt-6 flex flex-col gap-2 pt-6 border-t border-gray-200">
+            <a
+              routerLink="/auth/register"
+              class="register-btn text-center !px-4 !py-3 rounded-xl border-2 text-sm font-semibold transition"
+              (click)="closeMobileNav()"
+            >
+              {{ 'header.register' | translate }}
+            </a>
+            <a
+              routerLink="/auth/sign-in"
+              class="btn-shimmer text-center px-4 py-3 rounded-xl text-sm font-medium inline-block"
+              (click)="closeMobileNav()"
+            >
+              <span class="relative z-10 text-black">{{ 'header.signIn' | translate }}</span>
+            </a>
+          </div>
+        }
+        @if (isAuthenticated) {
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              class="mobile-drawer-logout w-full flex items-center gap-3 px-4 py-3 rounded-xl font-extrabold uppercase tracking-wider text-sm transition text-left"
+              (click)="onMobileLogout()"
+            >
+              <mat-icon class="!w-6 !h-6 flex-shrink-0 drawer-inline-icon">logout</mat-icon>
+              <span>{{ 'header.logout' | translate }}</span>
+            </button>
+          </div>
+        }
+      </nav>
+    </div>
+  }
 </header>

@@ -4,6 +4,10 @@
     "signIn": "შედი",
     "profile": "პროფილი",
     "logout": "გასვლა",
+    "menu": "მენიუ",
+    "language": "ენა",
+    "switchToEnglish": "English",
+    "switchToGeorgian": "ქართული",
     "nav": {
       "main": "მთავარი",
       "swap": "გაცვალე",

@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed, input, OnDestroy, HostListener } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { filter, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import {  NgClass } from '@angular/common';
@@ -31,6 +32,7 @@ export class Header implements OnDestroy {
   private confirmDialog = inject(ConfirmationDialogService);
   translation = inject(TranslationService);
   private shopService = inject(ShopService);
+  private document = inject(DOCUMENT);
 
   variant = input<'gradient' | 'white'>('gradient');
   navContainerClass = input<string>('');
@@ -46,6 +48,7 @@ export class Header implements OnDestroy {
   showSearchDropdown = signal(false);
   searchLoading = signal(false);
   suggestedProducts = signal<Product[]>([]);
+  mobileNavOpen = signal(false);
 
   isShopRoute = computed(() => {
     const route = this.currentRoute();
@@ -84,6 +87,7 @@ export class Header implements OnDestroy {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.currentRoute.set(event.url);
+        this.closeMobileNav();
       });
 
     this.currentRoute.set(this.router.url);
@@ -98,6 +102,7 @@ export class Header implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.document.body.style.overflow = '';
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -107,6 +112,13 @@ export class Header implements OnDestroy {
     const target = event.target as HTMLElement;
     if (!target.closest('.relative')) {
       this.showSearchDropdown.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.mobileNavOpen()) {
+      this.closeMobileNav();
     }
   }
 
@@ -122,8 +134,24 @@ export class Header implements OnDestroy {
     this.translation.toggleLanguage();
   }
 
+  toggleMobileNav(): void {
+    const next = !this.mobileNavOpen();
+    this.mobileNavOpen.set(next);
+    this.document.body.style.overflow = next ? 'hidden' : '';
+  }
+
+  closeMobileNav(): void {
+    this.mobileNavOpen.set(false);
+    this.document.body.style.overflow = '';
+  }
+
   navigateToProfile() {
     this.router.navigateByUrl('/profile');
+  }
+
+  onMobileLogout(): void {
+    this.closeMobileNav();
+    this.logout();
   }
 
   logout() {
