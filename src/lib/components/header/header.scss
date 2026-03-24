@@ -204,6 +204,14 @@ header.bg-white {
     }
   }
 
+  .auth-menu-item {
+    display: none !important;
+
+    @media (min-width: 768px) and (max-width: 1279px) {
+      display: flex !important;
+    }
+  }
+
   .logout-menu-item {
     border-top: 1px solid var(--color-borderColor) !important; 
     

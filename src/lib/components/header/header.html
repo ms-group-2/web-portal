@@ -132,14 +132,14 @@
       @if (!isAuthenticated) {
         <a
           routerLink="/auth/register"
-          class="register-btn hidden md:inline-block !px-3 md:!px-5 !py-1.5 md:!py-2 rounded-xl border-2 text-sm md:text-base transition tracking-wider"
+          class="register-btn hidden xl:inline-block !px-3 xl:!px-5 !py-1.5 xl:!py-2 rounded-xl border-2 text-sm xl:text-base transition tracking-wider"
         >
           {{ 'header.register' | translate }}
         </a>
 
         <a
           routerLink="/auth/sign-in"
-          class="btn-shimmer hidden md:inline-block px-3 md:px-5 py-1.5 md:py-2 rounded-xl text-sm md:text-base transition tracking-wider"
+          class="btn-shimmer hidden xl:inline-block px-3 xl:px-5 py-1.5 xl:py-2 rounded-xl text-sm xl:text-base transition tracking-wider"
         >
           <span class="relative z-10 text-black font-medium">{{ 'header.signIn' | translate }}</span>
         </a>
@@ -198,6 +198,16 @@
           <mat-icon>person</mat-icon>
           <span>{{ 'header.profile' | translate }}</span>
         </button>
+        @if (!isAuthenticated) {
+          <a mat-menu-item routerLink="/auth/sign-in" class="profile-menu-item auth-menu-item">
+            <mat-icon>login</mat-icon>
+            <span>{{ 'header.signIn' | translate }}</span>
+          </a>
+          <a mat-menu-item routerLink="/auth/register" class="profile-menu-item auth-menu-item">
+            <mat-icon>person_add</mat-icon>
+            <span>{{ 'header.register' | translate }}</span>
+          </a>
+        }
         @if (isAuthenticated) {
           <button mat-menu-item (click)="logout()" class="logout-menu-item">
             <mat-icon>logout</mat-icon>
