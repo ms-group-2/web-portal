@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, input, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, input, OnDestroy, HostListener, afterNextRender } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { filter, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -49,6 +49,7 @@ export class Header implements OnDestroy {
   searchLoading = signal(false);
   suggestedProducts = signal<Product[]>([]);
   mobileNavOpen = signal(false);
+  authReady = signal(false);
 
   isShopRoute = computed(() => {
     const route = this.currentRoute();
@@ -83,6 +84,8 @@ export class Header implements OnDestroy {
   });
 
   constructor() {
+    afterNextRender(() => this.authReady.set(true));
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {

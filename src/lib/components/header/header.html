@@ -129,7 +129,7 @@
         }
       </button>
 
-      @if (!isAuthenticated) {
+      @if (authReady() && !isAuthenticated) {
         <a
           routerLink="/auth/register"
           class="register-btn hidden xl:inline-block !px-3 xl:!px-5 !py-1.5 xl:!py-2 rounded-xl border-2 text-sm xl:text-base transition tracking-wider"
@@ -198,7 +198,7 @@
           <mat-icon>person</mat-icon>
           <span>{{ 'header.profile' | translate }}</span>
         </button>
-        @if (!isAuthenticated) {
+        @if (authReady() && !isAuthenticated) {
           <a mat-menu-item routerLink="/auth/sign-in" class="profile-menu-item auth-menu-item">
             <mat-icon>login</mat-icon>
             <span>{{ 'header.signIn' | translate }}</span>
@@ -208,7 +208,7 @@
             <span>{{ 'header.register' | translate }}</span>
           </a>
         }
-        @if (isAuthenticated) {
+        @if (authReady() && isAuthenticated) {
           <button mat-menu-item (click)="logout()" class="logout-menu-item">
             <mat-icon>logout</mat-icon>
             <span>{{ 'header.logout' | translate }}</span>
@@ -288,7 +288,7 @@
             <span class="block text-sm mt-0.5">{{ (isGeorgian() ? 'header.switchToEnglish' : 'header.switchToGeorgian') | translate }}</span>
           </span>
         </button>
-        @if (!isAuthenticated) {
+        @if (authReady() && !isAuthenticated) {
           <div class="mt-6 flex flex-col gap-2 pt-6 border-t border-gray-200">
             <a
               routerLink="/auth/register"
@@ -306,7 +306,7 @@
             </a>
           </div>
         }
-        @if (isAuthenticated) {
+        @if (authReady() && isAuthenticated) {
           <div class="mt-6 pt-6 border-t border-gray-200">
             <button
               type="button"

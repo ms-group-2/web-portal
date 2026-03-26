@@ -249,6 +249,7 @@ export class AddProduct implements OnInit {
       category_id: ['', [Validators.required, Validators.min(1)]],
       brand_id: [''],
       price: ['', [Validators.required, Validators.min(1)]],
+      quantity: [1, [Validators.required, Validators.min(0)]],
       field_options: this.fb.array([]),
     });
   }
@@ -357,6 +358,7 @@ export class AddProduct implements OnInit {
       title: formValue.title,
       description: formValue.description,
       price: parseFloat(formValue.price),
+      quantity: parseInt(formValue.quantity),
       sku: formValue.sku.toUpperCase(),
       field_options: (formValue.field_options || [])
         .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
