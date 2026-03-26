@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { StorageService } from 'lib/services/storage/storage.service';
+import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 
 export interface MockOrderItem {
   productId: number;
@@ -27,6 +28,7 @@ export class ShopService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private storage = inject(StorageService);
+  private profileApi = inject(ProfileApiService);
   private baseUrl = environment.apiBaseUrl;
 
   private headers = { 'ngrok-skip-browser-warning': 'true' };
@@ -69,8 +71,13 @@ export class ShopService {
 
   private loadFavoritesForCurrentUser(): void {
     const userId = this.getCurrentUserId();
-    const favorites = this.loadFavoritesFromStorage(userId);
-    this.favorites.set(favorites);
+    const localFavorites = this.loadFavoritesFromStorage(userId);
+    this.favorites.set(localFavorites);
+  }
+
+  syncFavoritesFromBackend(productIds: number[]): void {
+    this.favorites.set(new Set(productIds));
+    this.saveFavoritesToStorage(new Set(productIds));
   }
 
   private loadFavoritesFromStorage(userId: string | null): Set<number> {
@@ -499,13 +506,36 @@ export class ShopService {
   }
 
   toggleFavorite(product: Product): void {
+    const userId = this.getCurrentUserId();
+
+    // Optimistic update
     this.favorites.update(current => {
       const next = new Set(current);
       if (next.has(product.id)) next.delete(product.id);
       else next.add(product.id);
-      this.saveFavoritesToStorage(next);
       return next;
     });
+
+    // Always save to localStorage
+    this.saveFavoritesToStorage(this.favorites());
+
+    // If authenticated, also persist to backend
+    if (userId) {
+      this.profileApi.toggleWishlist(product.id).pipe(
+        catchError(err => {
+          console.error('Failed to toggle wishlist:', err);
+          // Revert on error
+          this.favorites.update(current => {
+            const reverted = new Set(current);
+            if (reverted.has(product.id)) reverted.delete(product.id);
+            else reverted.add(product.id);
+            return reverted;
+          });
+          this.saveFavoritesToStorage(this.favorites());
+          return of(null);
+        })
+      ).subscribe();
+    }
   }
 
   isFavorite(productId: number | undefined): boolean {

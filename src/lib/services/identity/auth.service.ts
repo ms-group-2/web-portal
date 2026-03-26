@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { TokenManagementService } from 'lib/services/identity/token-management.service';
+import { VendorService } from 'lib/services/vendor/vendor.service';
 
 import { RegisterRequest } from './models/register.request.model';
 import { VerifyRequest } from './models/verify.request.model';
@@ -18,6 +19,7 @@ import { tap } from 'rxjs';
 export class AuthService {
   private http = inject(HttpClient);
   private tokens = inject(TokenManagementService);
+  private vendorService = inject(VendorService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
 
@@ -93,6 +95,7 @@ export class AuthService {
 
   logout() {
     this.tokens.clear();
+    this.vendorService.clearVendorState();
     this.user.set(null);
     this.pendingEmail.set(null);
     this.pendingRegistration.set(null);

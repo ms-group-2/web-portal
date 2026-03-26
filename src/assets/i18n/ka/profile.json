@@ -47,7 +47,7 @@
     "errors": {
       "notAuthenticated": "მომხმარებელი არ არის ავტორიზებული",
       "avatarTooLarge": "ავატარის ზომა აღემატება 5მბ-ს",
-      "invalidPhoneFormat": "ნომრის არასწორი ფორმატი არჩეული ქვეყნისთვის",
+      "invalidPhoneFormat": "ნომერის ფორმატი არასწორია",
       "passwordChangeSuccess": "პაროლი წარმატებით შეიცვალა",
       "incorrectCurrentPassword": "შეყვანილი ახლანდელი პაროლი არასწორია",
       "authenticationExpired": "ავტორიზაცია ვადაგასულია. გთხოვთ ხელახლა შეხვიდეთ სისტემაში",
@@ -248,12 +248,13 @@
         "legalAddress": "იურიდიული მისამართი",
         "contactPhone": "საკონტაქტო ტელეფონი",
         "contactEmail": "საკონტაქტო ელ-ფოსტა",
-        "bankAccount": "საბანკო ანგარიშის ნომერი",
+        "bankAccount": "საბანკო ანგარიშის ნომერი (IBAN)",
         "submitting": "მიმდინარეობს რეგისტრაცია...",
         "placeholders": {
           "identificationNumber": "XXXXXXXXXXXX",
           "businessName": "შეიყვანეთ ბიზნესის სახელი",
           "legalAddress": "შეიყვანეთ იურიდიული მისამართი",
+          "contactPhone": "5XXXXXXXX",
           "contactEmail": "business@example.com",
           "bankAccount": "შეიყვანეთ საბანკო ანგარიშის ნომერი"
         }

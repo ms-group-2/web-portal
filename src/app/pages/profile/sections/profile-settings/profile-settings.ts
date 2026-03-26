@@ -18,6 +18,7 @@ import { UpdateProfileRequest } from 'lib/services/profile/models/profile.model'
 import { formInputErrors } from 'lib/constants/enums/form-input-errors.enum';
 import { PROFILE_STATS } from 'lib/constants';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
+import { phoneNationalValidator } from 'lib/validators/phone-national.validator';
 import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
 import { GenderUtil } from 'lib/services/profile/utils/gender.util';
 import { COUNTRIES } from 'lib/constants/countries';
@@ -110,7 +111,7 @@ export class ProfileSettingsComponent implements OnInit {
     lastName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50), emptySpaceValidator()]),
     email: this.fb.control(''),
     countryCode: this.fb.control('+995'),
-    phoneNumber: this.fb.control(''),
+    phoneNumber: this.fb.control('', [phoneNationalValidator()]),
     location: this.fb.control('', [Validators.maxLength(50)]),
     bio: this.fb.control('', [Validators.maxLength(400)]),
     birthDate: this.fb.control<Date | null>(null),
@@ -192,17 +193,7 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   private splitPhoneNumber(fullNumber: string | null): { code: string, number: string } {
-    const defaultResult = { code: '+995', number: '' };
-
-    if (!fullNumber) return defaultResult;
-
-    const cleaned = PhoneUtil.sanitize(fullNumber.replace(/^tel:/i, ''));
-    if (!cleaned) return defaultResult;
-
-    const country = this.countries.find(c => cleaned.startsWith(c.dialCode));
-    return country
-      ? { code: country.dialCode, number: cleaned.substring(country.dialCode.length) }
-      : defaultResult;
+    return PhoneUtil.splitGePhone(fullNumber);
   }
 
   // private handleLoadError(err: any) {
@@ -285,8 +276,7 @@ export class ProfileSettingsComponent implements OnInit {
     const formValues = this.form.getRawValue();
     console.log('Form values:', formValues);
 
-    const fullPhone = formValues.phoneNumber ? `${formValues.countryCode}${formValues.phoneNumber}` : '';
-    const normalizedPhone = PhoneUtil.normalizeForApi(fullPhone);
+    const fullPhone = PhoneUtil.toGeE164(formValues.phoneNumber);
 
     const updateRequest: any = {
       name: formValues.firstName || '',
@@ -296,7 +286,7 @@ export class ProfileSettingsComponent implements OnInit {
     console.log('Name:', formValues.firstName, 'Surname:', formValues.lastName);
 
     // Add optional fields with null if empty
-    updateRequest.phone_number = (normalizedPhone && normalizedPhone !== '+995') ? normalizedPhone : null;
+    updateRequest.phone_number = (fullPhone && fullPhone !== '+995') ? fullPhone : null;
     updateRequest.birth_date = formValues.birthDate ? this.dateToIso(formValues.birthDate)! : null;
     updateRequest.location = formValues.location || null;
     updateRequest.gender = (formValues.gender && formValues.gender !== '-') ? GenderUtil.toBoolean(formValues.gender) : null;
@@ -368,6 +358,20 @@ export class ProfileSettingsComponent implements OnInit {
 
     return '';
   }
+
+  getPhoneErrorMessage(): string {
+    const control = this.form.controls.phoneNumber;
+    if (!control.errors) {
+      return '';
+    }
+
+    if (control.errors['invalidPhone']) {
+      return this.translationService.translate('profile.errors.invalidPhoneFormat');
+    }
+
+    return '';
+  }
+
   onPhoneInput(event: Event): void {
     sanitizePhoneInput(event, this.form.controls.phoneNumber);
   }

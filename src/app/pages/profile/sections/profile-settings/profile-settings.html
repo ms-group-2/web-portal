@@ -159,30 +159,24 @@
         <label class="field-label">{{ 'profile.phone' | translate }}</label>
         @if (isEditing()) {
           <div class="flex gap-2">
-            <mat-form-field appearance="outline" class="country-code-select">
-              <mat-select
-                [formControl]="form.controls.countryCode"
-                panelClass="country-dropdown-panel"
-              >
-                @for (country of countries; track country.code) {
-                  <mat-option [value]="country.dialCode">
-                    <span class="flex items-center !justify-center gap-4">
-                      <span class="text-lg">{{ country.flag }}</span>
-                      <span class="font-bold">{{ country.dialCode }}</span>
-                    </span>
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <div class="country-code-select h-14 px-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-bold flex items-center justify-center whitespace-nowrap">
+              +995
+            </div>
 
             <input
               [formControl]="form.controls.phoneNumber"
               type="tel"
               class="field-input flex-1"
               placeholder="XXX-XXX-XXX"
+              maxlength="9"
               (input)="onPhoneInput($event)"
             />
           </div>
+          @if (form.controls.phoneNumber.invalid && form.controls.phoneNumber.touched) {
+            <p class="text-red-400 text-xs mt-1 font-normal">
+              {{ getPhoneErrorMessage() }}
+            </p>
+          }
         } @else {
           <p class="field-display-optional" [ngClass]="{'text-gray-700 font-bold': phoneDisplay(), 'text-gray-500 font-normal': !phoneDisplay()}">{{ phoneDisplay() || ('profile.notSpecified' | translate) }}</p>
         }

@@ -9,6 +9,7 @@ export interface VendorProfile {
   contact_phone: string;
   contact_email: string;
   bank_account_number: string;
+  status?: string;
   business_type?: BusinessType;
 }
 

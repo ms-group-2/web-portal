@@ -8,6 +8,8 @@ import { TranslationService } from 'lib/services/translation.service';
 import { VendorRegistration } from 'lib/models/vendor.models';
 import { strictEmailValidator } from 'lib/validators/strict-email.validator';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
+import { phoneNationalValidator } from 'lib/validators/phone-national.validator';
+import { ibanValidator } from 'lib/validators/iban.validator';
 import { sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
 import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
 import { FormFieldConfig } from '../../models/form-field-config.model';
@@ -34,8 +36,7 @@ export class VendorStepTwoComponent implements OnInit {
   nextStep = output<VendorRegistration>();
 
   businessForm!: FormGroup;
-  readonly COUNTRY_CODE = '+995';
-  readonly PHONE_NATIONAL_CONTROL = 'contact_phone_national';
+  readonly COUNTRY_CODE = PhoneUtil.GE_DIAL_CODE;
 
   formFields: FormFieldConfig[] = [
     {
@@ -60,13 +61,6 @@ export class VendorStepTwoComponent implements OnInit {
       validators: [Validators.required, Validators.maxLength(50)]
     },
     {
-      name: 'contact_phone',
-      label: 'profile.vendor.form.contactPhone',
-      type: 'tel',
-      placeholder: 'profile.vendor.form.placeholders.contactPhone',
-      validators: [Validators.required, Validators.minLength(9), Validators.maxLength(9), Validators.pattern(/^\d+$/)]
-    },
-    {
       name: 'contact_email',
       label: 'profile.vendor.form.contactEmail',
       type: 'email',
@@ -74,11 +68,24 @@ export class VendorStepTwoComponent implements OnInit {
       validators: [Validators.required,Validators.maxLength(255), strictEmailValidator(), emptySpaceValidator()]
     },
     {
+      name: 'contact_phone',
+      label: 'profile.vendor.form.contactPhone',
+      type: 'tel',
+      placeholder: 'profile.vendor.form.placeholders.contactPhone',
+      validators: [
+        Validators.required,
+        Validators.minLength(9),
+        Validators.maxLength(9),
+        Validators.pattern(/^\d+$/),
+        phoneNationalValidator(),
+      ]
+    },
+    {
       name: 'bank_account_number',
       label: 'profile.vendor.form.bankAccount',
       type: 'text',
       placeholder: 'profile.vendor.form.placeholders.bankAccount',
-      validators: [Validators.required, Validators.minLength(10)]
+      validators: [Validators.required, Validators.maxLength(34), ibanValidator()]
     }
   ];
 
@@ -94,22 +101,12 @@ export class VendorStepTwoComponent implements OnInit {
         const rawValue = (this.formData()[field.name] || '').toString();
         const initialValue =
           field.name === 'contact_phone'
-            ? PhoneUtil.sanitize(rawValue).replace(/^\+?995/, '').replace(/[^\d]/g, '')
+            ? PhoneUtil.extractGeNational(rawValue)
             : rawValue;
 
         formControls[field.name] = [initialValue, field.validators];
       }
     });
-
-    const existingPhone = (this.formData().contact_phone ?? '').toString();
-    const nationalDefault = existingPhone.startsWith(this.COUNTRY_CODE)
-      ? existingPhone.slice(this.COUNTRY_CODE.length)
-      : existingPhone.replace(/^\+?995/, '');
-
-    formControls[this.PHONE_NATIONAL_CONTROL] = [
-      nationalDefault || '',
-      [Validators.required, Validators.minLength(9), Validators.maxLength(9), Validators.pattern(/^\d+$/)],
-    ];
 
     this.businessForm = this.fb.group(formControls);
   }
@@ -121,14 +118,12 @@ export class VendorStepTwoComponent implements OnInit {
   onContinue() {
     if (this.businessForm.valid) {
       const raw = this.businessForm.getRawValue() as any;
-      const national = (raw[this.PHONE_NATIONAL_CONTROL] ?? '').toString();
-
+      const national = (raw.contact_phone ?? '').toString();
       const payload: VendorRegistration = {
-        ...(raw as Omit<VendorRegistration, 'contact_phone'>),
-        contact_phone: `${this.COUNTRY_CODE}${national}`,
-      } as VendorRegistration;
+        ...(raw as VendorRegistration),
+        contact_phone: PhoneUtil.toGeE164(national),
+      };
 
-      delete (payload as any)[this.PHONE_NATIONAL_CONTROL];
       this.nextStep.emit(payload);
     } else {
       this.businessForm.markAllAsTouched();
@@ -136,7 +131,7 @@ export class VendorStepTwoComponent implements OnInit {
   }
 
   onInput(event: Event, fieldName: keyof VendorRegistration) {
-    if (fieldName === 'identification_number') {
+    if (fieldName === 'identification_number' || fieldName === 'contact_phone') {
       const control = this.businessForm.get(fieldName) as FormControl | null;
       if (!control) {
         return;
@@ -144,14 +139,6 @@ export class VendorStepTwoComponent implements OnInit {
 
       sanitizePhoneInput(event, control);
     }
-  }
-
-  onPhoneNationalInput(event: Event) {
-    const control = this.businessForm.get(this.PHONE_NATIONAL_CONTROL) as FormControl | null;
-    if (!control) {
-      return;
-    }
-    sanitizePhoneInput(event, control);
   }
 
   getErrorMessage(fieldName: string): string {
@@ -169,6 +156,10 @@ export class VendorStepTwoComponent implements OnInit {
 
     if (key === 'maxlength' && errors['maxlength']?.requiredLength) {
       return this.translation.translate('validation.maxlength', { n: errors['maxlength'].requiredLength });
+    }
+
+    if (key === 'invalidPhone') {
+      return this.translation.translate('profile.errors.invalidPhoneFormat');
     }
 
     return `validation.${key}`;

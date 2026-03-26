@@ -63,6 +63,10 @@ export class VendorDashboard implements OnInit {
   ngOnInit() {
     this.translation.loadModule('vendor').subscribe();
 
+    this.vendorService.ensureProfileLoaded()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+
     // Load user profile (ProfileApiService caches this internally)
     const userId = this.auth.user()?.id;
     if (userId && !this.userProfile()) {
@@ -89,6 +93,12 @@ export class VendorDashboard implements OnInit {
   loadProducts() {
     const profile = this.vendorProfile();
     if (!profile) return;
+
+    if ((profile.status || '').toLowerCase() === 'pending') {
+      this.products.set([]);
+      this.loading.set(false);
+      return;
+    }
 
     this.loading.set(true);
     this.vendorService.getMyProducts(profile.supplier_id)

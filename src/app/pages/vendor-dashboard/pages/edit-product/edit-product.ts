@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef,
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { of, switchMap } from 'rxjs';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
@@ -54,6 +55,7 @@ export class EditProduct implements OnInit {
   // Track existing images from server (URLs)
   existingCoverUrl = signal<string | null>(null);
   existingImageUrls = signal<string[]>([]);
+  removedImageUrls = signal<string[]>([]);
 
   productForm!: FormGroup;
 
@@ -273,6 +275,7 @@ export class EditProduct implements OnInit {
             this.existingImageUrls.set(product.images);
             this.additionalPreviews.set([...product.images]);
           }
+          this.removedImageUrls.set([]);
 
           // Load field options
           this.fieldOptionsArray.clear();
@@ -335,6 +338,10 @@ export class EditProduct implements OnInit {
 
   removeCoverImage() {
     this.coverImageFile = null;
+    const cover = this.existingCoverUrl();
+    if (cover) {
+      this.removedImageUrls.update(urls => (urls.includes(cover) ? urls : [...urls, cover]));
+    }
     this.existingCoverUrl.set(null);
     this.coverImagePreview.set(null);
   }
@@ -366,6 +373,10 @@ export class EditProduct implements OnInit {
     const existingCount = this.existingImageUrls().length;
     if (index < existingCount) {
       // Removing an existing server image
+      const toRemove = this.existingImageUrls()[index];
+      if (toRemove) {
+        this.removedImageUrls.update(urls => (urls.includes(toRemove) ? urls : [...urls, toRemove]));
+      }
       this.existingImageUrls.update(urls => urls.filter((_, i) => i !== index));
     } else {
       // Removing a newly added file
@@ -403,8 +414,6 @@ export class EditProduct implements OnInit {
       title: formValue.title,
       description: formValue.description,
       price: parseFloat(formValue.price),
-      cover_image_url: this.existingCoverUrl() || undefined,
-      images: this.existingImageUrls().length > 0 ? this.existingImageUrls() : undefined,
       field_options: (formValue.field_options || [])
         .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
         .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
@@ -412,8 +421,46 @@ export class EditProduct implements OnInit {
 
     this.isSubmitting.set(true);
 
-    this.vendorService
-      .updateProduct(profile.supplier_id, productId, productData)
+    const current = this.currentProduct();
+    const currentTaskId = this.extractTaskId(current);
+
+    const submitWithTask = (taskId: string) => {
+      const remove$ = this.removedImageUrls().length
+        ? this.vendorService.deleteTaskImages(profile.supplier_id, taskId, this.removedImageUrls())
+        : of(null);
+
+      const filesToUpload: File[] = [];
+      if (this.coverImageFile) {
+        filesToUpload.push(this.coverImageFile);
+      }
+      if (this.additionalFiles.length) {
+        filesToUpload.push(...this.additionalFiles);
+      }
+
+      const upload$ = filesToUpload.length
+        ? this.vendorService.uploadTaskImages(profile.supplier_id, taskId, filesToUpload)
+        : of(null);
+
+      return remove$.pipe(
+        switchMap(() => upload$),
+        switchMap(() => this.vendorService.submitTaskProduct(profile.supplier_id, taskId))
+      );
+    };
+
+    const request$ = currentTaskId
+      ? this.vendorService
+          .updateDraft(profile.supplier_id, currentTaskId, productData)
+          .pipe(switchMap(() => submitWithTask(currentTaskId)))
+      : this.vendorService
+          .updateProduct(profile.supplier_id, productId, productData)
+          .pipe(
+            switchMap((response: any) => {
+              const taskId = this.extractTaskId(response);
+              return taskId ? submitWithTask(taskId) : of(response);
+            })
+          );
+
+    request$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -468,5 +515,10 @@ export class EditProduct implements OnInit {
     if (control.hasError('pattern')) return 'Invalid format';
 
     return '';
+  }
+
+  private extractTaskId(response: any): string | null {
+    const candidate = response?.task_id ?? response?.taskId ?? null;
+    return candidate ? String(candidate) : null;
   }
 }

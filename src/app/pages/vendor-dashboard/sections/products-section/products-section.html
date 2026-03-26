@@ -89,13 +89,13 @@
               }
             </div>
             <div class="flex items-center gap-1">
+              <button
+                (click)="onEditProduct.emit(product.task_id || product.id)"
+                class="p-2 hover:bg-blue-50 rounded transition-all"
+              >
+                <i class="ph ph-pencil text-gray-600 text-base"></i>
+              </button>
               @if (!product.isDraft) {
-                <button
-                  (click)="onEditProduct.emit(product.id)"
-                  class="p-2 hover:bg-blue-50 rounded transition-all"
-                >
-                  <i class="ph ph-pencil text-gray-600 text-base"></i>
-                </button>
                 <button
                   (click)="onDeleteProduct.emit(product.id)"
                   class="p-2 hover:bg-red-50 rounded transition-all"
@@ -142,14 +142,14 @@
               <td class="py-4 px-6 text-sm font-semibold text-gray-900">₾{{ product.price }}</td>
               <td class="py-4 px-6">
                 <div class="flex items-center gap-2">
+                  <button
+                    (click)="onEditProduct.emit(product.task_id || product.id)"
+                    class="p-1.5 hover:bg-blue-50 rounded transition-all group"
+                    title="Edit product"
+                  >
+                    <i class="ph ph-pencil text-gray-600 group-hover:text-blue-600 text-base"></i>
+                  </button>
                   @if (!product.isDraft) {
-                    <button
-                      (click)="onEditProduct.emit(product.id)"
-                      class="p-1.5 hover:bg-blue-50 rounded transition-all group"
-                      title="Edit product"
-                    >
-                      <i class="ph ph-pencil text-gray-600 group-hover:text-blue-600 text-base"></i>
-                    </button>
                     <button
                       (click)="onDeleteProduct.emit(product.id)"
                       class="p-1.5 hover:bg-red-50 rounded transition-all group"

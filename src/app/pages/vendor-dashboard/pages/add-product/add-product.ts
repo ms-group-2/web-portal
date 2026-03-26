@@ -2,12 +2,15 @@ import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef,
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { of, switchMap } from 'rxjs';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { Category, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { VendorProductCreate } from 'lib/models/vendor.models';
+import { SnackbarService } from 'lib/services/snackbar.service';
+import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,6 +28,7 @@ export class AddProduct implements OnInit {
   translation = inject(TranslationService);
   private vendorService = inject(VendorService);
   private shopService = inject(ShopService);
+  private snackbar = inject(SnackbarService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
 
@@ -44,6 +48,7 @@ export class AddProduct implements OnInit {
   // Image uploads
   coverImageFile: File | null = null;
   coverImagePreview = signal<string | null>(null);
+  coverImageTouched = signal<boolean>(false);
   additionalFiles: File[] = [];
   additionalPreviews = signal<string[]>([]);
 
@@ -53,6 +58,9 @@ export class AddProduct implements OnInit {
     this.translation.loadModule('vendor').subscribe();
     this.initForm();
     this.loadCategories();
+    this.vendorService.ensureProfileLoaded()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   private loadCategories() {
@@ -251,11 +259,18 @@ export class AddProduct implements OnInit {
 
   // Cover image upload
   onCoverImageSelected(event: Event) {
+    this.coverImageTouched.set(true);
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) return;
-    if (file.size > 5 * 1024 * 1024) return;
+    if (!file.type.startsWith('image/')) {
+      this.snackbar.error('Please upload a valid image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.snackbar.error('Image size must be up to 5MB');
+      return;
+    }
 
     this.coverImageFile = file;
     const reader = new FileReader();
@@ -267,6 +282,7 @@ export class AddProduct implements OnInit {
   }
 
   removeCoverImage() {
+    this.coverImageTouched.set(true);
     this.coverImageFile = null;
     this.coverImagePreview.set(null);
   }
@@ -304,6 +320,7 @@ export class AddProduct implements OnInit {
 
   handleSubmit() {
     if (this.productForm.invalid || !this.coverImageFile) {
+      this.coverImageTouched.set(true);
       Object.keys(this.productForm.controls).forEach(key => {
         const control = this.productForm.get(key);
         if (control?.invalid) {
@@ -311,12 +328,25 @@ export class AddProduct implements OnInit {
         }
         control?.markAsTouched();
       });
+
+      if (!this.coverImageFile) {
+        this.snackbar.error('Cover image is required');
+      } else {
+        this.snackbar.error('Please fill in all required fields correctly');
+      }
       return;
     }
 
     const profile = this.vendorProfile();
     if (!profile) {
       console.error('Vendor profile not found');
+      this.snackbar.error('Vendor profile not found. Please refresh and try again.');
+      return;
+    }
+
+    if ((profile.status || '').toLowerCase() === 'pending') {
+      console.error('Seller profile is pending approval. Product creation is disabled.');
+      this.snackbar.error('Your seller profile is pending approval.');
       return;
     }
 
@@ -336,21 +366,42 @@ export class AddProduct implements OnInit {
     this.isSubmitting.set(true);
 
     this.vendorService
-      .createProduct(
-        profile.supplier_id,
-        productData,
-        this.coverImageFile,
-        this.additionalFiles.length > 0 ? this.additionalFiles : undefined
+      .createProductDraft(profile.supplier_id, productData)
+      .pipe(
+        switchMap((createResponse: any) => {
+          const taskId = this.extractTaskId(createResponse);
+          if (!taskId) {
+            throw new Error('Task ID was not returned from create draft endpoint');
+          }
+
+          const filesToUpload: File[] = [];
+          if (this.coverImageFile) {
+            filesToUpload.push(this.coverImageFile);
+          }
+          if (this.additionalFiles.length) {
+            filesToUpload.push(...this.additionalFiles);
+          }
+
+          const upload$ = filesToUpload.length
+            ? this.vendorService.uploadTaskImages(profile.supplier_id, taskId, filesToUpload)
+            : of(null);
+
+          return upload$.pipe(
+            switchMap(() => this.vendorService.submitTaskProduct(profile.supplier_id, taskId))
+          );
+        }),
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
+          this.snackbar.success('Product submitted successfully');
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
         error: (error) => {
           console.error('Failed to create product:', error);
           this.isSubmitting.set(false);
+          this.snackbar.error(this.getApiErrorMessage(error));
         },
       });
   }
@@ -365,5 +416,23 @@ export class AddProduct implements OnInit {
     if (control.hasError('pattern')) return 'Invalid format';
 
     return '';
+  }
+
+  private extractTaskId(response: any): string | null {
+    const candidate = response?.task_id ?? response?.taskId ?? response?.id ?? null;
+    return candidate ? String(candidate) : null;
+  }
+
+  private getApiErrorMessage(error: any): string {
+    const message = error?.error?.message || error?.error?.detail?.[0]?.msg;
+    if (typeof message === 'string' && message.trim()) {
+      return message;
+    }
+
+    if (error?.status === 404 && error?.error?.error_code === 'SELLER_NOT_FOUND') {
+      return 'Seller profile not found. Please refresh the page and try again.';
+    }
+
+    return SNACKBAR_MESSAGES.ERROR_GENERIC;
   }
 }

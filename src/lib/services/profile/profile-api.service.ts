@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Profile, UpdateProfileRequest } from './models/profile.model';
+import { Profile, UpdateProfileRequest, WishlistResponse, WishlistToggleRequest, WishlistToggleResponse } from './models/profile.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileApiService {
@@ -45,6 +45,21 @@ export class ProfileApiService {
     return this.http.delete<Profile>(`${this.baseUrl}/avatar`).pipe(
       tap(() => this.clearCache())
     );
+  }
+
+  getFavorites(profileId: string): Observable<number[]> {
+    return this.http.get<number[]>(`${this.baseUrl}/${profileId}/favorites`);
+  }
+
+  getWishlist(page = 1, limit = 20): Observable<WishlistResponse> {
+    return this.http.get<WishlistResponse>(`${this.baseUrl}/wishlist`, {
+      params: { page, limit },
+    });
+  }
+
+  toggleWishlist(productId: number): Observable<WishlistToggleResponse> {
+    const body: WishlistToggleRequest = { product_id: productId };
+    return this.http.post<WishlistToggleResponse>(`${this.baseUrl}/wishlist/toggle`, body);
   }
 }
 
