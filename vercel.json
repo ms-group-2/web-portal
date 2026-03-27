@@ -1,15 +1,11 @@
 {
   "version": 2,
-  "public": true,
+  "buildCommand": "npm ci && npm run build",
+  "outputDirectory": "dist/vipo-web-app/browser",
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api"
+      "destination": "/index.html"
     }
-  ],
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "dist/YOUR_PROJECT_NAME/browser/**"
-    }
-  }
+  ]
 }
