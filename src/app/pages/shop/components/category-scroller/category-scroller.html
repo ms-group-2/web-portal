@@ -1,22 +1,22 @@
 <div class="relative mb-8">
-  <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ 'shop.categories.title' | translate }}</h2>
+  <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">{{ 'shop.categories.title' | translate }}</h2>
 
-  <div class="flex gap-4 pb-4 px-1">
-    <div class="flex-shrink-0 py-1">
+  <div class="flex gap-2 sm:gap-4 pb-3 sm:pb-4 px-1">
+    <div class="flex-shrink-0 py-1 category-slide">
       <button
         (click)="openCategoryBrowser()"
         [class]="'category-button rounded-2xl overflow-hidden group ' +
           (selectedCategory() === null
             ? 'shadow-lg selected'
             : 'hover:shadow-md')"
-        style="width: 142px; height: 172px;"
+        class="category-card"
       >
-        <div class="relative h-44 bg-gradient-to-br from-market to-[#6B7FE8] flex items-center justify-center overflow-hidden rounded-2xl">
-          <mat-icon class="!w-12 !h-12 !text-5xl text-white opacity-80">apps</mat-icon>
+        <div class="relative h-full bg-gradient-to-br from-market to-[#6B7FE8] flex items-center justify-center overflow-hidden rounded-2xl">
+          <mat-icon class="category-main-icon text-white opacity-80">apps</mat-icon>
 
           <div class="absolute top-0 left-0 right-0 p-2 bg-gradient-to-b from-black/20 to-transparent">
-            <div class="inline-block backdrop-blur-sm px-3 py-2 rounded-lg">
-              <p class="m-0 font-bold text-white text-sm leading-tight">
+            <div class="inline-block backdrop-blur-sm px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg">
+              <p class="m-0 font-bold text-white text-xs sm:text-sm leading-tight">
                 {{ 'shop.categories.browseAll' | translate }}
               </p>
             </div>
@@ -35,22 +35,21 @@
       } @else {
         <app-swiper styleClass="category-swiper">
           @for (category of categories(); track category.id) {
-            <swiper-slide class="py-1" style="width: 142px;">
+            <swiper-slide class="py-1 category-slide">
               <button
                   (click)="selectCategory(category)"
-                  class="category-button relative w-full rounded-lg overflow-hidden bg-[#EAEAEA] transition-all hover:bg-[#E0E0E0] flex items-start justify-start pt-6 px-4"
-                  style="width: 142px; height: 172px;"
+                  class="category-button category-card relative w-full rounded-lg overflow-hidden bg-[#EAEAEA] transition-all hover:bg-[#E0E0E0] flex items-start justify-start pt-3 sm:pt-6 px-3 sm:px-4"
                   [ngClass]="{
                     'shadow-lg selected': selectedCategory() === category.id,
                     'hover:shadow-md': selectedCategory() !== category.id
                   }"
               >
-                <span class="text-sm font-normal text-gray-800 max-w-28 break-words line-clamp-2">
+                <span class="text-xs sm:text-sm font-normal text-gray-800 max-w-[78%] sm:max-w-28 break-words line-clamp-2 leading-tight">
                   {{ category.name | translate }}
                 </span>
 
                 @if (category.image || category.image_url) {
-                  <div class="absolute bottom-0 right-0 w-20 h-20 overflow-hidden rounded-tl-lg">
+                  <div class="absolute bottom-0 right-0 w-14 h-14 sm:w-20 sm:h-20 overflow-hidden rounded-tl-lg">
                     <img
                       [src]="category.image || category.image_url"
                       [alt]="category.name"
@@ -58,8 +57,8 @@
                     />
                   </div>
                 } @else {
-                  <div class="absolute bottom-0 right-0 w-20 h-20 flex items-center justify-center">
-                    <mat-icon class="!w-12 !h-12 !text-5xl text-gray-400">{{ getCategoryIcon(category) }}</mat-icon>
+                  <div class="absolute bottom-0 right-0 w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center">
+                    <mat-icon class="!w-8 !h-8 !text-3xl sm:!w-12 sm:!h-12 sm:!text-5xl text-gray-400">{{ getCategoryIcon(category) }}</mat-icon>
                   </div>
                 }
             </button>

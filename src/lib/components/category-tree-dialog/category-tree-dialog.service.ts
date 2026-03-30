@@ -11,9 +11,9 @@ export class CategoryTreeDialogService {
 
   open(): Observable<Category | null> {
     const dialogRef = this.dialog.open(CategoryMenu, {
-      width: '600px',
-      maxWidth: '90vw',
-      maxHeight: '80vh',
+      width: '96vw',
+      maxWidth: '600px',
+      maxHeight: '85vh',
       panelClass: 'category-tree-dialog',
       hasBackdrop: true,
       disableClose: false,
