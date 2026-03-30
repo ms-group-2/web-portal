@@ -1,15 +1,13 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { StorageService } from 'lib/services/storage/storage.service';
 import { environment } from 'src/environments/environment';
-import {
-  ShopCartApiService,
-} from './shop-cart-api.service';
+import { ShopCartApiService } from './shop-cart-api.service';
 import {
   AddToCartRequest,
   CartResponse,
@@ -28,6 +26,9 @@ export class ShopCartService {
 
   private readonly baseUrl = environment.apiBaseUrl;
   private readonly CART_STORAGE_KEY_PREFIX = 'vipo_cart_';
+  private inFlightCartLoad$: Observable<CartResponse> | null = null;
+  private lastEffectUserId: string | null | undefined = undefined;
+  private loadedRemoteCartUserId: string | null = null;
 
   readonly cartItems = signal<number[]>([]);
   readonly cartCount = computed(() => this.cartItems().length);
@@ -38,21 +39,28 @@ export class ShopCartService {
   readonly cartProductsById = signal<Record<number, Product>>({});
 
   constructor() {
-    this.loadCartForCurrentUser();
-
     effect(() => {
       this.authService.user();
+      const userId = this.getCurrentUserId();
+      if (this.lastEffectUserId === userId) {
+        return;
+      }
+      this.lastEffectUserId = userId;
       this.loadCartForCurrentUser();
     });
   }
 
   ensureCartLoaded(): Observable<void> {
-    if (!this.getCurrentUserId()) {
+    const userId = this.getCurrentUserId();
+    if (!userId) {
       return of(void 0);
     }
 
-    return this.getMyCart().pipe(
-      tap(cart => this.syncCartStateFromResponse(cart)),
+    if (this.loadedRemoteCartUserId === userId) {
+      return of(void 0);
+    }
+
+    return this.fetchCartShared().pipe(
       map(() => void 0),
       catchError(error => {
         console.error('Failed to load cart:', error);
@@ -240,7 +248,7 @@ export class ShopCartService {
   }
 
   private refreshCartFromBackend(): void {
-    this.getMyCart()
+    this.fetchCartShared()
       .pipe(
         catchError(error => {
           console.error('Failed to refresh cart:', error);
@@ -253,6 +261,25 @@ export class ShopCartService {
           this.syncCartStateFromResponse(cart);
         }
       });
+  }
+
+  private fetchCartShared(): Observable<CartResponse> {
+    if (this.inFlightCartLoad$) {
+      return this.inFlightCartLoad$;
+    }
+
+    this.inFlightCartLoad$ = this.cartApi.getMyCart().pipe(
+      tap(cart => {
+        this.syncCartStateFromResponse(cart);
+        this.loadedRemoteCartUserId = this.getCurrentUserId();
+      }),
+      finalize(() => {
+        this.inFlightCartLoad$ = null;
+      }),
+      shareReplay(1)
+    );
+
+    return this.inFlightCartLoad$;
   }
 
   private syncCartStateFromResponse(cart: CartResponse): void {
@@ -342,6 +369,8 @@ export class ShopCartService {
       this.refreshCartFromBackend();
       return;
     }
+
+    this.loadedRemoteCartUserId = null;
 
     const key = this.getCartStorageKey(null);
     const stored = this.storage.getItem(key);
