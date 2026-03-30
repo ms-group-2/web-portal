@@ -158,13 +158,4 @@
       }
     </div>
   </div>
-
-  <!-- Delete Confirmation Dialog -->
-  <app-delete-confirmation-dialog
-    [isOpen]="showDeleteDialog()"
-    [title]="'vendor.confirmDeleteTitle' | translate"
-    [message]="'vendor.confirmDelete' | translate"
-    (onConfirm)="deleteProduct()"
-    (onCancel)="cancelDelete()"
-  />
 </div>

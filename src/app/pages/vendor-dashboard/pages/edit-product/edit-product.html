@@ -38,16 +38,50 @@
         >
           {{ 'vendor.cancel' | translate }}
         </button>
+        @if (isDraft()) {
+          <button
+            type="button"
+            (click)="handleSaveDraft()"
+            [disabled]="isSavingDraft() || isSubmitting()"
+            class="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+          >
+            @if (isSavingDraft()) {
+              <span class="flex items-center gap-2">
+                <i class="ph ph-circle-notch animate-spin text-base"></i>
+                {{ 'vendor.savingDraft' | translate }}
+              </span>
+            } @else {
+              <span class="flex items-center gap-2">
+                <i class="ph ph-floppy-disk text-base"></i>
+                {{ 'vendor.saveDraft' | translate }}
+              </span>
+            }
+          </button>
+        }
         <button
           type="button"
           (click)="handleSubmit()"
-          [disabled]="isSubmitting()"
+          [disabled]="isSubmitting() || isSavingDraft()"
           class="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#5B5FED] text-white rounded-lg font-semibold hover:bg-[#4A4FCC] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
         >
           @if (isSubmitting()) {
-            <span>{{ 'vendor.updating' | translate }}</span>
+            <span class="flex items-center gap-2">
+              <i class="ph ph-circle-notch animate-spin text-base"></i>
+              @if (isDraft()) {
+                {{ 'vendor.publishing' | translate }}
+              } @else {
+                {{ 'vendor.updating' | translate }}
+              }
+            </span>
           } @else {
-            <span>{{ 'vendor.updateProduct' | translate }}</span>
+            <span class="flex items-center gap-2">
+              @if (isDraft()) {
+                <i class="ph ph-rocket-launch text-base"></i>
+                {{ 'vendor.publishProduct' | translate }}
+              } @else {
+                {{ 'vendor.updateProduct' | translate }}
+              }
+            </span>
           }
         </button>
       </div>
@@ -383,13 +417,4 @@
       </div>
     </form>
   }
-
-  <!-- Delete Confirmation Dialog -->
-  <app-delete-confirmation-dialog
-    [isOpen]="showDeleteDialog()"
-    [title]="'vendor.confirmDeleteTitle' | translate"
-    [message]="'vendor.confirmDelete' | translate"
-    (onConfirm)="handleDelete()"
-    (onCancel)="cancelDelete()"
-  />
 </div>

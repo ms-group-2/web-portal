@@ -99,7 +99,8 @@
       "off": "OFF",
       "sku": "SKU",
       "rating": "Rating",
-      "category": "Category"
+      "category": "Category",
+      "outOfStock": "Out of Stock"
     },
     "search": {
       "searching": "Searching...",

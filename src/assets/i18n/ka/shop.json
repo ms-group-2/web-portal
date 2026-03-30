@@ -99,7 +99,8 @@
       "off": "ფასდაკლება",
       "sku": "SKU",
       "rating": "რეიტინგი",
-      "category": "კატეგორია"
+      "category": "კატეგორია",
+      "outOfStock": "არ არის მარაგში"
     },
     "search": {
       "searching": "მოძიება...",

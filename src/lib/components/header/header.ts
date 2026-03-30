@@ -17,6 +17,8 @@ import { ConfirmationDialogService } from '../confirmation-dialog/confirmation-d
 import { TranslationService } from 'lib/services/translation.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopCartService } from 'lib/services/shop/shop-cart.service';
+import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 
 @Component({
@@ -32,6 +34,8 @@ export class Header implements OnDestroy {
   private confirmDialog = inject(ConfirmationDialogService);
   translation = inject(TranslationService);
   private shopService = inject(ShopService);
+  private cartService = inject(ShopCartService);
+  private favoritesService = inject(ShopFavoritesService);
   private document = inject(DOCUMENT);
 
   variant = input<'gradient' | 'white'>('gradient');
@@ -39,8 +43,8 @@ export class Header implements OnDestroy {
 
   navItems = signal(NAV_ITEMS);
   currentRoute = signal('');
-  cartCount = this.shopService.cartCount;
-  favoriteCount = this.shopService.favoriteCount;
+  cartCount = this.cartService.cartCount;
+  favoriteCount = this.favoritesService.favoriteCount;
 
   private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
@@ -209,8 +213,6 @@ export class Header implements OnDestroy {
 
     this.showSearchDropdown.set(true);
     this.searchLoading.set(true);
-
-    this.shopService.setSearchQuery(query);
 
     this.shopService.searchProducts(query, 1, 6).subscribe({
       next: products => {

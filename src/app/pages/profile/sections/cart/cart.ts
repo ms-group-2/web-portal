@@ -2,10 +2,10 @@ import { Component, ChangeDetectionStrategy, inject, computed, signal, OnInit, D
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
-import { ShopService, MockOrderItem } from 'lib/services/shop/shop.service';
+import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { TranslationService } from 'lib/services/translation.service';
-import { forkJoin, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -16,28 +16,30 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class CartComponent implements OnInit {
   private shopService = inject(ShopService);
+  private cartService = inject(ShopCartService);
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
 
   loading = signal(true);
   orderPlaced = signal(false);
+  checkingOut = signal(false);
   mockOrderId = '';
 
   cartProducts = computed(() => {
-    const ids = this.shopService.cartItems();
+    const ids = this.cartService.cartItems();
     const uniqueIds = Array.from(new Set(ids));
-    const productsById = this.shopService.productsById();
+    const productsById = this.cartService.cartProductsById();
 
     return uniqueIds
       .map(id => productsById[id])
       .filter((product): product is Product => !!product);
   });
 
-  totalItems = computed(() => this.shopService.cartItems().length);
+  totalItems = computed(() => this.cartService.cartItems().length);
 
   totalPrice = computed(() => {
-    const ids = this.shopService.cartItems();
-    const productsById = this.shopService.productsById();
+    const ids = this.cartService.cartItems();
+    const productsById = this.cartService.cartProductsById();
     let sum = 0;
 
     ids.forEach(id => {
@@ -51,33 +53,44 @@ export class CartComponent implements OnInit {
   });
 
   getQuantity(productId: number): number {
-    return this.shopService.cartItems().filter(id => id === productId).length;
+    return this.cartService.getCartQuantity(productId);
+  }
+
+  isAtStockLimit(product: Product): boolean {
+    return !this.cartService.canAddMore(product);
   }
 
   increaseQuantity(product: Product): void {
-    this.shopService.addToCart(product);
+    this.cartService.addToCart(product);
   }
 
   decreaseQuantity(productId: number): void {
-    this.shopService.removeOneFromCart(productId);
+    this.cartService.removeOneFromCart(productId);
   }
 
   removeFromCart(productId: number): void {
-    this.shopService.removeAllFromCart(productId);
+    this.cartService.removeAllFromCart(productId);
   }
 
   checkout(): void {
-    const products = this.cartProducts();
-    const items: MockOrderItem[] = products.map(p => ({
-      productId: p.id,
-      title: p.title || p.name || '',
-      imageUrl: p.cover_image_url || p.image_url || p.image || '',
-      price: p.price,
-      quantity: this.getQuantity(p.id),
-    }));
-    const total = this.totalPrice();
-    this.mockOrderId = this.shopService.placeOrder(items, total);
-    this.orderPlaced.set(true);
+    if (this.cartProducts().length === 0 || this.checkingOut()) {
+      return;
+    }
+
+    this.checkingOut.set(true);
+    this.shopService.checkoutCart()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.mockOrderId = response.cart_id;
+          this.orderPlaced.set(true);
+          this.checkingOut.set(false);
+        },
+        error: (error) => {
+          console.error('Failed to checkout cart:', error);
+          this.checkingOut.set(false);
+        },
+      });
   }
 
   ngOnInit() {
@@ -88,17 +101,7 @@ export class CartComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
 
-    const ids = this.shopService.cartItems();
-
-    if (ids.length === 0) {
-      this.loading.set(false);
-      return;
-    }
-
-    const uniqueIds = Array.from(new Set(ids));
-    const requests = uniqueIds.map(id => this.shopService.getProductById(id));
-
-    forkJoin(requests.length > 0 ? requests : [of(null)])
+    this.shopService.ensureCartLoaded()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loading.set(false),

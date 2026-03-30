@@ -134,7 +134,8 @@
                   <button
                     type="button"
                     (click)="increaseQuantity(product)"
-                    class="w-8 h-8 flex items-center justify-center rounded-full bg-market text-white hover:bg-market/90 transition-all">
+                    [disabled]="isAtStockLimit(product)"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-market text-white hover:bg-market/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market">
                     <mat-icon class="!w-4 !h-4 !text-base !leading-4">add</mat-icon>
                   </button>
                 </div>
@@ -182,6 +183,7 @@
             <button
               type="button"
               (click)="checkout()"
+              [disabled]="checkingOut()"
               class="w-full mt-6 bg-market text-white py-3.5 rounded-xl text-sm font-bold uppercase tracking-wide hover:bg-market/90 transition-colors">
               {{ 'profile.cart.checkout' | translate }}
             </button>

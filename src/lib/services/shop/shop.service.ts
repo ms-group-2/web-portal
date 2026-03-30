@@ -1,191 +1,67 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, tap, catchError, timeout } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
-import { AuthService } from 'lib/services/identity/auth.service';
-import { StorageService } from 'lib/services/storage/storage.service';
-import { ProfileApiService } from 'lib/services/profile/profile-api.service';
-
-export interface MockOrderItem {
-  productId: number;
-  title: string;
-  imageUrl: string;
-  price: number;
-  quantity: number;
-}
-
-export interface MockOrder {
-  id: string;
-  items: MockOrderItem[];
-  total: number;
-  status: 'confirmed' | 'shipped' | 'delivered';
-  date: string;
-}
+import { CartResponse, CheckoutResponse } from 'lib/services/shop/models/shop-cart.models';
+import { ShopCartService } from './shop-cart.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShopService {
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private storage = inject(StorageService);
-  private profileApi = inject(ProfileApiService);
+  private cartService = inject(ShopCartService);
   private baseUrl = environment.apiBaseUrl;
 
   private headers = { 'ngrok-skip-browser-warning': 'true' };
-  private readonly FAVORITES_STORAGE_KEY_PREFIX = 'vipo_favorites_';
-  private readonly CART_STORAGE_KEY_PREFIX = 'vipo_cart_';
-  private readonly ORDERS_STORAGE_KEY_PREFIX = 'vipo_orders_';
 
-  cartItems = signal<number[]>([]);
-  cartCount = computed(() => this.cartItems().length);
-  favorites = signal<Set<number>>(new Set());
-  favoriteCount = computed(() => this.favorites().size);
-  orders = signal<MockOrder[]>([]);
-
-  constructor() {
-    // SSR/prerender: skip any localStorage-backed state hydration.
-    // (Signals still exist; they just start empty on the server.)
-    this.loadFavoritesForCurrentUser();
-    this.loadCartForCurrentUser();
-    this.loadOrdersForCurrentUser();
-
-    effect(() => {
-      this.authService.user();
-      this.loadFavoritesForCurrentUser();
-      this.loadCartForCurrentUser();
-      this.loadOrdersForCurrentUser();
-    });
-  }
-
-  private getCurrentUserId(): string | null {
-    return this.authService.user()?.id ?? null;
-  }
-
-  private getFavoritesStorageKey(userId: string | null): string {
-    return userId ? `${this.FAVORITES_STORAGE_KEY_PREFIX}${userId}` : `${this.FAVORITES_STORAGE_KEY_PREFIX}guest`;
-  }
-
-  private getCartStorageKey(userId: string | null): string {
-    return userId ? `${this.CART_STORAGE_KEY_PREFIX}${userId}` : `${this.CART_STORAGE_KEY_PREFIX}guest`;
-  }
-
-  private loadFavoritesForCurrentUser(): void {
-    const userId = this.getCurrentUserId();
-    const localFavorites = this.loadFavoritesFromStorage(userId);
-    this.favorites.set(localFavorites);
-  }
-
-  syncFavoritesFromBackend(productIds: number[]): void {
-    this.favorites.set(new Set(productIds));
-    this.saveFavoritesToStorage(new Set(productIds));
-  }
-
-  private loadFavoritesFromStorage(userId: string | null): Set<number> {
-    const key = this.getFavoritesStorageKey(userId);
-    const stored = this.storage.getItem(key);
-    if (!stored) {
-      return new Set();
+  private normalizeImageUrl(url?: string | null): string {
+    if (!url) {
+      return '';
     }
-    try {
-      const ids = JSON.parse(stored) as number[];
-      return new Set(ids);
-    } catch (error) {
-      console.error('Failed to parse favorites from storage:', error);
-      return new Set();
+
+    if (url.startsWith('http://localhost:9000') || url.startsWith('https://localhost:9000')) {
+      try {
+        const apiBase = new URL(this.baseUrl);
+        const source = new URL(url);
+        return `${apiBase.origin}${source.pathname}`;
+      } catch {
+        return url;
+      }
     }
+
+    if (url.startsWith('/')) {
+      return `${this.baseUrl}${url}`;
+    }
+
+    return url;
   }
 
-  private saveFavoritesToStorage(favorites: Set<number>): void {
-    const userId = this.getCurrentUserId();
-    const key = this.getFavoritesStorageKey(userId);
-    const ids = Array.from(favorites);
-    try {
-      this.storage.setItem(key, JSON.stringify(ids));
-    } catch (error) {
-      console.error('Failed to save favorites to storage:', error);
-    }
-  }
+  private normalizeProduct(product: Product): Product {
+    const cover = this.normalizeImageUrl(product.cover_image_url || product.image_url || product.image);
 
-  clearFavorites(): void {
-    this.favorites.set(new Set());
-  }
-
-  private loadCartForCurrentUser(): void {
-    const userId = this.getCurrentUserId();
-    const key = this.getCartStorageKey(userId);
-    const stored = this.storage.getItem(key);
-    if (!stored) {
-      this.cartItems.set([]);
-      return;
-    }
-    try {
-      const ids = JSON.parse(stored) as number[];
-      this.cartItems.set(ids);
-    } catch (error) {
-      console.error('Failed to load cart from storage:', error);
-      this.cartItems.set([]);
-    }
-  }
-
-  private saveCartToStorage(items: number[]): void {
-    const userId = this.getCurrentUserId();
-    const key = this.getCartStorageKey(userId);
-    try {
-      this.storage.setItem(key, JSON.stringify(items));
-    } catch (error) {
-      console.error('Failed to save cart to storage:', error);
-    }
+    return {
+      ...product,
+      cover_image_url: this.normalizeImageUrl(product.cover_image_url) || cover,
+      image_url: this.normalizeImageUrl(product.image_url) || cover,
+      image: cover,
+      name: product.title || product.name,
+    };
   }
 
   clearCart(): void {
-    this.cartItems.set([]);
-    this.saveCartToStorage([]);
+    this.cartService.clearCart();
   }
 
-  private getOrdersStorageKey(userId: string | null): string {
-    return userId ? `${this.ORDERS_STORAGE_KEY_PREFIX}${userId}` : `${this.ORDERS_STORAGE_KEY_PREFIX}guest`;
+  ensureCartLoaded(): Observable<void> {
+    return this.cartService.ensureCartLoaded();
   }
 
-  private loadOrdersForCurrentUser(): void {
-    const userId = this.getCurrentUserId();
-    const key = this.getOrdersStorageKey(userId);
-    const stored = this.storage.getItem(key);
-    if (!stored) {
-      this.orders.set([]);
-      return;
-    }
-    try {
-      this.orders.set(JSON.parse(stored) as MockOrder[]);
-    } catch (error) {
-      console.error('Failed to load orders from storage:', error);
-      this.orders.set([]);
-    }
+  getMyCart(): Observable<CartResponse> {
+    return this.cartService.getMyCart();
   }
 
-  private saveOrdersToStorage(orders: MockOrder[]): void {
-    const userId = this.getCurrentUserId();
-    const key = this.getOrdersStorageKey(userId);
-    try {
-      this.storage.setItem(key, JSON.stringify(orders));
-    } catch (error) {
-      console.error('Failed to save orders to storage:', error);
-    }
-  }
-
-  placeOrder(items: MockOrderItem[], total: number): string {
-    const orderId = 'VPO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    const order: MockOrder = {
-      id: orderId,
-      items,
-      total,
-      status: 'confirmed',
-      date: new Date().toISOString(),
-    };
-    const updated = [order, ...this.orders()];
-    this.orders.set(updated);
-    this.saveOrdersToStorage(updated);
-    this.clearCart();
-    return orderId;
+  checkoutCart(): Observable<CheckoutResponse> {
+    return this.cartService.checkoutCart();
   }
 
   categoriesByParentId = signal<Partial<Record<number | 'root', Category[]>>>({});
@@ -351,11 +227,7 @@ export class ShopService {
           }
           return {
             ...response,
-            items: response.items.map(product => ({
-              ...product,
-              name: product.title || product.name,
-              image: product.cover_image_url || product.image_url || product.image,
-            })),
+            items: response.items.map(product => this.normalizeProduct(product)),
           };
         }),
         tap(response => {
@@ -422,11 +294,7 @@ export class ShopService {
           if (!response || !response.items) {
             return [];
           }
-          return response.items.map(product => ({
-            ...product,
-            name: product.title || product.name,
-            image: product.cover_image_url || product.image_url || product.image,
-          }));
+          return response.items.map(product => this.normalizeProduct(product));
         }),
         tap(products => {
           if (!hasFilters && page === 1) {
@@ -472,11 +340,7 @@ export class ShopService {
           if (!response?.categories) return [];
           return response.categories.map(cat => ({
             ...cat,
-            products: (cat.products || []).map(product => ({
-              ...product,
-              name: product.title || product.name,
-              image: product.cover_image_url || product.image_url || product.image,
-            })),
+            products: (cat.products || []).map(product => this.normalizeProduct(product)),
           }));
         }),
         tap(categories => {
@@ -498,50 +362,6 @@ export class ShopService {
       );
   }
 
-  addToCart(product: Product): void {
-    const current = this.cartItems();
-    const next = [...current, product.id];
-    this.cartItems.set(next);
-    this.saveCartToStorage(next);
-  }
-
-  toggleFavorite(product: Product): void {
-    const userId = this.getCurrentUserId();
-
-    // Optimistic update
-    this.favorites.update(current => {
-      const next = new Set(current);
-      if (next.has(product.id)) next.delete(product.id);
-      else next.add(product.id);
-      return next;
-    });
-
-    // Always save to localStorage
-    this.saveFavoritesToStorage(this.favorites());
-
-    // If authenticated, also persist to backend
-    if (userId) {
-      this.profileApi.toggleWishlist(product.id).pipe(
-        catchError(err => {
-          console.error('Failed to toggle wishlist:', err);
-          // Revert on error
-          this.favorites.update(current => {
-            const reverted = new Set(current);
-            if (reverted.has(product.id)) reverted.delete(product.id);
-            else reverted.add(product.id);
-            return reverted;
-          });
-          this.saveFavoritesToStorage(this.favorites());
-          return of(null);
-        })
-      ).subscribe();
-    }
-  }
-
-  isFavorite(productId: number | undefined): boolean {
-    return !!productId && this.favorites().has(productId);
-  }
-
   getProductById(productId: number): Observable<Product | null> {
     const cached = this.productsById()[productId];
     if (cached) {
@@ -558,11 +378,7 @@ export class ShopService {
             return null;
           }
           const product = response.product;
-          return {
-            ...product,
-            name: product.title || product.name,
-            image: product.cover_image_url || product.image_url || product.image,
-          };
+          return this.normalizeProduct(product);
         }),
         tap(product => {
           if (product) {
@@ -596,11 +412,7 @@ export class ShopService {
           }
           return {
             ...response,
-            items: response.items.map(product => ({
-              ...product,
-              name: product.title || product.name,
-              image: product.cover_image_url || product.image_url || product.image,
-            })),
+            items: response.items.map(product => this.normalizeProduct(product)),
           };
         }),
         catchError(() => of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse))
@@ -628,11 +440,7 @@ export class ShopService {
           if (!response || !response.items) {
             return [];
           }
-          return response.items.map(product => ({
-            ...product,
-            name: product.title || product.name,
-            image: product.cover_image_url || product.image_url || product.image,
-          }));
+          return response.items.map(product => this.normalizeProduct(product));
         }),
         catchError(err => {
           return of([]);
@@ -672,28 +480,6 @@ export class ShopService {
           return of([]);
         })
       );
-  }
-
-  private updateCart(next: number[]): void {
-    this.cartItems.set(next);
-    this.saveCartToStorage(next);
-  }
-
-  removeOneFromCart(productId: number): void {
-    const current = this.cartItems();
-    const index = current.indexOf(productId);
-    if (index === -1) {
-      return;
-    }
-    const next = [...current];
-    next.splice(index, 1);
-    this.updateCart(next);
-  }
-
-  removeAllFromCart(productId: number): void {
-    const current = this.cartItems();
-    const next = current.filter(id => id !== productId);
-    this.updateCart(next);
   }
 
 }

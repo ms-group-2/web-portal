@@ -82,6 +82,18 @@ body {
 
 .cdk-overlay-container { z-index: 1000; }
 
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 16xfrdesfdxpx !important;
+}
+
+.delete-confirmation-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+}
+
+.delete-confirmation-dialog .mdc-dialog__surface {
+  background-color: #fff !important;
+}
+
 // .text-feature {
 //   color: var(--color-feature);
 // }

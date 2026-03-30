@@ -1,32 +1,32 @@
-@if (isOpen()) {
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
-      <div class="flex items-start gap-4 mb-6">
-        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-          <i class="ph ph-warning text-red-600 text-2xl"></i>
-        </div>
-        <div class="flex-1">
-          <h3 class="text-lg font-bold text-gray-900 mb-1">{{ title() }}</h3>
-          <p class="text-sm text-gray-600">{{ message() }}</p>
-        </div>
-      </div>
-
-      <div class="flex gap-3 justify-end">
-        <button
-          type="button"
-          (click)="onCancel.emit()"
-          class="px-6 py-3 border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"
-        >
-          {{ 'vendor.cancel' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="onConfirm.emit()"
-          class="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all"
-        >
-          {{ 'vendor.deleteProduct' | translate }}
-        </button>
-      </div>
+<mat-dialog-content class="!p-6 !pb-0">
+  <div class="flex items-start gap-4 mb-6">
+    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+      <i class="ph ph-warning text-red-600 text-2xl"></i>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-lg font-bold text-gray-900 mb-1">
+        {{ (data.title || 'vendor.confirmDeleteTitle') | translate }}
+      </h3>
+      <p class="text-sm text-gray-600">
+        {{ (data.message || 'vendor.confirmDelete') | translate }}
+      </p>
     </div>
   </div>
-}
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="!p-6 !pt-0 gap-3">
+  <button
+    type="button"
+    (click)="onCancel()"
+    class="px-6 py-3 border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+  >
+    {{ (data.cancelText || 'vendor.cancel') | translate }}
+  </button>
+  <button
+    type="button"
+    (click)="onConfirm()"
+    class="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all"
+  >
+    {{ (data.confirmText || 'vendor.deleteProduct') | translate }}
+  </button>
+</mat-dialog-actions>

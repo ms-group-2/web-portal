@@ -7,7 +7,7 @@ import { Product } from 'src/app/pages/shop/shop.models';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslationService } from 'lib/services/translation.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
-import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
 
 @Component({
   selector: 'app-wishlist',
@@ -17,7 +17,7 @@ import { ShopService } from 'lib/services/shop/shop.service';
 })
 export class WishlistComponent implements OnInit {
   private profileApi = inject(ProfileApiService);
-  private shopService = inject(ShopService);
+  private favoritesService = inject(ShopFavoritesService);
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
 
@@ -42,7 +42,7 @@ export class WishlistComponent implements OnInit {
               category_id: 0,
             } as Product))
           );
-          this.shopService.syncFavoritesFromBackend(response.items.map(item => item.id));
+          this.favoritesService.syncFavoritesFromBackend(response.items.map(item => item.id));
           this.loading.set(false);
         },
         error: () => {

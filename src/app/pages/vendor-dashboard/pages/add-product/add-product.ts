@@ -34,6 +34,7 @@ export class AddProduct implements OnInit {
 
   vendorProfile = this.vendorService.vendorProfile;
   isSubmitting = signal<boolean>(false);
+  isSavingDraft = signal<boolean>(false);
 
   mainCategories = signal<Category[]>([]);
   subcategories = signal<Category[]>([]);
@@ -317,6 +318,68 @@ export class AddProduct implements OnInit {
 
   handleCancel() {
     this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
+  }
+
+  handleSaveDraft() {
+    // Draft saves don't require cover image or full validation
+    const profile = this.vendorProfile();
+    if (!profile) {
+      this.snackbar.error('Vendor profile not found. Please refresh and try again.');
+      return;
+    }
+
+    if ((profile.status || '').toLowerCase() === 'pending') {
+      this.snackbar.error('Your seller profile is pending approval.');
+      return;
+    }
+
+    const formValue = this.productForm.value;
+    const productData: VendorProductCreate = {
+      category_id: parseInt(formValue.category_id) || 0,
+      brand_id: parseInt(formValue.brand_id) || 0,
+      title: formValue.title || 'Untitled Draft',
+      description: formValue.description || '',
+      price: parseFloat(formValue.price) || 0,
+      quantity: parseInt(formValue.quantity) || 0,
+      sku: (formValue.sku || '').toUpperCase() || `DRAFT-${Date.now()}`,
+      field_options: (formValue.field_options || [])
+        .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
+        .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
+    };
+
+    this.isSavingDraft.set(true);
+
+    this.vendorService
+      .createProductDraft(profile.supplier_id, productData)
+      .pipe(
+        switchMap((createResponse: any) => {
+          const taskId = this.extractTaskId(createResponse);
+          if (!taskId) {
+            throw new Error('Task ID was not returned from create draft endpoint');
+          }
+
+          const filesToUpload: File[] = [];
+          if (this.coverImageFile) filesToUpload.push(this.coverImageFile);
+          if (this.additionalFiles.length) filesToUpload.push(...this.additionalFiles);
+
+          return filesToUpload.length
+            ? this.vendorService.uploadTaskImages(profile.supplier_id, taskId, filesToUpload)
+            : of(null);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.isSavingDraft.set(false);
+          this.snackbar.success('Draft saved successfully');
+          this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
+        },
+        error: (error) => {
+          console.error('Failed to save draft:', error);
+          this.isSavingDraft.set(false);
+          this.snackbar.error(this.getApiErrorMessage(error));
+        },
+      });
   }
 
   handleSubmit() {

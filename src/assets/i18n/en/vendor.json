@@ -64,6 +64,8 @@
     "cancel": "Cancel",
     "publishing": "Publishing...",
     "publishProduct": "Publish Product",
+    "saveDraft": "Save Draft",
+    "savingDraft": "Saving...",
     "updating": "Updating...",
     "updateProduct": "Update Product",
     "loadingProduct": "Loading product...",
