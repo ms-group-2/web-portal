@@ -2,12 +2,15 @@ import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef,
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { of, switchMap } from 'rxjs';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { Category, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { VendorProductCreate } from 'lib/models/vendor.models';
+import { SnackbarService } from 'lib/services/snackbar.service';
+import { SNACKBAR_MESSAGES } from 'lib/constants';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +30,7 @@ export class AddProduct implements OnInit {
   private shopService = inject(ShopService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private snackbar = inject(SnackbarService);
 
   vendorProfile = this.vendorService.vendorProfile;
   isSubmitting = signal<boolean>(false);
@@ -311,7 +315,7 @@ export class AddProduct implements OnInit {
       return;
     }
 
-    if ((profile.status || '').toLowerCase() === 'pending') {
+    if (this.vendorService.isPendingApproval()) {
       this.snackbar.error('Your seller profile is pending approval.');
       return;
     }
@@ -323,7 +327,6 @@ export class AddProduct implements OnInit {
       title: formValue.title || 'Untitled Draft',
       description: formValue.description || '',
       price: parseFloat(formValue.price) || 0,
-      quantity: parseInt(formValue.quantity) || 0,
       sku: (formValue.sku || '').toUpperCase() || `DRAFT-${Date.now()}`,
       field_options: (formValue.field_options || [])
         .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
@@ -357,7 +360,7 @@ export class AddProduct implements OnInit {
           this.snackbar.success('Draft saved successfully');
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
-        error: (error) => {
+        error: (error: unknown) => {
           console.error('Failed to save draft:', error);
           this.isSavingDraft.set(false);
           this.snackbar.error(this.getApiErrorMessage(error));
@@ -428,5 +431,19 @@ export class AddProduct implements OnInit {
     if (control.hasError('pattern')) return 'Invalid format';
 
     return '';
+  }
+
+  private extractTaskId(response: any): string | null {
+    const candidate = response?.task_id ?? response?.taskId ?? response?.id ?? null;
+    return candidate ? String(candidate) : null;
+  }
+
+  private getApiErrorMessage(error: any): string {
+    const message = error?.error?.message || error?.error?.detail?.[0]?.msg;
+    if (typeof message === 'string' && message.trim()) {
+      return message;
+    }
+
+    return SNACKBAR_MESSAGES.ERROR_GENERIC;
   }
 }

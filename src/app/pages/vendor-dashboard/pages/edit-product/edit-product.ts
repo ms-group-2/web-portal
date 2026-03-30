@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef,
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { of, switchMap } from 'rxjs';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
@@ -58,6 +59,7 @@ export class EditProduct implements OnInit {
   // Track existing images from server (URLs)
   existingCoverUrl = signal<string | null>(null);
   existingImageUrls = signal<string[]>([]);
+  removedImageUrls = signal<string[]>([]);
 
   productForm!: FormGroup;
 
@@ -277,6 +279,7 @@ export class EditProduct implements OnInit {
             this.existingImageUrls.set(product.images);
             this.additionalPreviews.set([...product.images]);
           }
+          this.removedImageUrls.set([]);
 
           // Load field options
           this.fieldOptionsArray.clear();
@@ -339,6 +342,10 @@ export class EditProduct implements OnInit {
 
   removeCoverImage() {
     this.coverImageFile = null;
+    const cover = this.existingCoverUrl();
+    if (cover) {
+      this.removedImageUrls.update(urls => (urls.includes(cover) ? urls : [...urls, cover]));
+    }
     this.existingCoverUrl.set(null);
     this.coverImagePreview.set(null);
   }
@@ -370,6 +377,10 @@ export class EditProduct implements OnInit {
     const existingCount = this.existingImageUrls().length;
     if (index < existingCount) {
       // Removing an existing server image
+      const toRemove = this.existingImageUrls()[index];
+      if (toRemove) {
+        this.removedImageUrls.update(urls => (urls.includes(toRemove) ? urls : [...urls, toRemove]));
+      }
       this.existingImageUrls.update(urls => urls.filter((_, i) => i !== index));
     } else {
       // Removing a newly added file
@@ -439,7 +450,7 @@ export class EditProduct implements OnInit {
           this.snackbar.success('Draft saved successfully');
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
-        error: (error) => {
+        error: (error: unknown) => {
           console.error('Failed to save draft:', error);
           this.isSavingDraft.set(false);
           this.snackbar.error('Failed to save draft');
@@ -550,5 +561,10 @@ export class EditProduct implements OnInit {
     if (control.hasError('pattern')) return 'Invalid format';
 
     return '';
+  }
+
+  private extractTaskId(response: any): string | null {
+    const candidate = response?.task_id ?? response?.taskId ?? null;
+    return candidate ? String(candidate) : null;
   }
 }
