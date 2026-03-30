@@ -6,6 +6,8 @@ import { switchMap, tap } from 'rxjs/operators';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopCartService } from 'lib/services/shop/shop-cart.service';
+import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { Product } from '../shop/shop.models';
@@ -25,6 +27,8 @@ import { Swiper } from 'lib/components/swiper/swiper';
 export class ProductDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private shopService = inject(ShopService);
+  private cartService = inject(ShopCartService);
+  private favoritesService = inject(ShopFavoritesService);
   private translation = inject(TranslationService);
   private location = inject(Location);
   private destroyRef = inject(DestroyRef);
@@ -36,7 +40,20 @@ export class ProductDetail implements OnInit {
   quantity = signal<number>(1);
   similarProducts = signal<Product[]>([]);
 
-  isFavorited = computed(() => this.shopService.isFavorite(this.product()?.id));
+  isFavorited = computed(() => this.favoritesService.isFavorite(this.product()?.id));
+
+  maxQuantity = computed(() => {
+    const product = this.product();
+    if (!product || product.quantity == null) return Infinity;
+    const inCart = this.cartService.getCartQuantity(product.id);
+    return Math.max(0, product.quantity - inCart);
+  });
+
+  isAtStockLimit = computed(() => {
+    const product = this.product();
+    if (!product) return false;
+    return !this.cartService.canAddMore(product);
+  });
 
   breadcrumbTrail = computed(() => {
     const product = this.product();
@@ -135,7 +152,8 @@ export class ProductDetail implements OnInit {
   }
 
   incrementQuantity() {
-    this.quantity.update(q => q + 1);
+    const max = this.maxQuantity();
+    this.quantity.update(q => q < max ? q + 1 : q);
   }
 
   decrementQuantity() {
@@ -145,8 +163,11 @@ export class ProductDetail implements OnInit {
   addToCart() {
     const product = this.product();
     if (product) {
-      for (let i = 0; i < this.quantity(); i++) {
-        this.shopService.addToCart(product);
+      const max = this.maxQuantity();
+      const toAdd = Math.min(this.quantity(), max);
+      const added = this.cartService.addToCart(product, toAdd);
+      if (added) {
+        this.quantity.set(1);
       }
     }
   }
@@ -154,7 +175,7 @@ export class ProductDetail implements OnInit {
   toggleFavorite() {
     const product = this.product();
     if (product) {
-      this.shopService.toggleFavorite(product);
+      this.favoritesService.toggleFavorite(product.id);
     }
   }
 }

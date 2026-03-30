@@ -1,4 +1,5 @@
-import { Component, inject, signal, computed, input, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, input, OnDestroy, HostListener, afterNextRender } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { filter, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import {  NgClass } from '@angular/common';
@@ -16,6 +17,8 @@ import { ConfirmationDialogService } from '../confirmation-dialog/confirmation-d
 import { TranslationService } from 'lib/services/translation.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopCartService } from 'lib/services/shop/shop-cart.service';
+import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 
 @Component({
@@ -31,14 +34,17 @@ export class Header implements OnDestroy {
   private confirmDialog = inject(ConfirmationDialogService);
   translation = inject(TranslationService);
   private shopService = inject(ShopService);
+  private cartService = inject(ShopCartService);
+  private favoritesService = inject(ShopFavoritesService);
+  private document = inject(DOCUMENT);
 
   variant = input<'gradient' | 'white'>('gradient');
   navContainerClass = input<string>('');
 
   navItems = signal(NAV_ITEMS);
   currentRoute = signal('');
-  cartCount = this.shopService.cartCount;
-  favoriteCount = this.shopService.favoriteCount;
+  cartCount = this.cartService.cartCount;
+  favoriteCount = this.favoritesService.favoriteCount;
 
   private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
@@ -46,6 +52,8 @@ export class Header implements OnDestroy {
   showSearchDropdown = signal(false);
   searchLoading = signal(false);
   suggestedProducts = signal<Product[]>([]);
+  mobileNavOpen = signal(false);
+  authReady = signal(false);
 
   isShopRoute = computed(() => {
     const route = this.currentRoute();
@@ -80,10 +88,13 @@ export class Header implements OnDestroy {
   });
 
   constructor() {
+    afterNextRender(() => this.authReady.set(true));
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.currentRoute.set(event.url);
+        this.closeMobileNav();
       });
 
     this.currentRoute.set(this.router.url);
@@ -98,6 +109,7 @@ export class Header implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.document.body.style.overflow = '';
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -107,6 +119,13 @@ export class Header implements OnDestroy {
     const target = event.target as HTMLElement;
     if (!target.closest('.relative')) {
       this.showSearchDropdown.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.mobileNavOpen()) {
+      this.closeMobileNav();
     }
   }
 
@@ -122,8 +141,24 @@ export class Header implements OnDestroy {
     this.translation.toggleLanguage();
   }
 
+  toggleMobileNav(): void {
+    const next = !this.mobileNavOpen();
+    this.mobileNavOpen.set(next);
+    this.document.body.style.overflow = next ? 'hidden' : '';
+  }
+
+  closeMobileNav(): void {
+    this.mobileNavOpen.set(false);
+    this.document.body.style.overflow = '';
+  }
+
   navigateToProfile() {
     this.router.navigateByUrl('/profile');
+  }
+
+  onMobileLogout(): void {
+    this.closeMobileNav();
+    this.logout();
   }
 
   logout() {
@@ -178,8 +213,6 @@ export class Header implements OnDestroy {
 
     this.showSearchDropdown.set(true);
     this.searchLoading.set(true);
-
-    this.shopService.setSearchQuery(query);
 
     this.shopService.searchProducts(query, 1, 6).subscribe({
       next: products => {

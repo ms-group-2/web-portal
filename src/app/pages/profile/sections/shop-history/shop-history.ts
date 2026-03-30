@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
-import { ShopService, MockOrder } from 'lib/services/shop/shop.service';
+import { MockOrder, ShopOrdersService } from 'lib/services/shop/shop-orders.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -15,11 +15,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShopHistoryComponent implements OnInit {
-  private shopService = inject(ShopService);
+  private ordersService = inject(ShopOrdersService);
   private translation = inject(TranslationService);
   private destroyRef = inject(DestroyRef);
 
-  orders = this.shopService.orders;
+  orders = this.ordersService.orders;
 
   ngOnInit() {
     this.translation.loadModule('profile')

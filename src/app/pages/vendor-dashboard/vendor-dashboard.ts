@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
@@ -29,7 +30,6 @@ import { TabType } from './models/navigation.models';
     ProductsSection,
     OrdersSection,
     SettingsSection,
-    DeleteConfirmationDialog,
   ],
   templateUrl: './vendor-dashboard.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +42,7 @@ export class VendorDashboard implements OnInit {
   private auth = inject(AuthService);
   private profileApi = inject(ProfileApiService);
   private destroyRef = inject(DestroyRef);
+  private dialog = inject(MatDialog);
 
   vendorProfile = this.vendorService.vendorProfile;
   userProfile = signal<Profile | null>(null);
@@ -52,7 +53,6 @@ export class VendorDashboard implements OnInit {
   allNavigationTabs = [...MAIN_NAVIGATION_TABS, ...SETTINGS_NAVIGATION_TABS];
   products = signal<any[]>([]);
   loading = signal<boolean>(false);
-  showDeleteDialog = signal<boolean>(false);
   productToDelete = signal<string | number | null>(null);
   sidebarOpen = signal<boolean>(false);
 
@@ -113,13 +113,30 @@ export class VendorDashboard implements OnInit {
   }
 
   confirmDeleteProduct(productId: string | number) {
-    this.productToDelete.set(productId);
-    this.showDeleteDialog.set(true);
-  }
+    const dialogRef = this.dialog.open(DeleteConfirmationDialog, {
+      width: '448px',
+      height: '194px',
+      panelClass: 'delete-confirmation-dialog',
+      data: {
+        title: 'vendor.confirmDeleteTitle',
+        message: 'vendor.confirmDelete',
+        confirmText: 'vendor.deleteProduct',
+        cancelText: 'vendor.cancel',
+      },
+      disableClose: false,
+      hasBackdrop: true,
+    });
 
-  cancelDelete() {
-    this.showDeleteDialog.set(false);
-    this.productToDelete.set(null);
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) {
+          return;
+        }
+
+        this.productToDelete.set(productId);
+        this.deleteProduct();
+      });
   }
 
   deleteProduct() {
@@ -133,12 +150,10 @@ export class VendorDashboard implements OnInit {
       .subscribe({
         next: () => {
           this.products.set(this.products().filter(p => p.id !== productId));
-          this.showDeleteDialog.set(false);
           this.productToDelete.set(null);
         },
         error: (error) => {
           console.error('Failed to delete product:', error);
-          this.showDeleteDialog.set(false);
           this.productToDelete.set(null);
         }
       });

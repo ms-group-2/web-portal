@@ -3,7 +3,8 @@ import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { Product } from '../../shop.models';
-import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopCartService } from 'lib/services/shop/shop-cart.service';
+import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
@@ -17,18 +18,20 @@ export class ProductCardComponent {
   product = input.required<Product>();
   compact = input<boolean>(false);
 
-  private shopService = inject(ShopService);
-  isFavorited = computed(() => this.shopService.isFavorite(this.product()?.id));
+  private cartService = inject(ShopCartService);
+  private favoritesService = inject(ShopFavoritesService);
+  isFavorited = computed(() => this.favoritesService.isFavorite(this.product()?.id));
+  isAtStockLimit = computed(() => !this.cartService.canAddMore(this.product()));
 
   addToCart(event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    this.shopService.addToCart(this.product());
+    this.cartService.addToCart(this.product());
   }
 
   toggleFavorite(event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    this.shopService.toggleFavorite(this.product());
+    this.favoritesService.toggleFavorite(this.product().id);
   }
 }

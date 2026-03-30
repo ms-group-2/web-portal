@@ -27,6 +27,7 @@ export interface Product {
   reviewCount?: number;
   verified?: boolean;
   badge?: string;
+  quantity?: number;
 }
 
 export interface Category {

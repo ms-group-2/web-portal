@@ -8,7 +8,9 @@ import { VendorService } from 'lib/services/vendor/vendor.service';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { Category, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { VendorProductUpdate } from 'lib/models/vendor.models';
+import { SnackbarService } from 'lib/services/snackbar.service';
 import { DeleteConfirmationDialog } from '../../components/delete-confirmation-dialog/delete-confirmation-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-edit-product',
-  imports: [ReactiveFormsModule, TranslatePipe, DeleteConfirmationDialog, MatFormFieldModule, MatSelectModule, MatIconModule, MatInputModule],
+  imports: [ReactiveFormsModule, TranslatePipe, MatFormFieldModule, MatSelectModule, MatIconModule, MatInputModule],
   templateUrl: './edit-product.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -29,13 +31,15 @@ export class EditProduct implements OnInit {
   private shopService = inject(ShopService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private snackbar = inject(SnackbarService);
+  private dialog = inject(MatDialog);
 
   vendorProfile = this.vendorService.vendorProfile;
   isSubmitting = signal<boolean>(false);
+  isSavingDraft = signal<boolean>(false);
   isLoading = signal<boolean>(true);
   isDeleting = signal<boolean>(false);
   productId = signal<string | null>(null);
-  showDeleteDialog = signal<boolean>(false);
   currentProduct = signal<any>(null);
 
   mainCategories = signal<Category[]>([]);
@@ -379,6 +383,70 @@ export class EditProduct implements OnInit {
     this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
   }
 
+  isDraft(): boolean {
+    const current = this.currentProduct();
+    return !!current?.isDraft || !!this.extractTaskId(current);
+  }
+
+  handleSaveDraft() {
+    const profile = this.vendorProfile();
+    const productId = this.productId();
+    if (!profile || !productId) return;
+
+    const current = this.currentProduct();
+    const taskId = this.extractTaskId(current);
+    if (!taskId) {
+      this.snackbar.error('Only draft products can be saved as draft');
+      return;
+    }
+
+    const formValue = this.productForm.value;
+    const productData: VendorProductUpdate = {
+      category_id: parseInt(formValue.category_id) || undefined,
+      brand_id: parseInt(formValue.brand_id) || 0,
+      title: formValue.title,
+      description: formValue.description,
+      price: parseFloat(formValue.price) || undefined,
+      field_options: (formValue.field_options || [])
+        .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
+        .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
+    };
+
+    this.isSavingDraft.set(true);
+
+    const remove$ = this.removedImageUrls().length
+      ? this.vendorService.deleteTaskImages(profile.supplier_id, taskId, this.removedImageUrls())
+      : of(null);
+
+    const filesToUpload: File[] = [];
+    if (this.coverImageFile) filesToUpload.push(this.coverImageFile);
+    if (this.additionalFiles.length) filesToUpload.push(...this.additionalFiles);
+
+    const upload$ = filesToUpload.length
+      ? this.vendorService.uploadTaskImages(profile.supplier_id, taskId, filesToUpload)
+      : of(null);
+
+    this.vendorService
+      .updateDraft(profile.supplier_id, taskId, productData)
+      .pipe(
+        switchMap(() => remove$),
+        switchMap(() => upload$),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.isSavingDraft.set(false);
+          this.snackbar.success('Draft saved successfully');
+          this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
+        },
+        error: (error) => {
+          console.error('Failed to save draft:', error);
+          this.isSavingDraft.set(false);
+          this.snackbar.error('Failed to save draft');
+        },
+      });
+  }
+
   handleSubmit() {
     if (this.productForm.invalid) {
       Object.keys(this.productForm.controls).forEach(key => {
@@ -428,11 +496,26 @@ export class EditProduct implements OnInit {
   }
 
   confirmDelete() {
-    this.showDeleteDialog.set(true);
-  }
+    const dialogRef = this.dialog.open(DeleteConfirmationDialog, {
+      width: '420px',
+      panelClass: 'delete-confirmation-dialog',
+      data: {
+        title: 'vendor.confirmDeleteTitle',
+        message: 'vendor.confirmDelete',
+        confirmText: 'vendor.deleteProduct',
+        cancelText: 'vendor.cancel',
+      },
+      disableClose: false,
+      hasBackdrop: true,
+    });
 
-  cancelDelete() {
-    this.showDeleteDialog.set(false);
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this.handleDelete();
+        }
+      });
   }
 
   handleDelete() {
@@ -453,7 +536,6 @@ export class EditProduct implements OnInit {
         error: (error) => {
           console.error('Failed to delete product:', error);
           this.isDeleting.set(false);
-          this.showDeleteDialog.set(false);
         }
       });
   }
