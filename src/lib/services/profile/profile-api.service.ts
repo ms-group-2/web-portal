@@ -1,9 +1,26 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Profile, UpdateProfileRequest } from './models/profile.model';
+
+export interface WishlistItem {
+  id: number;
+  title: string;
+  cover_image_url?: string;
+}
+
+export interface WishlistResponse {
+  items: WishlistItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface WishlistToggleResponse {
+  message?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ProfileApiService {
@@ -45,6 +62,20 @@ export class ProfileApiService {
     return this.http.delete<Profile>(`${this.baseUrl}/avatar`).pipe(
       tap(() => this.clearCache())
     );
+  }
+
+  getWishlist(page: number = 1, limit: number = 20): Observable<WishlistResponse> {
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('limit', String(limit));
+
+    return this.http.get<WishlistResponse>(`${this.baseUrl}/wishlist`, { params });
+  }
+
+  toggleWishlist(productId: number): Observable<WishlistToggleResponse> {
+    return this.http.post<WishlistToggleResponse>(`${this.baseUrl}/wishlist/toggle`, {
+      product_id: productId,
+    });
   }
 }
 
