@@ -1,0 +1,33 @@
+<nav class="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white border-t border-gray-200" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
+  <div class="flex items-center justify-around px-2 py-2 max-w-lg mx-auto">
+    @for (item of navItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="bg-primary/10 text-primary font-extrabold scale-105"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all min-w-0 flex-1 text-gray-600 hover:text-primary hover:bg-gray-50"
+      >
+        <mat-icon class="!w-6 !h-6 !text-2xl !leading-6 flex items-center justify-center transition-transform">{{ item.icon }}</mat-icon>
+        <span class="text-[0.65rem] font-bold uppercase tracking-tight truncate max-w-full">
+          {{ item.label | translate }}
+        </span>
+      </a>
+    }
+
+    <!-- More button -->
+    <button
+      type="button"
+      (click)="openMoreMenu()"
+      class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all min-w-0 flex-1 hover:bg-gray-50"
+      [class.bg-primary/10]="isMoreActive()"
+      [class.text-primary]="isMoreActive()"
+      [class.font-extrabold]="isMoreActive()"
+      [class.text-gray-600]="!isMoreActive()"
+    >
+      <mat-icon class="!w-6 !h-6 !text-2xl !leading-6 flex items-center justify-center">more_horiz</mat-icon>
+      <span class="text-[0.65rem] font-bold uppercase tracking-tight">
+        {{ 'profile.nav.more' | translate }}
+      </span>
+    </button>
+  </div>
+</nav>

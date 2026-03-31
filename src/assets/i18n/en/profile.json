@@ -36,7 +36,8 @@
       "settings": "Profile and Settings",
       "swapHistory": "Swap History",
       "shopHistory": "Order History",
-      "bookingHistory": "Booking History"
+      "bookingHistory": "Booking History",
+      "more": "More"
     },
     "logoutDialog": {
       "title": "Logout",

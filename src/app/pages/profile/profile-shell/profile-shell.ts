@@ -4,12 +4,13 @@ import { Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Header } from 'lib/components/header/header';
 import { ProfileSidebarComponent } from '../components/profile-sidebar/profile-sidebar';
+import { ProfileBottomNavComponent } from '../components/profile-bottom-nav/profile-bottom-nav';
 import { TranslationService } from 'lib/services/translation.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-profile-shell',
-  imports: [RouterModule, Header, ProfileSidebarComponent, MatIconModule, TranslatePipe],
+  imports: [RouterModule, Header, ProfileSidebarComponent, ProfileBottomNavComponent, MatIconModule, TranslatePipe, ],
   templateUrl: './profile-shell.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

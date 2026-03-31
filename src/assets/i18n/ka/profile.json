@@ -36,7 +36,8 @@
       "settings": "პროფილი და პარამეტრები",
       "swapHistory": "გაცვლის ისტორია",
       "shopHistory": "შეკვეთების ისტორია",
-      "bookingHistory": "დაჯავშნის ისტორია"
+      "bookingHistory": "დაჯავშნის ისტორია",
+      "more": "მეტი"
     },
     "logoutDialog": {
       "title": "გასვლა",
