@@ -37,7 +37,5 @@ export class ProfileShellComponent implements OnInit {
     this.location.back();
   }
 
-
-  ///efhweihfiweho
 }
 

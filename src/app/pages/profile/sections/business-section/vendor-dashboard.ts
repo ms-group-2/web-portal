@@ -39,14 +39,21 @@ export class VendorDashboardComponent implements OnInit {
   products = signal<any[]>([]);
   loading = signal<boolean>(false);
   showBusinessDropdown = signal<boolean>(false);
+  profileLoading = signal<boolean>(true);
 
   ngOnInit() {
     this.translation.loadModule('profile').subscribe();
 
     if (this.auth.isAuthenticated()) {
+      this.profileLoading.set(true);
       this.vendorService.ensureProfileLoaded()
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+        .subscribe({
+          next: () => this.profileLoading.set(false),
+          error: () => this.profileLoading.set(false)
+        });
+    } else {
+      this.profileLoading.set(false);
     }
   }
 

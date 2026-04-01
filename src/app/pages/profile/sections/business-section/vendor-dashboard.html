@@ -1,153 +1,159 @@
-<div class="p-8">
-  @if (!isVerified()) {
-    <div class="max-w-2xl mx-auto text-center py-16">
-      <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <mat-icon class="w-10 h-10 text-amber-600">verified_user</mat-icon>
+<div class="px-4 py-6 sm:px-6 sm:py-8 md:p-8">
+  @if (profileLoading()) {
+    <div class="max-w-2xl mx-auto text-center py-10 sm:py-12 md:py-16">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 animate-pulse">
+        <mat-icon class="!text-3xl !w-8 !h-8 sm:!text-4xl sm:!w-10 sm:!h-10 text-gray-400">hourglass_empty</mat-icon>
       </div>
-      <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase">
+      <p class="text-sm sm:text-base text-gray-600">{{ 'profile.loading' | translate }}</p>
+    </div>
+  } @else if (!isVerified()) {
+    <div class="max-w-2xl mx-auto text-center py-10 sm:py-12 md:py-16">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+        <mat-icon class="!text-3xl !w-8 !h-8 sm:!text-4xl sm:!w-10 sm:!h-10 text-amber-600">verified_user</mat-icon>
+      </div>
+      <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-3 sm:mb-4 uppercase">
         {{ 'profile.vendor.notVerified.title' | translate }}
       </h3>
-      <p class="text-gray-600 mb-6" [innerHTML]="'profile.vendor.notVerified.message' | translate"></p>
+      <p class="text-sm sm:text-base text-gray-600 mb-6" [innerHTML]="'profile.vendor.notVerified.message' | translate"></p>
     </div>
   } @else if (isVendor()) {
     <div class="max-w-6xl mx-auto">
-      <h1 class="text-4xl font-black text-registerBusiness uppercase tracking-tight mb-10">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-registerBusiness uppercase tracking-tight mb-6 sm:mb-8 md:mb-10">
         {{ 'profile.vendor.dashboard' | translate }}
       </h1>
-      <div class="bg-gradient-to-br from-[#E8ECFF] to-[#F3F5FF] rounded-3xl p-12 mb-8 border border-[#D5DCFF]">
-        <div class="flex items-center gap-6 mb-8">
-          <div class="w-14 h-14 bg-registerBusiness rounded-2xl flex items-center justify-center">
-            <mat-icon class="w-7 h-7 text-white">store</mat-icon>
+      <div class="bg-gradient-to-br from-[#E8ECFF] to-[#F3F5FF] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 mb-6 sm:mb-8 border border-[#D5DCFF]">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div class="w-11 h-11 sm:w-14 sm:h-14 bg-registerBusiness rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-xl sm:!text-2xl text-white">store</mat-icon>
           </div>
           <div>
-            <h2 class="text-3xl font-black text-gray-900 mb-2">
+            <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-1 sm:mb-2">
               {{ 'profile.vendor.registered.title' | translate }}
             </h2>
-            <p class="text-registerBusiness font-bold text-sm uppercase tracking-wide">
+            <p class="text-registerBusiness font-bold text-xs sm:text-sm uppercase tracking-wide">
               {{ 'profile.vendor.registered.subtitle' | translate }}
             </p>
           </div>
         </div>
-        <p class="text-gray-700 text-lg leading-relaxed mb-8 max-w-3xl">
+        <p class="text-gray-700 text-base md:text-lg leading-relaxed mb-6 sm:mb-8 max-w-3xl">
           {{ 'profile.vendor.registered.description' | translate }}
         </p>
         <button
           (click)="goToDashboard()"
-          class="px-10 py-4 bg-registerBusiness text-white font-bold rounded-xl hover:bg-[#3E4FC8] transition-all uppercase tracking-wide text-sm shadow-lg">
+          class="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-registerBusiness text-white font-bold rounded-xl hover:bg-[#3E4FC8] transition-all uppercase tracking-wide text-xs sm:text-sm shadow-lg">
           {{ 'profile.vendor.registered.dashboardButton' | translate }}
         </button>
       </div>
     </div>
   } @else if (isPending()) {
-    <!-- Pending approval state -->
-    <div class="max-w-2xl mx-auto text-center py-16">
-      <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <mat-icon class="!text-4xl !w-10 !h-10 text-amber-600">hourglass_top</mat-icon>
+    <div class="max-w-2xl mx-auto text-center py-10 sm:py-12 md:py-16">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+        <mat-icon class="!text-3xl !w-8 !h-8 sm:!text-4xl sm:!w-10 sm:!h-10 text-amber-600">hourglass_top</mat-icon>
       </div>
-      <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase">
+      <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-3 sm:mb-4 uppercase">
         {{ 'profile.vendor.pending.title' | translate }}
       </h3>
-      <p class="text-gray-600 mb-6 max-w-lg mx-auto">
+      <p class="text-sm sm:text-base text-gray-600 mb-6 max-w-lg mx-auto">
         {{ 'profile.vendor.pending.message' | translate }}
       </p>
-      <div class="inline-flex items-center gap-2 px-5 py-3 bg-amber-50 border border-amber-200 rounded-xl">
+      <div class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-amber-50 border border-amber-200 rounded-xl">
         <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
-        <span class="text-sm font-semibold text-amber-700">
+        <span class="text-xs sm:text-sm font-semibold text-amber-700">
           {{ 'profile.vendor.pending.status' | translate }}
         </span>
       </div>
     </div>
   } @else if (isVerified() && !isVendor()) {
-    <h1 class="text-4xl font-black text-registerBusiness uppercase tracking-tight mb-8">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-registerBusiness uppercase tracking-tight mb-5 sm:mb-6 md:mb-8">
       {{ 'profile.vendor.landing.title' | translate }}
     </h1>
 
-    <div class="bg-gradient-to-br from-[#E8ECFF] to-[#F3F5FF] rounded-3xl p-12 mb-8 border border-[#D5DCFF]">
-      <div class="flex items-center gap-6 mb-8">
-        <div class="w-14 h-14 bg-registerBusiness rounded-2xl flex items-center justify-center">
-            <mat-icon class="w-7 h-7 text-white">store</mat-icon>
-          </div>
+    <div class="bg-gradient-to-br from-[#E8ECFF] to-[#F3F5FF] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 mb-6 sm:mb-8 border border-[#D5DCFF]">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div class="w-11 h-11 sm:w-14 sm:h-14 bg-registerBusiness rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+          <mat-icon class="!text-xl sm:!text-2xl text-white">store</mat-icon>
+        </div>
         <div>
-          <h2 class="text-3xl font-black text-gray-900 mb-2">
+          <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-1 sm:mb-2">
             {{ 'profile.vendor.landing.upgradeTitle' | translate }}
           </h2>
-          <p class="text-registerBusiness font-bold text-sm uppercase tracking-wide">
+          <p class="text-registerBusiness font-bold text-xs sm:text-sm uppercase tracking-wide">
             {{ 'profile.vendor.landing.upgradeSubtitle' | translate }}
           </p>
         </div>
       </div>
 
-      <p class="text-gray-700 text-lg leading-relaxed mb-8 max-w-3xl">
+      <p class="text-gray-700 text-base md:text-lg leading-relaxed mb-6 sm:mb-8 max-w-3xl">
         {{ 'profile.vendor.landing.description' | translate }}
       </p>
 
       <button
         (click)="startRegistration()"
-        class="px-10 py-4 bg-registerBusiness text-white font-bold rounded-xl hover:bg-[#3E4FC8] transition-all uppercase tracking-wide text-sm shadow-lg"
+        class="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-registerBusiness text-white font-bold rounded-xl hover:bg-[#3E4FC8] transition-all uppercase tracking-wide text-xs sm:text-sm shadow-lg"
       >
-        {{ 'profile.vendor.landing.startButton' | translate }} 
+        {{ 'profile.vendor.landing.startButton' | translate }}
       </button>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="bg-white rounded-2xl p-6 border border-gray-200">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-[#4ADE80] rounded-xl flex items-center justify-center flex-shrink-0">
-            <mat-icon class="text-white">shopping_bag</mat-icon>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+        <div class="flex items-start gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#4ADE80] rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-lg sm:!text-2xl text-white">shopping_bag</mat-icon>
           </div>
           <div>
-            <h3 class="text-lg font-black text-gray-900 mb-2">
+            <h3 class="text-base sm:text-lg font-black text-gray-900 mb-1 sm:mb-2">
               {{ 'profile.vendor.features.sellProducts.title' | translate }}
             </h3>
-            <p class="text-gray-600 text-sm">
+            <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
               {{ 'profile.vendor.features.sellProducts.description' | translate }}
             </p>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl p-6 border border-gray-200">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-[#6EE7B7] rounded-xl flex items-center justify-center flex-shrink-0">
-            <mat-icon class="text-white">event</mat-icon>
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+        <div class="flex items-start gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#6EE7B7] rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-lg sm:!text-2xl text-white">event</mat-icon>
           </div>
           <div>
-            <h3 class="text-lg font-black text-gray-900 mb-2">
+            <h3 class="text-base sm:text-lg font-black text-gray-900 mb-1 sm:mb-2">
               {{ 'profile.vendor.features.offerServices.title' | translate }}
             </h3>
-            <p class="text-gray-600 text-sm">
+            <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
               {{ 'profile.vendor.features.offerServices.description' | translate }}
             </p>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl p-6 border border-gray-200">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-[#FDB07B] rounded-xl flex items-center justify-center flex-shrink-0">
-            <mat-icon class="text-white">inventory_2</mat-icon>
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+        <div class="flex items-start gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#FDB07B] rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-lg sm:!text-2xl text-white">inventory_2</mat-icon>
           </div>
           <div>
-            <h3 class="text-lg font-black text-gray-900 mb-2">
+            <h3 class="text-base sm:text-lg font-black text-gray-900 mb-1 sm:mb-2">
               {{ 'profile.vendor.features.orderManagement.title' | translate }}
             </h3>
-            <p class="text-gray-600 text-sm">
+            <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
               {{ 'profile.vendor.features.orderManagement.description' | translate }}
             </p>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl p-6 border border-gray-200">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-[#A78BFA] rounded-xl flex items-center justify-center flex-shrink-0">
-            <mat-icon class="text-white">credit_card</mat-icon>
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+        <div class="flex items-start gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#A78BFA] rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-lg sm:!text-2xl text-white">credit_card</mat-icon>
           </div>
           <div>
-            <h3 class="text-lg font-black text-gray-900 mb-2">
+            <h3 class="text-base sm:text-lg font-black text-gray-900 mb-1 sm:mb-2">
               {{ 'profile.vendor.features.securePayments.title' | translate }}
             </h3>
-            <p class="text-gray-600 text-sm">
+            <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
               {{ 'profile.vendor.features.securePayments.description' | translate }}
             </p>
           </div>
