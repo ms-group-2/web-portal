@@ -170,75 +170,6 @@ export class VendorService {
       );
   }
 
-  createProductDraft(supplierId: number, product: VendorProductCreate): Observable<any> {
-    return this.http
-      .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/`, product, {
-        headers: this.headers,
-      })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to create product draft:', err);
-          throw err;
-        })
-      );
-  }
-
-  uploadTaskImages(supplierId: number, taskId: string, images: File[]): Observable<any> {
-    const formData = new FormData();
-    images.forEach(file => formData.append('images', file));
-
-    return this.http
-      .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/images`, formData, {
-        headers: this.headers,
-      })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to upload task images:', err);
-          throw err;
-        })
-      );
-  }
-
-  deleteTaskImages(supplierId: number, taskId: string, imageUrls: string[]): Observable<any> {
-    return this.http
-      .request<any>('DELETE', `${this.baseUrl}/vendors/${supplierId}/products/${taskId}/images`, {
-        headers: this.headers,
-        body: { image_urls: imageUrls },
-      })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to delete task images:', err);
-          throw err;
-        })
-      );
-  }
-
-  updateDraft(supplierId: number, taskId: string, updates: VendorProductUpdate): Observable<any> {
-    return this.http
-      .patch<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/draft`, updates, {
-        headers: this.headers,
-      })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to update draft:', err);
-          throw err;
-        })
-      );
-  }
-
-  submitTaskProduct(supplierId: number, taskId: string): Observable<any> {
-    return this.http
-      .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/submit`, {}, {
-        headers: this.headers,
-      })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to submit product task:', err);
-          throw err;
-        })
-      );
-  }
-
   getMyProducts(supplierId: number, page: number = 1, limit: number = 20): Observable<any[]> {
     return this.http
       .get<any>(`${this.baseUrl}/vendors/${supplierId}/products/`, {
@@ -355,7 +286,7 @@ export class VendorService {
       status === 'draft' ||
       status.includes('draft');
 
-    const id = product?.id ?? product?.product_id ?? product?.task_id;
+    const id = product?.id ?? product?.product_id ?? product?.tasRk_id;
     const merged = {
       ...draftData,
       ...product,
