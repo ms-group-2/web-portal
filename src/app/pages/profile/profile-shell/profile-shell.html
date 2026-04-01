@@ -1,38 +1,64 @@
 <app-header variant="white" navContainerClass="max-w-7xl mx-auto px-4"></app-header>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30 flex">
+
   @if (isCartRoute()) {
     <!-- Cart routes: full-width content, no profile sidebar -->
-    <div class="max-w-7xl mx-auto px-4 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12">
+    <div class="flex-1 max-w-7xl mx-auto px-4 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12">
       <router-outlet></router-outlet>
     </div>
   } @else {
-    <!-- Main content (desktop + mobile) -->
-    <div class="max-w-7xl mx-auto px-4 pt-28 pb-24 sm:pb-6 lg:pt-32 lg:pb-12">
-      <div class="mb-6 ml-2 flex items-center gap-4">
-        <button
-          type="button"
-          (click)="goBack()"
-          class="flex items-center gap-2 text-primary transition-all uppercase duration-300 font-bold hover:gap-3"
-        >
-          <mat-icon>arrow_back</mat-icon>
-          <span>{{ 'profile.back' | translate }}</span>
-        </button>
-      </div>
 
-      <div class="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
-        <!-- Desktop sidebar (always visible) -->
-        <div class="hidden lg:block">
-          <app-profile-sidebar></app-profile-sidebar>
-        </div>
+    <!-- Mobile sidebar overlay -->
+    @if (sidebarOpen()) {
+      <div class="fixed inset-0 bg-black/40 z-40 lg:hidden" (click)="toggleSidebar()"></div>
+    }
 
-        <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200/50">
-          <router-outlet></router-outlet>
-        </div>
+    <!-- Mobile sliding sidebar -->
+    <div
+      [ngClass]="{ '-translate-x-full': !sidebarOpen(), 'translate-x-0': sidebarOpen() }"
+      class="fixed lg:hidden inset-y-0 left-0 z-50 w-72 bg-white flex flex-col overflow-y-auto transition-transform duration-200"
+    >
+      <div class="flex-1 p-4 pt-30 pb-40">
+        <app-profile-sidebar [sidebarOpen]="sidebarOpen" [showCloseButton]="true"></app-profile-sidebar>
       </div>
     </div>
 
-    <!-- Mobile bottom navigation -->
-    <app-profile-bottom-nav></app-profile-bottom-nav>
+    <!-- Main content (desktop + mobile) -->
+    <div class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12">
+
+        <div class="mb-6 ml-2 flex items-center gap-4">
+          <!-- Hamburger for mobile -->
+          <button
+            type="button"
+            (click)="toggleSidebar()"
+            class="lg:hidden w-10 h-10 bg-white rounded-lg flex items-center justify-center hover:bg-gray-50 border border-gray-200/50 shadow-sm"
+          >
+            <mat-icon class="text-primary">menu</mat-icon>
+          </button>
+
+          <button
+            type="button"
+            (click)="goBack()"
+            class="flex items-center gap-2 text-primary transition-all uppercase duration-300 font-bold hover:gap-3"
+          >
+            <mat-icon>arrow_back</mat-icon>
+            <span>{{ 'profile.back' | translate }}</span>
+          </button>
+        </div>
+
+        <div class="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
+          <!-- Desktop sidebar (always visible) -->
+          <div class="hidden lg:block">
+            <app-profile-sidebar></app-profile-sidebar>
+          </div>
+
+          <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200/50">
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
+    </div>
   }
 </div>
 

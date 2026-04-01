@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { NgClass } from '@angular/common';
 import { FormArray, FormControl } from '@angular/forms';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -36,6 +37,8 @@ export class Verify implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private snackbar = inject(SnackbarService);
   translation = inject(TranslationService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
   isResending = signal(false);
   resentMessage = signal<string | null>(null);
@@ -228,10 +231,14 @@ onDigitInput(index: number, event: Event): void {
         this.auth.setTokensFromResponse(res);
         
         const pendingReg = this.auth.pendingRegistration();
-        if (pendingReg) {
-          if (pendingReg.firstName) localStorage.setItem('vipo_user_firstName', pendingReg.firstName);
-          if (pendingReg.lastName) localStorage.setItem('vipo_user_lastName', pendingReg.lastName);
-          if (pendingReg.email) localStorage.setItem('vipo_user_email', pendingReg.email);
+        if (pendingReg && this.isBrowser) {
+          try {
+            if (pendingReg.firstName) localStorage.setItem('vipo_user_firstName', pendingReg.firstName);
+            if (pendingReg.lastName) localStorage.setItem('vipo_user_lastName', pendingReg.lastName);
+            if (pendingReg.email) localStorage.setItem('vipo_user_email', pendingReg.email);
+          } catch {
+            // ignore
+          }
         }
         
         this.auth.pendingEmail.set(null);

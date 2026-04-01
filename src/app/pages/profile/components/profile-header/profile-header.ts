@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,15 +16,16 @@ import { TranslationService } from 'lib/services/translation.service';
 export class ProfileHeaderComponent  {
   private router = inject(Router);
   translation = inject(TranslationService);
+  private platformId = inject(PLATFORM_ID);
 
 
 
   goBack() {
-    if (window.history.length > 1) {
+    if (isPlatformBrowser(this.platformId) && window.history.length > 1) {
       this.router.navigateByUrl('/landing`');
-    } else {
-      this.router.navigateByUrl('/landing');
+      return;
     }
+    this.router.navigateByUrl('/landing');
   }
 }
 

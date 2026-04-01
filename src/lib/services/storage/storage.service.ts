@@ -1,36 +1,56 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private platformId = inject(PLATFORM_ID);
 
-  getItem(key: string): string | null {
-    if (!this.isBrowser) {
+  private get storage(): Storage | null {
+    if (!isPlatformBrowser(this.platformId)) {
       return null;
     }
-    return localStorage.getItem(key);
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  getItem(key: string): string | null {
+    const store = this.storage;
+    return store ? store.getItem(key) : null;
   }
 
   setItem(key: string, value: string): void {
-    if (!this.isBrowser) {
-      return;
+    const store = this.storage;
+    if (!store) return;
+    try {
+      store.setItem(key, value);
+    } catch {
     }
-    localStorage.setItem(key, value);
   }
 
   removeItem(key: string): void {
-    if (!this.isBrowser) {
-      return;
+    const store = this.storage;
+    if (!store) return;
+    try {
+      store.removeItem(key);
+    } catch {
     }
-    localStorage.removeItem(key);
   }
 
-  clear(): void {
-    if (!this.isBrowser) {
-      return;
+  keysWithPrefix(prefix: string): string[] {
+    const store = this.storage;
+    if (!store) return [];
+    const keys: string[] = [];
+    for (let i = 0; i < store.length; i++) {
+      const key = store.key(i);
+      if (key && key.startsWith(prefix)) {
+        keys.push(key);
+      }
     }
-    localStorage.clear();
+    return keys;
+    
   }
 }
+

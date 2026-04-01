@@ -9,6 +9,7 @@ export interface VendorProfile {
   contact_phone: string;
   contact_email: string;
   bank_account_number: string;
+  status?: string;
   business_type?: BusinessType;
 }
 
@@ -51,6 +52,7 @@ export interface VendorProductCreate {
   title: string;
   description: string;
   price: number;
+  quantity: number;
   sku: string;
   cover_image_url?: string;
   images?: string[];
@@ -63,6 +65,7 @@ export interface VendorProductUpdate {
   title?: string;
   description?: string;
   price?: number;
+  quantity?: number;
   cover_image_url?: string;
   images?: string[];
   field_options?: number[];

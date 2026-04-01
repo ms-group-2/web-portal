@@ -1,8 +1,13 @@
-<div class="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-200/50 h-fit">
+<div [class]="showCloseButton() ? '' : 'bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-200/50 h-fit'">
   <div class="mb-4 sm:mb-8">
     <div class="flex items-start gap-2 sm:gap-3 mb-2">
       <mat-icon class="w-5 h-5 text-textBlue shrink-0 mt-0.5">person</mat-icon>
       <h2 class="text-lg sm:text-xl font-black text-textBlue uppercase tracking-tight break-words flex-1 min-w-0">{{ 'profile.hello' | translate }}, {{ userName() }}</h2>
+      @if (showCloseButton()) {
+        <button (click)="closeSidebar()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 shrink-0 !">
+          <mat-icon class="text-gray-600">close</mat-icon>
+        </button>
+      }
     </div>
   </div>
 
@@ -12,6 +17,7 @@
         [routerLink]="item.route"
         [routerLinkActive]="item.activeClass"
         [routerLinkActiveOptions]="{ exact: false }"
+        (click)="closeSidebar()"
         class="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all text-left text-gray-700 hover:text-gray-800 hover:bg-gray-100"
       >
         <mat-icon class="w-5 h-5 shrink-0">{{ item.icon }}</mat-icon>
@@ -27,6 +33,7 @@
           [routerLink]="item.route"
           [routerLinkActive]="item.activeClass"
           [routerLinkActiveOptions]="{ exact: false }"
+          (click)="closeSidebar()"
           [class]="'w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all text-left text-gray-700 hover:text-gray-800 hover:bg-gray-100' + (i > 0 ? ' mt-1 sm:mt-2' : '')"
         >
           <mat-icon class="w-5 h-5 shrink-0">{{ item.icon }}</mat-icon>

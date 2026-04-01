@@ -1,40 +1,36 @@
 export class PhoneUtil {
-  static sanitize(value: string): string {
+  static readonly GE_DIAL_CODE = '+995';
+
+  private static sanitize(value: string): string {
     if (!value) return '';
     return value.replace(/[^\d+]/g, '');
   }
 
-  static normalizeForApi(input: string): string {
-    if (!input) return '';
-
-    const cleaned = this.sanitize(input);
-
-    if (cleaned.startsWith('+')) return cleaned;
-
-    if (/^5\d{8}$/.test(cleaned)) {
-      return `+995${cleaned}`;
-    }
-
-    if (/^\d{9}$/.test(cleaned)) {
-      return `+995${cleaned}`;
-    }
-
-    return cleaned;
-  }
-
-  static formatForInput(value: string | null | undefined): string {
-    if (!value) return '+995';
+  static extractGeNational(value: string | null | undefined): string {
+    if (!value) return '';
 
     const cleaned = this.sanitize(value.replace(/^tel:/i, ''));
+    if (!cleaned) return '';
 
-    if (!cleaned) return '+995';
-
-    if (cleaned.startsWith('+')) return cleaned;
-
-    return cleaned ? `+995${cleaned}` : '+995';
+    return cleaned
+      .replace(/^\+995/, '')
+      .replace(/^995/, '')
+      .replace(/\D/g, '');
   }
 
-  static isValidInput(value: string): boolean {
-    return /^[+\d]*$/.test(value);
+  static toGeE164(national: string | null | undefined): string {
+    if (!national) return '';
+
+    const digits = national.replace(/\D/g, '');
+    if (!digits) return '';
+
+    return `${this.GE_DIAL_CODE}${digits}`;
+  }
+
+  static splitGePhone(fullNumber: string | null | undefined): { code: string; number: string } {
+    return {
+      code: this.GE_DIAL_CODE,
+      number: this.extractGeNational(fullNumber),
+    };
   }
 }

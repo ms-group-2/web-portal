@@ -9,12 +9,14 @@ import {
   VendorProductUpdate,
   VendorProductsResponse,
 } from 'lib/models/vendor.models';
+import { StorageService } from 'lib/services/storage/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class VendorService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiBaseUrl;
   private headers = { 'ngrok-skip-browser-warning': 'true' };
+  private storage = inject(StorageService);
 
   private readonly PENDING_KEY = 'vipo_vendor_pending';
 
@@ -48,14 +50,22 @@ export class VendorService {
         map(response => response.sellers?.[0] || null),
         tap(profile => {
           if (profile) {
+            const status = (profile.status || '').toLowerCase();
+            const isPending = status === 'pending';
+
             this.vendorProfile.set(profile);
-            this.isVendor.set(true);
-            // Approved — clear pending state
-            this.isPendingApproval.set(false);
-            localStorage.removeItem(this.PENDING_KEY);
+            this.isVendor.set(!isPending);
+            this.isPendingApproval.set(isPending);
+
+            if (isPending) {
+              this.storage.setItem(this.PENDING_KEY, 'true');
+            } else {
+              this.storage.removeItem(this.PENDING_KEY);
+            }
           } else {
             this.vendorProfile.set(null);
             this.isVendor.set(false);
+            this.isPendingApproval.set(false);
           }
         }),
         catchError(err => {
@@ -73,9 +83,11 @@ export class VendorService {
         headers: this.headers,
       })
       .pipe(
-        tap(() => {
+        tap((profile) => {
+          this.vendorProfile.set(profile);
+          this.isVendor.set(false);
           this.isPendingApproval.set(true);
-          localStorage.setItem(this.PENDING_KEY, 'true');
+          this.storage.setItem(this.PENDING_KEY, 'true');
         }),
         catchError(err => {
           console.error('Failed to register as vendor:', err);
@@ -84,9 +96,9 @@ export class VendorService {
       );
   }
 
-  getVendorProfileByUserId(userId: string): Observable<VendorProfile | null> {
+  getVendorProfileByUserId(supplierId: string | number): Observable<VendorProfile | null> {
     return this.http
-      .get<VendorProfile>(`${this.baseUrl}/vendors/profile/${userId}`, {
+      .get<VendorProfile>(`${this.baseUrl}/vendors/profile/${supplierId}`, {
         headers: this.headers,
       })
       .pipe(
@@ -97,30 +109,62 @@ export class VendorService {
       );
   }
 
-  createProduct(
-    supplierId: number,
-    product: VendorProductCreate,
-    coverImage?: File,
-    additionalImages?: File[]
-  ): Observable<string> {
-    const formData = new FormData();
-    formData.append('product_data_json', JSON.stringify(product));
-    if (coverImage) {
-      formData.append('cover_image', coverImage);
-    }
-    if (additionalImages?.length) {
-      additionalImages.forEach(file => {
-        formData.append('images', file);
-      });
-    }
+  createProductDraft(supplierId: number, product: VendorProductCreate): Observable<any> {
     return this.http
-      .post<string>(`${this.baseUrl}/vendors/${supplierId}/products/`,
-        formData,
-        { headers: this.headers }
-      )
+      .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/`, product, { headers: this.headers })
       .pipe(
         catchError(err => {
-          console.error('Failed to create product:', err);
+          console.error('Failed to create product draft:', err);
+          throw err;
+        })
+      );
+  }
+
+  uploadTaskImages(supplierId: number, taskId: string, images: File[]): Observable<any> {
+    const formData = new FormData();
+    images.forEach(file => formData.append('images', file));
+
+    return this.http
+      .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/images`, formData, { headers: this.headers })
+      .pipe(
+        catchError(err => {
+          console.error('Failed to upload task images:', err);
+          throw err;
+        })
+      );
+  }
+
+  deleteTaskImages(supplierId: number, taskId: string, imageUrls: string[]): Observable<any> {
+    return this.http
+      .request<any>('DELETE', `${this.baseUrl}/vendors/${supplierId}/products/${taskId}/images`, {
+        headers: this.headers,
+        body: { image_urls: imageUrls },
+      })
+      .pipe(
+        catchError(err => {
+          console.error('Failed to delete task images:', err);
+          throw err;
+        })
+      );
+  }
+
+  submitTaskProduct(supplierId: number, taskId: string): Observable<any> {
+    return this.http
+      .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/submit`, {}, { headers: this.headers })
+      .pipe(
+        catchError(err => {
+          console.error('Failed to submit product task:', err);
+          throw err;
+        })
+      );
+  }
+
+  updateDraft(supplierId: number, taskId: string, updates: VendorProductUpdate): Observable<any> {
+    return this.http
+      .patch<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/draft`, updates, { headers: this.headers })
+      .pipe(
+        catchError(err => {
+          console.error('Failed to update draft:', err);
           throw err;
         })
       );
@@ -210,9 +254,24 @@ export class VendorService {
               return [];
             }
           }
-          const liveProducts = response?.live_products?.items || [];
-          const drafts = (response?.drafts || []).map((d: any) => ({ ...d, isDraft: true }));
-          return [...liveProducts, ...drafts];
+
+          const asArray = (value: any): any[] => (Array.isArray(value) ? value : []);
+
+          const drafts = asArray(response?.drafts).map((d: any) => this.normalizeProduct(d, true));
+
+          const liveProducts = asArray(response?.live_products?.items).map((p: any) => this.normalizeProduct(p, false));
+
+          if (drafts.length || liveProducts.length) {
+            return [...drafts, ...liveProducts];
+          }
+
+          const genericItems = asArray(response?.items).map((p: any) => this.normalizeProduct(p, false));
+          if (genericItems.length) {
+            return genericItems;
+          }
+
+          const products = asArray(response?.products).map((p: any) => this.normalizeProduct(p, false));
+          return products;
         }),
         catchError(err => {
           console.error('Failed to load products:', err);
@@ -224,7 +283,13 @@ export class VendorService {
   getProductById(supplierId: number, productId: string | number): Observable<any> {
     return this.getMyProducts(supplierId, 1, 100).pipe(
       map(products => {
-        const product = products.find(p => p.id === productId || p.id === String(productId) || p.id === Number(productId));
+        const key = String(productId);
+        const product = products.find(p => {
+          const idMatch = p?.id != null && String(p.id) === key;
+          const productIdMatch = p?.product_id != null && String(p.product_id) === key;
+          const taskIdMatch = p?.task_id != null && String(p.task_id) === key;
+          return idMatch || productIdMatch || taskIdMatch;
+        });
         if (!product) {
           throw new Error('Product not found');
         }
@@ -240,9 +305,9 @@ export class VendorService {
     supplierId: number,
     productId: number | string,
     updates: VendorProductUpdate
-  ): Observable<string> {
+  ): Observable<any> {
     return this.http
-      .put<string>(
+      .put<any>(
         `${this.baseUrl}/vendors/${supplierId}/products/${productId}`,
         updates,
         { headers: this.headers }
@@ -272,10 +337,43 @@ export class VendorService {
     this.vendorProfile.set(null);
     this.isVendor.set(false);
     this.isPendingApproval.set(false);
-    localStorage.removeItem(this.PENDING_KEY);
+    this.storage.removeItem(this.PENDING_KEY);
   }
 
   private loadPendingState(): boolean {
-    return localStorage.getItem(this.PENDING_KEY) === 'true';
+    return this.storage.getItem(this.PENDING_KEY) === 'true';
+  }
+
+  private normalizeProduct(product: any, isDraftHint: boolean): any {
+    const draftData = product?.draft_data ?? product?.payload ?? product?.data ?? {};
+    const status = String(product?.status ?? product?.upload_status ?? '').toLowerCase();
+
+    const isDraft =
+      isDraftHint ||
+      !!product?.isDraft ||
+      !!product?.task_id ||
+      status === 'draft' ||
+      status.includes('draft');
+
+    const id = product?.id ?? product?.product_id ?? product?.task_id;
+    const merged = {
+      ...draftData,
+      ...product,
+      id,
+      task_id: product?.task_id ?? draftData?.task_id,
+      product_id: product?.product_id ?? draftData?.product_id,
+      title: product?.title ?? draftData?.title,
+      description: product?.description ?? draftData?.description,
+      price: product?.price ?? draftData?.price,
+      sku: product?.sku ?? draftData?.sku,
+      category_id: product?.category_id ?? draftData?.category_id,
+      brand_id: product?.brand_id ?? draftData?.brand_id,
+      field_options: product?.field_options ?? draftData?.field_options ?? [],
+      cover_image_url: product?.cover_image_url ?? draftData?.cover_image_url,
+      images: product?.images ?? draftData?.images ?? [],
+      isDraft,
+    };
+
+    return merged;
   }
 }

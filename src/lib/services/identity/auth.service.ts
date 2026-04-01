@@ -1,7 +1,9 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { TokenManagementService } from 'lib/services/identity/token-management.service';
+import { VendorService } from 'lib/services/vendor/vendor.service';
 
 import { RegisterRequest } from './models/register.request.model';
 import { VerifyRequest } from './models/verify.request.model';
@@ -17,6 +19,9 @@ import { tap } from 'rxjs';
 export class AuthService {
   private http = inject(HttpClient);
   private tokens = inject(TokenManagementService);
+  private vendorService = inject(VendorService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
   user = signal<UserResponse | null>(null);
   pendingEmail = signal<string | null>(null);
@@ -90,6 +95,7 @@ export class AuthService {
 
   logout() {
     this.tokens.clear();
+    this.vendorService.clearVendorState();
     this.user.set(null);
     this.pendingEmail.set(null);
     this.pendingRegistration.set(null);
@@ -102,13 +108,19 @@ export class AuthService {
       'vipo_user_email',
     ];
 
-    const allKeys = Object.keys(localStorage);
+    if (this.isBrowser) {
+      try {
+        const allKeys = Object.keys(localStorage);
 
-    allKeys.forEach(key => {
-      if (prefixes.some(prefix => key.startsWith(prefix))) {
-        localStorage.removeItem(key);
+        allKeys.forEach(key => {
+          if (prefixes.some(prefix => key.startsWith(prefix))) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch {
+        // ignore
       }
-    });
+    }
   }
 
   resendVerification(email: string) {

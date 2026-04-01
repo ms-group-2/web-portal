@@ -450,7 +450,7 @@ export class EditProduct implements OnInit {
           this.snackbar.success('Draft saved successfully');
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
-        error: (error: unknown) => {
+        error: (error) => {
           console.error('Failed to save draft:', error);
           this.isSavingDraft.set(false);
           this.snackbar.error('Failed to save draft');
@@ -482,8 +482,6 @@ export class EditProduct implements OnInit {
       title: formValue.title,
       description: formValue.description,
       price: parseFloat(formValue.price),
-      cover_image_url: this.existingCoverUrl() || undefined,
-      images: this.existingImageUrls().length > 0 ? this.existingImageUrls() : undefined,
       field_options: (formValue.field_options || [])
         .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
         .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
@@ -491,8 +489,46 @@ export class EditProduct implements OnInit {
 
     this.isSubmitting.set(true);
 
-    this.vendorService
-      .updateProduct(profile.supplier_id, productId, productData)
+    const current = this.currentProduct();
+    const currentTaskId = this.extractTaskId(current);
+
+    const submitWithTask = (taskId: string) => {
+      const remove$ = this.removedImageUrls().length
+        ? this.vendorService.deleteTaskImages(profile.supplier_id, taskId, this.removedImageUrls())
+        : of(null);
+
+      const filesToUpload: File[] = [];
+      if (this.coverImageFile) {
+        filesToUpload.push(this.coverImageFile);
+      }
+      if (this.additionalFiles.length) {
+        filesToUpload.push(...this.additionalFiles);
+      }
+
+      const upload$ = filesToUpload.length
+        ? this.vendorService.uploadTaskImages(profile.supplier_id, taskId, filesToUpload)
+        : of(null);
+
+      return remove$.pipe(
+        switchMap(() => upload$),
+        switchMap(() => this.vendorService.submitTaskProduct(profile.supplier_id, taskId))
+      );
+    };
+
+    const request$ = currentTaskId
+      ? this.vendorService
+          .updateDraft(profile.supplier_id, currentTaskId, productData)
+          .pipe(switchMap(() => submitWithTask(currentTaskId)))
+      : this.vendorService
+          .updateProduct(profile.supplier_id, productId, productData)
+          .pipe(
+            switchMap((response: any) => {
+              const taskId = this.extractTaskId(response);
+              return taskId ? submitWithTask(taskId) : of(response);
+            })
+          );
+
+    request$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

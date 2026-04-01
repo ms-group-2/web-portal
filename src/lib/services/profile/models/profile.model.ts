@@ -23,3 +23,36 @@ export interface UpdateProfileRequest {
   bio?: string | null;
 }
 
+export interface WishlistProduct {
+  id: number;
+  title: string;
+  price: number;
+  description: string;
+  cover_image_url: string;
+  stock_quantity: number;
+  sku: string;
+  brand: {
+    id: number;
+    name: string;
+    logo_url?: string;
+  };
+  images: string[];
+}
+
+export interface WishlistResponse {
+  items: WishlistProduct[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export interface WishlistToggleRequest {
+  product_id: number;
+}
+
+export interface WishlistToggleResponse {
+  product_id: number;
+  is_wishlisted: boolean;
+}
+

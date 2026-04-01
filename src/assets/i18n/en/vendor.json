@@ -81,6 +81,7 @@
     "descriptionHint": "Provide a detailed description of your product",
     "pricingInventory": "Pricing & Inventory",
     "price": "Price",
+    "quantity": "Stock Quantity",
     "sku": "SKU",
     "productImages": "Product Images",
     "coverImage": "Cover Image URL",

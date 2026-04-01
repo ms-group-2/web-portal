@@ -6,31 +6,6 @@
 
     <form [formGroup]="businessForm" (ngSubmit)="onContinue()">
       <div class="grid md:grid-cols-2 gap-6 mb-8">
-        <div>
-          <label class="block text-xs font-black uppercase tracking-wider mb-2">
-            {{ 'profile.vendor.form.contactPhone' | translate }}
-            <span class="text-red-500">*</span>
-          </label>
-          <mat-form-field appearance="outline" class="w-full">
-            <span matTextPrefix>{{ COUNTRY_CODE }}&nbsp;</span>
-            <input
-              matInput
-              type="tel"
-              [formControlName]="PHONE_NATIONAL_CONTROL"
-              [placeholder]="'profile.vendor.form.placeholders.contactPhone' | translate"
-              inputmode="numeric"
-              autocomplete="tel-national"
-              maxlength="9"
-              (input)="onPhoneNationalInput($event)"
-            />
-            @if (businessForm.get(PHONE_NATIONAL_CONTROL)?.invalid && businessForm.get(PHONE_NATIONAL_CONTROL)?.touched) {
-              <mat-error>
-                {{ getErrorMessage(PHONE_NATIONAL_CONTROL) | translate }}
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
         @for (field of formFields; track field.name) {
           <div>
             <label class="block text-xs font-black uppercase tracking-wider mb-2">
@@ -39,7 +14,7 @@
             </label>
             <mat-form-field appearance="outline" class="w-full">
               @if (field.name === 'contact_phone') {
-                <span matTextPrefix>+995&nbsp;</span>
+                <span matTextPrefix>{{ COUNTRY_CODE }}&nbsp;</span>
               }
               <input
                 matInput

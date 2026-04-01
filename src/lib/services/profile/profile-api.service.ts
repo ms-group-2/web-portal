@@ -3,24 +3,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Profile, UpdateProfileRequest } from './models/profile.model';
+import { Profile, UpdateProfileRequest, WishlistResponse, WishlistToggleRequest, WishlistToggleResponse } from './models/profile.model';
 
-export interface WishlistItem {
-  id: number;
-  title: string;
-  cover_image_url?: string;
-}
 
-export interface WishlistResponse {
-  items: WishlistItem[];
-  total: number;
-  page: number;
-  limit: number;
-}
 
-export interface WishlistToggleResponse {
-  message?: string;
-}
+// export interface WishlistToggleResponse {
+//   message?: string;
+// }
 
 @Injectable({ providedIn: 'root' })
 export class ProfileApiService {
@@ -64,18 +53,19 @@ export class ProfileApiService {
     );
   }
 
-  getWishlist(page: number = 1, limit: number = 20): Observable<WishlistResponse> {
-    const params = new HttpParams()
-      .set('page', String(page))
-      .set('limit', String(limit));
+  getFavorites(profileId: string): Observable<number[]> {
+    return this.http.get<number[]>(`${this.baseUrl}/${profileId}/favorites`);
+  }
 
-    return this.http.get<WishlistResponse>(`${this.baseUrl}/wishlist`, { params });
+  getWishlist(page = 1, limit = 20): Observable<WishlistResponse> {
+    return this.http.get<WishlistResponse>(`${this.baseUrl}/wishlist`, {
+      params: { page, limit },
+    });
   }
 
   toggleWishlist(productId: number): Observable<WishlistToggleResponse> {
-    return this.http.post<WishlistToggleResponse>(`${this.baseUrl}/wishlist/toggle`, {
-      product_id: productId,
-    });
+    const body: WishlistToggleRequest = { product_id: productId };
+    return this.http.post<WishlistToggleResponse>(`${this.baseUrl}/wishlist/toggle`, body);
   }
 }
 

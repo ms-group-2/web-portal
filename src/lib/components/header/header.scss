@@ -1,41 +1,111 @@
-// Nav link styles
-header:not(.bg-white) {
+.header-mobile-drawer {
+  animation: header-mobile-drawer-in 0.2s ease-out;
+
+  .nav-link {
+    color: var(--color-primary);
+    opacity: 0.7;
+  }
+
   .active-nav-link {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white !important;
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary) !important;
+    opacity: 1;
   }
 
   .nav-link:hover {
-    color: white;
+    color: var(--color-primary);
+    opacity: 1;
+  }
+
+  // .drawer-inline-icon {
+  //   color: var(--color-primary) !important;
+  // }
+
+  .header-btn {
+    background-color: var(--color-backgroundIcon);
+
+    &:hover {
+      background-color: var(--color-border);
+    }
   }
 
   .header-icon {
-    color: white !important;
-  }
-
-  .header-btn {
-    background-color: rgba(255, 255, 255, 0.3);
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-  }
-
-  .lang-btn {
-    background-color: rgba(255, 255, 255, 0.3);
-    color: white;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
+    color: var(--color-primary) !important;
   }
 
   .register-btn {
-    border-color: rgba(255, 255, 255, 0.4);
-    color: white;
+    border-color: rgba(var(--color-primary-rgb), 0.4);
+    color: var(--color-primary);
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(var(--color-primary-rgb), 0.1);
+    }
+  }
+
+  .mobile-drawer-logout {
+    color: var(--color-text);
+
+    &:hover {
+      background-color: var(--color-swap);
+      color: black;
+    }
+
+    &:hover .drawer-inline-icon {
+      color: black !important;
+    }
+  }
+}
+
+@keyframes header-mobile-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+// Nav link styles
+header:not(.bg-white) {
+  > nav {
+    .active-nav-link {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white !important;
+    }
+
+    .nav-link:hover {
+      color: white;
+    }
+
+    .header-icon {
+      color: white !important;
+    }
+
+    .header-btn {
+      background-color: rgba(255, 255, 255, 0.3);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .lang-btn {
+      background-color: rgba(255, 255, 255, 0.3);
+      color: white;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .register-btn {
+      border-color: rgba(255, 255, 255, 0.4);
+      color: white;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
     }
   }
 }
@@ -131,6 +201,14 @@ header.bg-white {
       .mat-icon {
         color: white !important;
       }
+    }
+  }
+
+  .auth-menu-item {
+    display: none !important;
+
+    @media (min-width: 768px) and (max-width: 1279px) {
+      display: flex !important;
     }
   }
 

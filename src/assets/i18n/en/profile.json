@@ -48,7 +48,7 @@
     "errors": {
       "notAuthenticated": "User is not authenticated",
       "avatarTooLarge": "Avatar size exceeds 5MB",
-      "invalidPhoneFormat": "Invalid phone number format for selected country",
+      "invalidPhoneFormat": "Invalid phone number format",
       "passwordChangeSuccess": "Password changed successfully",
       "incorrectCurrentPassword": "Current password is incorrect",
       "authenticationExpired": "Authentication expired. Please sign in again",
@@ -250,12 +250,13 @@
         "legalAddress": "Legal Address",
         "contactPhone": "Contact Phone",
         "contactEmail": "Contact Email",
-        "bankAccount": "Bank Account Number",
+        "bankAccount": "Bank Account Number (IBAN)",
         "submitting": "Registering...",
         "placeholders": {
           "identificationNumber": "XXXXXXXXXX",
           "businessName": "Enter your business name",
           "legalAddress": "Enter your legal address",
+          "contactPhone": "5XXXXXXXX",
           "contactEmail": "business@example.com",
           "bankAccount": "Enter your bank account number"
         }

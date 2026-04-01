@@ -4,6 +4,10 @@
     "signIn": "Sign In",
     "profile": "Profile",
     "logout": "Logout",
+    "menu": "Menu",
+    "language": "Language",
+    "switchToEnglish": "English",
+    "switchToGeorgian": "ქართული",
     "nav": {
       "main": "Main",
       "swap": "Swap",
