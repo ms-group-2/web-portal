@@ -179,11 +179,25 @@ export class Header implements OnDestroy {
 
   onSearchChange(value: string) {
     this.searchQuery.set(value);
-    this.searchSubject.next(value);
+    if (this.isShopRoute()) {
+      this.searchSubject.next(value);
+    }
+  }
+
+  onSearchSubmit() {
+    const query = this.searchQuery().trim();
+    if (!query) return;
+
+    this.shopService.setSearchQuery(query);
+    this.showSearchDropdown.set(false);
+
+    if (!this.isShopRoute()) {
+      this.router.navigateByUrl('/shop');
+    }
   }
 
   onSearchFocus() {
-    if (this.searchQuery().length > 0) {
+    if (this.isShopRoute() && this.searchQuery().length > 0) {
       this.showSearchDropdown.set(true);
     }
   }

@@ -1,5 +1,5 @@
-import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy, effect, HostListener } from '@angular/core';
+import { DOCUMENT, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,9 +28,11 @@ export class CategoryMenu implements OnInit {
   shopService = inject(ShopService);
   menuService = inject(CategoryMenuService);
   router = inject(Router);
+  private document = inject(DOCUMENT);
 
   isOpen = this.menuService.isOpen;
   isClosing = signal<boolean>(false);
+  overlayTop = signal(0);
 
   currentParentId = signal<number | null>(null);
   breadcrumbs = signal<Category[]>([]);
@@ -58,7 +60,21 @@ export class CategoryMenu implements OnInit {
     return crumbs[crumbs.length - 1].name;
   });
 
+  constructor() {
+    effect(() => {
+      if (!this.isOpen()) return;
+      setTimeout(() => this.updateOverlayOffset());
+    });
+  }
+
   ngOnInit() {
+    this.updateOverlayOffset();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (!this.isOpen()) return;
+    this.updateOverlayOffset();
   }
 
   navigateToCategory(category: Category): void {
@@ -195,5 +211,11 @@ export class CategoryMenu implements OnInit {
 
   onBackdropClick(): void {
     this.close();
+  }
+
+  private updateOverlayOffset(): void {
+    const headerEl = this.document.querySelector('app-header header');
+    const headerHeight = headerEl instanceof HTMLElement ? headerEl.getBoundingClientRect().height : 0;
+    this.overlayTop.set(Math.ceil(headerHeight));
   }
 }

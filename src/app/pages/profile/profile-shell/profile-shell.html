@@ -1,10 +1,12 @@
-<app-header variant="white" navContainerClass="max-w-7xl mx-auto px-4"></app-header>
+<app-header variant="white"></app-header>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30 flex">
 
   @if (isCartRoute()) {
     <!-- Cart routes: full-width content, no profile sidebar -->
-    <div class="flex-1 max-w-7xl mx-auto px-4 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12">
-      <router-outlet></router-outlet>
+    <div class="flex-1 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
+      <div class="container-max">
+        <router-outlet></router-outlet>
+      </div>
     </div>
   } @else {
 
@@ -24,8 +26,8 @@
     </div>
 
     <!-- Main content (desktop + mobile) -->
-    <div class="flex-1">
-      <div class="max-w-7xl mx-auto px-4 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12">
+    <div class="flex-1 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
+      <div class="container-max">
 
         <div class="mb-6 ml-2 flex items-center gap-4">
           <!-- Hamburger for mobile -->

@@ -30,10 +30,10 @@
     }
     <div class="flex flex-col sm:flex-row items-center sm:justify-between flex-1 gap-4 w-full">
       <div class="text-center sm:text-left min-w-0 flex-1">
-        <div class="flex items-center justify-center sm:justify-start gap-2 mb-1">
-          <h2 class="text-xl sm:text-2xl font-black text-textBlue break-all overflow-hidden">{{ name() }}</h2>
+        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+          <h2 class="profile-name text-xl sm:text-2xl font-black text-textBlue">{{ name() }}</h2>
           @if (isVerified()) {
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-600 rounded-full shadow-md animate-scaleIn">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-600 rounded-full shadow-md animate-scaleIn shrink-0 whitespace-nowrap max-w-full">
               <mat-icon class="!w-4 !h-4 !text-base !leading-none text-white">verified</mat-icon>
               <span class="text-xs font-bold text-white ">{{ 'profile.verification.verified' | translate }}</span>
             </div>

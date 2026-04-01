@@ -14,7 +14,8 @@
       "market": "Market",
       "booking": "Booking",
       "back": "Back"
-    }
+    },
+    "searchPlaceholder": "Search..."
   },
   "footer": {
     "tagline": "Vipo - Your Trusted Partner in the Digital World",

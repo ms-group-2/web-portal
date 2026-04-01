@@ -1,5 +1,4 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, PLATFORM_ID, inject, signal, computed, effect } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal, computed, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductCardComponent } from '../product-card/product-card';
 import { ProductCardSkeletonComponent } from '../skeletons/product-card-skeleton';
@@ -15,7 +14,6 @@ import { Product } from '../../shop.models';
 export class ProductGridComponent {
   private shopService = inject(ShopService);
   private destroyRef = inject(DestroyRef);
-  private platformId = inject(PLATFORM_ID);
 
   products = signal<Product[]>([]);
   isLoading = signal(false);
@@ -25,6 +23,8 @@ export class ProductGridComponent {
   totalPages = signal(0);
   totalItems = signal(0);
   pageSize = 30;
+  private latestRequestId = 0;
+  private lastQuerySignature = '';
 
   visiblePages = computed(() => {
     const total = this.totalPages();
@@ -43,27 +43,38 @@ export class ProductGridComponent {
 
   constructor() {
     effect(() => {
-      this.shopService.selectedCategoryId();
-      this.shopService.searchQuery();
-      this.shopService.shopSortBy();
-      this.shopService.shopMinPrice();
-      this.shopService.shopMaxPrice();
+      const querySignature = JSON.stringify({
+        categoryId: this.shopService.selectedCategoryId(),
+        search: this.shopService.searchQuery().trim(),
+        sortBy: this.shopService.shopSortBy(),
+        minPrice: this.shopService.shopMinPrice(),
+        maxPrice: this.shopService.shopMaxPrice(),
+      });
 
+      if (querySignature === this.lastQuerySignature) return;
+      this.lastQuerySignature = querySignature;
       this.currentPage.set(1);
       this.fetchProducts(1);
     });
   }
 
   goToPage(page: number) {
+    if (this.isLoading()) return;
     if (page < 1 || page > this.totalPages() || page === this.currentPage()) return;
     this.currentPage.set(page);
     this.fetchProducts(page);
-    if (isPlatformBrowser(this.platformId)) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+      const filtersStart = document.getElementById('shop-filters-start');
+      if (filtersStart) {
+        const headerOffset = 110;
+        const y = filtersStart.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }
     }
   }
 
   private fetchProducts(page: number) {
+    const requestId = ++this.latestRequestId;
     this.isLoading.set(true);
 
     const searchQuery = this.shopService.searchQuery();
@@ -77,12 +88,16 @@ export class ProductGridComponent {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: response => {
+            if (requestId !== this.latestRequestId) return;
             this.products.set(response.items);
             this.totalPages.set(response.total_pages);
             this.totalItems.set(response.total);
             this.isLoading.set(false);
           },
-          error: () => this.isLoading.set(false)
+          error: () => {
+            if (requestId !== this.latestRequestId) return;
+            this.isLoading.set(false);
+          }
         });
       return;
     }
@@ -98,12 +113,16 @@ export class ProductGridComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: response => {
+          if (requestId !== this.latestRequestId) return;
           this.products.set(response.items);
           this.totalPages.set(response.total_pages);
           this.totalItems.set(response.total);
           this.isLoading.set(false);
         },
-        error: () => this.isLoading.set(false)
+        error: () => {
+          if (requestId !== this.latestRequestId) return;
+          this.isLoading.set(false);
+        }
       });
   }
 }

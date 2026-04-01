@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, inject, computed, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -22,10 +22,17 @@ export class ProductCardComponent {
   private favoritesService = inject(ShopFavoritesService);
   isFavorited = computed(() => this.favoritesService.isFavorite(this.product()?.id));
   isAtStockLimit = computed(() => !this.cartService.canAddMore(this.product()));
+  cartPressed = signal(false);
+  private cartPressedTimeout: ReturnType<typeof setTimeout> | null = null;
 
   addToCart(event: Event) {
     event.stopPropagation();
     event.preventDefault();
+    this.cartPressed.set(true);
+    if (this.cartPressedTimeout) {
+      clearTimeout(this.cartPressedTimeout);
+    }
+    this.cartPressedTimeout = setTimeout(() => this.cartPressed.set(false), 180);
     this.cartService.addToCart(this.product());
   }
 

@@ -5,7 +5,7 @@
     isSwapRoute() ? 'swap-header' : ''
   ]">
   <nav
-    [class]="'flex flex-wrap items-center gap-x-2 gap-y-2 py-2 md:py-3 ' + (navContainerClass() || 'px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32')">
+    [class]="'flex flex-wrap items-center gap-x-2 gap-y-2 py-2 md:py-3 ' + (navContainerClass() || 'px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32')">
 
     <a
       routerLink="/"
@@ -20,7 +20,7 @@
     </a>
 
     <ul
-      class="hidden md:flex flex-wrap items-center justify-center xl:justify-start gap-x-0.5 sm:gap-1 order-4 xl:order-2 w-full xl:w-auto basis-full xl:basis-auto text-xs sm:text-sm md:text-base font-bold uppercase tracking-wider xl:ml-10"
+      class="hidden lg:flex flex-wrap items-center justify-center 2xl:justify-start gap-x-0.5 sm:gap-1 order-4 2xl:order-2 w-full 2xl:w-auto basis-full 2xl:basis-auto text-xs sm:text-sm md:text-base font-bold uppercase tracking-wider 2xl:ml-10"
       [ngClass]="variant() === 'white' ? (isShopRoute() || isSwapRoute() ? '' : 'text-primary/70') : 'text-white/80'"
       aria-label="Primary"
     >
@@ -38,85 +38,84 @@
       }
     </ul>
 
-    @if (isShopRoute()) {
-      <div class="order-2 xl:order-3 flex-1 min-w-0 max-w-xl mx-1 sm:mx-4 relative" #searchContainer>
-        <div class="relative">
-          <mat-icon class="absolute left-3 inset-y-0 my-auto !w-5 !h-5 !text-xl !leading-5"
-            [ngClass]="variant() === 'white' ? 'text-gray-400' : 'text-white/60'">
-            search
-          </mat-icon>
-          <input
-            type="text"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="onSearchChange($event)"
-            (focus)="onSearchFocus()"
-            [placeholder]="'shop.hero.searchPlaceholder' | translate"
-            class="w-full pl-11 py-2 rounded-full font-medium text-sm transition-all focus:outline-none focus:ring-2"
-            [ngClass]="[
-              variant() === 'white'
-                ? 'bg-gray-100 text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-market/30'
-                : 'bg-white/20 text-white placeholder-white/70 focus:bg-white/30 focus:ring-white/50',
-              searchQuery().length > 0 ? 'pr-11' : 'pr-4'
-            ]"
-          />
-          @if (searchQuery().length > 0) {
-            <button
-              (click)="clearSearch()"
-              class="absolute right-3 inset-y-0 my-auto w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-all"
-              type="button"
-            >
-              <mat-icon class="!w-4 !h-4 !text-base  !leading-5"
-                [ngClass]="variant() === 'white' ? 'text-gray-500' : 'text-white/70'">
-                close
-              </mat-icon>
-            </button>
-          }
-        </div>
-
-        @if (showSearchDropdown() && searchQuery().length > 0) {
-          <div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[500px] overflow-y-auto">
-            @if (searchLoading()) {
-              <div class="p-8 text-center">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-market border-t-transparent"></div>
-                <p class="mt-3 text-sm text-gray-500 font-medium">{{ 'shop.search.searching' | translate }}</p>
-              </div>
-            } @else if (suggestedProducts().length > 0) {
-              <div class="p-3">
-                <p class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-gray-500">{{ 'shop.search.suggestions' | translate }}</p>
-                @for (product of suggestedProducts(); track product.id) {
-                  <a
-                    [routerLink]="['/shop/product', product.id]"
-                    (click)="closeSearchDropdown()"
-                    class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    <img
-                      [src]="product.image || product.image_url || 'assets/placeholder-product.png'"
-                      [alt]="product.name || product.title"
-                      class="w-12 h-12 object-cover rounded-lg bg-gray-100"
-                    />
-                    <div class="flex-1 min-w-0">
-                      <p class="font-semibold text-sm text-gray-900 truncate">{{ product.name || product.title }}</p>
-                      <p class="text-xs text-gray-500 truncate">{{ product.description }}</p>
-                    </div>
-                    <p class="font-bold text-market">₾{{ product.price }}</p>
-                  </a>
-                }
-              </div>
-            } @else {
-              <div class="p-8 text-center">
-                <mat-icon class="!w-16 !h-16 !text-[64px] text-gray-300">search_off</mat-icon>
-                <p class="mt-3 text-sm text-gray-600 font-medium">{{ 'shop.search.noResults' | translate }}</p>
-              </div>
-            }
-          </div>
+    <div class="header-search-breakpoint order-2 2xl:order-3 flex-1 min-w-0 w-full max-w-xl mx-1 sm:mx-4 md:mx-auto 2xl:mx-4 relative" #searchContainer>
+      <div class="relative">
+        <mat-icon class="absolute left-3 inset-y-0 my-auto !w-5 !h-5 !text-xl !leading-5"
+          [ngClass]="variant() === 'white' ? 'text-gray-400' : 'text-white/60'">
+          search
+        </mat-icon>
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+          (focus)="onSearchFocus()"
+          (keydown.enter)="onSearchSubmit()"
+          [placeholder]="(isShopRoute() ? 'shop.hero.searchPlaceholder' : 'header.searchPlaceholder') | translate"
+          class="w-full pl-11 py-2 rounded-full font-medium text-sm transition-all focus:outline-none focus:ring-2"
+          [ngClass]="[
+            variant() === 'white'
+              ? 'bg-gray-100 text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-primary/30'
+              : 'bg-white/20 text-white placeholder-white/70 focus:bg-white/30 focus:ring-white/50',
+            searchQuery().length > 0 ? 'pr-11' : 'pr-4'
+          ]"
+        />
+        @if (searchQuery().length > 0) {
+          <button
+            (click)="clearSearch()"
+            class="absolute right-3 inset-y-0 my-auto w-6 h-6 rounded-full flex items-center justify-center hover:bg-gray-200/50 transition-all"
+            type="button"
+          >
+            <mat-icon class="!w-4 !h-4 !text-base  !leading-5"
+              [ngClass]="variant() === 'white' ? 'text-gray-500' : 'text-white/70'">
+              close
+            </mat-icon>
+          </button>
         }
       </div>
-    }
 
-    <div class="order-3 xl:order-4 ml-auto flex items-center gap-1.5 sm:gap-3 md:gap-5 shrink-0">
+      @if (isShopRoute() && showSearchDropdown() && searchQuery().length > 0) {
+        <div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[500px] overflow-y-auto">
+          @if (searchLoading()) {
+            <div class="p-8 text-center">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-market border-t-transparent"></div>
+              <p class="mt-3 text-sm text-gray-500 font-medium">{{ 'shop.search.searching' | translate }}</p>
+            </div>
+          } @else if (suggestedProducts().length > 0) {
+            <div class="p-3">
+              <p class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-gray-500">{{ 'shop.search.suggestions' | translate }}</p>
+              @for (product of suggestedProducts(); track product.id) {
+                <a
+                  [routerLink]="['/shop/product', product.id]"
+                  (click)="closeSearchDropdown()"
+                  class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <img
+                    [src]="product.image || product.image_url || 'assets/placeholder-product.png'"
+                    [alt]="product.name || product.title"
+                    class="w-12 h-12 object-cover rounded-lg bg-gray-100"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-sm text-gray-900 truncate">{{ product.name || product.title }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ product.description }}</p>
+                  </div>
+                  <p class="font-bold text-market">₾{{ product.price }}</p>
+                </a>
+              }
+            </div>
+          } @else {
+            <div class="p-8 text-center">
+              <mat-icon class="!w-16 !h-16 !text-[64px] text-gray-300">search_off</mat-icon>
+              <p class="mt-3 text-sm text-gray-600 font-medium">{{ 'shop.search.noResults' | translate }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="order-3 2xl:order-4 ml-auto flex items-center gap-1.5 sm:gap-3 md:gap-5 shrink-0">
       <button
         type="button"
-        class="md:hidden header-btn w-9 h-9 rounded-full flex items-center justify-center transition"
+        class="lg:hidden header-btn w-9 h-9 rounded-full flex items-center justify-center transition"
         (click)="toggleMobileNav()"
         [attr.aria-expanded]="mobileNavOpen()"
         aria-controls="header-mobile-nav"
@@ -129,26 +128,10 @@
         }
       </button>
 
-      @if (authReady() && !isAuthenticated) {
-        <a
-          routerLink="/auth/register"
-          class="register-btn hidden xl:inline-block !px-3 xl:!px-5 !py-1.5 xl:!py-2 rounded-xl border-2 text-sm xl:text-base transition tracking-wider"
-        >
-          {{ 'header.register' | translate }}
-        </a>
-
-        <a
-          routerLink="/auth/sign-in"
-          class="btn-shimmer hidden xl:inline-block px-3 xl:px-5 py-1.5 xl:py-2 rounded-xl text-sm xl:text-base transition tracking-wider"
-        >
-          <span class="relative z-10 text-black font-medium">{{ 'header.signIn' | translate }}</span>
-        </a>
-      }
-
       <a
         routerLink="/profile/wishlist"
         aria-label="Favorites"
-        class="header-btn hidden md:flex relative w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center transition"
+        class="header-btn hidden lg:flex relative w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center transition"
       >
         <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">favorite_border</mat-icon>
         @if (favoriteCount() > 0) {
@@ -179,22 +162,40 @@
 
       <button
         (click)="toggleLanguage()"
-        class="lang-btn hidden md:flex w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center font-semibold text-xs md:text-sm transition"
+        class="lang-btn hidden lg:flex w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center font-semibold text-xs md:text-sm transition"
         [attr.aria-label]="isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
       >
         {{ isGeorgian() ? 'EN' : 'KA' }}
       </button>
 
-      <button
-        [matMenuTriggerFor]="userMenu"
-        aria-label="User menu"
-        class="header-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
-      >
-        <i class="header-icon ph ph-user text-2xl hover:scale-110 duration-300"></i>
-      </button>
+      <div class="flex items-center rounded-full transition"
+        [ngClass]="authReady() && !isAuthenticated
+          ? (variant() === 'white'
+            ? '2xl:bg-gray-100 2xl:border 2xl:border-gray-200 2xl:hover:bg-gray-200/70'
+            : '2xl:bg-white/20 2xl:border 2xl:border-white/25 2xl:hover:bg-white/25')
+          : ''">
+        @if (authReady() && !isAuthenticated) {
+          <a
+            routerLink="/auth/sign-in"
+            class="hidden 2xl:inline-block px-4 font-semibold text-sm tracking-wider whitespace-nowrap"
+            [ngClass]="variant() === 'white'
+              ? (isShopRoute() ? 'text-market' : isSwapRoute() ? 'text-swap' : 'text-primary')
+              : 'text-white'"
+          >
+            {{ 'header.signIn' | translate }}
+          </a>
+        }
+        <button
+          [matMenuTriggerFor]="userMenu"
+          aria-label="User menu"
+          class="header-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition shrink-0"
+        >
+          <i class="header-icon ph ph-user text-2xl hover:scale-110 duration-300"></i>
+        </button>
+      </div>
 
       <mat-menu #userMenu="matMenu" class="user-menu z-[60]">
-        <button mat-menu-item class="profile-menu-item right " (click)="navigateToProfile()">
+        <button mat-menu-item class="profile-menu-item" (click)="navigateToProfile()">
           <mat-icon>person</mat-icon>
           <span>{{ 'header.profile' | translate }}</span>
         </button>
@@ -202,10 +203,6 @@
           <a mat-menu-item routerLink="/auth/sign-in" class="profile-menu-item auth-menu-item">
             <mat-icon>login</mat-icon>
             <span>{{ 'header.signIn' | translate }}</span>
-          </a>
-          <a mat-menu-item routerLink="/auth/register" class="profile-menu-item auth-menu-item">
-            <mat-icon>person_add</mat-icon>
-            <span>{{ 'header.register' | translate }}</span>
           </a>
         }
         @if (authReady() && isAuthenticated) {
@@ -220,13 +217,13 @@
 
   @if (mobileNavOpen()) {
     <div
-      class="fixed inset-0 z-[60] md:hidden bg-black/40 backdrop-blur-sm"
+      class="fixed inset-0 z-[60] lg:hidden bg-black/40 backdrop-blur-sm"
       (click)="closeMobileNav()"
       aria-hidden="true"
     ></div>
     <div
       id="header-mobile-nav"
-      class="header-mobile-drawer fixed top-0 right-0 z-[70] h-full w-[min(100%,20rem)] md:hidden shadow-2xl border-l border-gray-200 bg-white flex flex-col pt-[max(1rem,env(safe-area-inset-top))]"
+      class="header-mobile-drawer fixed top-0 right-0 z-[70] h-full w-[min(100%,20rem)] lg:hidden shadow-2xl border-l border-gray-200 bg-white flex flex-col pt-[max(1rem,env(safe-area-inset-top))]"
       (click)="$event.stopPropagation()"
     >
       <div class="flex items-center justify-between p-4 border-b border-gray-200">
@@ -291,18 +288,11 @@
         @if (authReady() && !isAuthenticated) {
           <div class="mt-6 flex flex-col gap-2 pt-6 border-t border-gray-200">
             <a
-              routerLink="/auth/register"
-              class="register-btn text-center !px-4 !py-3 rounded-xl border-2 text-sm font-semibold transition"
-              (click)="closeMobileNav()"
-            >
-              {{ 'header.register' | translate }}
-            </a>
-            <a
               routerLink="/auth/sign-in"
-              class="btn-shimmer text-center px-4 py-3 rounded-xl text-sm font-medium inline-block"
+              class="text-center px-4 py-3 rounded-xl text-sm font-semibold inline-block bg-accent text-white hover:opacity-90 transition"
               (click)="closeMobileNav()"
             >
-              <span class="relative z-10 text-black">{{ 'header.signIn' | translate }}</span>
+              <span>{{ 'header.signIn' | translate }}</span>
             </a>
           </div>
         }

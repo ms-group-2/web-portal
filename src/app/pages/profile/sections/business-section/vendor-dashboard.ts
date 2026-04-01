@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,21 +39,23 @@ export class VendorDashboardComponent implements OnInit {
   products = signal<any[]>([]);
   loading = signal<boolean>(false);
   showBusinessDropdown = signal<boolean>(false);
-  profileLoading = signal<boolean>(true);
+  private vendorLoading = signal<boolean>(true);
+  profileLoading = computed(() =>
+    this.vendorLoading() || (this.auth.isAuthenticated() && !this.auth.user())
+  );
 
   ngOnInit() {
     this.translation.loadModule('profile').subscribe();
 
     if (this.auth.isAuthenticated()) {
-      this.profileLoading.set(true);
       this.vendorService.ensureProfileLoaded()
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: () => this.profileLoading.set(false),
-          error: () => this.profileLoading.set(false)
+          next: () => this.vendorLoading.set(false),
+          error: () => this.vendorLoading.set(false)
         });
     } else {
-      this.profileLoading.set(false);
+      this.vendorLoading.set(false);
     }
   }
 

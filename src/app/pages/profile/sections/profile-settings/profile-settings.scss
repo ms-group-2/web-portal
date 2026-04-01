@@ -6,11 +6,12 @@
   }
 }
 
-h2 {
+.profile-name {
   word-wrap: break-word;
-  overflow-wrap: break-word;
-  word-break: break-all;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   max-width: 100%;
+  line-height: 1.2;
 }
 
 .field-label {

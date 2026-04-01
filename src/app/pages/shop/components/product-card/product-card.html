@@ -3,8 +3,8 @@
   class="bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer flex flex-col"
   [ngClass]="
     compact()
-      ? 'shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1'
-      : 'hover:shadow-xl flex flex-col h-full w-full'
+      ? 'shadow-sm border border-gray-100 md:hover:shadow-lg md:hover:-translate-y-1'
+      : 'md:hover:shadow-xl flex flex-col h-full w-full'
   "
 >
   @if (!compact()) {
@@ -12,7 +12,7 @@
       <img
         [src]="product().image"
         [alt]="product().name"
-        class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
+          class="max-w-full max-h-full object-contain md:group-hover:scale-105 transition-transform duration-500"
       />
 
       @if (product().verified) {
@@ -25,10 +25,10 @@
       <div class="absolute top-2 right-2 flex flex-col gap-1.5">
         <button
           (click)="toggleFavorite($event)"
-          class="group/fav w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-200 translate-x-0 md:translate-x-10 md:group-hover:translate-x-0 transition-all duration-700 hover:bg-market hover:border-market"
+          class="group/fav w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-200 translate-x-0 md:translate-x-10 md:group-hover:translate-x-0 transition-all duration-700 md:hover:bg-market md:hover:border-market"
         >
           <mat-icon
-            class="!w-3.5 !h-3.5 !text-sm !leading-none transition-colors group-hover/fav:text-white"
+            class="!w-3.5 !h-3.5 !text-sm !leading-none transition-colors md:group-hover/fav:text-white"
             [ngClass]="isFavorited() ? 'text-market' : 'text-gray-700'"
           >
             {{ isFavorited() ? 'favorite' : 'favorite_border' }}
@@ -36,10 +36,11 @@
         </button>
         <button
           (click)="addToCart($event)"
-          [disabled]="isAtStockLimit()"
-          class="group/cart w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-200 translate-x-0 md:translate-x-10 md:group-hover:translate-x-0 transition-all duration-700 hover:bg-market hover:border-market disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <mat-icon class="!w-3.5 !h-3.5 !text-sm !leading-none transition-colors text-gray-700 group-hover/cart:text-white">shopping_cart</mat-icon>
+          [disabled]="isAtStockLimit()" class="group/cart w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-200 translate-x-0 md:translate-x-10 md:group-hover:translate-x-0 transition-all duration-700 md:hover:bg-market md:hover:border-market disabled:opacity-40 disabled:cursor-not-allowed">
+          <i
+            class="ph text-[14px] leading-none text-gray-700 transition-colors md:group-hover/cart:text-white"
+            [ngClass]="cartPressed() ? 'ph-fill ph-shopping-cart-simple' : 'ph-shopping-cart-simple'"
+          ></i>
         </button>
       </div>
     </div>
@@ -65,7 +66,7 @@
       <button
         (click)="addToCart($event)"
         [disabled]="isAtStockLimit()"
-        class="hidden md:block w-full py-2.5 bg-market text-white rounded-xl uppercase text-sm font-bold hover:bg-[#7a4fd1] transition-all hover:shadow-lg mt-auto disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market"
+        class="hidden md:block w-full py-2.5 bg-market text-white rounded-xl uppercase text-sm font-bold md:hover:bg-[#7a4fd1] transition-all md:hover:shadow-lg mt-auto disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market"
       >
         {{ isAtStockLimit() ? ('shop.product.outOfStock' | translate) : ('shop.card.addToCart' | translate) }}
       </button>
@@ -75,7 +76,7 @@
       <img
         [src]="product().image"
         [alt]="product().name"
-        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        class="w-full h-full object-cover md:group-hover:scale-110 transition-transform duration-500"
       />
       @if (product().verified) {
         <div class="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-1 bg-green-600 rounded-full shadow-md">
@@ -86,7 +87,7 @@
     </div>
 
     <div class="p-4">
-      <h3 class="text-base font-bold text-gray-900 mb-1 group-hover:text-market transition-colors line-clamp-1">
+      <h3 class="text-base font-bold text-gray-900 mb-1 md:group-hover:text-market transition-colors line-clamp-1">
         {{ product().name }}
       </h3>
       <div class="text-lg font-bold text-market">

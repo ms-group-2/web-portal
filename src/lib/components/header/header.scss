@@ -56,6 +56,15 @@
   }
 }
 
+@media (max-width: 609px) {
+  .header-search-breakpoint {
+    order: 4;
+    flex: 0 0 100%;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
 @keyframes header-mobile-drawer-in {
   from {
     transform: translateX(100%);
@@ -207,7 +216,7 @@ header.bg-white {
   .auth-menu-item {
     display: none !important;
 
-    @media (min-width: 768px) and (max-width: 1279px) {
+    @media (min-width: 768px) and (max-width: 1535px) {
       display: flex !important;
     }
   }
