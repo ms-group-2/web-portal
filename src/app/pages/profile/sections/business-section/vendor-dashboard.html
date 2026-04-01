@@ -1,12 +1,8 @@
-<div class="px-4 py-6 sm:px-6 sm:py-8 md:p-8">
-  @if (profileLoading()) {
-    <div class="max-w-2xl mx-auto text-center py-10 sm:py-12 md:py-16">
-      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 animate-pulse">
-        <mat-icon class="!text-3xl !w-8 !h-8 sm:!text-4xl sm:!w-10 sm:!h-10 text-gray-400">hourglass_empty</mat-icon>
-      </div>
-      <p class="text-sm sm:text-base text-gray-600">{{ 'profile.loading' | translate }}</p>
-    </div>
-  } @else if (isVendor()) {
+@if (profileLoading()) {
+  <app-vendor-dashboard-skeleton></app-vendor-dashboard-skeleton>
+} @else {
+  <div class="px-4 pb-6 sm:px-6 sm:pb-8 md:pb-8">
+  @if (isVendor()) {
     <div class="max-w-6xl mx-auto">
       <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-registerBusiness uppercase tracking-tight mb-6 sm:mb-8 md:mb-10">
         {{ 'profile.vendor.dashboard' | translate }}
@@ -161,4 +157,5 @@
       </div>
     </div>
   }
-</div>
+  </div>
+}

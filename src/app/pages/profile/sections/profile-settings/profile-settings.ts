@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgClass } from '@angular/common';
@@ -68,6 +68,7 @@ export class ProfileSettingsComponent implements OnInit {
   private verificationService = inject(VerificationService);
   private verificationDialog = inject(VerificationDialogService);
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
   private isBrowser = isPlatformBrowser(this.platformId);
 
   isEditing = signal(false);
@@ -94,16 +95,16 @@ export class ProfileSettingsComponent implements OnInit {
     return date >= minDate && date <= maxDate;
   };
 
-  genderOptions = computed(() => {
-    const currentGender = this.formValue().gender;
-    const male = this.translationService.translate('profile.genderMale');
-    const female = this.translationService.translate('profile.genderFemale');
-    const notSpecified = this.translationService.translate('profile.genderNotSpecified');
-
-    if (currentGender && currentGender !== '-') {
-      return [male, female];
+  /** View mode label — form stores stable keys `male` | `female` | `-`, not translated text. */
+  genderLabel = computed(() => {
+    const g = this.formValue().gender;
+    if (g === 'male' || g === 'კაცი' || g === 'Male') {
+      return this.translationService.translate('profile.genderMale');
     }
-    return [notSpecified, male, female];
+    if (g === 'female' || g === 'ქალი' || g === 'Female') {
+      return this.translationService.translate('profile.genderFemale');
+    }
+    return this.translationService.translate('profile.genderNotSpecified');
   });
 
   form = this.fb.group({
@@ -184,7 +185,7 @@ export class ProfileSettingsComponent implements OnInit {
       location: profile.location || '',
       bio: profile.bio || '',
       birthDate: this.isoToDate(profile.birth_date),
-      gender: GenderUtil.toString(profile.gender),
+      gender: GenderUtil.toFormValue(profile.gender),
     });
 
     this.originalFormValue = this.form.getRawValue();
@@ -289,7 +290,8 @@ export class ProfileSettingsComponent implements OnInit {
     updateRequest.phone_number = (fullPhone && fullPhone !== '+995') ? fullPhone : null;
     updateRequest.birth_date = formValues.birthDate ? this.dateToIso(formValues.birthDate)! : null;
     updateRequest.location = formValues.location || null;
-    updateRequest.gender = (formValues.gender && formValues.gender !== '-') ? GenderUtil.toBoolean(formValues.gender) : null;
+    updateRequest.gender =
+      formValues.gender && formValues.gender !== '-' ? GenderUtil.toApiBoolean(formValues.gender) : null;
     updateRequest.bio = formValues.bio || null;
 
     console.log('Update request payload:', JSON.stringify(updateRequest, null, 2));
@@ -374,6 +376,13 @@ export class ProfileSettingsComponent implements OnInit {
 
   onPhoneInput(event: Event): void {
     sanitizePhoneInput(event, this.form.controls.phoneNumber);
+  }
+
+  onPhoneBlur(): void {
+    const control = this.form.controls.phoneNumber;
+    control.markAsTouched();
+    control.updateValueAndValidity();
+    this.cdr.markForCheck();
   }
 
   onAvatarFileSelected(file: File): void {

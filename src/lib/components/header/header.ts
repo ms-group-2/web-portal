@@ -81,8 +81,8 @@ export class Header implements OnDestroy {
     const route = this.currentRoute();
     if (route.includes('/shop')) {
       return 'bg-gradient-to-r from-market to-teal-400';
-    } else if (route.includes('/booking')) {
-      return 'bg-gradient-to-r from-booking to-blue-500';
+    // } else if (route.includes('/booking')) {
+    //   return 'bg-gradient-to-r from-booking to-blue-500';
     }
     return 'bg-gradient-to-r from-accent to-purple-600';
   });
@@ -180,6 +180,9 @@ export class Header implements OnDestroy {
   onSearchChange(value: string) {
     this.searchQuery.set(value);
     if (this.isShopRoute()) {
+      if (!value.trim()) {
+        this.shopService.setSearchQuery('');
+      }
       this.searchSubject.next(value);
     }
   }
@@ -218,6 +221,7 @@ export class Header implements OnDestroy {
     if (!query || query.trim().length === 0) {
       this.suggestedProducts.set([]);
       this.showSearchDropdown.set(false);
+      this.shopService.setSearchQuery('');
       return;
     }
 

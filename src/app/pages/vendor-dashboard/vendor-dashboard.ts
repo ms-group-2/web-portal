@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +18,17 @@ import { SettingsSection } from './sections/settings-section/settings-section';
 import { DeleteConfirmationDialog } from './components/delete-confirmation-dialog/delete-confirmation-dialog';
 import { MAIN_NAVIGATION_TABS, SETTINGS_NAVIGATION_TABS } from './constants/navigation.constants';
 import { TabType } from './models/navigation.models';
+
+const VALID_TABS: readonly TabType[] = ['dashboard', 'products', 'orders', 'settings'];
+
+function tabFromQueryParams(params: Params): TabType {
+  const raw = params['tab'];
+  const s = Array.isArray(raw) ? raw[0] : raw;
+  if (!s || typeof s !== 'string') {
+    return 'dashboard';
+  }
+  return VALID_TABS.includes(s as TabType) ? (s as TabType) : 'dashboard';
+}
 
 @Component({
   selector: 'app-vendor-dashboard',
@@ -47,7 +58,8 @@ export class VendorDashboard implements OnInit {
   vendorProfile = this.vendorService.vendorProfile;
   userProfile = signal<Profile | null>(null);
 
-  activeTab = signal<TabType>('dashboard');
+  /** Initialized from the URL snapshot so the first paint matches ?tab= (Observable can emit later). */
+  activeTab = signal<TabType>(tabFromQueryParams(this.route.snapshot.queryParams));
   mainNavigationTabs = MAIN_NAVIGATION_TABS;
   settingsNavigationTabs = SETTINGS_NAVIGATION_TABS;
   allNavigationTabs = [...MAIN_NAVIGATION_TABS, ...SETTINGS_NAVIGATION_TABS];
@@ -77,13 +89,29 @@ export class VendorDashboard implements OnInit {
 
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params['tab']) {
-        this.setActiveTab(params['tab'] as TabType);
+        this.setActiveTab(tabFromQueryParams(params), { syncUrl: false });
       }
     });
+
+    // Re-apply tab so loadProducts runs for ?tab=products when snapshot already matched the signal.
+    this.setActiveTab(tabFromQueryParams(this.route.snapshot.queryParams), { syncUrl: false });
   }
 
-  setActiveTab(tab: TabType) {
+  setActiveTab(tab: TabType, options?: { syncUrl?: boolean }) {
     this.activeTab.set(tab);
+
+    const syncUrl = options?.syncUrl !== false;
+    if (syncUrl) {
+      const current = this.route.snapshot.queryParams['tab'];
+      const currentStr = Array.isArray(current) ? current[0] : current;
+      if (currentStr !== tab) {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { tab },
+          queryParamsHandling: 'merge',
+        });
+      }
+    }
 
     if (tab === 'products' && this.vendorProfile()) {
       this.loadProducts();
@@ -170,6 +198,6 @@ export class VendorDashboard implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/profile/business']);
   }
 }

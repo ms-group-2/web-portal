@@ -48,7 +48,7 @@
     "errors": {
       "notAuthenticated": "მომხმარებელი არ არის ავტორიზებული",
       "avatarTooLarge": "ავატარის ზომა აღემატება 5მბ-ს",
-      "invalidPhoneFormat": "ნომერის ფორმატი არასწორია",
+      "invalidPhoneFormat": "ნომრის ფორმატი არასწორია",
       "passwordChangeSuccess": "პაროლი წარმატებით შეიცვალა",
       "incorrectCurrentPassword": "შეყვანილი ახლანდელი პაროლი არასწორია",
       "authenticationExpired": "ავტორიზაცია ვადაგასულია. გთხოვთ ხელახლა შეხვიდეთ სისტემაში",

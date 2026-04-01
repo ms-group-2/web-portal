@@ -1,3 +1,11 @@
+/** Nested category from product detail API — use for breadcrumbs when shop cache has no subcategories yet */
+export interface ProductCategoryNested {
+  id: number;
+  name: string;
+  slug: string;
+  parent?: ProductCategoryNested | null;
+}
+
 export interface Product {
   id: number;
   category_id: number;
@@ -28,6 +36,7 @@ export interface Product {
   verified?: boolean;
   badge?: string;
   quantity?: number;
+  category?: ProductCategoryNested | null;
 }
 
 export interface Category {

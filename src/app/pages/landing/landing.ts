@@ -49,11 +49,11 @@ export class Landing implements OnInit {
           inactive: 'text-market/60 hover:text-market hover:bg-market/5',
           active: 'text-market bg-market/10'
         };
-      case 'book':
-        return {
-          inactive: 'text-white/70 hover:text-white hover:bg-white/5',
-          active: 'text-swap bg-white/10'
-        };
+      // case 'book':
+      //   return {
+      //     inactive: 'text-white/70 hover:text-white hover:bg-white/5',
+      //     active: 'text-swap bg-white/10'
+      //   };
       default:
         return {
           inactive: 'text-white/70 hover:text-white hover:bg-white/5',

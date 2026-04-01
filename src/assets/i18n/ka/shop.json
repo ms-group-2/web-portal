@@ -89,6 +89,9 @@
     "card": {
       "addToCart": "კალათაში დამატება"
     },
+    "cart": {
+      "addedSuccess": "პროდუქტი დაემატა კალათაში!"
+    },
     "product": {
       "brand": "ბრენდი",
       "quantity": "რაოდენობა",

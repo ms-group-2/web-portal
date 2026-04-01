@@ -9,6 +9,7 @@ import { VerificationService } from 'lib/services/verification/verification.serv
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { VENDOR_FEATURES } from 'lib/constants/vendor.constants';
 import { AuthService } from 'lib/services/identity/auth.service';
+import { VendorDashboardSkeletonComponent } from '../../components/skeletons/vendor-dashboard-skeleton';
 
 @Component({
   selector: 'app-vendor-dashboard',
@@ -16,6 +17,7 @@ import { AuthService } from 'lib/services/identity/auth.service';
     MatIconModule,
     MatButtonModule,
     TranslatePipe,
+    VendorDashboardSkeletonComponent,
   ],
   templateUrl: './vendor-dashboard.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -13,6 +13,11 @@ export const serverRoutes: ServerRoute[] = [
     path: 'business/dashboard/edit-product/:productId',
     renderMode: RenderMode.Server,
   },
+
+  {
+    path: 'business/**',
+    renderMode: RenderMode.Server,
+  },
   {
     path: '**',
     renderMode: RenderMode.Prerender,

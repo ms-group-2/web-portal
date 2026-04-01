@@ -10,7 +10,7 @@ import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
-import { Product } from '../shop/shop.models';
+import { Category, Product, ProductCategoryNested } from '../shop/shop.models';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { ProductDetailSkeletonComponent } from './components/product-detail-skeleton';
@@ -22,7 +22,6 @@ import { Swiper } from 'lib/components/swiper/swiper';
   imports: [Header, Footer, TranslatePipe, RouterLink, MatIconModule, CommonModule, ProductDetailSkeletonComponent, ProductCardComponent, Swiper],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './product-detail.html',
-  styleUrls: ['./product-detail.scss']
 })
 export class ProductDetail implements OnInit {
   private route = inject(ActivatedRoute);
@@ -59,8 +58,13 @@ export class ProductDetail implements OnInit {
     const product = this.product();
     if (!product?.category_id) return [];
 
+    const fromApi = this.categoryTrailFromNested(product.category);
+    if (fromApi.length > 0) {
+      return fromApi;
+    }
+
     const categories = this.shopService.flatCategories();
-    const trail: any[] = [];
+    const trail: Category[] = [];
     let currentCategoryId: number | null = product.category_id;
 
     while (currentCategoryId !== null) {
@@ -97,7 +101,6 @@ export class ProductDetail implements OnInit {
           );
         }),
         tap(product => {
-          console.log('Product from getProductById API:', product);
           if (product) {
             this.product.set(product);
             this.selectedImage.set(product.image || product.image_url || '');
@@ -117,6 +120,26 @@ export class ProductDetail implements OnInit {
           this.loading.set(false);
         }
       });
+  }
+
+  private categoryTrailFromNested(nested: ProductCategoryNested | null | undefined): Category[] {
+    if (!nested) {
+      return [];
+    }
+
+    const trail: Category[] = [];
+    let crumb: ProductCategoryNested | null | undefined = nested;
+    while (crumb) {
+      trail.unshift({
+        id: crumb.id,
+        name: crumb.name,
+        slug: crumb.slug,
+        parent_id: crumb.parent?.id ?? null,
+        has_subcategories: false,
+      });
+      crumb = crumb.parent ?? undefined;
+    }
+    return trail;
   }
 
   private loadCategoryHierarchy(categoryId: number) {

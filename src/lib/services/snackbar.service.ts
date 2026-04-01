@@ -54,8 +54,13 @@ export class SnackbarService {
     });
   }
 
-  success(text: string, closeIcon: string = 'close') {
-    this.show(text, SnackbarType.SUCCESS, closeIcon);
+  success(
+    text: string,
+    closeIcon: string = 'close',
+    horizontalPosition: MatSnackBarHorizontalPosition = 'center',
+    verticalPosition: MatSnackBarVerticalPosition = 'bottom'
+  ) {
+    this.show(text, SnackbarType.SUCCESS, closeIcon, horizontalPosition, verticalPosition);
   }
 
   error(text: string, closeIcon: string = 'close') {

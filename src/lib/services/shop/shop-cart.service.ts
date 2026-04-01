@@ -5,6 +5,7 @@ import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
+import { TranslationService } from 'lib/services/translation.service';
 import { StorageService } from 'lib/services/storage/storage.service';
 import { environment } from 'src/environments/environment';
 import { ShopCartApiService } from './shop-cart-api.service';
@@ -21,6 +22,7 @@ export class ShopCartService {
   private readonly authService = inject(AuthService);
   private readonly storage = inject(StorageService);
   private readonly snackbar = inject(SnackbarService);
+  private readonly translation = inject(TranslationService);
   private readonly cartApi = inject(ShopCartApiService);
   private readonly ordersService = inject(ShopOrdersService);
 
@@ -139,6 +141,7 @@ export class ShopCartService {
       const current = this.cartItems();
       const next = [...current, ...Array.from({ length: requestedQuantity }, () => product.id)];
       this.updateCart(next);
+      this.snackbar.success(this.translation.translate('shop.cart.addedSuccess'), 'close', 'right', 'bottom');
       return true;
     }
 
@@ -171,6 +174,7 @@ export class ShopCartService {
       )
       .subscribe(item => {
         if (item) {
+          this.snackbar.success(this.translation.translate('shop.cart.addedSuccess'), 'close', 'right', 'bottom');
           this.refreshCartFromBackend();
         }
       });

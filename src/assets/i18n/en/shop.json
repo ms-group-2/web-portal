@@ -89,6 +89,9 @@
     "card": {
       "addToCart": "Add to Cart"
     },
+    "cart": {
+      "addedSuccess": "Product has been successfully added to cart."
+    },
     "product": {
       "brand": "Brand",
       "quantity": "Quantity",

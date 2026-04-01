@@ -125,6 +125,8 @@
               [formControl]="form.controls.birthDate"
               [matDatepickerFilter]="birthDateFilter"
               [placeholder]="'profile.selectDate' | translate"
+              (click)="picker.open()"
+              (focus)="picker.open()"
               readonly
             />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
@@ -170,6 +172,7 @@
               placeholder="XXX-XXX-XXX"
               maxlength="9"
               (input)="onPhoneInput($event)"
+              (blur)="onPhoneBlur()"
             />
           </div>
           @if (form.controls.phoneNumber.invalid && form.controls.phoneNumber.touched) {
@@ -192,13 +195,18 @@
               [formControl]="form.controls.gender"
               panelClass="gender-dropdown-panel"
             >
-              @for (option of genderOptions(); track option) {
-                <mat-option [value]="option">{{ option }}</mat-option>
+              @if (formValue().gender && formValue().gender !== '-') {
+                <mat-option value="male">{{ 'profile.genderMale' | translate }}</mat-option>
+                <mat-option value="female">{{ 'profile.genderFemale' | translate }}</mat-option>
+              } @else {
+                <mat-option value="-">{{ 'profile.genderNotSpecified' | translate }}</mat-option>
+                <mat-option value="male">{{ 'profile.genderMale' | translate }}</mat-option>
+                <mat-option value="female">{{ 'profile.genderFemale' | translate }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
         } @else {
-          <p class="field-display">{{ formValue().gender }}</p>
+          <p class="field-display">{{ genderLabel() }}</p>
         }
       </div>
 
