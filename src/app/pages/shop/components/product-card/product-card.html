@@ -25,7 +25,7 @@
       <div class="absolute top-2 right-2 flex flex-col gap-1.5">
         <button
           (click)="toggleFavorite($event)"
-          class="group/fav w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-200 translate-x-10 group-hover:translate-x-0 transition-all duration-700 hover:bg-market hover:border-market"
+          class="group/fav w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-200 translate-x-0 md:translate-x-10 md:group-hover:translate-x-0 transition-all duration-700 hover:bg-market hover:border-market"
         >
           <mat-icon
             class="!w-3.5 !h-3.5 !text-sm !leading-none transition-colors group-hover/fav:text-white"
@@ -37,7 +37,7 @@
         <button
           (click)="addToCart($event)"
           [disabled]="isAtStockLimit()"
-          class="group/cart w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-200 translate-x-10 group-hover:translate-x-0 transition-all duration-700 hover:bg-market hover:border-market disabled:opacity-40 disabled:cursor-not-allowed"
+          class="group/cart w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-200 translate-x-0 md:translate-x-10 md:group-hover:translate-x-0 transition-all duration-700 hover:bg-market hover:border-market disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <mat-icon class="!w-3.5 !h-3.5 !text-sm !leading-none transition-colors text-gray-700 group-hover/cart:text-white">shopping_cart</mat-icon>
         </button>
@@ -65,7 +65,7 @@
       <button
         (click)="addToCart($event)"
         [disabled]="isAtStockLimit()"
-        class="w-full py-2.5 bg-market text-white rounded-xl uppercase text-sm font-bold hover:bg-[#7a4fd1] transition-all hover:shadow-lg mt-auto disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market"
+        class="hidden md:block w-full py-2.5 bg-market text-white rounded-xl uppercase text-sm font-bold hover:bg-[#7a4fd1] transition-all hover:shadow-lg mt-auto disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market"
       >
         {{ isAtStockLimit() ? ('shop.product.outOfStock' | translate) : ('shop.card.addToCart' | translate) }}
       </button>

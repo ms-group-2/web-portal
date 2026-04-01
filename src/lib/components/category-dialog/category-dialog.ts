@@ -50,6 +50,14 @@ export class CategoryMenu implements OnInit {
     return this.subcategoriesMap()[parentId] ?? [];
   });
 
+  currentCategoryName = computed(() => {
+    const crumbs = this.breadcrumbs();
+    if (crumbs.length === 0) {
+      return null;
+    }
+    return crumbs[crumbs.length - 1].name;
+  });
+
   ngOnInit() {
   }
 

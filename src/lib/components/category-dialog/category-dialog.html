@@ -6,30 +6,36 @@
     (click)="onBackdropClick()">
   </div>
 
-  <div class="fixed top-16 left-0 right-0 z-40 category-mega-menu" [class.closing]="isClosing()">
-    <div class="bg-white shadow-2xl max-h-[70vh] overflow-hidden flex flex-col">
+  <div class="fixed top-0 sm:top-16 left-0 right-0 z-40 category-mega-menu" [class.closing]="isClosing()">
+    <div class="bg-white shadow-2xl max-h-[88vh] sm:max-h-[70vh] overflow-hidden flex flex-col category-menu-panel rounded-b-2xl sm:rounded-none">
 
-      <div class="sticky top-0 bg-white z-10">
-        <div class="max-w-6xl mx-auto px-8 pt-8 pb-7 flex items-center justify-between">
+      <div class="sticky top-0 bg-white z-10 border-b border-gray-100 sm:border-b-0">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-8 pb-3 sm:pb-7 flex items-center justify-between gap-3 sm:gap-4">
+
+          <div class="absolute left-1/2 -translate-x-1/2 top-1 h-1 w-14 rounded-sm bg-gray-200 sm:hidden" aria-hidden="true"></div>
 
           <div class="flex items-center gap-4">
             @if (breadcrumbs().length > 0) {
               <button
                 (click)="goBack()"
-                class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"
+                class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"
                 aria-label="Go back">
                 <mat-icon class="text-gray-700">arrow_back</mat-icon>
               </button>
             }
 
-            <span class="text-3xl font-bold text-gray-900">
-              {{ 'shop.categories.browseAll' | translate }}
+            <span class="text-base sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight line-clamp-2">
+              @if (currentCategoryName(); as categoryName) {
+                {{ categoryName }}
+              } @else {
+                {{ 'shop.categories.browseAll' | translate }}
+              }
             </span>
           </div>
 
           <button
             (click)="close()"
-            class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"
+            class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-full bg-gray-100 hover:bg-gray-200 transition flex items-center justify-center"
             aria-label="Close">
             <mat-icon class="text-gray-700">close</mat-icon>
           </button>
@@ -38,7 +44,7 @@
       </div>
 
       <div class="flex-1 overflow-y-auto">
-        <div class="max-w-6xl mx-auto px-8 pb-8">
+        <div class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pb-20 sm:pb-16">
 
           @if (loading()) {
             <app-loading-spinner size="large" color="var(--color-market)"></app-loading-spinner>
@@ -50,25 +56,25 @@
           } 
           @else {
 
-            <div class="grid grid-cols-4 gap-x-6 gap-y-5">
+            <div class="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-4 lg:gap-x-6 gap-y-3 sm:gap-y-5">
 
               @for (category of filteredCategories(); track category.id) {
 
                 <button
                   (click)="navigateToCategory(category)"
-                  class="relative w-full h-20 flex items-center pl-4 rounded-lg bg-[#EAEAEA] transition-all hover:bg-[#E0E0E0]"
+                  class="relative w-full h-[72px] sm:h-20 flex items-center pl-3 sm:pl-4 pr-16 sm:pr-20 rounded-lg bg-[#EAEAEA] transition-all hover:bg-[#E0E0E0]"
                   [ngClass]="{
                     'bg-market/20': shopService.selectedCategoryId() === category.id
                   }"
                 >
 
-                  <span class="text-sm font-normal text-gray-800 max-w-28 break-words line-clamp-2">
+                  <span class="text-[13px] sm:text-sm font-normal text-gray-800 max-w-[74%] sm:max-w-[70%] break-words line-clamp-2 text-left leading-tight">
                     {{ category.name | translate }}
                   </span>
 
                   <!-- Main categories (depth 0) may have images, subcategories always show icon -->
                   @if (breadcrumbs().length === 0 && (category.image || category.image_url)) {
-                    <div class="absolute bottom-0 right-0 w-20 h-20 overflow-hidden rounded-tl-lg">
+                    <div class="absolute bottom-0 right-0 w-14 h-14 sm:w-20 sm:h-20 overflow-hidden rounded-tl-lg">
                       <img
                         [src]="category.image || category.image_url"
                         [alt]="category.name"
@@ -76,8 +82,8 @@
                       />
                     </div>
                   } @else {
-                    <div class="absolute bottom-0 right-0 w-20 h-20 flex items-center justify-center">
-                      <mat-icon class="!w-12 !h-12 !text-5xl text-gray-400">{{ getCategoryIcon(category) }}</mat-icon>
+                    <div class="absolute bottom-0 right-0 w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center">
+                      <mat-icon class="!w-8 !h-8 !text-3xl sm:!w-12 sm:!h-12 sm:!text-5xl text-gray-400">{{ getCategoryIcon(category) }}</mat-icon>
                     </div>
                   }
 
@@ -91,6 +97,8 @@
 
         </div>
       </div>
+
+      <div class="category-scroll-fade" aria-hidden="true"></div>
 
     </div>
   </div>

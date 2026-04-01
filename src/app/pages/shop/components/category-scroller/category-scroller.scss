@@ -11,6 +11,38 @@
   }
 }
 
+.category-slide {
+  width: 108px;
+}
+
+.category-card {
+  width: 108px;
+  height: 124px;
+}
+
+.category-main-icon {
+  width: 2rem !important;
+  height: 2rem !important;
+  font-size: 2rem !important;
+}
+
+@media (min-width: 640px) {
+  .category-slide {
+    width: 142px;
+  }
+
+  .category-card {
+    width: 142px;
+    height: 172px;
+  }
+
+  .category-main-icon {
+    width: 3rem !important;
+    height: 3rem !important;
+    font-size: 3rem !important;
+  }
+}
+
 .category-button {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
