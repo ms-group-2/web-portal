@@ -11,6 +11,13 @@ import {
 } from 'lib/models/vendor.models';
 import { StorageService } from 'lib/services/storage/storage.service';
 
+const VENDOR_REJECTED_STATUSES = new Set([
+  'rejected',
+  'denied',
+  'declined',
+  'refused',
+]);
+
 @Injectable({ providedIn: 'root' })
 export class VendorService {
   private http = inject(HttpClient);
@@ -23,6 +30,7 @@ export class VendorService {
   vendorProfile = signal<VendorProfile | null>(null);
   isVendor = signal<boolean>(false);
   isPendingApproval = signal<boolean>(this.loadPendingState());
+  isRegistrationRejected = signal<boolean>(false);
 
   private profileRequest$: Observable<VendorProfile | null> | null = null;
 
@@ -49,32 +57,30 @@ export class VendorService {
       .pipe(
         map(response => response.sellers?.[0] || null),
         tap(profile => {
-          if (profile) {
-            const status = (profile.status || '').toLowerCase();
-            const isPending = status === 'pending';
-
-            this.vendorProfile.set(profile);
-            this.isVendor.set(!isPending);
-            this.isPendingApproval.set(isPending);
-
-            if (isPending) {
-              this.storage.setItem(this.PENDING_KEY, 'true');
-            } else {
-              this.storage.removeItem(this.PENDING_KEY);
-            }
-          } else {
-            this.vendorProfile.set(null);
-            this.isVendor.set(false);
-            this.isPendingApproval.set(false);
-          }
+          this.applyVendorStatusFromProfile(profile);
         }),
         catchError(err => {
           console.error('Failed to load vendor profile:', err);
           this.vendorProfile.set(null);
           this.isVendor.set(false);
+          this.isPendingApproval.set(false);
+          this.isRegistrationRejected.set(false);
           return of(null);
         })
       );
+  }
+
+  /**
+   * Validates identification number against the business registry (used on step 2 blur).
+   * Expects 2xx when valid; 4xx with `{ error_code, message }` when not (e.g. INVALID_ID_NUMBER).
+   * If your backend uses a different path or method, change only this URL/body here.
+   */
+  verifyIdentificationNumber(identificationNumber: string): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/vendors/profile/verify-identification`,
+      { identification_number: identificationNumber },
+      { headers: this.headers }
+    );
   }
 
   registerAsVendor(data: VendorRegistration): Observable<VendorProfile | null> {
@@ -87,6 +93,7 @@ export class VendorService {
           this.vendorProfile.set(profile);
           this.isVendor.set(false);
           this.isPendingApproval.set(true);
+          this.isRegistrationRejected.set(false);
           this.storage.setItem(this.PENDING_KEY, 'true');
         }),
         catchError(err => {
@@ -268,7 +275,34 @@ export class VendorService {
     this.vendorProfile.set(null);
     this.isVendor.set(false);
     this.isPendingApproval.set(false);
+    this.isRegistrationRejected.set(false);
     this.storage.removeItem(this.PENDING_KEY);
+  }
+
+  private applyVendorStatusFromProfile(profile: VendorProfile | null): void {
+    if (!profile) {
+      this.vendorProfile.set(null);
+      this.isVendor.set(false);
+      this.isPendingApproval.set(false);
+      this.isRegistrationRejected.set(false);
+      return;
+    }
+
+    const raw = (profile.status || '').toLowerCase().trim();
+    const normalized = raw.replace(/\s+/g, '_');
+    const isPending = raw === 'pending';
+    const isRejected = VENDOR_REJECTED_STATUSES.has(normalized);
+
+    this.vendorProfile.set(profile);
+    this.isPendingApproval.set(isPending);
+    this.isRegistrationRejected.set(isRejected);
+    this.isVendor.set(!isPending && !isRejected);
+
+    if (isPending) {
+      this.storage.setItem(this.PENDING_KEY, 'true');
+    } else {
+      this.storage.removeItem(this.PENDING_KEY);
+    }
   }
 
   private loadPendingState(): boolean {

@@ -5,6 +5,8 @@
     "pattern": "Please enter a valid format",
     "invalidPhone": "Please enter a valid phone number",
     "invalidIban": "Please enter a valid IBAN",
+    "invalidBusinessRegistryId": "Identification number not found in the business registry.",
+    "businessRegistryVerificationFailed": "Could not verify the identification number. Please try again.",
     "minLength": "Too short, minimum characters required",
     "minlength": "Too short, minimum {n} characters",
     "maxlength": "Too long, maximum {n} characters",

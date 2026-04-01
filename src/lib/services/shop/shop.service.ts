@@ -39,12 +39,16 @@ export class ShopService {
   private normalizeProduct(product: Product): Product {
     const cover = this.normalizeImageUrl(product.cover_image_url || product.image_url || product.image);
 
+    const qty =
+      product.quantity != null ? product.quantity : product.stock_quantity != null ? product.stock_quantity : undefined;
+
     return {
       ...product,
       cover_image_url: this.normalizeImageUrl(product.cover_image_url) || cover,
       image_url: this.normalizeImageUrl(product.image_url) || cover,
       image: cover,
       name: product.title || product.name,
+      quantity: qty,
     };
   }
 

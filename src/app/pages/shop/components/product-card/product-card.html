@@ -66,8 +66,11 @@
       <button
         (click)="addToCart($event)"
         [disabled]="isAtStockLimit()"
-        class="hidden md:block w-full py-2.5 bg-market text-white rounded-xl uppercase text-sm font-bold md:hover:bg-[#7a4fd1] transition-all md:hover:shadow-lg mt-auto disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market"
+        class="hidden md:flex w-full items-center justify-center gap-2 py-2.5 bg-market text-white rounded-xl text-sm font-bold md:hover:bg-[#7a4fd1] transition-all md:hover:shadow-lg mt-auto disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market"
       >
+        @if (!isAtStockLimit()) {
+          <mat-icon fontSet="material-icons-outlined" class="!w-6 !h-6 !text-2xl !leading-none">shopping_cart</mat-icon>
+        }
         {{ isAtStockLimit() ? ('shop.product.outOfStock' | translate) : ('shop.card.addToCart' | translate) }}
       </button>
     </div>

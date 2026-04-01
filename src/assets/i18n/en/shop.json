@@ -87,7 +87,7 @@
       "secureBody": "Your payment information is always protected"
     },
     "card": {
-      "addToCart": "Add to Cart"
+      "addToCart": "Add"
     },
     "cart": {
       "addedSuccess": "Product has been successfully added to cart."
@@ -101,6 +101,8 @@
       "verified": "Verified",
       "off": "OFF",
       "sku": "SKU",
+      "stock": "Stock",
+      "inStock": "In stock",
       "rating": "Rating",
       "category": "Category",
       "outOfStock": "Out of Stock"

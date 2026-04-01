@@ -33,6 +33,7 @@ export class VendorDashboardComponent implements OnInit {
   isVerified = this.verificationService.isVerified;
   isVendor = this.vendorService.isVendor;
   isPending = this.vendorService.isPendingApproval;
+  isRegistrationRejected = this.vendorService.isRegistrationRejected;
   vendorProfile = this.vendorService.vendorProfile;
 
   readonly features = VENDOR_FEATURES;

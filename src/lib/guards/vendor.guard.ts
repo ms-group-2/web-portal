@@ -10,8 +10,6 @@ export const vendorGuard: CanActivateFn = () => {
   const platformId = inject(PLATFORM_ID);
   const isBrowser = isPlatformBrowser(platformId);
 
-  // During SSR/prerender we cannot reliably access browser token storage.
-  // Avoid server-side redirects that cause refresh bounces to /profile.
   if (!isBrowser) {
     return true;
   }
@@ -21,12 +19,11 @@ export const vendorGuard: CanActivateFn = () => {
   }
 
   return vendorService.ensureProfileLoaded().pipe(
-    map(profile => {
-      if (profile) {
+    map(() => {
+      if (vendorService.isVendor() && vendorService.vendorProfile()) {
         return true;
-      } else {
-        return router.createUrlTree(['/profile']);
       }
+      return router.createUrlTree(['/profile/business']);
     })
   );
 };

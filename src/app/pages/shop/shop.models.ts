@@ -36,6 +36,7 @@ export interface Product {
   verified?: boolean;
   badge?: string;
   quantity?: number;
+  stock_quantity?: number;
   category?: ProductCategoryNested | null;
 }
 

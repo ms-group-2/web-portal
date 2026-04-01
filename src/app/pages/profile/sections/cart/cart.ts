@@ -6,6 +6,7 @@ import { ShopService } from 'lib/services/shop/shop.service';
 import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { TranslationService } from 'lib/services/translation.service';
+import { ConfirmationDialogService } from 'lib/components/confirmation-dialog/confirmation-dialog.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -19,6 +20,7 @@ export class CartComponent implements OnInit {
   private cartService = inject(ShopCartService);
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
+  private confirmDialog = inject(ConfirmationDialogService);
 
   loading = signal(true);
   orderPlaced = signal(false);
@@ -68,8 +70,39 @@ export class CartComponent implements OnInit {
     this.cartService.removeOneFromCart(productId);
   }
 
-  removeFromCart(productId: number): void {
-    this.cartService.removeAllFromCart(productId);
+  removeFromCart(product: Product): void {
+    const productName = product.title || product.name || '';
+    this.confirmDialog
+      .confirm({
+        title: this.translation.translate('profile.cart.removeItemDialog.title'),
+        message: this.translation.translate('profile.cart.removeItemDialog.message', { productName }),
+        confirmText: this.translation.translate('profile.cart.removeItemDialog.confirm'),
+        cancelText: this.translation.translate('profile.cart.removeItemDialog.cancel'),
+        confirmColor: 'warn',
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.cartService.removeAllFromCart(product.id);
+        }
+      });
+  }
+
+  clearEntireCart(): void {
+    this.confirmDialog
+      .confirm({
+        title: this.translation.translate('profile.cart.clearAllDialog.title'),
+        message: this.translation.translate('profile.cart.clearAllDialog.message'),
+        confirmText: this.translation.translate('profile.cart.clearAllDialog.confirm'),
+        cancelText: this.translation.translate('profile.cart.clearAllDialog.cancel'),
+        confirmColor: 'warn',
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.cartService.clearAllFromCart();
+        }
+      });
   }
 
   checkout(): void {

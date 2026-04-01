@@ -1,6 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
@@ -251,6 +251,32 @@ export class ShopCartService {
     this.updateCart(next);
   }
 
+  clearAllFromCart(): void {
+    const userId = this.getCurrentUserId();
+    if (!userId) {
+      this.updateCart([]);
+      this.cartProductsById.set({});
+      return;
+    }
+
+    const itemIds = [...new Set(Object.values(this.cartItemIdsByProductId()))];
+    if (itemIds.length === 0) {
+      this.resetCartState();
+      return;
+    }
+
+    forkJoin(
+      itemIds.map(itemId =>
+        this.cartApi.removeItem(itemId).pipe(
+          catchError(error => {
+            // console.error('Failed to remove cart item:', error);
+            return of(null);
+          })
+        )
+      )
+    ).subscribe(() => this.refreshCartFromBackend());
+  }
+
   private refreshCartFromBackend(): void {
     this.fetchCartShared()
       .pipe(
@@ -449,6 +475,8 @@ export class ShopCartService {
 
   private normalizeProduct(product: Product): Product {
     const cover = this.normalizeImageUrl(product.cover_image_url || product.image_url || product.image);
+    const qty =
+      product.quantity != null ? product.quantity : product.stock_quantity != null ? product.stock_quantity : undefined;
 
     return {
       ...product,
@@ -456,6 +484,7 @@ export class ShopCartService {
       image_url: this.normalizeImageUrl(product.image_url) || cover,
       image: cover,
       name: product.title || product.name,
+      quantity: qty,
     };
   }
 

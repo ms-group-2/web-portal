@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, input, output, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ChangeDetectionStrategy, DestroyRef, input, output, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,6 +14,15 @@ import { ibanValidator } from 'lib/validators/iban.validator';
 import { sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
 import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
 import { FormFieldConfig } from '../../models/form-field-config.model';
+import { VendorService } from 'lib/services/vendor/vendor.service';
+import { businessRegistryAsyncValidator } from 'lib/validators/business-registry-async.validator';
+
+const BLUR_VALIDATE_FIELDS = new Set<string>([
+  'contact_email',
+  'contact_phone',
+  'bank_account_number',
+  'identification_number',
+]);
 
 @Component({
   selector: 'app-vendor-step-two',
@@ -30,6 +40,9 @@ import { FormFieldConfig } from '../../models/form-field-config.model';
 export class VendorStepTwoComponent implements OnInit {
   private fb = inject(FormBuilder);
   private translation = inject(TranslationService);
+  private vendorService = inject(VendorService);
+  private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   formData = input<Partial<VendorRegistration>>({});
   previousStep = output<void>();
@@ -90,25 +103,32 @@ export class VendorStepTwoComponent implements OnInit {
   ];
 
   ngOnInit() {
-    const formControls: any = {};
+    const formControls: Record<string, FormControl> = {};
     this.formFields.forEach(field => {
-      if (field.name === 'contact_email') {
-        formControls[field.name] = this.fb.control(this.formData()[field.name] || '', {
-          validators: field.validators,
-          updateOn: 'blur'
-        });
-      } else {
-        const rawValue = (this.formData()[field.name] || '').toString();
-        const initialValue =
-          field.name === 'contact_phone'
-            ? PhoneUtil.extractGeNational(rawValue)
-            : rawValue;
+      const rawValue = (this.formData()[field.name as keyof VendorRegistration] ?? '').toString();
+      const initialValue =
+        field.name === 'contact_phone'
+          ? PhoneUtil.extractGeNational(rawValue)
+          : rawValue;
 
-        formControls[field.name] = [initialValue, field.validators];
-      }
+      const asyncValidators =
+        field.name === 'identification_number'
+          ? [businessRegistryAsyncValidator(this.vendorService)]
+          : [];
+
+      formControls[field.name] = this.fb.control(initialValue, {
+        validators: field.validators,
+        asyncValidators,
+        updateOn: BLUR_VALIDATE_FIELDS.has(field.name) ? 'blur' : 'change',
+      });
     });
 
     this.businessForm = this.fb.group(formControls);
+
+    this.businessForm
+      .get('identification_number')
+      ?.statusChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cdr.markForCheck());
   }
 
   onBack() {

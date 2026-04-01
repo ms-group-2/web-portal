@@ -48,14 +48,28 @@
 } @else {
   <section>
     <div class="mb-6">
-      <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
-        {{ 'profile.cart.title' | translate }}
-      </h1>
-      @if (!loading() && cartProducts().length > 0) {
-        <p class="text-sm text-gray-500 mt-1">
-          {{ totalItems() }} {{ totalItems() === 1 ? ('profile.cart.item' | translate) : ('profile.cart.items' | translate) }}
-        </p>
-      }
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+            {{ 'profile.cart.title' | translate }}
+          </h1>
+          @if (!loading() && cartProducts().length > 0) {
+            <p class="text-sm text-gray-500 mt-1">
+              {{ totalItems() }} {{ totalItems() === 1 ? ('profile.cart.item' | translate) : ('profile.cart.items' | translate) }}
+            </p>
+          }
+        </div>
+        @if (!loading() && cartProducts().length > 0) {
+          <button
+            type="button"
+            (click)="clearEntireCart()"
+            class="shrink-0 inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-700 py-2 px-3 rounded-xl border border-gray-200 hover:bg-red-50 transition-colors self-start"
+          >
+            <mat-icon class="!w-4 !h-4 !text-lg !leading-5">delete_sweep</mat-icon>
+            {{ 'profile.cart.clearAll' | translate }}
+          </button>
+        }
+      </div>
     </div>
 
     @if (loading()) {
@@ -104,10 +118,22 @@
                     </a>
                     <button
                       type="button"
-                      (click)="removeFromCart(product.id)"
+                      (click)="removeFromCart(product)"
                       class="w-8 h-8 flex items-center justify-center rounded-full text-gray-300 hover:text-rose-500 hover:bg-rose-50 transition-all flex-shrink-0">
                       <mat-icon class="!w-5 !h-5 !text-xl !leading-5">close</mat-icon>
                     </button>
+                  </div>
+
+                  <div class="text-xs mt-1">
+                    <span class="text-gray-400">{{ 'shop.product.stock' | translate }}:</span>
+                    @if (product.quantity === 0) {
+                      <span class="font-semibold text-rose-600"> {{ 'shop.product.outOfStock' | translate }}</span>
+                    } @else if (product.quantity != null) {
+                      <!-- <span class="font-semibold text-gray-900">{{ 'shop.product.inStock' | translate }}</span> -->
+                      @if (product.quantity != null && product.quantity > 0) {
+                      <span class="text-gray-500 font-medium"> {{ product.quantity }}</span>
+                    }
+                    }
                   </div>
 
                   @if (product.sku) {

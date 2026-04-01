@@ -156,8 +156,11 @@
               <button
                 (click)="addToCart()"
                 [disabled]="isAtStockLimit()"
-                class="flex-1 bg-market text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold text-base sm:text-lg hover:bg-[#7a4fd1] transition-all hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market"
+                class="flex flex-1 items-center justify-center gap-2 bg-market text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold text-base sm:text-lg hover:bg-[#7a4fd1] transition-all hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-market"
               >
+                @if (!isAtStockLimit()) {
+                  <mat-icon fontSet="material-icons-outlined" class="!w-6 !h-6 !text-2xl !leading-none">shopping_cart</mat-icon>
+                }
                 {{ isAtStockLimit() ? ('shop.product.outOfStock' | translate) : ('shop.card.addToCart' | translate) }}
               </button>
 
@@ -184,9 +187,24 @@
 
           <div class="pt-6 border-t-2 border-dashed border-gray-200">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs sm:text-sm">
-              <div class="flex flex-col gap-1">
-                <span class="text-gray-500 uppercase tracking-wide">{{ 'shop.product.sku' | translate }}</span>
-                <span class="font-semibold text-gray-900">{{ product.sku }}</span>
+              <div class="flex flex-col gap-4 sm:gap-5">
+                <div class="flex flex-col gap-1">
+                  <span class="text-gray-500 uppercase tracking-wide">{{ 'shop.product.sku' | translate }}</span>
+                  <span class="font-semibold text-gray-900">{{ product.sku }}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-gray-500 uppercase tracking-wide">{{ 'shop.product.stock' | translate }}</span>
+                  @if (product.quantity === 0) {
+                    <span class="font-semibold text-rose-600">{{ 'shop.product.outOfStock' | translate }}</span>
+                  } @else {
+                    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <span class="font-semibold text-gray-900">{{ 'shop.product.inStock' | translate }}</span>
+                      @if (product.quantity != null && product.quantity > 0) {
+                        <span class="text-gray-600 font-medium">({{ product.quantity }})</span>
+                      }
+                    </div>
+                  }
+                </div>
               </div>
 
               @if (product.rating) {

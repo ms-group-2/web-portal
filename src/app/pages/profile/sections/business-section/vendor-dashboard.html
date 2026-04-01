@@ -49,6 +49,24 @@
         </span>
       </div>
     </div>
+  } @else if (isRegistrationRejected()) {
+    <div class="max-w-2xl mx-auto text-center py-10 sm:py-12 md:py-16">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+        <mat-icon class="!text-3xl !w-8 !h-8 sm:!text-4xl sm:!w-10 sm:!h-10 text-rose-600">cancel</mat-icon>
+      </div>
+      <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-3 sm:mb-4 uppercase">
+        {{ 'profile.vendor.rejected.title' | translate }}
+      </h3>
+      <p class="text-sm sm:text-base text-gray-600 mb-6 max-w-lg mx-auto">
+        {{ 'profile.vendor.rejected.message' | translate }}
+      </p>
+      <button
+        (click)="startRegistration()"
+        class="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-registerBusiness text-white font-bold rounded-xl hover:bg-[#3E4FC8] transition-all uppercase tracking-wide text-xs sm:text-sm shadow-lg"
+      >
+        {{ 'profile.vendor.rejected.registerAgain' | translate }}
+      </button>
+    </div>
   } @else if (!isVerified()) {
     <div class="max-w-2xl mx-auto text-center py-10 sm:py-12 md:py-16">
       <div class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">

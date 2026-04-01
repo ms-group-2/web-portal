@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from 'lib/guards/auth.guard';
 import { vendorGuard } from 'lib/guards/vendor.guard';
+import { businessRegisterGuard } from 'lib/guards/business-register.guard';
 
 
 export const routes: Routes = [
@@ -94,6 +95,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'register',
+        canActivate: [businessRegisterGuard],
         loadComponent: () => import('./pages/business-registration/business-registration').then(m => m.BusinessRegistrationComponent),
       },
       {

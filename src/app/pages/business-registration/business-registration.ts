@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -39,6 +40,7 @@ export class BusinessRegistrationComponent implements OnInit {
 
   isVerified = this.verificationService.isVerified;
   isVendor = this.vendorService.isVendor;
+  isPendingApproval = this.vendorService.isPendingApproval;
 
   currentStep = signal(1);
   businessType = signal<BusinessType | null>(null);
@@ -94,11 +96,23 @@ export class BusinessRegistrationComponent implements OnInit {
         this.submitting.set(false);
         this.router.navigate(['/profile/business']);
       },
-      error: () => {
-        this.snackBar.open('Failed to register. Please try again.', 'Close', {
-          duration: 3000
-        });
+      error: (err: unknown) => {
         this.submitting.set(false);
+        const httpErr = err instanceof HttpErrorResponse ? err : null;
+        const body = httpErr?.error as { error_code?: string; message?: string } | null;
+        if (body?.error_code === 'INVALID_ID_NUMBER') {
+          const msg =
+            body.message ||
+            this.translation.translate('validation.invalidBusinessRegistryId');
+          this.snackBar.open(msg, 'Close', { duration: 6000 });
+          this.currentStep.set(2);
+          return;
+        }
+        const fallback =
+          typeof body?.message === 'string' && body.message.trim()
+            ? body.message
+            : this.translation.translate('profile.vendor.registrationFailed');
+        this.snackBar.open(fallback, 'Close', { duration: 4000 });
       }
     });
   }

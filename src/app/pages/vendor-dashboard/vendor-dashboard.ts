@@ -120,9 +120,7 @@ export class VendorDashboard implements OnInit {
 
   loadProducts() {
     const profile = this.vendorProfile();
-    if (!profile) return;
-
-    if ((profile.status || '').toLowerCase() === 'pending') {
+    if (!profile || !this.vendorService.isVendor()) {
       this.products.set([]);
       this.loading.set(false);
       return;

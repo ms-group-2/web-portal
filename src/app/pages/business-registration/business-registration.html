@@ -37,7 +37,25 @@
           {{ 'profile.vendor.back' | translate }}
         </button>
       </div>
-    } @else if (isVerified() && !isVendor()) {
+    } @else if (isVerified() && isPendingApproval()) {
+      <div class="max-w-2xl mx-auto text-center py-16">
+        <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <mat-icon class="w-10 h-10 text-amber-600">hourglass_top</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase">
+          {{ 'profile.vendor.pending.title' | translate }}
+        </h3>
+        <p class="text-gray-600 mb-6 max-w-lg mx-auto">
+          {{ 'profile.vendor.pending.message' | translate }}
+        </p>
+        <button
+          (click)="goBack()"
+          class="px-8 py-3 bg-[#f6c55c] text-white font-black rounded-xl hover:bg-[#7C3AED] transition-all uppercase"
+        >
+          {{ 'profile.vendor.back' | translate }}
+        </button>
+      </div>
+    } @else if (isVerified() && !isVendor() && !isPendingApproval()) {
       <div class="max-w-6xl mx-auto mt-6">
         <button
           (click)="goBack()"

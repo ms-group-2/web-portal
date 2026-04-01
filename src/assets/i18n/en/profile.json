@@ -95,7 +95,20 @@
       "confirmed": "Confirmed",
       "estimatedDelivery": "Estimated Delivery",
       "businessDays": "business days",
-      "viewOrders": "View My Orders"
+      "viewOrders": "View My Orders",
+      "clearAll": "Remove all",
+      "removeItemDialog": {
+        "title": "Remove item",
+        "message": "Are you sure you want to remove \"{productName}\" from your cart?",
+        "confirm": "Remove",
+        "cancel": "Cancel"
+      },
+      "clearAllDialog": {
+        "title": "Clear cart",
+        "message": "Are you sure you want to remove all items from your cart?",
+        "confirm": "Remove all",
+        "cancel": "Cancel"
+      }
     },
     "orders": {
       "title": "Order History",
@@ -137,6 +150,7 @@
       "title": "Become a Seller",
       "subtitle": "Register your business to start selling on our platform",
       "registration": "Business Registrations",
+      "registrationFailed": "Registration failed. Please try again.",
       "dashboard": "Vendor Dashboard",
       "dashboardComingSoon": "Product management coming soon!",
       "back": "Back",
@@ -150,6 +164,11 @@
         "title": "Application Under Review",
         "message": "Your business registration has been submitted and is currently being reviewed by our team. This usually takes 1-2 business days. We'll notify you once your application is approved.",
         "status": "Pending Approval"
+      },
+      "rejected": {
+        "title": "Application Not Approved",
+        "message": "Your business registration was not approved. You can submit a new application.",
+        "registerAgain": "Submit a new application"
       },
       "landing": {
         "title": "Business Account",
