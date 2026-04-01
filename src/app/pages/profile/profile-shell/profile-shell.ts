@@ -4,7 +4,6 @@ import { Location, NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Header } from 'lib/components/header/header';
 import { ProfileSidebarComponent } from '../components/profile-sidebar/profile-sidebar';
-import { ProfileBottomNavComponent } from '../components/profile-bottom-nav/profile-bottom-nav';
 import { TranslationService } from 'lib/services/translation.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
