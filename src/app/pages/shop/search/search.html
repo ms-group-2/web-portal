@@ -1,0 +1,35 @@
+<app-header variant="white"></app-header>
+
+<app-category-menu></app-category-menu>
+
+<div class="min-h-2 bg-[#faf8f5]">
+  <section class="pt-32 pb-8 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <aside class="lg:col-span-3">
+        <app-search-filters-sidebar></app-search-filters-sidebar>
+      </aside>
+      <main class="lg:col-span-9">
+        <div class="mb-6">
+          <h1 class="text-3xl font-black text-gray-900 mb-2">
+            @if (isGeorgian()) {
+              ძიებისთვის {{ searchQueryText() }} ნაპოვნია {{ shopService.searchResultsCount() }}
+              პროდუქტი
+            } @else {
+              Results for {{ searchQueryText() }} {{ shopService.searchResultsCount() }} products
+            }
+          </h1>
+        </div>
+        <app-product-grid></app-product-grid>
+      </main>
+    </div>
+  </section>
+
+  <!-- <section class="pb-16 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
+    <div class="container-max">
+      <app-trust-section></app-trust-section>
+    </div>
+  </section> -->
+</div>
+
+<app-footer></app-footer>
+

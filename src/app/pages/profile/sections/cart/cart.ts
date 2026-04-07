@@ -6,6 +6,7 @@ import { ShopService } from 'lib/services/shop/shop.service';
 import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { TranslationService } from 'lib/services/translation.service';
+import { SnackbarService } from 'lib/services/snackbar.service';
 import { ConfirmationDialogService } from 'lib/components/confirmation-dialog/confirmation-dialog.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -20,6 +21,7 @@ export class CartComponent implements OnInit {
   private cartService = inject(ShopCartService);
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
+  private snackbar = inject(SnackbarService);
   private confirmDialog = inject(ConfirmationDialogService);
 
   loading = signal(true);
@@ -119,8 +121,8 @@ export class CartComponent implements OnInit {
           this.orderPlaced.set(true);
           this.checkingOut.set(false);
         },
-        error: (error) => {
-          console.error('Failed to checkout cart:', error);
+        error: () => {
+          // this.snackbar.error('Checkout failed. Please try again.');
           this.checkingOut.set(false);
         },
       });

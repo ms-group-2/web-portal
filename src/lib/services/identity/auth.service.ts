@@ -101,7 +101,6 @@ export class AuthService {
     this.pendingRegistration.set(null);
     this.pendingPasswordReset.set(null);
 
-    // Clear basic cached user data (keep mocked verification keys)
     const prefixes = [
       'vipo_user_firstName',
       'vipo_user_lastName',
@@ -162,7 +161,6 @@ setNewPassword(payload: { email: string; new_password: string; password_change_t
   loadMe() {
   return this.me().pipe(
     tap(u => {
-      console.log('[AuthService] setting user:', u);
       this.user.set(u);
     })
   );

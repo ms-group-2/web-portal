@@ -65,6 +65,7 @@ export interface CategoriesWithProductsResponse {
 
 export interface ProductsResponse {
   items: Product[];
+  products?: Product[];
   total: number;
   page: number;
   limit: number;
@@ -82,6 +83,7 @@ export interface Filters {
 export interface FilterOption {
   option_id: number;
   option_value: string;
+  product_count: number;
 }
 
 export interface FilterField {
@@ -91,6 +93,13 @@ export interface FilterField {
   options: FilterOption[];
 }
 
+export interface FilterBrand {
+  brand_id: number;
+  brand_name: string;
+  logo_url?: string | null;
+  product_count: number;
+}
+
 export interface FilterGroup {
   group_id: number;
   group_name: string;
@@ -98,5 +107,6 @@ export interface FilterGroup {
 }
 
 export interface GetFiltersResponse {
-  filters: FilterGroup[];
+  filters: FilterField[] | FilterGroup[];
+  brands: FilterBrand[];
 }

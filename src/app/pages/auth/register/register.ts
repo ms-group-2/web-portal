@@ -165,7 +165,6 @@ export class Register implements OnInit {
         }
 
         this.serverDownError.set(true);
-        console.error(err);
       }
     });
   }

@@ -9,7 +9,6 @@ import { CategoryScrollerComponent } from './components/category-scroller/catego
 import { PromoBannersComponent } from './components/promo-banners/promo-banners';
 import { ProductFiltersComponent } from './components/product-filters/product-filters';
 import { ProductGridComponent } from './components/product-grid/product-grid';
-import { SuggestedProductsComponent } from './components/suggested-products/suggested-products';
 import { TrustSectionComponent } from './components/trust-section/trust-section';
 
 @Component({
@@ -22,7 +21,6 @@ import { TrustSectionComponent } from './components/trust-section/trust-section'
     PromoBannersComponent,
     ProductFiltersComponent,
     ProductGridComponent,
-    // SuggestedProductsComponent,
     TrustSectionComponent,
   ],
   templateUrl: './shop.html',
@@ -37,6 +35,13 @@ export class Shop implements OnInit {
     this.translation.loadModule('shop')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
+
+    this.shopService.clearProductCaches();
+
+    // when returning to default shop, clearing any active search state
+    this.shopService.setSearchQuery('');
+    this.shopService.clearSearchFilters();
+    this.shopService.selectCategory(null);
 
     this.shopService.getMainCategories()
       .pipe(takeUntilDestroyed(this.destroyRef))

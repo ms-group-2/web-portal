@@ -7,7 +7,7 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { ShopService } from 'lib/services/shop/shop.service';
-import { Category, FilterGroup } from 'src/app/pages/shop/shop.models';
+import { Category, FilterField, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { VendorProductCreate } from 'lib/models/vendor.models';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
@@ -114,9 +114,21 @@ export class AddProduct implements OnInit {
     this.shopService.getFilterOptions(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: filters => { this.filterGroups.set(filters); this.filtersLoading.set(false); },
+        next: response => { this.filterGroups.set(this.toFilterGroups(response.filters)); this.filtersLoading.set(false); },
         error: () => { this.filterGroups.set([]); this.filtersLoading.set(false); }
       });
+  }
+
+  private toFilterGroups(filters: FilterField[]): FilterGroup[] {
+    if (!filters?.length) {
+      return [];
+    }
+
+    return [{
+      group_id: 0,
+      group_name: 'Filters',
+      fields: filters,
+    }];
   }
 
   getBrandOptions(): { option_id: number; option_value: string }[] {
@@ -242,6 +254,29 @@ export class AddProduct implements OnInit {
     return [];
   }
 
+  private mapSelectedOptionsToSpecifications(selectedOptions: any[]): Array<{ field_id: number; option_id: number }> {
+    const selectedIds = selectedOptions
+      .filter((opt) => opt !== '' && opt !== null && opt !== undefined)
+      .map((opt) => (typeof opt === 'number' ? opt : Number(opt)))
+      .filter((opt) => Number.isInteger(opt) && opt > 0);
+
+    const optionToField = new Map<number, number>();
+    for (const group of this.filterGroups()) {
+      for (const field of group.fields) {
+        for (const option of field.options) {
+          optionToField.set(option.option_id, field.field_id);
+        }
+      }
+    }
+
+    return selectedIds
+      .map((optionId) => {
+        const fieldId = optionToField.get(optionId);
+        return fieldId ? { field_id: fieldId, option_id: optionId } : null;
+      })
+      .filter((spec): spec is { field_id: number; option_id: number } => !!spec);
+  }
+
   initForm() {
     this.productForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -342,9 +377,7 @@ export class AddProduct implements OnInit {
       price: parseFloat(formValue.price) || 0,
       quantity: parseInt(formValue.quantity) || 0,
       sku: (formValue.sku || '').toUpperCase() || `DRAFT-${Date.now()}`,
-      field_options: (formValue.field_options || [])
-        .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
-        .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
+      specifications: this.mapSelectedOptionsToSpecifications(formValue.field_options || []),
     };
 
     this.isSavingDraft.set(true);
@@ -423,9 +456,7 @@ export class AddProduct implements OnInit {
       price: parseFloat(formValue.price),
       quantity: parseInt(formValue.quantity),
       sku: formValue.sku.toUpperCase(),
-      field_options: (formValue.field_options || [])
-        .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
-        .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
+      specifications: this.mapSelectedOptionsToSpecifications(formValue.field_options || []),
     };
 
     this.isSubmitting.set(true);

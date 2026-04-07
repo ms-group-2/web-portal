@@ -26,6 +26,7 @@ module.exports = {
         borderColor: 'var(--color-borderColor)',
         registerBusiness: 'var(--color-registerBusiness)',
         vendorPageBackground: 'var(--color-vendorPageBackground)',
+        categories: 'var(--color-categories)',
       },
       screens: {
         '2xl': '1440px',

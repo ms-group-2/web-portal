@@ -58,8 +58,8 @@ export class MyPostsComponent {
     }
   }
 
-  editPost(post: PostItem) {
-    console.log('Edit post:', post);
+  editPost(_post: PostItem) {
+    // todo: implement post editing
   }
 
   deletePost(post: PostItem) {

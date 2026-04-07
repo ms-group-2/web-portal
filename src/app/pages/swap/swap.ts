@@ -99,7 +99,6 @@ export class Swap {
     this.isLoading.set(true);
     this.api.getAllListings().subscribe({
       next: (response) => {
-        console.log('Loaded listings:', response);
         const items = response.listings.map(listing => ({
           ...listing,
           location: 'თბილისი',
@@ -116,11 +115,7 @@ export class Swap {
         }
         this.isLoading.set(false);
       },
-      error: (error) => {
-        console.error('Failed to load listings - Full error:', error);
-        console.error('Error status:', error.status);
-        console.error('Error message:', error.message);
-        console.error('API URL:', `${this.api['baseUrl']}`);
+      error: () => {
         this.isLoading.set(false);
         this.swapItems.set([]);
       }
@@ -150,13 +145,11 @@ export class Swap {
 
         if (createResult) {
           createResult.subscribe({
-            next: (response) => {
-              console.log('Listing created successfully:', response);
+            next: () => {
               this.snackbar.swap('განცხადება წარმატებით განთავსდა!');
               this.loadAllListings();
             },
-            error: (error) => {
-              console.error('Failed to create listing:', error);
+            error: () => {
               this.snackbar.error('განცხადების დამატება ვერ მოხერხდა');
             }
           });
@@ -165,8 +158,8 @@ export class Swap {
     });
   }
 
-  proposeSwap(item: SwapItem) {
-    console.log('Proposing swap for:', item);
+  proposeSwap(_item: SwapItem) {
+    // TODO: implement swap proposal
   }
 
   getItemPhoto(item: SwapItem, index: number = 0): string {

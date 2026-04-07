@@ -95,13 +95,11 @@ export class Landing implements OnInit {
 
   handleSend() {
     if (this.inputValue().trim()) {
-      console.log('Send message:', this.inputValue());
       this.inputValue.set('');
     }
   }
 
   handleQuickAction(action: string) {
-    console.log('Quick action:', action);
     if (action === 'swap') {
       this.navigateTo('swap');
     } else if (action === 'shop') {

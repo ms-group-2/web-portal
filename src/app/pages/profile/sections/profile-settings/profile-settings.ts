@@ -275,16 +275,12 @@ export class ProfileSettingsComponent implements OnInit {
     }
 
     const formValues = this.form.getRawValue();
-    console.log('Form values:', formValues);
-
     const fullPhone = PhoneUtil.toGeE164(formValues.phoneNumber);
 
     const updateRequest: any = {
       name: formValues.firstName || '',
       surname: formValues.lastName || '',
     };
-
-    console.log('Name:', formValues.firstName, 'Surname:', formValues.lastName);
 
     // Add optional fields with null if empty
     updateRequest.phone_number = (fullPhone && fullPhone !== '+995') ? fullPhone : null;
@@ -294,7 +290,6 @@ export class ProfileSettingsComponent implements OnInit {
       formValues.gender && formValues.gender !== '-' ? GenderUtil.toApiBoolean(formValues.gender) : null;
     updateRequest.bio = formValues.bio || null;
 
-    console.log('Update request payload:', JSON.stringify(updateRequest, null, 2));
     this.isLoading.set(true);
 
     this.profileApi.updateProfile(updateRequest).subscribe({

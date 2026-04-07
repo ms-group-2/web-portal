@@ -40,8 +40,15 @@
     "stats": {
       "totalProducts": "სულ პროდუქტები",
       "active": "აქტიური",
+      "draft": "დრაფტი",
+      "waitingApproval": "დამტკიცების მოლოდინში",
+      "rejected": "უარყოფილი",
+      "allStatuses": "ყველა სტატუსი",
+      "savedAsDraft": "შენახულია დრაფტად",
+      "approvedOnly": "მხოლოდ დამტკიცებული",
+      "waitingReview": "ადმინისტრატორის შემოწმების მოლოდინში",
+      "failedAndRejected": "უარყოფილი",
       "percentOfTotal": "100% მთლიანიდან",
-      "withVariants": "ვარიანტებით",
       "zeroPercent": "0% მთლიანიდან",
       "categories": "კატეგორიები",
       "available": "ხელმისაწვდომი"

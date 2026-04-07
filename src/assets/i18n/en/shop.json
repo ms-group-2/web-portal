@@ -110,7 +110,8 @@
     "search": {
       "searching": "Searching...",
       "suggestions": "Suggested Products",
-      "noResults": "No products found"
+      "noResults": "No products found",
+      "seeMore": "See more"
     }
   }
 }

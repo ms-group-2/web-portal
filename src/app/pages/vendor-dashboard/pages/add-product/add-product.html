@@ -1,70 +1,20 @@
 <div class="min-h-screen bg-vendorPageBackground">
-  <div class="bg-white border-b border-gray-200 px-4 sm:px-8 py-4 sticky top-0 z-10">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2 sm:gap-4">
-        <button
-          type="button"
-          (click)="handleCancel()"
-          class="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-all group"
-        >
-          <i class="ph ph-arrow-left text-xl group-hover:-translate-x-1 transition-transform"></i>
-          <span class="font-semibold hidden sm:inline">{{ 'vendor.backToProducts' | translate }}</span>
-        </button>
-        <div class="w-px h-6 bg-gray-200 hidden sm:block"></div>
-        <h1 class="text-base sm:text-xl font-black text-gray-900">{{ 'vendor.addNewProduct' | translate }}</h1>
-      </div>
+  <div class="bg-white border-b border-gray-200 py-4 sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <h1 class="text-base sm:text-xl font-black text-gray-900">{{ 'vendor.addNewProduct' | translate }}</h1>
+        </div>
 
-      <div class="flex items-center gap-2 sm:gap-3">
-        <button
-          type="button"
-          (click)="translation.toggleLanguage()"
-          class="w-9 h-9 sm:w-10 sm:h-10 bg-gray-50 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-all"
-        >
-          <span class="text-gray-600 text-sm font-semibold">{{ translation.getCurrentLanguage().toUpperCase() }}</span>
-        </button>
-        <button
-          type="button"
-          (click)="handleCancel()"
-          class="hidden sm:block px-6 py-3 border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"
-        >
-          {{ 'vendor.cancel' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="handleSaveDraft()"
-          [disabled]="isSavingDraft() || isSubmitting()"
-          class="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-        >
-          @if (isSavingDraft()) {
-            <span class="flex items-center gap-2">
-              <i class="ph ph-circle-notch animate-spin text-base"></i>
-              {{ 'vendor.savingDraft' | translate }}
-            </span>
-          } @else {
-            <span class="flex items-center gap-2">
-              <i class="ph ph-floppy-disk text-base"></i>
-              {{ 'vendor.saveDraft' | translate }}
-            </span>
-          }
-        </button>
-        <button
-          type="button"
-          (click)="handleSubmit()"
-          [disabled]="isSubmitting() || isSavingDraft()"
-          class="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#5B5FED] text-white rounded-lg font-semibold hover:bg-[#4A4FCC] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-        >
-          @if (isSubmitting()) {
-            <span class="flex items-center gap-2">
-              <i class="ph ph-circle-notch animate-spin text-base"></i>
-              {{ 'vendor.publishing' | translate }}
-            </span>
-          } @else {
-            <span class="flex items-center gap-2">
-              <i class="ph ph-rocket-launch text-base"></i>
-              {{ 'vendor.publishProduct' | translate }}
-            </span>
-          }
-        </button>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            (click)="translation.toggleLanguage()"
+            class="w-9 h-9 sm:w-10 sm:h-10 bg-gray-50 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-all"
+          >
+            <span class="text-gray-600 text-sm font-semibold">{{ translation.getCurrentLanguage().toUpperCase() }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -73,6 +23,15 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Left Column - Main Form -->
       <div class="lg:col-span-2 space-y-6">
+        <button
+          type="button"
+          (click)="handleCancel()"
+          class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-all group"
+        >
+          <i class="ph ph-arrow-left text-xl group-hover:-translate-x-1 transition-transform"></i>
+          <span class="font-semibold">{{ 'vendor.backToProducts' | translate }}</span>
+        </button>
+
         <!-- Basic Information -->
         <div class="bg-white rounded-xl border border-gray-200 p-6">
           <h2 class="text-lg font-bold text-gray-900 mb-6">{{ 'vendor.basicInformation' | translate }}</h2>
@@ -199,7 +158,7 @@
                   [class]="'flex flex-col items-center justify-center py-10 border-2 border-dashed rounded-xl bg-gray-50 cursor-pointer transition-all ' +
                            (coverImageTouched() && !coverImageFile
                              ? 'border-red-300 hover:border-red-400'
-                             : 'border-gray-300 hover:border-[#5B5FED] hover:bg-[#5B5FED]/5')">
+                             : 'border-gray-300 hover:border-categories hover:bg-categories/5')">
                   <i class="ph ph-upload-simple text-3xl text-gray-400 mb-2"></i>
                   <p class="text-sm font-medium text-gray-600">Click to upload cover image</p>
                   <p class="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
@@ -238,7 +197,7 @@
                 @if (additionalPreviews().length < 5) {
                   <label
                     for="additional-images-upload"
-                    class="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gray-50 hover:border-[#5B5FED] hover:bg-[#5B5FED]/5 transition-all">
+                    class="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gray-50 hover:border-categories hover:bg-categories/5 transition-all">
                     <i class="ph ph-plus text-xl text-gray-400"></i>
                     <span class="text-xs text-gray-400 mt-1">Add</span>
                   </label>
@@ -273,7 +232,7 @@
               <div class="flex flex-wrap gap-2 mb-4">
                 @for (field of getAllSpecFields(); track field.field_id) {
                   @if (getSelectedOptionForField(field.field_id); as selected) {
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#5B5FED]/10 text-[#5B5FED] rounded-full text-sm font-medium">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-categories/10 text-categories rounded-full text-sm font-medium">
                       <span class="text-xs text-gray-500">{{ field.field_name }}:</span>
                       {{ selected.option_value }}
                       <button type="button" (click)="removeFieldSelection(field.field_id)" class="ml-0.5 hover:text-red-500 transition-colors">
@@ -308,8 +267,8 @@
                       type="button"
                       (click)="toggleFieldOption(specField.field_id, option.option_id)"
                       [class]="isFieldOptionSelected(option.option_id)
-                        ? 'px-3 py-1.5 rounded-full text-sm font-medium bg-[#5B5FED] text-white shadow-sm'
-                        : 'px-3 py-1.5 rounded-full text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:border-[#5B5FED]/30 hover:bg-[#5B5FED]/5 transition-all'"
+                        ? 'px-3 py-1.5 rounded-full text-sm font-medium bg-categories text-white shadow-sm'
+                        : 'px-3 py-1.5 rounded-full text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:border-categories/30 hover:bg-categories/5 transition-all'"
                     >
                       {{ option.option_value }}
                     </button>
@@ -401,14 +360,55 @@
             </div>
           </div>
 
-          <!-- Help Card -->
-          <div class="bg-gradient-to-br from-[#5B5FED] to-[#4A4FCC] rounded-xl p-6 text-white">
-            <h3 class="font-bold text-lg mb-2">{{ 'vendor.needHelp' | translate }}</h3>
-            <p class="text-sm text-white/90 mb-4">{{ 'vendor.helpText' | translate }}</p>
-            <button type="button" class="w-full px-4 py-2 bg-white text-[#5B5FED] rounded-lg font-semibold hover:bg-gray-100 transition-all text-sm">
-              {{ 'vendor.viewGuide' | translate }}
-            </button>
-          </div>
+         
+
+          <button
+            type="button"
+            (click)="handleSaveDraft()"
+            [disabled]="isSavingDraft() || isSubmitting()"
+            class="w-full px-4 sm:px-6 py-3 border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+          >
+            @if (isSavingDraft()) {
+              <span class="flex items-center justify-center gap-2">
+                <i class="ph ph-circle-notch animate-spin text-base"></i>
+                {{ 'vendor.savingDraft' | translate }}
+              </span>
+            } @else {
+              <span class="flex items-center justify-center gap-2">
+                <i class="ph ph-floppy-disk text-base"></i>
+                {{ 'vendor.saveDraft' | translate }}
+              </span>
+            }
+          </button>
+
+          <button
+          type="button"
+          (click)="handleCancel()"
+          class="w-full px-4 sm:px-6 py-3 border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all text-sm sm:text-base"
+        >
+          {{ 'vendor.cancel' | translate }}
+        </button>
+
+          <button
+            type="button"
+            (click)="handleSubmit()"
+            [disabled]="isSubmitting() || isSavingDraft()"
+            class="w-full px-4 sm:px-6 py-3 bg-categories text-white rounded-lg font-semibold hover:bg-[#4A4FCC] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+          >
+            @if (isSubmitting()) {
+              <span class="flex items-center justify-center gap-2">
+                <i class="ph ph-circle-notch animate-spin text-base"></i>
+                {{ 'vendor.publishing' | translate }}
+              </span>
+            } @else {
+              <span class="flex items-center justify-center gap-2">
+                <i class="ph ph-rocket-launch text-base"></i>
+                {{ 'vendor.publishProduct' | translate }}
+              </span>
+            }
+          </button>
+          
+
         </div>
       </div>
     </div>

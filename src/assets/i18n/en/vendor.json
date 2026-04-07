@@ -40,8 +40,15 @@
     "stats": {
       "totalProducts": "Total Products",
       "active": "Active",
+      "draft": "Draft",
+      "waitingApproval": "Waiting Approval",
+      "rejected": "Rejected",
+      "allStatuses": "All statuses",
+      "savedAsDraft": "Saved as draft",
+      "approvedOnly": "Approved only",
+      "waitingReview": "Awaiting admin review",
+      "failedAndRejected": "Failed and rejected",
       "percentOfTotal": "100% of total",
-      "withVariants": "With Variants",
       "zeroPercent": "0% of total",
       "categories": "Categories",
       "available": "Available"
