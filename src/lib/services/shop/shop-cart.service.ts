@@ -1,6 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { forkJoin, Observable, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { AuthService } from 'lib/services/identity/auth.service';
@@ -64,8 +64,7 @@ export class ShopCartService {
 
     return this.fetchCartShared().pipe(
       map(() => void 0),
-      catchError(error => {
-        console.error('Failed to load cart:', error);
+      catchError(() => {
         this.resetCartState();
         return of(void 0);
       })
@@ -194,24 +193,12 @@ export class ShopCartService {
 
       if (quantity === 1) {
         this.cartApi.removeItem(itemId)
-          .pipe(
-            catchError(error => {
-              console.error('Failed to remove cart item:', error);
-              return of(null);
-            })
-          )
           .subscribe(() => this.refreshCartFromBackend());
         return;
       }
 
       const payload: UpdateCartItemRequest = { quantity: quantity - 1 };
       this.cartApi.updateItem(itemId, payload)
-        .pipe(
-          catchError(error => {
-            console.error('Failed to update cart item quantity:', error);
-            return of(null);
-          })
-        )
         .subscribe(() => this.refreshCartFromBackend());
       return;
     }
@@ -236,12 +223,6 @@ export class ShopCartService {
       }
 
       this.cartApi.removeItem(itemId)
-        .pipe(
-          catchError(error => {
-            console.error('Failed to remove cart item:', error);
-            return of(null);
-          })
-        )
         .subscribe(() => this.refreshCartFromBackend());
       return;
     }
@@ -259,29 +240,24 @@ export class ShopCartService {
       return;
     }
 
-    const itemIds = [...new Set(Object.values(this.cartItemIdsByProductId()))];
-    if (itemIds.length === 0) {
-      this.resetCartState();
-      return;
-    }
-
-    forkJoin(
-      itemIds.map(itemId =>
-        this.cartApi.removeItem(itemId).pipe(
-          catchError(error => {
-            // console.error('Failed to remove cart item:', error);
-            return of(null);
-          })
-        )
+    this.cartApi.clearCartItems()
+      .pipe(
+        tap(() => {
+          this.resetCartState();
+          this.cartProductsById.set({});
+        }),
+        catchError(error => {
+          this.snackbar.error(this.resolveCartErrorMessage(error, 'Failed to clear cart.'));
+          return of(null);
+        })
       )
-    ).subscribe(() => this.refreshCartFromBackend());
+      .subscribe(() => this.refreshCartFromBackend());
   }
 
   private refreshCartFromBackend(): void {
     this.fetchCartShared()
       .pipe(
-        catchError(error => {
-          console.error('Failed to refresh cart:', error);
+        catchError(() => {
           this.resetCartState();
           return of(null);
         })
@@ -420,8 +396,7 @@ export class ShopCartService {
       this.cartItemIdsByProductId.set({});
       this.cartStatus.set('open');
       this.cartTotal.set(this.computeTotalFromLocalState());
-    } catch (error) {
-      console.error('Failed to load cart from storage:', error);
+    } catch {
       this.resetCartState();
     }
   }
@@ -430,8 +405,7 @@ export class ShopCartService {
     const key = this.getCartStorageKey(this.getCurrentUserId());
     try {
       this.storage.setItem(key, JSON.stringify(items));
-    } catch (error) {
-      console.error('Failed to save cart to storage:', error);
+    } catch {
     }
   }
 

@@ -62,8 +62,7 @@ export class ShopOrdersService {
 
     try {
       this.orders.set(JSON.parse(stored) as MockOrder[]);
-    } catch (error) {
-      console.error('Failed to load orders from storage:', error);
+    } catch {
       this.orders.set([]);
     }
   }
@@ -73,8 +72,8 @@ export class ShopOrdersService {
 
     try {
       this.storage.setItem(key, JSON.stringify(orders));
-    } catch (error) {
-      console.error('Failed to save orders to storage:', error);
+    } catch {
+      // Storage write failed — non-critical
     }
   }
 

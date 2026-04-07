@@ -1,13 +1,13 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { NonNullableFormBuilder, FormArray, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of, switchMap } from 'rxjs';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { ShopService } from 'lib/services/shop/shop.service';
-import { Category, FilterGroup } from 'src/app/pages/shop/shop.models';
+import { Category, FilterField, FilterGroup } from 'src/app/pages/shop/shop.models';
 import { VendorProductUpdate } from 'lib/models/vendor.models';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { DeleteConfirmationDialog } from '../../components/delete-confirmation-dialog/delete-confirmation-dialog';
@@ -16,6 +16,22 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import {
+  OptionItem,
+  ProductForm,
+  ProductTaskResponse,
+  MAX_ADDITIONAL_IMAGES,
+  createProductForm,
+  toFilterGroups,
+  getBrandOptions,
+  getNonBrandFilterGroups,
+  getAllSpecFields,
+  mapSelectedOptionsToSpecifications,
+  toInt,
+  toFloat,
+  isValidImageFile,
+  isUuid,
+} from '../product-form.utils';
 
 @Component({
   selector: 'app-edit-product',
@@ -26,7 +42,7 @@ import { MatInputModule } from '@angular/material/input';
 export class EditProduct implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private fb = inject(FormBuilder);
+  private fb = inject(NonNullableFormBuilder);
   translation = inject(TranslationService);
   private vendorService = inject(VendorService);
   private shopService = inject(ShopService);
@@ -54,6 +70,7 @@ export class EditProduct implements OnInit {
   // Image uploads
   coverImageFile: File | null = null;
   coverImagePreview = signal<string | null>(null);
+  coverImageTouched = signal<boolean>(false);
   additionalFiles: File[] = [];
   additionalPreviews = signal<string[]>([]);
   // Track existing images from server (URLs)
@@ -61,10 +78,12 @@ export class EditProduct implements OnInit {
   existingImageUrls = signal<string[]>([]);
   removedImageUrls = signal<string[]>([]);
 
-  productForm!: FormGroup;
+  productForm!: ProductForm;
 
   ngOnInit() {
-    this.translation.loadModule('vendor').subscribe();
+    this.translation.loadModule('vendor')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
 
     const productId = this.route.snapshot.paramMap.get('productId');
     if (productId) {
@@ -122,43 +141,26 @@ export class EditProduct implements OnInit {
   }
 
   private selectLeafCategory(id: number) {
-    this.productForm.patchValue({ category_id: id, brand_id: '' });
+    this.productForm.patchValue({ category_id: String(id), brand_id: '' });
     this.filtersLoading.set(true);
     this.shopService.getFilterOptions(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: filters => { this.filterGroups.set(filters); this.filtersLoading.set(false); },
+        next: response => { this.filterGroups.set(toFilterGroups(response.filters)); this.filtersLoading.set(false); },
         error: () => { this.filterGroups.set([]); this.filtersLoading.set(false); }
       });
   }
 
-  getBrandOptions(): { option_id: number; option_value: string }[] {
-    for (const group of this.filterGroups()) {
-      for (const field of group.fields) {
-        if (field.field_name.toLowerCase().includes('brand') || field.field_name.toLowerCase().includes('ბრენდ')) {
-          return field.options;
-        }
-      }
-    }
-    return [];
+  getBrandOptions(): OptionItem[] {
+    return getBrandOptions(this.filterGroups());
   }
 
   getNonBrandFilterGroups(): FilterGroup[] {
-    return this.filterGroups().map(group => ({
-      ...group,
-      fields: group.fields.filter(f =>
-        !f.field_name.toLowerCase().includes('brand') &&
-        !f.field_name.toLowerCase().includes('ბრენდ')
-      )
-    })).filter(g => g.fields.length > 0);
+    return getNonBrandFilterGroups(this.filterGroups());
   }
 
-  getAllSpecFields(): { field_id: number; field_name: string; options: { option_id: number; option_value: string }[] }[] {
-    const fields: any[] = [];
-    for (const group of this.getNonBrandFilterGroups()) {
-      fields.push(...group.fields);
-    }
-    return fields;
+  getAllSpecFields(): FilterField[] {
+    return getAllSpecFields(this.filterGroups());
   }
 
   getAvailableSpecFields() {
@@ -185,7 +187,7 @@ export class EditProduct implements OnInit {
       }
     }
 
-    const wasSelected = (this.fieldOptionsArray.value as number[]).includes(optionId);
+    const wasSelected = this.fieldOptionsArray.getRawValue().includes(optionId);
     if (!wasSelected) {
       this.fieldOptionsArray.push(this.fb.control(optionId));
       this.selectedSpecFieldId.set(null);
@@ -194,13 +196,13 @@ export class EditProduct implements OnInit {
   }
 
   isFieldOptionSelected(optionId: number): boolean {
-    return (this.fieldOptionsArray.value as number[]).includes(optionId);
+    return this.fieldOptionsArray.getRawValue().includes(optionId);
   }
 
-  getSelectedOptionForField(fieldId: number): { option_id: number; option_value: string } | null {
+  getSelectedOptionForField(fieldId: number): OptionItem | null {
     const fieldOptions = this.getOptionsForField(fieldId);
     const fieldOptionIds = fieldOptions.map(o => o.option_id);
-    const selectedId = (this.fieldOptionsArray.value as number[]).find(id => fieldOptionIds.includes(id));
+    const selectedId = this.fieldOptionsArray.getRawValue().find(id => fieldOptionIds.includes(id));
     if (selectedId === undefined) return null;
     return fieldOptions.find(o => o.option_id === selectedId) || null;
   }
@@ -222,7 +224,7 @@ export class EditProduct implements OnInit {
     }
   }
 
-  private getOptionsForField(fieldId: number): { option_id: number; option_value: string }[] {
+  private getOptionsForField(fieldId: number): OptionItem[] {
     for (const group of this.filterGroups()) {
       for (const field of group.fields) {
         if (field.field_id === fieldId) return field.options;
@@ -232,18 +234,11 @@ export class EditProduct implements OnInit {
   }
 
   initForm() {
-    this.productForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', [Validators.required, Validators.minLength(10)]],
-      category_id: ['', [Validators.required, Validators.min(1)]],
-      brand_id: [''],
-      price: ['', [Validators.required, Validators.min(1)]],
-      field_options: this.fb.array([]),
-    });
+    this.productForm = createProductForm(this.fb);
   }
 
-  get fieldOptionsArray(): FormArray {
-    return this.productForm.get('field_options') as FormArray;
+  get fieldOptionsArray(): FormArray<FormControl<number>> {
+    return this.productForm.controls.field_options;
   }
 
   loadProductData() {
@@ -259,15 +254,23 @@ export class EditProduct implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (product) => {
-          console.log('Loaded product for editing:', product);
+          if (this.isPendingApprovalProduct(product)) {
+            this.isLoading.set(false);
+            this.snackbar.error('Products pending approval cannot be edited');
+            this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
+            return;
+          }
+
           this.currentProduct.set(product);
 
           this.productForm.patchValue({
             title: product.title ?? '',
             description: product.description ?? '',
+            sku: product.sku ?? '',
             category_id: product.category_id ?? '',
             brand_id: product.brand_id ?? '',
             price: product.price ?? '',
+            quantity: product.quantity ?? 1,
           });
 
           // Load existing images as previews
@@ -283,8 +286,16 @@ export class EditProduct implements OnInit {
 
           // Load field options
           this.fieldOptionsArray.clear();
-          if (product.field_options?.length > 0) {
-            product.field_options.forEach((opt: number) => {
+          const selectedOptions: number[] = Array.isArray(product.field_options)
+            ? product.field_options
+            : (Array.isArray(product.specifications)
+                ? product.specifications
+                    .map((spec: any) => Number(spec?.option_id))
+                    .filter((id: number) => Number.isInteger(id) && id > 0)
+                : []);
+
+          if (selectedOptions.length > 0) {
+            selectedOptions.forEach((opt: number) => {
               this.fieldOptionsArray.push(this.fb.control(opt));
             });
           }
@@ -297,8 +308,8 @@ export class EditProduct implements OnInit {
             this.shopService.getFilterOptions(product.category_id)
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe({
-                next: filters => {
-                  this.filterGroups.set(filters);
+                next: response => {
+                  this.filterGroups.set(toFilterGroups(response.filters));
                   this.filtersLoading.set(false);
                   // Restore brand_id after filters load
                   if (savedBrandId) {
@@ -314,8 +325,7 @@ export class EditProduct implements OnInit {
 
           this.isLoading.set(false);
         },
-        error: (error) => {
-          console.error('Failed to load product:', error);
+        error: () => {
           this.isLoading.set(false);
           this.router.navigate(['/business/dashboard']);
         }
@@ -324,11 +334,11 @@ export class EditProduct implements OnInit {
 
   // Cover image upload
   onCoverImageSelected(event: Event) {
+    this.coverImageTouched.set(true);
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) return;
-    if (file.size > 5 * 1024 * 1024) return;
+    if (!isValidImageFile(file)) return;
 
     this.coverImageFile = file;
     this.existingCoverUrl.set(null);
@@ -341,6 +351,7 @@ export class EditProduct implements OnInit {
   }
 
   removeCoverImage() {
+    this.coverImageTouched.set(true);
     this.coverImageFile = null;
     const cover = this.existingCoverUrl();
     if (cover) {
@@ -356,10 +367,8 @@ export class EditProduct implements OnInit {
     if (!input.files) return;
 
     const totalCurrent = this.existingImageUrls().length + this.additionalFiles.length;
-    const newFiles = Array.from(input.files).filter(
-      f => f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024
-    );
-    const remaining = 5 - totalCurrent;
+    const newFiles = Array.from(input.files).filter(file => isValidImageFile(file));
+    const remaining = MAX_ADDITIONAL_IMAGES - totalCurrent;
     const filesToAdd = newFiles.slice(0, remaining);
 
     filesToAdd.forEach(file => {
@@ -396,7 +405,8 @@ export class EditProduct implements OnInit {
 
   isDraft(): boolean {
     const current = this.currentProduct();
-    return !!current?.isDraft || !!this.extractTaskId(current);
+    const routeProductId = this.productId();
+    return !!current?.isDraft || !!this.extractTaskId(current) || isUuid(routeProductId);
   }
 
   handleSaveDraft() {
@@ -405,22 +415,30 @@ export class EditProduct implements OnInit {
     if (!profile || !productId) return;
 
     const current = this.currentProduct();
-    const taskId = this.extractTaskId(current);
+    const taskId = this.extractTaskId(current) ?? (isUuid(productId) ? productId : null);
     if (!taskId) {
       this.snackbar.error('Only draft products can be saved as draft');
       return;
     }
 
-    const formValue = this.productForm.value;
+    const formValue = this.productForm.getRawValue();
+    const mappedSpecifications = mapSelectedOptionsToSpecifications(
+      formValue.field_options || [],
+      this.filterGroups(),
+      this.currentProduct()?.specifications,
+    );
+    const fallbackSpecifications = Array.isArray(this.currentProduct()?.specifications)
+      ? this.currentProduct().specifications
+      : [];
     const productData: VendorProductUpdate = {
-      category_id: parseInt(formValue.category_id) || undefined,
-      brand_id: parseInt(formValue.brand_id) || 0,
+      category_id: toInt(formValue.category_id) || undefined,
+      brand_id: toInt(formValue.brand_id),
       title: formValue.title,
       description: formValue.description,
-      price: parseFloat(formValue.price) || undefined,
-      field_options: (formValue.field_options || [])
-        .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
-        .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
+      price: toFloat(formValue.price) || undefined,
+      quantity: formValue.quantity,
+      sku: (formValue.sku || '').toUpperCase() || undefined,
+      specifications: mappedSpecifications.length ? mappedSpecifications : fallbackSpecifications,
     };
 
     this.isSavingDraft.set(true);
@@ -450,8 +468,7 @@ export class EditProduct implements OnInit {
           this.snackbar.success('Draft saved successfully');
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
-        error: (error) => {
-          console.error('Failed to save draft:', error);
+        error: () => {
           this.isSavingDraft.set(false);
           this.snackbar.error('Failed to save draft');
         },
@@ -459,7 +476,8 @@ export class EditProduct implements OnInit {
   }
 
   handleSubmit() {
-    if (this.productForm.invalid) {
+    if (this.productForm.invalid || !this.coverImagePreview()) {
+      this.coverImageTouched.set(true);
       Object.keys(this.productForm.controls).forEach(key => {
         const control = this.productForm.get(key);
         control?.markAsTouched();
@@ -470,27 +488,32 @@ export class EditProduct implements OnInit {
     const profile = this.vendorProfile();
     const productId = this.productId();
 
-    if (!profile || !productId) {
-      console.error('Vendor profile or product ID not found');
-      return;
-    }
+    if (!profile || !productId) return;
 
-    const formValue = this.productForm.value;
+    const formValue = this.productForm.getRawValue();
+    const mappedSpecifications = mapSelectedOptionsToSpecifications(
+      formValue.field_options || [],
+      this.filterGroups(),
+      this.currentProduct()?.specifications,
+    );
+    const fallbackSpecifications = Array.isArray(this.currentProduct()?.specifications)
+      ? this.currentProduct().specifications
+      : [];
     const productData: VendorProductUpdate = {
-      category_id: parseInt(formValue.category_id),
-      brand_id: parseInt(formValue.brand_id) || 0,
+      category_id: toInt(formValue.category_id, 1),
+      brand_id: toInt(formValue.brand_id),
       title: formValue.title,
       description: formValue.description,
-      price: parseFloat(formValue.price),
-      field_options: (formValue.field_options || [])
-        .filter((opt: any) => opt !== '' && opt !== null && opt !== undefined)
-        .map((opt: any) => typeof opt === 'number' ? opt : parseInt(opt)),
+      price: toFloat(formValue.price, 1),
+      quantity: formValue.quantity,
+      sku: formValue.sku.toUpperCase(),
+      specifications: mappedSpecifications.length ? mappedSpecifications : fallbackSpecifications,
     };
 
     this.isSubmitting.set(true);
 
     const current = this.currentProduct();
-    const currentTaskId = this.extractTaskId(current);
+    const currentTaskId = this.extractTaskId(current) ?? (isUuid(productId) ? productId : null);
 
     const submitWithTask = (taskId: string) => {
       const remove$ = this.removedImageUrls().length
@@ -522,7 +545,7 @@ export class EditProduct implements OnInit {
       : this.vendorService
           .updateProduct(profile.supplier_id, productId, productData)
           .pipe(
-            switchMap((response: any) => {
+            switchMap((response: ProductTaskResponse) => {
               const taskId = this.extractTaskId(response);
               return taskId ? submitWithTask(taskId) : of(response);
             })
@@ -533,11 +556,16 @@ export class EditProduct implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
+          if (currentTaskId) {
+            this.snackbar.success('Product submitted successfully');
+          } else {
+            this.snackbar.success('Product updated successfully');
+          }
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
-        error: (error) => {
-          console.error('Failed to update product:', error);
+        error: () => {
           this.isSubmitting.set(false);
+          this.snackbar.error('Failed to update product');
         },
       });
   }
@@ -568,21 +596,32 @@ export class EditProduct implements OnInit {
   handleDelete() {
     const profile = this.vendorProfile();
     const productId = this.productId();
+    const current = this.currentProduct();
+    const taskId = this.extractTaskId(current) ?? (isUuid(productId) ? productId : null);
 
     if (!profile || !productId) return;
 
     this.isDeleting.set(true);
 
-    this.vendorService.deleteProduct(profile.supplier_id, productId)
+    const delete$ = taskId
+      ? this.vendorService.deleteDraft(profile.supplier_id, taskId)
+      : this.vendorService.deleteProduct(profile.supplier_id, productId);
+
+    delete$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isDeleting.set(false);
+          if (taskId) {
+            this.snackbar.success('Draft deleted successfully');
+          } else {
+            this.snackbar.success('Product deleted successfully');
+          }
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
-        error: (error) => {
-          console.error('Failed to delete product:', error);
+        error: () => {
           this.isDeleting.set(false);
+          this.snackbar.error('Failed to delete product');
         }
       });
   }
@@ -592,15 +631,44 @@ export class EditProduct implements OnInit {
     if (!control || !control.touched) return '';
 
     if (control.hasError('required')) return 'This field is required';
-    if (control.hasError('minLength')) return `Minimum length is ${control.getError('minLength').requiredLength}`;
+    if (control.hasError('minlength')) return `Minimum length is ${control.getError('minlength').requiredLength}`;
     if (control.hasError('min')) return `Minimum value is ${control.getError('min').min}`;
     if (control.hasError('pattern')) return 'Invalid format';
 
     return '';
   }
 
-  private extractTaskId(response: any): string | null {
-    const candidate = response?.task_id ?? response?.taskId ?? null;
+  private extractTaskId(response: ProductTaskResponse): string | null {
+    const candidate =
+      response?.task_id ??
+      response?.taskId ??
+      (isUuid(response?.id) ? response.id : null) ??
+      (isUuid(response?.product_id) ? response.product_id : null) ??
+      null;
     return candidate ? String(candidate) : null;
+  }
+
+  private isPendingApprovalProduct(product: any): boolean {
+    const statuses = [
+      product?.status,
+      product?.upload_status,
+      product?.review_status,
+      product?.moderation_status,
+      product?.task_status,
+      product?.state,
+    ]
+      .map((value) => String(value ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_'))
+      .filter((value) => !!value);
+
+    return statuses.some((status) =>
+      status === 'pending' ||
+      status === 'pending_approval' ||
+      status === 'awaiting_approval' ||
+      status === 'in_review' ||
+      status === 'under_review' ||
+      status === 'review' ||
+      status === 'submitted' ||
+      status === 'queued'
+    );
   }
 }

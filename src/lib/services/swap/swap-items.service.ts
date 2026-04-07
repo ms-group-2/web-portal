@@ -1,22 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { AuthService } from '../identity/auth.service';
-import { SwapListingApiService, SwapListing } from './';
+import { PostedSwapItem, SwapListingApiService, SwapListing } from './';
 import { SnackbarService } from '../snackbar.service';
-
-export interface PostedSwapItem {
-  id: string;
-  profile_id: string;
-  title: string;
-  description: string;
-  wantedItem: string; 
-  photos: string[]; 
-  status: 'active' | 'inactive' | 'completed';
-  createdAt: string;
-
-  location?: string;
-  valueRange?: string;
-  condition?: string;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -47,8 +32,7 @@ export class SwapItemsService {
         this._postedItems.set(items);
         this._isLoading.set(false);
       },
-      error: (error) => {
-        console.error('Failed to load user listings', error);
+      error: () => {
         this._isLoading.set(false);
       }
     });
@@ -57,16 +41,9 @@ export class SwapItemsService {
   addItem(item: { title: string; description: string; wantedItem: string; images: File[] }) {
     const userId = this.auth.user()?.id;
     if (!userId) {
-      console.error('User not authenticated - cannot create listing');
       this.snackbar.error('განცხადების ატვირთვა მხოლოდ ავტორიზებულ პროფილებს შეუძლიათ');
       return;
     }
-
-    console.log('Creating listing for user:', userId, 'with data:', {
-      title: item.title,
-      wantedItem: item.wantedItem,
-      imageCount: item.images.length
-    });
 
     this._isLoading.set(true);
     return this.api.createListing(userId, {
@@ -79,10 +56,7 @@ export class SwapItemsService {
 
   updateItem(id: string, updates: { title?: string; description?: string; wantedItem?: string; photos_to_delete?: string[]; new_files?: File[] }) {
     const userId = this.auth.user()?.id;
-    if (!userId) {
-      console.error('User not authenticated');
-      return;
-    }
+    if (!userId) return;
 
     this._isLoading.set(true);
     this.api.updateListing(id, userId, {
@@ -95,8 +69,7 @@ export class SwapItemsService {
       next: () => {
         this.loadUserListings();
       },
-      error: (error) => {
-        console.error('Failed to update listing', error);
+      error: () => {
         this._isLoading.set(false);
       }
     });
@@ -104,10 +77,7 @@ export class SwapItemsService {
 
   deleteItem(id: string) {
     const userId = this.auth.user()?.id;
-    if (!userId) {
-      console.error('User not authenticated');
-      return;
-    }
+    if (!userId) return;
 
     this._isLoading.set(true);
     this.api.deleteListing(id, userId).subscribe({
@@ -115,8 +85,7 @@ export class SwapItemsService {
         this._postedItems.update(items => items.filter(item => item.id !== id));
         this._isLoading.set(false);
       },
-      error: (error) => {
-        console.error('Failed to delete listing', error);
+      error: () => {
         this._isLoading.set(false);
       }
     });

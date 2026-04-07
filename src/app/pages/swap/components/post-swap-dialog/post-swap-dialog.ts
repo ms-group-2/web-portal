@@ -91,7 +91,7 @@ export class PostSwapDialogComponent {
       };
       this.dialogRef.close(formData);
     } else if (this.selectedFiles.length === 0) {
-      console.error('At least one photo is required');
+      this.swapForm.markAllAsTouched();
     }
   }
 

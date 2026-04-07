@@ -7,7 +7,7 @@ import {
   VendorRegistration,
   VendorProductCreate,
   VendorProductUpdate,
-  VendorProductsResponse,
+  // VendorProductsResponse,
 } from 'lib/models/vendor.models';
 import { StorageService } from 'lib/services/storage/storage.service';
 
@@ -34,6 +34,65 @@ export class VendorService {
 
   private profileRequest$: Observable<VendorProfile | null> | null = null;
 
+  private normalizeImageUrl(input: unknown): string {
+    if (!input) {
+      return '';
+    }
+
+    if (typeof input !== 'string') {
+      return '';
+    }
+
+    const url = input.trim();
+    if (!url) {
+      return '';
+    }
+
+    if (url.startsWith('http://localhost:9000') || url.startsWith('https://localhost:9000')) {
+      try {
+        const apiBase = new URL(this.baseUrl);
+        const source = new URL(url);
+        return `${apiBase.origin}${source.pathname}`;
+      } catch {
+        return url;
+      }
+    }
+
+    if (url.startsWith('/')) {
+      return `${this.baseUrl}${url}`;
+    }
+
+    return url;
+  }
+
+  private normalizeImageEntry(entry: unknown): string {
+    if (typeof entry === 'string') {
+      return this.normalizeImageUrl(entry);
+    }
+
+    if (entry && typeof entry === 'object') {
+      const candidate =
+        (entry as any).url ??
+        (entry as any).image_url ??
+        (entry as any).cover_image_url ??
+        (entry as any).image;
+
+      return this.normalizeImageUrl(candidate);
+    }
+
+    return '';
+  }
+
+  private normalizeImageList(images: unknown): string[] {
+    if (!Array.isArray(images)) {
+      return [];
+    }
+
+    return images
+      .map((item) => this.normalizeImageEntry(item))
+      .filter((url): url is string => !!url);
+  }
+
   ensureProfileLoaded(): Observable<VendorProfile | null> {
     if (this.vendorProfile()) return of(this.vendorProfile());
     if (!this.profileRequest$) {
@@ -59,8 +118,7 @@ export class VendorService {
         tap(profile => {
           this.applyVendorStatusFromProfile(profile);
         }),
-        catchError(err => {
-          console.error('Failed to load vendor profile:', err);
+        catchError(() => {
           this.vendorProfile.set(null);
           this.isVendor.set(false);
           this.isPendingApproval.set(false);
@@ -97,7 +155,6 @@ export class VendorService {
           this.storage.setItem(this.PENDING_KEY, 'true');
         }),
         catchError(err => {
-          console.error('Failed to register as vendor:', err);
           throw err;
         })
       );
@@ -109,22 +166,14 @@ export class VendorService {
         headers: this.headers,
       })
       .pipe(
-        catchError(err => {
-          console.error('Failed to load vendor profile:', err);
-          return of(null);
-        })
+        catchError(() => of(null))
       );
   }
 
   createProductDraft(supplierId: number, product: VendorProductCreate): Observable<any> {
     return this.http
       .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/`, product, { headers: this.headers })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to create product draft:', err);
-          throw err;
-        })
-      );
+;
   }
 
   uploadTaskImages(supplierId: number, taskId: string, images: File[]): Observable<any> {
@@ -133,12 +182,7 @@ export class VendorService {
 
     return this.http
       .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/images`, formData, { headers: this.headers })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to upload task images:', err);
-          throw err;
-        })
-      );
+;
   }
 
   deleteTaskImages(supplierId: number, taskId: string, imageUrls: string[]): Observable<any> {
@@ -147,34 +191,74 @@ export class VendorService {
         headers: this.headers,
         body: { image_urls: imageUrls },
       })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to delete task images:', err);
-          throw err;
-        })
-      );
+;
   }
 
   submitTaskProduct(supplierId: number, taskId: string): Observable<any> {
     return this.http
       .post<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/submit`, {}, { headers: this.headers })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to submit product task:', err);
-          throw err;
-        })
-      );
+;
   }
 
   updateDraft(supplierId: number, taskId: string, updates: VendorProductUpdate): Observable<any> {
-    return this.http
-      .patch<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/draft`, updates, { headers: this.headers })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to update draft:', err);
-          throw err;
+    // Backend draft-update schema is strict and expects `specifications`,
+    // not `field_options`, and does not accept all product fields.
+    const payload: Record<string, unknown> = {};
+
+    const addInteger = (key: 'category_id' | 'brand_id', value: unknown, min?: number) => {
+      const parsed = typeof value === 'number' ? value : Number(value);
+      if (Number.isInteger(parsed) && (min === undefined || parsed >= min)) {
+        payload[key] = parsed;
+      }
+    };
+
+    const addNumber = (key: 'price', value: unknown, min?: number) => {
+      const parsed = typeof value === 'number' ? value : Number(value);
+      if (Number.isFinite(parsed) && (min === undefined || parsed >= min)) {
+        payload[key] = parsed;
+      }
+    };
+
+    const addString = (key: 'title' | 'description', value: unknown) => {
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed) {
+          payload[key] = trimmed;
+        }
+      }
+    };
+
+    addInteger('category_id', updates.category_id, 1);
+    addInteger('brand_id', updates.brand_id, 0);
+    addString('title', updates.title);
+    addString('description', updates.description);
+    addNumber('price', updates.price, 1);
+
+    const specifications =
+      (updates as any).specifications ??
+      (Array.isArray(updates.field_options) ? updates.field_options : undefined);
+    if (Array.isArray(specifications)) {
+      const normalizedSpecs = specifications
+        .map((item: any) => {
+          if (!item || typeof item !== 'object') {
+            return null;
+          }
+
+          const fieldId = Number(item.field_id);
+          const optionId = Number(item.option_id);
+          if (!Number.isInteger(fieldId) || fieldId <= 0) return null;
+          if (!Number.isInteger(optionId) || optionId <= 0) return null;
+
+          return { field_id: fieldId, option_id: optionId };
         })
-      );
+        .filter((item): item is { field_id: number; option_id: number } => !!item);
+
+      payload['specifications'] = normalizedSpecs;
+    }
+
+    return this.http
+      .patch<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/draft`, payload, { headers: this.headers })
+;
   }
 
   getMyProducts(supplierId: number, page: number = 1, limit: number = 20): Observable<any[]> {
@@ -211,10 +295,7 @@ export class VendorService {
           const products = asArray(response?.products).map((p: any) => this.normalizeProduct(p, false));
           return products;
         }),
-        catchError(err => {
-          console.error('Failed to load products:', err);
-          return of([]);
-        })
+        catchError(() => of([]))
       );
   }
 
@@ -234,7 +315,6 @@ export class VendorService {
         return product;
       }),
       catchError(err => {
-        console.error('Failed to find product:', err);
         throw err;
       })
     );
@@ -250,12 +330,7 @@ export class VendorService {
         updates,
         { headers: this.headers }
       )
-      .pipe(
-        catchError(err => {
-          console.error('Failed to update product:', err);
-          throw err;
-        })
-      );
+;
   }
 
   deleteProduct(supplierId: number, productId: number | string): Observable<string> {
@@ -263,12 +338,15 @@ export class VendorService {
       .delete<string>(`${this.baseUrl}/vendors/${supplierId}/products/${productId}`, {
         headers: this.headers,
       })
-      .pipe(
-        catchError(err => {
-          console.error('Failed to delete product:', err);
-          throw err;
-        })
-      );
+;
+  }
+
+  deleteDraft(supplierId: number, taskId: string): Observable<any> {
+    return this.http
+      .delete<any>(`${this.baseUrl}/vendors/${supplierId}/products/${taskId}/draft`, {
+        headers: this.headers,
+      })
+;
   }
 
   clearVendorState(): void {
@@ -312,18 +390,43 @@ export class VendorService {
   private normalizeProduct(product: any, isDraftHint: boolean): any {
     const draftData = product?.draft_data ?? product?.payload ?? product?.data ?? {};
     const status = String(product?.status ?? product?.upload_status ?? '').toLowerCase();
+    const normalizedStatus = status.replace(/[\s-]+/g, '_');
+    const isPendingApproval =
+      normalizedStatus === 'pending' ||
+      normalizedStatus === 'pending_approval' ||
+      normalizedStatus === 'awaiting_approval' ||
+      normalizedStatus === 'in_review' ||
+      normalizedStatus === 'under_review' ||
+      normalizedStatus === 'review' ||
+      normalizedStatus === 'submitted' ||
+      normalizedStatus === 'queued';
 
-    const isDraft =
-      isDraftHint ||
-      !!product?.isDraft ||
-      !!product?.task_id ||
-      status === 'draft' ||
-      status.includes('draft');
+    const isDraft = isDraftHint && !isPendingApproval;
 
     const id = product?.id ?? product?.product_id ?? product?.tasRk_id;
+    const coverFromProduct = this.normalizeImageUrl(product?.cover_image_url);
+    const coverFromDraft = this.normalizeImageUrl(draftData?.cover_image_url);
+    const fallbackCover =
+      this.normalizeImageEntry(product?.image_url) ||
+      this.normalizeImageEntry(draftData?.image_url) ||
+      this.normalizeImageEntry(product?.image) ||
+      this.normalizeImageEntry(draftData?.image);
+
+    const cover = coverFromProduct || coverFromDraft || fallbackCover;
+    const productImages = this.normalizeImageList(product?.images);
+    const draftImages = this.normalizeImageList(draftData?.images);
+    const images = productImages.length ? productImages : draftImages;
+    const specifications = Array.isArray(product?.specifications)
+      ? product.specifications
+      : (Array.isArray(draftData?.specifications) ? draftData.specifications : []);
+    const fieldOptionsFromSpecs = specifications
+      .map((spec: any) => Number(spec?.option_id))
+      .filter((id: number) => Number.isInteger(id) && id > 0);
+
     const merged = {
       ...draftData,
       ...product,
+      source: isDraftHint ? 'draft' : 'live',
       id,
       task_id: product?.task_id ?? draftData?.task_id,
       product_id: product?.product_id ?? draftData?.product_id,
@@ -333,9 +436,10 @@ export class VendorService {
       sku: product?.sku ?? draftData?.sku,
       category_id: product?.category_id ?? draftData?.category_id,
       brand_id: product?.brand_id ?? draftData?.brand_id,
-      field_options: product?.field_options ?? draftData?.field_options ?? [],
-      cover_image_url: product?.cover_image_url ?? draftData?.cover_image_url,
-      images: product?.images ?? draftData?.images ?? [],
+      field_options: product?.field_options ?? draftData?.field_options ?? fieldOptionsFromSpecs,
+      specifications,
+      cover_image_url: cover,
+      images: images.length ? images : [],
       isDraft,
     };
 

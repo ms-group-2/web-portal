@@ -56,7 +56,10 @@ export interface VendorProductCreate {
   sku: string;
   cover_image_url?: string;
   images?: string[];
-  field_options: number[];
+  specifications: Array<{
+    field_id: number;
+    option_id: number;
+  }>;
 }
 
 export interface VendorProductUpdate {
@@ -66,14 +69,19 @@ export interface VendorProductUpdate {
   description?: string;
   price?: number;
   quantity?: number;
+  sku?: string;
   cover_image_url?: string;
   images?: string[];
   field_options?: number[];
+  specifications?: Array<{
+    field_id: number;
+    option_id: number;
+  }>;
 }
 
-export interface VendorProductsResponse {
-  items: any[]; 
-  total: number;
-  page: number;
-  limit: number;
-}
+// export interface VendorProductsResponse {
+//   items: any[]; 
+//   total: number;
+//   page: number;
+//   limit: number;
+// }

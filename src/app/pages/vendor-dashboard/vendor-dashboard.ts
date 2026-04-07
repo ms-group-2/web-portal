@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
+import { SnackbarService } from 'lib/services/snackbar.service';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { Profile } from 'lib/services/profile/models/profile.model';
@@ -50,6 +51,7 @@ export class VendorDashboard implements OnInit {
   private route = inject(ActivatedRoute);
   translation = inject(TranslationService);
   private vendorService = inject(VendorService);
+  private snackbar = inject(SnackbarService);
   private auth = inject(AuthService);
   private profileApi = inject(ProfileApiService);
   private destroyRef = inject(DestroyRef);
@@ -93,7 +95,6 @@ export class VendorDashboard implements OnInit {
       }
     });
 
-    // Re-apply tab so loadProducts runs for ?tab=products when snapshot already matched the signal.
     this.setActiveTab(tabFromQueryParams(this.route.snapshot.queryParams), { syncUrl: false });
   }
 
@@ -145,6 +146,12 @@ export class VendorDashboard implements OnInit {
   }
 
   openEditProduct(productId: string | number) {
+    const product = this.products().find(p => (p.task_id || p.id) === productId);
+    if (product && this.isPendingApprovalProduct(product)) {
+      this.snackbar.error('Products pending approval cannot be edited');
+      return;
+    }
+
     this.router.navigate(['/business/dashboard/edit-product', productId]);
   }
 
@@ -188,8 +195,8 @@ export class VendorDashboard implements OnInit {
           this.products.set(this.products().filter(p => p.id !== productId));
           this.productToDelete.set(null);
         },
-        error: (error) => {
-          console.error('Failed to delete product:', error);
+        error: () => {
+          this.snackbar.error('Failed to delete product');
           this.productToDelete.set(null);
         }
       });
@@ -197,5 +204,24 @@ export class VendorDashboard implements OnInit {
 
   goBack() {
     this.router.navigate(['/profile/business']);
+  }
+
+  private isPendingApprovalProduct(product: any): boolean {
+    const statuses = [
+      product?.status,
+      product?.upload_status,
+      product?.review_status,
+      product?.moderation_status,
+      product?.task_status,
+      product?.state,
+    ]
+      .map((value) => String(value ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_'))
+      .filter((value) => !!value);
+
+    return statuses.some((status) =>
+      status === 'pending' ||
+      status === 'pending_approval' ||
+      status === 'under_review'
+    );
   }
 }

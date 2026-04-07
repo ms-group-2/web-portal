@@ -10,7 +10,7 @@ import { Footer } from 'lib/components/footer/footer';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
-import { Product, FilterGroup, CategoryWithProducts } from '../shop/shop.models';
+import { Product, FilterField, FilterGroup, CategoryWithProducts } from '../shop/shop.models';
 import { ProductCardComponent } from '../shop/components/product-card/product-card';
 import { MatIcon } from "@angular/material/icon";
 import { MatSlider, MatSliderRangeThumb } from "@angular/material/slider";
@@ -115,8 +115,8 @@ export class CategoryProducts implements OnInit {
           this.shopService.getFilterOptions(categoryId)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-              next: (filters) => {
-                this.filterGroups.set(filters);
+              next: (response) => {
+                this.filterGroups.set(this.toFilterGroups(response.filters));
                 this.filtersLoading.set(false);
               },
               error: () => {
@@ -264,11 +264,27 @@ export class CategoryProducts implements OnInit {
     return this.expandedFields().has(fieldId);
   }
 
+  isOptionDisabled(option: { option_id: number; option_value: string; product_count: number }): boolean {
+    return option.product_count === 0;
+  }
+
   applyFilters(): void {
     let filtered = [...this.products()];
 
+    // Apply price filter
     filtered = filtered.filter(p => p.price >= this.minPrice() && p.price <= this.maxPrice());
 
+    // Apply checkbox filters (spec filters)
+    const selectedFilters = this.selectedFilters();
+    const filterEntries: [number, number[]][] = Object.entries(selectedFilters)
+      .map(([fieldId, optionIds]) => [Number(fieldId), optionIds || []] as [number, number[]])
+      .filter(([, optionIds]) => optionIds.length > 0);
+
+    if (filterEntries.length > 0) {
+      filtered = this.applyCheckboxFilters(filtered, filterEntries);
+    }
+
+    // Apply sorting
     switch (this.sortBy()) {
       case 'price_asc':
         filtered.sort((a, b) => a.price - b.price);
@@ -281,5 +297,147 @@ export class CategoryProducts implements OnInit {
     }
 
     this.filteredProducts.set(filtered);
+
+    // Re-fetch filter options with current filters to get updated product_count
+    const categoryId = this.categoryId();
+    if (categoryId) {
+      this.refetchFilterOptions(categoryId);
+    }
+  }
+
+  private applyCheckboxFilters(
+    products: Product[],
+    filterEntries: [number, number[]][]
+  ): Product[] {
+    const filterGroups = this.filterGroups();
+    if (!filterGroups.length) return products;
+
+    // Build field lookup: field_id -> field definition
+    const fieldById = new Map<number, { field_name: string; options: Array<{ option_id: number; option_value: string }> }>();
+    for (const group of filterGroups) {
+      for (const field of group.fields) {
+        fieldById.set(field.field_id, {
+          field_name: field.field_name,
+          options: field.options
+        });
+      }
+    }
+
+    const normalize = (value: unknown): string => String(value ?? '').trim().toLowerCase();
+
+    const fieldNameLooksLikeBrand = (fieldName: string): boolean => {
+      const n = normalize(fieldName);
+      return n.includes('brand') || n.includes('manufacturer') || n.includes('ბრენ') || n.includes('მწარმო');
+    };
+
+    const productMatchesField = (product: Product, fieldId: number, optionIds: number[]): boolean => {
+      const field = fieldById.get(fieldId);
+      if (!field) return false;
+
+      const selectedValues = field.options
+        .filter(o => optionIds.includes(o.option_id))
+        .map(o => normalize(o.option_value));
+      if (!selectedValues.length) return false;
+
+      const fieldName = field.field_name;
+      const matchesBrandField = fieldNameLooksLikeBrand(fieldName);
+      const productBrandName = normalize(product.brand?.name);
+      const specs = product.specifications ?? [];
+
+      // Check if any selected value matches
+      return selectedValues.some(expectedValue => {
+        // Brand field: match against product.brand.name
+        if (matchesBrandField && productBrandName === expectedValue) {
+          return true;
+        }
+
+        // Spec field: match against product.specifications
+        for (const group of specs) {
+          for (const spec of group.specifications) {
+            const specNameNorm = normalize(spec.name);
+            const specValueNorm = normalize(spec.value);
+            const fieldNameNorm = normalize(fieldName);
+
+            // Value must match
+            if (specValueNorm !== expectedValue) continue;
+
+            // Field name should loosely match spec name
+            if (specNameNorm === fieldNameNorm ||
+                specNameNorm.includes(fieldNameNorm) ||
+                fieldNameNorm.includes(specNameNorm)) {
+              return true;
+            }
+          }
+        }
+
+        return false;
+      });
+    };
+
+    // AND across fields: product must match ALL selected fields
+    return products.filter(product => {
+      for (const [fieldId, optionIds] of filterEntries) {
+        if (!productMatchesField(product, fieldId, optionIds)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  private refetchFilterOptions(categoryId: number): void {
+    this.filtersLoading.set(true);
+
+    // Pass currently active filters to get updated product_count
+    const params: any = { category_id: categoryId };
+
+    const minPrice = this.minPrice();
+    const maxPrice = this.maxPrice();
+    if (minPrice > 0) params.min_price = minPrice;
+    if (maxPrice < this.categoryMaxPrice()) params.max_price = maxPrice;
+
+    // Add selected checkbox filters
+    const selectedFilters = this.selectedFilters();
+    for (const [fieldId, optionIds] of Object.entries(selectedFilters)) {
+      if (optionIds && optionIds.length > 0) {
+        const field = this.findFieldById(Number(fieldId));
+        if (field) {
+          // Use field_name as param key, comma-separated option IDs as value
+          params[field.field_name] = optionIds.join(',');
+        }
+      }
+    }
+
+    this.shopService.getFilterOptions(categoryId, params)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.filterGroups.set(this.toFilterGroups(response.filters));
+          this.filtersLoading.set(false);
+        },
+        error: () => {
+          this.filtersLoading.set(false);
+        }
+      });
+  }
+
+  private toFilterGroups(filters: FilterField[]): FilterGroup[] {
+    if (!filters?.length) {
+      return [];
+    }
+
+    return [{
+      group_id: 0,
+      group_name: 'Filters',
+      fields: filters,
+    }];
+  }
+
+  private findFieldById(fieldId: number): { field_id: number; field_name: string; options: any[] } | undefined {
+    for (const group of this.filterGroups()) {
+      const field = group.fields.find(f => f.field_id === fieldId);
+      if (field) return field;
+    }
+    return undefined;
   }
 }

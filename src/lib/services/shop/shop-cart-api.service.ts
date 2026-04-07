@@ -42,6 +42,12 @@ export class ShopCartApiService {
     });
   }
 
+  clearCartItems(): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.baseUrl}${this.cartBasePath}/items`, {
+      headers: this.headers,
+    });
+  }
+
   checkout(): Observable<CheckoutResponse> {
     return this.http.post<CheckoutResponse>(`${this.baseUrl}${this.cartBasePath}/checkout`, {}, {
       headers: this.headers,

@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, map, tap, catchError, timeout } from 'rxjs';
+import { Observable, of, map, tap, catchError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterGroup } from 'src/app/pages/shop/shop.models';
+import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterField, FilterBrand } from 'src/app/pages/shop/shop.models';
 import { CartResponse, CheckoutResponse } from 'lib/services/shop/models/shop-cart.models';
 import { ShopCartService } from './shop-cart.service';
 
@@ -74,7 +74,7 @@ export class ShopService {
   productsByCategoryId = signal<Partial<Record<number | 'all', Product[]>>>({});
   paginatedCache = signal<Record<string, ProductsResponse>>({});
   categoriesWithProductsCache = signal<Record<number, CategoryWithProducts[]>>({});
-  filterOptionsCache = signal<Record<number, FilterGroup[]>>({});
+  filterOptionsCache = signal<Record<number, { filters: FilterField[]; brands: FilterBrand[] }>>({});
 
   productsById = signal<Record<number, Product>>({});
 
@@ -89,18 +89,63 @@ export class ShopService {
   selectedCategoryId = signal<number | null>(null);
   searchQuery = signal<string>('');
 
+  // Search page filter state (sidebar checkboxes).
+  // Checkbox filters are applied client-side because the current search endpoint
+  // is wired only for price/sort (backend support for these filters may be added later).
+  searchFilterGroups = signal<FilterField[]>([]);
+  selectedSearchFilters = signal<Record<number, number[]>>({});
+  searchBrands = signal<FilterBrand[]>([]);
+  selectedBrandIds = signal<number[]>([]);
+
+  // Used by the search sidebar to display "relevant categories" derived from
+  // the currently displayed search results.
+  searchSidebarProducts = signal<Product[]>([]);
+
+  // When on the search page (no selectedCategoryId), we still need a category
+  // to load checkbox filter groups from the backend. We derive it from the
+  // first search result product.
+  searchDerivedCategoryId = signal<number | null>(null);
+
+  // Search page result count (used in the search header text).
+  searchResultsCount = signal<number>(0);
+
+  // Dynamic max price from current products
+  dynamicMaxPrice = signal<number>(10000);
+
   // Shared filter state for shop page
   shopSortBy = signal<string>('popular');
   shopMinPrice = signal<number>(0);
   shopMaxPrice = signal<number>(10000);
+
+  updateDynamicMaxPrice(products: Product[], accumulate = true): void {
+    const maxPrice = products.reduce((max, p) => Math.max(max, p.price || 0), 0);
+    if (maxPrice > 0) {
+      const currentMax = this.dynamicMaxPrice();
+      const newMax = Math.ceil(maxPrice / 100) * 100; // Round up to nearest 100
+      if (!accumulate || newMax > currentMax) {
+        this.dynamicMaxPrice.set(newMax);
+      }
+    }
+  }
+
+  resetDynamicMaxPrice(): void {
+    this.dynamicMaxPrice.set(0);
+  }
+
+  clearProductCaches(): void {
+    this.productsByCategoryId.set({});
+    this.paginatedCache.set({});
+    this.productsById.set({});
+    this.categoriesWithProductsCache.set({});
+  }
 
   selectedCategory = computed(() => {
     const id = this.selectedCategoryId();
     if (id === null) return null;
 
     const cache = this.categoriesByParentId();
-    for (const key of Object.keys(cache)) {
-      const found = cache[key as any]?.find(c => c.id === id);
+    for (const categories of Object.values(cache)) {
+      const found = categories?.find(c => c.id === id);
       if (found) return found;
     }
 
@@ -111,8 +156,7 @@ export class ShopService {
     const result: Category[] = [];
     const cache = this.categoriesByParentId();
 
-    for (const key of Object.keys(cache)) {
-      const categories = cache[key as any];
+    for (const categories of Object.values(cache)) {
       if (categories) {
         result.push(...categories);
       }
@@ -142,8 +186,7 @@ export class ShopService {
           }));
           this.categoriesLoadingFor.set(null);
         }),
-        catchError(err => {
-          console.error('Failed to load main categories:', err);
+        catchError(() => {
           this.categoriesLoadingFor.set(null);
           return of([]);
         })
@@ -179,8 +222,7 @@ export class ShopService {
           }));
           this.categoriesLoadingFor.set(null);
         }),
-        catchError(err => {
-          console.error(`Failed to load subcategories for ${parentId}:`, err);
+        catchError(() => {
           this.categoriesLoadingFor.set(null);
           return of([]);
         })
@@ -192,7 +234,102 @@ export class ShopService {
   }
 
   setSearchQuery(query: string): void {
-    this.searchQuery.set(query);
+    const next = query ?? '';
+    const current = this.searchQuery();
+    this.searchQuery.set(next);
+
+    // When changing queries, reset derived sidebar state so filters reflect
+    // the new results.
+    if (next.trim() === '' || next.trim() !== current.trim()) {
+      this.clearSearchFilters();
+    }
+  }
+
+  setSearchFilterGroups(filters: FilterField[]): void {
+    this.searchFilterGroups.set(filters);
+  }
+
+  setSearchBrands(brands: FilterBrand[]): void {
+    this.searchBrands.set(brands);
+  }
+
+  toggleSearchFilterOption(fieldId: number, optionId: number): void {
+    this.selectedSearchFilters.update(current => {
+      const selected = current[fieldId] || [];
+      const index = selected.indexOf(optionId);
+
+      if (index > -1) {
+        const nextSelected = selected.filter(id => id !== optionId);
+        if (nextSelected.length === 0) {
+          const { [fieldId]: _, ...rest } = current;
+          return rest;
+        }
+        return { ...current, [fieldId]: nextSelected };
+      }
+
+      return { ...current, [fieldId]: [...selected, optionId] };
+    });
+  }
+
+  isSearchFilterOptionSelected(fieldId: number, optionId: number): boolean {
+    const selected = this.selectedSearchFilters()[fieldId] || [];
+    return selected.includes(optionId);
+  }
+
+  clearSearchFilters(): void {
+    this.selectedSearchFilters.set({});
+    this.searchFilterGroups.set([]);
+    this.searchBrands.set([]);
+    this.selectedBrandIds.set([]);
+    this.shopSortBy.set('popular');
+    this.shopMinPrice.set(0);
+    this.shopMaxPrice.set(this.dynamicMaxPrice());
+    this.searchDerivedCategoryId.set(null);
+  }
+
+  setSearchSidebarProducts(products: Product[]): void {
+    this.searchSidebarProducts.set(products);
+  }
+
+  setSearchDerivedCategoryId(categoryId: number | null): void {
+    this.searchDerivedCategoryId.set(categoryId);
+  }
+
+  setSearchResultsCount(count: number): void {
+    this.searchResultsCount.set(count);
+  }
+
+  toggleBrandSelection(brandId: number): void {
+    this.selectedBrandIds.update(current =>
+      current.includes(brandId) ? current.filter(id => id !== brandId) : [...current, brandId]
+    );
+  }
+
+  isBrandSelected(brandId: number): boolean {
+    return this.selectedBrandIds().includes(brandId);
+  }
+
+  getSelectedFilterQueryParams(): Record<string, string> {
+    const params: Record<string, string> = {};
+
+    const selectedBrands = this.selectedBrandIds();
+    if (selectedBrands.length > 0) {
+      params['brand'] = selectedBrands.join(',');
+    }
+
+    const fieldsById = new Map(this.searchFilterGroups().map(field => [field.field_id, field]));
+    const selectedFields = this.selectedSearchFilters();
+    for (const [fieldIdRaw, optionIds] of Object.entries(selectedFields)) {
+      const fieldId = Number(fieldIdRaw);
+      if (!optionIds?.length) continue;
+
+      const field = fieldsById.get(fieldId);
+      if (!field) continue;
+
+      params[field.field_name] = optionIds.join(',');
+    }
+
+    return params;
   }
 
   getProductsPaginated(params?: {
@@ -203,16 +340,18 @@ export class ShopService {
     sort_by?: string;
     min_price?: number;
     max_price?: number;
+    extra_filters?: Record<string, string>;
   }): Observable<ProductsResponse> {
-    const queryParams: any = {
+    const queryParams: Record<string, string | number | boolean> = {
       page: params?.page ?? 1,
       limit: params?.limit ?? 20,
     };
-    if (params?.category_id) queryParams.category_id = params.category_id;
-    if (params?.search) queryParams.search = params.search;
-    if (params?.sort_by) queryParams.sort_by = params.sort_by;
-    if (params?.min_price !== undefined) queryParams.min_price = params.min_price;
-    if (params?.max_price !== undefined) queryParams.max_price = params.max_price;
+    if (params?.category_id) queryParams['category_id'] = params.category_id;
+    if (params?.search) queryParams['search'] = params.search;
+    if (params?.sort_by) queryParams['sort_by'] = params.sort_by;
+    if (params?.min_price !== undefined) queryParams['min_price'] = params.min_price;
+    if (params?.max_price !== undefined) queryParams['max_price'] = params.max_price;
+    if (params?.extra_filters) Object.assign(queryParams, params.extra_filters);
 
     // Cache key based on all params
     const cacheKey = JSON.stringify(queryParams);
@@ -226,19 +365,21 @@ export class ShopService {
       })
       .pipe(
         map(response => {
-          if (!response || !response.items) {
+          const rawItems = response?.items ?? response?.products ?? [];
+          if (!response || !rawItems) {
             return { items: [], total: 0, page: 1, limit: 20, total_pages: 0 };
           }
+          const totalPages = response.total_pages ?? Math.ceil((response.total || 0) / Math.max(response.limit || 20, 1));
           return {
             ...response,
-            items: response.items.map(product => this.normalizeProduct(product)),
+            items: rawItems.map(product => this.normalizeProduct(product)),
+            total_pages: totalPages,
           };
         }),
         tap(response => {
           this.paginatedCache.update(cache => ({ ...cache, [cacheKey]: response }));
         }),
-        catchError(err => {
-          console.error('Failed to load products:', err);
+        catchError(() => {
           return of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse);
         })
       );
@@ -267,25 +408,25 @@ export class ShopService {
       }
     }
 
-    const queryParams: any = {
+    const queryParams: Record<string, string | number | boolean> = {
       page: page,
       limit: params?.limit ?? 20,
     };
 
     if (params?.category_id) {
-      queryParams.category_id = params.category_id;
+      queryParams['category_id'] = params.category_id;
     }
     if (params?.min_price !== undefined) {
-      queryParams.min_price = params.min_price;
+      queryParams['min_price'] = params.min_price;
     }
     if (params?.max_price !== undefined) {
-      queryParams.max_price = params.max_price;
+      queryParams['max_price'] = params.max_price;
     }
     if (params?.sort_by) {
-      queryParams.sort_by = params.sort_by;
+      queryParams['sort_by'] = params.sort_by;
     }
     if (params?.search) {
-      queryParams.search = params.search;
+      queryParams['search'] = params.search;
     }
 
     return this.http
@@ -295,10 +436,11 @@ export class ShopService {
       })
       .pipe(
         map(response => {
-          if (!response || !response.items) {
+          const rawItems = response?.items ?? response?.products ?? [];
+          if (!response || !rawItems) {
             return [];
           }
-          return response.items.map(product => this.normalizeProduct(product));
+          return rawItems.map(product => this.normalizeProduct(product));
         }),
         tap(products => {
           if (!hasFilters && page === 1) {
@@ -308,10 +450,7 @@ export class ShopService {
             }));
           }
         }),
-        catchError(err => {
-          console.error('Failed to load products:', err);
-          return of([]);
-        })
+        catchError(() => of([]))
       );
   }
 
@@ -329,9 +468,9 @@ export class ShopService {
       if (cached) return of(cached);
     }
 
-    const params: any = {};
+    const params: Record<string, string | number> = {};
     if (parentId !== undefined) {
-      params.parent_id = parentId;
+      params['parent_id'] = parentId;
     }
 
     return this.http
@@ -359,10 +498,7 @@ export class ShopService {
             }));
           }
         }),
-        catchError(err => {
-          console.error('Failed to load categories with products:', err);
-          return of([]);
-        })
+        catchError(() => of([]))
       );
   }
 
@@ -392,31 +528,51 @@ export class ShopService {
             }));
           }
         }),
-        catchError(err => {
-          console.error('Failed to load product:', err);
-          return of(null);
-        })
+        catchError(() => of(null))
       );
   }
 
-  searchProductsPaginated(query: string, page: number = 1, limit: number = 20): Observable<ProductsResponse> {
+  searchProductsPaginated(
+    query: string,
+    page: number = 1,
+    limit: number = 20,
+    params?: {
+      sort_by?: string;
+      min_price?: number;
+      max_price?: number;
+      category_id?: number;
+      in_stock?: boolean;
+      extra_filters?: Record<string, string>;
+    }
+  ): Observable<ProductsResponse> {
     if (!query || query.trim().length < 2) {
       return of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse);
     }
 
+    const queryParams: Record<string, string | number | boolean> = { q: query.trim(), page, limit };
+    if (params?.sort_by) queryParams['sort_by'] = params.sort_by;
+    if (params?.min_price !== undefined) queryParams['min_price'] = params.min_price;
+    if (params?.max_price !== undefined) queryParams['max_price'] = params.max_price;
+    if (params?.category_id !== undefined) queryParams['category_id'] = params.category_id;
+    if (params?.in_stock !== undefined) queryParams['in_stock'] = params.in_stock;
+    if (params?.extra_filters) Object.assign(queryParams, params.extra_filters);
+
     return this.http
       .get<ProductsResponse>(`${this.baseUrl}/ecommerce/products/search`, {
         headers: this.headers,
-        params: { q: query.trim(), page, limit },
+        params: queryParams,
       })
       .pipe(
         map(response => {
-          if (!response || !response.items) {
+          const rawItems = response?.items ?? response?.products ?? [];
+          if (!response || !rawItems) {
             return { items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse;
           }
+          const totalPages = response.total_pages ?? Math.ceil((response.total || 0) / Math.max(response.limit || limit, 1));
           return {
             ...response,
-            items: response.items.map(product => this.normalizeProduct(product)),
+            items: rawItems.map(product => this.normalizeProduct(product)),
+            total_pages: totalPages,
           };
         }),
         catchError(() => of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse))
@@ -441,26 +597,28 @@ export class ShopService {
       })
       .pipe(
         map(response => {
-          if (!response || !response.items) {
+          const rawItems = response?.items ?? response?.products ?? [];
+          if (!response || !rawItems) {
             return [];
           }
-          return response.items.map(product => this.normalizeProduct(product));
+          return rawItems.map(product => this.normalizeProduct(product));
         }),
-        catchError(err => {
-          return of([]);
-        })
+        catchError(() => of([]))
       );
   }
 
-  getFilterOptions(categoryId?: number): Observable<FilterGroup[]> {
-    if (categoryId) {
+  getFilterOptions(categoryId?: number, additionalParams?: Record<string, string | number | boolean>): Observable<{ filters: FilterField[]; brands: FilterBrand[] }> {
+    // Skip cache when additional params are present (filtering active)
+    const useCache = !additionalParams || Object.keys(additionalParams).length === 0;
+
+    if (categoryId && useCache) {
       const cached = this.filterOptionsCache()[categoryId];
       if (cached) return of(cached);
     }
 
-    const params: any = {};
+    const params: Record<string, string | number | boolean> = { ...additionalParams };
     if (categoryId) {
-      params.category_id = categoryId;
+      params['category_id'] = categoryId;
     }
 
     return this.http
@@ -469,20 +627,32 @@ export class ShopService {
         params,
       })
       .pipe(
-        // timeout(15000),
-        map(response => response.filters || []),
-        tap(filters => {
-          if (categoryId) {
+        map(response => {
+          const rawFilters = response?.filters ?? [];
+
+          // Support both backend shapes:
+          // 1) flat: filters: FilterField[]
+          // 2) grouped: filters: [{ group_id, group_name, fields: FilterField[] }]
+          const normalizedFilters: FilterField[] = (rawFilters as Array<FilterField & { fields?: FilterField[] }>).flatMap(entry => {
+            if (Array.isArray(entry?.fields)) return entry.fields;
+            return entry ? [entry] : [];
+          });
+
+          return {
+            filters: normalizedFilters,
+            brands: response?.brands || [],
+          };
+        }),
+        tap(payload => {
+          // Only cache when no additional filters are applied
+          if (categoryId && useCache) {
             this.filterOptionsCache.update(prev => ({
               ...prev,
-              [categoryId]: filters,
+              [categoryId]: payload,
             }));
           }
         }),
-        catchError(err => {
-          console.error('Failed to load filter options:', err);
-          return of([]);
-        })
+        catchError(() => of({ filters: [], brands: [] }))
       );
   }
 

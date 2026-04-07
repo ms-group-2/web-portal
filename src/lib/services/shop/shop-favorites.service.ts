@@ -47,8 +47,7 @@ export class ShopFavoritesService {
 
     if (userId) {
       this.profileApi.toggleWishlist(productId).pipe(
-        catchError(error => {
-          console.error('Failed to toggle wishlist:', error);
+        catchError(() => {
           this.favorites.update(current => {
             const reverted = new Set(current);
             if (reverted.has(productId)) {
@@ -88,8 +87,7 @@ export class ShopFavoritesService {
     try {
       const ids = JSON.parse(stored) as number[];
       return new Set(ids);
-    } catch (error) {
-      console.error('Failed to parse favorites from storage:', error);
+    } catch {
       return new Set();
     }
   }
@@ -100,10 +98,8 @@ export class ShopFavoritesService {
 
     try {
       this.storage.setItem(key, JSON.stringify(ids));
-    } catch (error) {
-      console.error('Failed to save favorites to storage:', error);
+    } catch {}
     }
-  }
 
   private getStorageKey(userId: string | null): string {
     return userId ? `${this.FAVORITES_STORAGE_KEY_PREFIX}${userId}` : `${this.FAVORITES_STORAGE_KEY_PREFIX}guest`;

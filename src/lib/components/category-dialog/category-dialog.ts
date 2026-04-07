@@ -84,7 +84,6 @@ export class CategoryMenu implements OnInit {
 
     // If we're already showing subcategories (depth >= 1), navigate to page instead of drilling deeper
     if (currentDepth >= 1) {
-      console.log('Navigating to category:', category.id);
       this.router.navigate(['/shop/category', category.id]);
       this.close();
       return;

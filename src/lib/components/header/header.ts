@@ -194,8 +194,31 @@ export class Header implements OnDestroy {
     this.shopService.setSearchQuery(query);
     this.showSearchDropdown.set(false);
 
-    if (!this.isShopRoute()) {
-      this.router.navigateByUrl('/shop');
+    this.router.navigate(['/shop/search'], { queryParams: { q: query } });
+  }
+
+  onSeeMoreSearchResults(): void {
+    const query = this.searchQuery().trim();
+    if (!query) return;
+
+    this.shopService.setSearchQuery(query);
+
+    const currentUrl = (this.router.url || '').split('?')[0];
+    if (currentUrl !== '/shop/search') {
+      this.router.navigate(['/shop/search'], { queryParams: { q: query } }).then(() => {
+        setTimeout(() => this.scrollToShopResultsStart(), 100);
+      });
+      return;
+    }
+
+    this.scrollToShopResultsStart();
+  }
+
+  private scrollToShopResultsStart(): void {
+    try {
+      const el = this.document.getElementById('shop-filters-start');
+      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch {
     }
   }
 

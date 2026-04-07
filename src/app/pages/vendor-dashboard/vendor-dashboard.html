@@ -1,6 +1,5 @@
-<div class="min-h-screen bg-vendorPageBackground flex">
+<div class="flex h-screen overflow-hidden bg-vendorPageBackground">
 
-  <!-- Mobile sidebar overlay -->
   @if (sidebarOpen()) {
     <div class="fixed inset-0 bg-black/40 z-40 lg:hidden" (click)="toggleSidebar()"></div>
   }
@@ -8,8 +7,7 @@
   <!-- Left Sidebar -->
   <div
     [ngClass]="{ '-translate-x-full': !sidebarOpen(), 'translate-x-0': sidebarOpen() }"
-    class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#E8E9F3] flex flex-col min-h-screen lg:translate-x-0 transition-transform duration-200">
-    <!-- Logo/Brand -->
+    class="fixed lg:static inset-y-0 left-0 z-50 w-64 shrink-0 bg-[#E8E9F3] flex flex-col h-full overflow-hidden lg:translate-x-0 transition-transform duration-200">
     <div class="p-6">
       <div class="relative mb-6">
         <div class="flex items-center justify-between">
@@ -27,7 +25,7 @@
 
     </div>
 
-    <div class="flex-1 px-4 space-y-1">
+    <div class="flex-1 min-h-0 overflow-y-auto px-4 space-y-1">
       @for (tab of mainNavigationTabs; track tab.id) {
         <button
           (click)="setActiveTab(tab.id); sidebarOpen.set(false)"
@@ -76,9 +74,7 @@
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="flex-1 overflow-auto w-full">
-    <!-- Top Header -->
+  <div class="flex-1 min-h-0 min-w-0 overflow-y-auto w-full">
     <div class="bg-white border-b border-gray-200 px-4 sm:px-8 py-4 flex items-center justify-between sticky top-0 z-10">
       <div class="flex items-center gap-3">
         <!-- Hamburger for mobile -->
