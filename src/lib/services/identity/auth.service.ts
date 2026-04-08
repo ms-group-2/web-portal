@@ -169,4 +169,14 @@ setNewPassword(payload: { email: string; new_password: string; password_change_t
   changePassword(payload: ChangePasswordRequest) {
     return this.http.post<MessageResponse>(`${this.baseUrl}/auth/change-password`, payload);
   }
+
+  requestChangeEmail(newEmail: string) {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/auth/change-email/request`, {
+      new_email: newEmail,
+    });
+  }
+
+  verifyChangeEmail(payload: { new_email: string; code: string }) {
+    return this.http.post<UserResponse>(`${this.baseUrl}/auth/change-email/verify`, payload);
+  }
 }

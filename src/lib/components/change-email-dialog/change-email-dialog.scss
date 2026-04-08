@@ -1,0 +1,21 @@
+::ng-deep .change-email-dialog {
+  .mat-mdc-dialog-container,
+  .mdc-dialog__surface,
+  .mat-mdc-dialog-surface {
+    background: #fff !important;
+    border-radius: 1rem !important;
+    // padding: 0.5rem !important;
+    max-width: 95vw !important;
+    width: 520px !important;
+  }
+}
+
+::ng-deep .change-email-dialog .mat-mdc-dialog-container {
+  --mdc-dialog-container-color: white;
+  background: #fff !important;
+}
+
+::ng-deep .change-email-dialog mat-dialog-content,
+::ng-deep .change-email-dialog mat-dialog-actions {
+  background: #fff !important;
+}

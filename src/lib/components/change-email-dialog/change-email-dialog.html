@@ -1,0 +1,86 @@
+<mat-dialog-content class="!pt-10">
+  <div class="text-center mb-6">
+    <div class="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4 shadow-lg">
+      <mat-icon class="!w-8 !h-8 !text-3xl text-white">mail</mat-icon>
+    </div>
+    <h2 class="text-2xl font-black text-gray-900 mb-2">{{ 'profile.emailChange.title' | translate }}</h2>
+    <p class="text-gray-600 text-sm leading-relaxed">{{ 'profile.emailChange.subtitle' | translate }}</p>
+  </div>
+
+  <form [formGroup]="form" class="space-y-3">
+    <div>
+      <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'profile.email' | translate }}</label>
+      <div class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 font-bold break-all">
+        {{ data.newEmail }}
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-black uppercase tracking-wider mb-2">{{ 'profile.emailChange.verificationCode' | translate }}</label>
+      <div class="flex items-center justify-between gap-4 my-4">
+        <div class="flex gap-3">
+          @for (digit of codeArray; track $index) {
+            <input
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              class="w-12 h-12 text-lg font-bold rounded-xl text-center shadow-sm border border-gray-300 focus:outline-none focus:border-primary"
+              [formControl]="digit"
+              (input)="onDigitInput($index, $event)"
+            />
+          }
+        </div>
+
+        <button
+          type="button"
+          class="text-xs font-bold uppercase transition-colors flex flex-col items-center"
+          [ngClass]="{
+            'text-primary hover:opacity-80': canResend,
+            'text-gray-400 cursor-not-allowed': !canResend
+          }"
+          [disabled]="!canResend"
+          (click)="resend()"
+        >
+          <span class="whitespace-nowrap">{{ 'profile.emailChange.resendCode' | translate }}</span>
+          @if (resendCountdown() > 0) {
+            <span class="text-xs font-bold text-gray-500">({{ formattedCountdown }})</span>
+          }
+        </button>
+      </div>
+
+      @if (showError()) {
+        <p class="text-xs text-red-500 text-center mt-2">{{ getError() }}</p>
+      }
+
+      @if (resentMessage()) {
+        <p class="text-xs text-green-600 font-semibold text-center mt-2">
+          {{ resentMessage() }}
+        </p>
+      }
+    </div>
+  </form>
+
+  @if (serverDownError()) {
+    <div class="text-red-600 text-sm text-center pt-1">{{ 'validation.serverDown' | translate }}</div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="gap-2">
+  <button
+    mat-button
+    (click)="close()"
+    [disabled]="isSubmitting()"
+    class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+  >
+    {{ 'profile.verification.cancel' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="submit()"
+    class="px-4 py-2 rounded-lg transition-all"
+    [disabled]="form.invalid || isSubmitting()"
+  >
+    {{ 'profile.emailChange.confirm' | translate }}
+  </button>
+</mat-dialog-actions>

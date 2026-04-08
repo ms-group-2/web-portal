@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { NgClass } from '@angular/common';
+import { NgClass, NgStyle } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs/operators';
 
@@ -32,11 +32,13 @@ import { TranslationService } from 'lib/services/translation.service';
 import { ProfileSettingsSkeletonComponent } from '../../components/skeletons/profile-settings-skeleton';
 import { VerificationService } from 'lib/services/verification/verification.service';
 import { VerificationDialogService } from 'lib/components/verification-dialog/verification-dialog.service';
+import { ChangeEmailDialogService } from 'lib/components/change-email-dialog/change-email-dialog.service';
 
 @Component({
   selector: 'app-profile-settings',
   imports: [
     NgClass,
+    NgStyle,
     RouterModule,
     MatIconModule,
     MatDatepickerModule,
@@ -67,6 +69,7 @@ export class ProfileSettingsComponent implements OnInit {
   private translationService = inject(TranslationService);
   private verificationService = inject(VerificationService);
   private verificationDialog = inject(VerificationDialogService);
+  private changeEmailDialog = inject(ChangeEmailDialogService);
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
   private isBrowser = isPlatformBrowser(this.platformId);
@@ -74,6 +77,7 @@ export class ProfileSettingsComponent implements OnInit {
   isEditing = signal(false);
   isLoading = signal(false);
   isAvatarActionLoading = signal(false);
+  isEmailChangeLoading = signal(false);
   avatarUrl = signal<string | null>(null);
   dateParseError = signal(false);
   originalFormValue: ReturnType<typeof this.form.getRawValue> | null = null;
@@ -109,7 +113,7 @@ export class ProfileSettingsComponent implements OnInit {
   form = this.fb.group({
     firstName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50), emptySpaceValidator()]),
     lastName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50), emptySpaceValidator()]),
-    email: this.fb.control(''),
+    email: this.fb.control('', [Validators.required, Validators.email]),
     countryCode: this.fb.control('+995'),
     phoneNumber: this.fb.control('', [phoneNationalValidator()]),
     location: this.fb.control('', [Validators.maxLength(50)]),
@@ -148,6 +152,14 @@ export class ProfileSettingsComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.form.controls.email.valueChanges.subscribe(() => {
+      const errors = this.form.controls.email.errors;
+      if (errors?.['alreadyRegistered']) {
+        const { alreadyRegistered, ...rest } = errors;
+        this.form.controls.email.setErrors(Object.keys(rest).length ? rest : null);
+      }
+    });
+
     const userId = this.profileId();
     if (userId) {
       this.loadProfile(userId);
@@ -245,8 +257,14 @@ export class ProfileSettingsComponent implements OnInit {
 
   private hasFormChanged(): boolean {
     if (!this.originalFormValue) return true;
-    const current = this.form.getRawValue();
-    return JSON.stringify(current) !== JSON.stringify(this.originalFormValue);
+    const current = this.getComparableFormValues(this.form.getRawValue());
+    const original = this.getComparableFormValues(this.originalFormValue);
+    return JSON.stringify(current) !== JSON.stringify(original);
+  }
+
+  private getComparableFormValues(values: ReturnType<typeof this.form.getRawValue>) {
+    const { email, ...rest } = values;
+    return rest;
   }
 
   save() {
@@ -415,6 +433,68 @@ export class ProfileSettingsComponent implements OnInit {
 
   onTextInput(event: Event, controlName: 'firstName' | 'lastName'): void {
     sanitizeTextInput(event, this.form.controls[controlName]);
+  }
+
+  hasPendingEmailChange(): boolean {
+    const currentEmail = (this.auth.user()?.email ?? '').trim().toLowerCase();
+    const editedEmail = this.form.controls.email.value.trim().toLowerCase();
+    return !!editedEmail && editedEmail !== currentEmail;
+  }
+
+  requestEmailChange(): void {
+    const emailControl = this.form.controls.email;
+    const newEmail = emailControl.value.trim();
+    const currentEmail = (this.auth.user()?.email ?? '').trim();
+
+    if (emailControl.invalid) {
+      emailControl.markAsTouched();
+      return;
+    }
+
+    if (!newEmail || newEmail.toLowerCase() === currentEmail.toLowerCase()) {
+      return;
+    }
+
+    this.isEmailChangeLoading.set(true);
+    this.auth.requestChangeEmail(newEmail).subscribe({
+      next: () => {
+        this.isEmailChangeLoading.set(false);
+        this.changeEmailDialog.open({ newEmail }).subscribe(result => {
+          if (!result) return;
+
+          this.form.controls.email.setValue(result.email);
+          this.auth.loadMe().subscribe({
+            next: () => {
+              this.form.controls.email.setValue(this.auth.user()?.email ?? result.email);
+            },
+            error: () => {
+              // Keep optimistic value even if re-fetch fails.
+            },
+          });
+
+          if (this.originalFormValue) {
+            this.originalFormValue = {
+              ...this.originalFormValue,
+              email: result.email,
+            };
+          }
+          this.snackbar.success(this.translationService.translate('profile.emailChange.success'));
+        });
+      },
+      error: (err) => {
+        this.isEmailChangeLoading.set(false);
+        if (err?.status === 409) {
+          emailControl.setErrors({ alreadyRegistered: true });
+          emailControl.markAsTouched();
+          return;
+        }
+        if (err?.status === 429) {
+          this.snackbar.error(this.translationService.translate('validation.rateLimitExceeded'));
+          return;
+        }
+        this.snackbar.error(SNACKBAR_MESSAGES.ERROR_GENERIC);
+      },
+    });
   }
 
   changePassword(): void {
