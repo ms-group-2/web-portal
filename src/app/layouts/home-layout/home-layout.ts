@@ -5,7 +5,6 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-home-layout',
   imports: [RouterOutlet],
   templateUrl: './home-layout.html',
-  styleUrl: './home-layout.scss',
 })
 export class HomeLayout {
 
