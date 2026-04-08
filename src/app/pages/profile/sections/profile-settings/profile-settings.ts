@@ -73,9 +73,8 @@ export class ProfileSettingsComponent implements OnInit {
 
   isEditing = signal(false);
   isLoading = signal(false);
+  isAvatarActionLoading = signal(false);
   avatarUrl = signal<string | null>(null);
-  selectedAvatarFile = signal<File | null>(null);
-  deleteAvatar = signal(false);
   dateParseError = signal(false);
   originalFormValue: ReturnType<typeof this.form.getRawValue> | null = null;
 
@@ -91,7 +90,7 @@ export class ProfileSettingsComponent implements OnInit {
   birthDateFilter = (date: Date | null): boolean => {
     if (!date) return true;
     const minDate = new Date(1926, 0, 1);
-    const maxDate = new Date(2015, 11, 31);
+    const maxDate = new Date(2009, 11, 31);
     return date >= minDate && date <= maxDate;
   };
 
@@ -232,8 +231,6 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   cancelEdit() {
-    this.clearAvatarState();
-
     if (this.originalFormValue) {
       this.form.patchValue(this.originalFormValue);
     }
@@ -244,11 +241,6 @@ export class ProfileSettingsComponent implements OnInit {
     }
 
     this.isEditing.set(false);
-  }
-
-  private clearAvatarState() {
-    this.selectedAvatarFile.set(null);
-    this.deleteAvatar.set(false);
   }
 
   private hasFormChanged(): boolean {
@@ -307,7 +299,6 @@ export class ProfileSettingsComponent implements OnInit {
         }
 
         this.patchFormWithProfile(profile);
-        this.clearAvatarState();
         this.isEditing.set(false);
         this.snackbar.success(SNACKBAR_MESSAGES.SAVE_SUCCESS);
       },
@@ -319,7 +310,7 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   private getErrorMessageFromResponse(err: any): string {
-    if ((err?.status === 413 || err?.status === 0) && this.selectedAvatarFile()) {
+    if (err?.status === 413 || err?.status === 0) {
       return this.translationService.translate('profile.errors.avatarTooLarge');
     }
 
@@ -381,14 +372,45 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   onAvatarFileSelected(file: File): void {
-    this.selectedAvatarFile.set(file);
-    this.deleteAvatar.set(false);
+    const userId = this.profileId();
+    if (!userId) {
+      this.snackbar.error(this.translationService.translate('profile.errors.notAuthenticated'));
+      return;
+    }
+
+    this.isAvatarActionLoading.set(true);
+    this.profileApi.uploadAvatar(file).subscribe({
+      next: (profile) => {
+        this.isAvatarActionLoading.set(false);
+        this.patchFormWithProfile(profile);
+        this.snackbar.success(SNACKBAR_MESSAGES.SAVE_SUCCESS);
+      },
+      error: (err) => {
+        this.isAvatarActionLoading.set(false);
+        this.snackbar.error(this.getErrorMessageFromResponse(err));
+      },
+    });
   }
 
   onAvatarDeleteRequested(): void {
-    this.deleteAvatar.set(true);
-    this.selectedAvatarFile.set(null);
-    this.avatarUrl.set(null);
+    const userId = this.profileId();
+    if (!userId) {
+      this.snackbar.error(this.translationService.translate('profile.errors.notAuthenticated'));
+      return;
+    }
+
+    this.isAvatarActionLoading.set(true);
+    this.profileApi.deleteAvatar().subscribe({
+      next: (profile) => {
+        this.isAvatarActionLoading.set(false);
+        this.patchFormWithProfile(profile);
+        this.snackbar.success(SNACKBAR_MESSAGES.SAVE_SUCCESS);
+      },
+      error: (err) => {
+        this.isAvatarActionLoading.set(false);
+        this.snackbar.error(this.getErrorMessageFromResponse(err));
+      },
+    });
   }
 
   onTextInput(event: Event, controlName: 'firstName' | 'lastName'): void {

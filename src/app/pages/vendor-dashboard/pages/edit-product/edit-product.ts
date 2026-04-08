@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef,
 import { Router, ActivatedRoute } from '@angular/router';
 import { NonNullableFormBuilder, FormArray, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of, switchMap } from 'rxjs';
+import { catchError, of, switchMap, throwError } from 'rxjs';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
@@ -547,8 +547,35 @@ export class EditProduct implements OnInit {
           .pipe(
             switchMap((response: ProductTaskResponse) => {
               const taskId = this.extractTaskId(response);
-              return taskId ? submitWithTask(taskId) : of(response);
-            })
+              if (!taskId) return of(response);
+              return this.vendorService
+                .updateDraft(profile.supplier_id, taskId, productData)
+                .pipe(switchMap(() => submitWithTask(taskId)));
+            }),
+            catchError((error: any) => {
+              const isDraftAlreadyExists = error?.status === 409 && error?.error?.error_code === 'DRAFT_ALREADY_EXISTS';
+              if (!isDraftAlreadyExists) {
+                return throwError(() => error);
+              }
+
+              return this.vendorService.getMyProducts(profile.supplier_id).pipe(
+                switchMap((products) => {
+                  const existingDraft = products.find((item: any) => {
+                    if (!item?.isDraft) return false;
+                    return String(item?.product_id ?? '') === String(productId);
+                  });
+
+                  const existingTaskId = this.extractTaskId(existingDraft);
+                  if (!existingTaskId) {
+                    return throwError(() => error);
+                  }
+
+                  return this.vendorService
+                    .updateDraft(profile.supplier_id, existingTaskId, productData)
+                    .pipe(switchMap(() => submitWithTask(existingTaskId)));
+                })
+              );
+            }),
           );
 
     request$

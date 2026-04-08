@@ -2,13 +2,31 @@
   display: inline-block;
 }
 
-// .avatar-container {
-  // transition: transform 0.3s ease;
+.avatar-loading-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  background: rgba(17, 24, 39, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}
 
-  // &:not(.cursor-pointer):hover {
-  //   transform: scale(1.50);
-  // }
-// }
+.avatar-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 9999px;
+  animation: avatar-spin 0.8s linear infinite;
+}
+
+@keyframes avatar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 ::ng-deep mat-spinner {
   circle {

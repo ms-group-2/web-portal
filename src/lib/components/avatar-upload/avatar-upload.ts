@@ -12,6 +12,14 @@ import { ConfirmationDialogService } from '../confirmation-dialog/confirmation-d
 })
 export class AvatarUploadComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  private readonly allowedMimeTypes = new Set([
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+  ]);
+  private readonly allowedExtensions = new Set(['jpg', 'jpeg', 'png', 'webp', 'heic']);
 
   private snackbar = inject(SnackbarService);
   private confirmDialog = inject(ConfirmationDialogService);
@@ -19,6 +27,7 @@ export class AvatarUploadComponent {
   avatarUrl = input<string | null>(null);
   size = input<'sm' | 'md' | 'lg'>('md');
   editable = input<boolean>(true);
+  loading = input<boolean>(false);
 
   fileSelected = output<File>();
   deleteRequested = output<void>();
@@ -48,7 +57,7 @@ export class AvatarUploadComponent {
   });
 
   openFileDialog() {
-    if (!this.editable()) return;
+    if (!this.editable() || this.loading()) return;
     this.fileInput.nativeElement.click();
   }
 
@@ -58,8 +67,8 @@ export class AvatarUploadComponent {
 
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      this.snackbar.error('გთხოვთ აირჩიოთ სურათის ფაილი');
+    if (!this.isAllowedAvatarType(file)) {
+      this.snackbar.error('დაშვებულია მხოლოდ JPG, JPEG, PNG, WEBP ან HEIC ფორმატი');
       return;
     }
 
@@ -81,11 +90,20 @@ export class AvatarUploadComponent {
     }
   }
 
+  private isAllowedAvatarType(file: File): boolean {
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+    const mimeType = file.type.toLowerCase();
+
+    return this.allowedMimeTypes.has(mimeType) || this.allowedExtensions.has(extension);
+  }
+
   clearPreview() {
     this.previewUrl.set(null);
   }
 
   requestDelete() {
+    if (this.loading()) return;
+
     this.confirmDialog.confirm({
       title: 'ავატარის წაშლა',
       message: 'ნამდვილად გსურთ ავატარის წაშლა?',

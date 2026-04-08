@@ -270,12 +270,12 @@ header.bg-white.shop-header {
 // Swap 
 header.bg-white.swap-header {
   .active-nav-link {
-    background-color: rgba(243, 181, 130, 0.2);
+    background-color: rgba(151, 73, 130, 0.2);
     color: var(--color-swap) !important;
   }
 
   .nav-link {
-    color: rgba(243, 181, 130, 0.8);
+    color: rgba(151, 73, 130, 0.8);
     
     &:hover {
       color: var(--color-swap);
@@ -291,7 +291,7 @@ header.bg-white.swap-header {
   }
 
   .register-btn {
-    border-color: rgba(243, 181, 130, 0.5);
+    border-color: rgba(151, 73, 130, 0.5);
     color: var(--color-swap);
 
     &:hover {

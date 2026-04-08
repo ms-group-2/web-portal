@@ -1,32 +1,48 @@
 <footer class="text-white transition-all duration-300" [style.background]="footerGradient()">
-  <div class="max-w-7xl mx-auto px-6 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <div class="col-span-1 md:col-span-2">
+  <div class="2xl:px-32 gap-x-2 gap-y-2 items-center lg:px-20 md:px-12 md:py-8 px-4 py-8 sm:px-6 ">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div>
         <img
           src="assets/logo/logo-white.svg"
           alt="Vipo Logo"
           class="w-32 h-10 mb-4"
         />
-        <p class="text-white/80 text-sm leading-relaxed max-w-md font-bold">
+        <p class="text-white/80 text-sm leading-relaxed max-w-md">
           {{ 'footer.tagline' | translate }}
         </p>
+        <ul class="mt-4 space-y-2 text-sm text-white/80">
+          @for (point of valuePoints; track point.textKey) {
+            <li class="flex items-start gap-2">
+              <mat-icon class="text-base mt-0.5">{{ point.icon }}</mat-icon>
+              <span>{{ point.textKey | translate }}</span>
+            </li>
+          }
+        </ul>
       </div>
 
       <div>
         <h3 class="font-bold text-base uppercase tracking-wider mb-4">{{ 'footer.quickLinks' | translate }}</h3>
         <ul class="space-y-2 text-sm font-bold">
-          <li>
-            <a routerLink="/" class="text-white/80 hover:text-white transition">{{ 'footer.home' | translate }}</a>
-          </li>
-          <li>
-            <a routerLink="/about" class="text-white/80 hover:text-white transition">{{ 'footer.about' | translate }}</a>
-          </li>
-          <li>
-            <a routerLink="/services" class="text-white/80 hover:text-white transition">{{ 'footer.services' | translate }}</a>
-          </li>
-          <li>
-            <a routerLink="/contact" class="text-white/80 hover:text-white transition">{{ 'footer.contact' | translate }}</a>
-          </li>
+          @for (link of quickLinks; track link.path) {
+            <li>
+              <a [routerLink]="link.path" class="text-white/80 hover:text-white transition">
+                {{ link.textKey | translate }}
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-bold text-base uppercase tracking-wider mb-4">{{ 'footer.platform' | translate }}</h3>
+        <ul class="space-y-2 text-sm">
+          @for (link of platformLinks; track link.path) {
+            <li>
+              <a [routerLink]="link.path" class="text-white/80 hover:text-white transition">
+                {{ link.textKey | translate }}
+              </a>
+            </li>
+          }
         </ul>
       </div>
 
@@ -35,11 +51,11 @@
         <ul class="space-y-2 text-sm text-white/80">
           <li class="flex items-center gap-2">
             <mat-icon class="text-base">email</mat-icon>
-            <span>info@vipo.ge</span>
+            <a href="mailto:vipo.support@gmail.com" class="hover:text-white transition">vipo.support@gmail.com</a>
           </li>
           <li class="flex items-center gap-2">
-            <mat-icon class="text-base">phone</mat-icon>
-            <span>XXX XX XX XX</span>
+            <mat-icon class="text-base">schedule</mat-icon>
+            <span>{{ 'footer.responseTime' | translate }}</span>
           </li>
           <li class="flex items-center gap-2">
             <mat-icon class="text-base">location_on</mat-icon>
@@ -49,21 +65,23 @@
       </div>
     </div>
 
-    <div class="border-t border-white/20 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="border-t border-white/20 mt-8 pt-6 flex flex-col lg:flex-row items-center justify-between gap-4">
       <p class="text-sm text-white/70">
         © {{ currentYear }} Vipo. {{ 'footer.allRightsReserved' | translate }}.
       </p>
 
+      <div class="flex items-center gap-4 text-sm">
+        <a routerLink="/privacy" class="text-white/70 hover:text-white transition">{{ 'footer.privacy' | translate }}</a>
+        <span class="text-white/30">|</span>
+        <a routerLink="/terms" class="text-white/70 hover:text-white transition">{{ 'footer.terms' | translate }}</a>
+      </div>
+
       <div class="flex items-center gap-4">
-        <a href="#" class="text-white/70 hover:text-white transition" aria-label="Facebook">
-          <i class="ph ph-facebook-logo text-2xl"></i>
-        </a>
-        <a href="#" class="text-white/70 hover:text-white transition" aria-label="Instagram">
-          <i class="ph ph-instagram-logo text-2xl"></i>
-        </a>
-        <a href="#" class="text-white/70 hover:text-white transition" aria-label="LinkedIn">
-          <i class="ph ph-linkedin-logo text-2xl"></i>
-        </a>
+        @for (social of socialLinks; track social.ariaLabel) {
+          <a [href]="social.href" class="text-white/70 hover:text-white transition" [attr.aria-label]="social.ariaLabel">
+            <i [class]="social.iconClass"></i>
+          </a>
+        }
       </div>
     </div>
   </div>

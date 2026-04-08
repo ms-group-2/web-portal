@@ -18,13 +18,24 @@
     "searchPlaceholder": "Search..."
   },
   "footer": {
-    "tagline": "Vipo - Your Trusted Partner in the Digital World",
+    "tagline": "Vipo connects people and businesses through trusted swap, marketplace, and booking experiences.",
     "quickLinks": "Quick Links",
+    "platform": "Platform",
     "home": "Home",
     "about": "About Us",
     "services": "Services",
     "contact": "Contact",
-    "contactInfo": "Contact",
+    "swapHub": "Swap Hub",
+    "marketplace": "Marketplace",
+    "bookingServices": "Booking Services",
+    "vendorTools": "Vendor Tools",
+    "contactInfo": "Get in Touch",
+    "responseTime": "Support replies within 1 business day",
+    "trustSafety": "Safer exchanges with community-first standards",
+    "fastMatching": "Fast matching for offers, needs, and services",
+    "localCommunity": "Built for local communities and small businesses",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
     "location": "Tbilisi, Georgia",
     "allRightsReserved": "All Rights Reserved"
   }

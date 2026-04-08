@@ -23,7 +23,8 @@
       <app-avatar-upload
         [avatarUrl]="avatarUrl()"
         size="md"
-        [editable]="false"
+        [editable]="!isAvatarActionLoading()"
+        [loading]="isAvatarActionLoading()"
         (fileSelected)="onAvatarFileSelected($event)"
         (deleteRequested)="onAvatarDeleteRequested()"
       />

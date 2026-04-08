@@ -205,7 +205,7 @@ export class VendorService {
     // not `field_options`, and does not accept all product fields.
     const payload: Record<string, unknown> = {};
 
-    const addInteger = (key: 'category_id' | 'brand_id', value: unknown, min?: number) => {
+    const addInteger = (key: 'category_id' | 'brand_id' | 'quantity', value: unknown, min?: number) => {
       const parsed = typeof value === 'number' ? value : Number(value);
       if (Number.isInteger(parsed) && (min === undefined || parsed >= min)) {
         payload[key] = parsed;
@@ -219,19 +219,21 @@ export class VendorService {
       }
     };
 
-    const addString = (key: 'title' | 'description', value: unknown) => {
+    const addString = (key: 'title' | 'description' | 'sku', value: unknown) => {
       if (typeof value === 'string') {
         const trimmed = value.trim();
         if (trimmed) {
-          payload[key] = trimmed;
+          payload[key] = key === 'sku' ? trimmed.toUpperCase() : trimmed;
         }
       }
     };
 
     addInteger('category_id', updates.category_id, 1);
     addInteger('brand_id', updates.brand_id, 0);
+    addInteger('quantity', updates.quantity, 0);
     addString('title', updates.title);
     addString('description', updates.description);
+    addString('sku', updates.sku);
     addNumber('price', updates.price, 1);
 
     const specifications =

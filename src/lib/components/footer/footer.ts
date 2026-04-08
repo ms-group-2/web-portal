@@ -13,6 +13,32 @@ import { filter } from 'rxjs/operators';
 export class Footer {
   private router = inject(Router);
 
+  readonly valuePoints = [
+    { icon: 'verified', textKey: 'footer.trustSafety' },
+    { icon: 'bolt', textKey: 'footer.fastMatching' },
+    { icon: 'groups', textKey: 'footer.localCommunity' },
+  ];
+
+  readonly quickLinks = [
+    { path: '/', textKey: 'footer.home' },
+    { path: '/about', textKey: 'footer.about' },
+    { path: '/services', textKey: 'footer.services' },
+    { path: '/contact', textKey: 'footer.contact' },
+  ];
+
+  readonly platformLinks = [
+    { path: '/swap', textKey: 'footer.swapHub' },
+    { path: '/shop', textKey: 'footer.marketplace' },
+    { path: '/booking', textKey: 'footer.bookingServices' },
+    { path: '/business/register', textKey: 'footer.vendorTools' },
+  ];
+
+  readonly socialLinks = [
+    { ariaLabel: 'Facebook', iconClass: 'ph ph-facebook-logo text-2xl', href: '#' },
+    { ariaLabel: 'Instagram', iconClass: 'ph ph-instagram-logo text-2xl', href: '#' },
+    { ariaLabel: 'LinkedIn', iconClass: 'ph ph-linkedin-logo text-2xl', href: '#' },
+  ];
+
   currentYear = new Date().getFullYear();
   currentRoute = signal('');
 

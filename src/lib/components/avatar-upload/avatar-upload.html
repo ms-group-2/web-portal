@@ -1,7 +1,7 @@
-<div class="relative group">
+<div class="relative group" [class.is-loading]="loading()">
   <div
     [class]="'bg-primary rounded-2xl flex items-center justify-center border-2 border-gray-300 overflow-hidden avatar-container ' + sizeClasses().container"
-    [class.cursor-pointer]="editable()"
+    [class.cursor-pointer]="editable() && !loading()"
     (click)="openFileDialog()"
   >
     @if (displayUrl()) {
@@ -15,7 +15,7 @@
     }
   </div>
 
-  @if (editable()) {
+  @if (editable() && !loading()) {
     <button
       type="button"
       (click)="openFileDialog()"
@@ -25,7 +25,7 @@
     </button>
   }
 
-  @if (editable() && displayUrl()) {
+  @if (editable() && displayUrl() && !loading()) {
     <button
       type="button"
       (click)="requestDelete()"
@@ -35,10 +35,16 @@
     </button>
   }
 
+  @if (loading()) {
+    <div class="avatar-loading-overlay" aria-live="polite" aria-busy="true">
+      <span class="avatar-spinner" aria-hidden="true"></span>
+    </div>
+  }
+
   <input
     #fileInput
     type="file"
-    accept="image/*"
+    accept=".jpg,.jpeg,.png,.webp,.heic,image/jpeg,image/jpg,image/png,image/webp,image/heic"
     class="hidden"
     (change)="onFileSelected($event)"
   />

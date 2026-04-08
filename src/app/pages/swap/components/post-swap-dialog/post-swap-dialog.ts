@@ -11,7 +11,7 @@ import { SwapFormData } from '../../swap.models';
 @Component({
   selector: 'app-post-swap-dialog',
   imports: [
-    CommonModule,
+    // CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
