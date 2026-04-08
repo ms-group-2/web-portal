@@ -33,6 +33,7 @@ import { ProfileSettingsSkeletonComponent } from '../../components/skeletons/pro
 import { VerificationService } from 'lib/services/verification/verification.service';
 import { VerificationDialogService } from 'lib/components/verification-dialog/verification-dialog.service';
 import { ChangeEmailDialogService } from 'lib/components/change-email-dialog/change-email-dialog.service';
+import { strictEmailValidator } from 'lib/validators/strict-email.validator';
 
 @Component({
   selector: 'app-profile-settings',
@@ -113,7 +114,10 @@ export class ProfileSettingsComponent implements OnInit {
   form = this.fb.group({
     firstName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50), emptySpaceValidator()]),
     lastName: this.fb.control('', [Validators.required, Validators.minLength(2), Validators.maxLength(50), emptySpaceValidator()]),
-    email: this.fb.control('', [Validators.required, Validators.email]),
+    email: this.fb.control('', {
+      validators: [Validators.required, Validators.maxLength(255), strictEmailValidator(), emptySpaceValidator()],
+      updateOn: 'blur'
+    }),
     countryCode: this.fb.control('+995'),
     phoneNumber: this.fb.control('', [phoneNationalValidator()]),
     location: this.fb.control('', [Validators.maxLength(50)]),
@@ -376,6 +380,18 @@ export class ProfileSettingsComponent implements OnInit {
     }
 
     return '';
+  }
+
+  getEmailErrorMessage(): string {
+    const control = this.form.controls.email;
+    const errors = control.errors as Record<string, any> | null;
+    if (!errors) return '';
+
+    const key = Object.keys(errors)[0];
+    if (key === 'maxlength' && errors['maxlength']?.requiredLength) {
+      return this.translationService.translate('validation.maxlength', { n: errors['maxlength'].requiredLength });
+    }
+    return this.translationService.translate(`validation.${key}`);
   }
 
   onPhoneInput(event: Event): void {

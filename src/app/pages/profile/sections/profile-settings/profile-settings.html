@@ -178,7 +178,7 @@
             </p>
           } @else if (form.controls.email.invalid && form.controls.email.touched) {
             <p class="text-red-400 text-xs mt-1 font-normal">
-              {{ form.controls.email.errors?.['required'] ? ('validation.required' | translate) : ('validation.email' | translate) }}
+              {{ getEmailErrorMessage() }}
             </p>
           }
         } @else {
