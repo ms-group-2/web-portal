@@ -33,12 +33,6 @@ export class ProductFiltersComponent {
 
   setSortBy(value: string) {
     this.shopService.shopSortBy.set(value);
-
-    // Reset price range when switching back to "popular" (default/standard sort)
-    if (value === 'popular') {
-      this.shopService.shopMinPrice.set(0);
-      this.shopService.shopMaxPrice.set(this.shopService.dynamicMaxPrice());
-    }
   }
 
   onMinPriceChange(event: Event) {

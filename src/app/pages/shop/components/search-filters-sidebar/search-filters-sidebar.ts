@@ -5,6 +5,7 @@ import { NgClass } from '@angular/common';
 import { MatSlider, MatSliderRangeThumb } from '@angular/material/slider';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
@@ -16,14 +17,15 @@ import { forkJoin } from 'rxjs';
 })
 export class SearchFiltersSidebarComponent implements OnInit {
   private shopService = inject(ShopService);
+  private searchService = inject(ShopSearchService);
   private destroyRef = inject(DestroyRef);
 
   filtersLoading = signal(true);
 
-  filterGroups = computed(() => this.shopService.searchFilterGroups());
-  brands = computed(() => this.shopService.searchBrands());
-  selectedSearchFilters = computed(() => this.shopService.selectedSearchFilters());
-  selectedBrandIds = computed(() => this.shopService.selectedBrandIds());
+  filterGroups = computed(() => this.searchService.searchFilterGroups());
+  brands = computed(() => this.searchService.searchBrands());
+  selectedSearchFilters = computed(() => this.searchService.selectedSearchFilters());
+  selectedBrandIds = computed(() => this.searchService.selectedBrandIds());
 
   sortBy = this.shopService.shopSortBy;
   minPrice = this.shopService.shopMinPrice;
@@ -47,7 +49,7 @@ export class SearchFiltersSidebarComponent implements OnInit {
     // Update max price when dynamic max changes
     effect(() => {
       const newMax = this.dynamicMaxPrice();
-      if (this.maxPrice() > newMax || this.maxPrice() === 10000) {
+      if (this.maxPrice() > newMax) {
         this.maxPrice.set(newMax);
       }
     });
@@ -58,7 +60,7 @@ export class SearchFiltersSidebarComponent implements OnInit {
       const categoryId = this.shopService.selectedCategoryId();
       if (categoryId != null) return; // Only run on search page
 
-      const derived = this.shopService.searchDerivedCategoryId();
+      const derived = this.searchService.searchDerivedCategoryId();
       if (derived == null) {
         this.filtersLoading.set(false);
         return;
@@ -75,13 +77,13 @@ export class SearchFiltersSidebarComponent implements OnInit {
 
     // Re-fetch sidebar options when active filters change so counts stay accurate.
     effect(() => {
-      const categoryId = this.shopService.selectedCategoryId() ?? this.shopService.searchDerivedCategoryId();
+      const categoryId = this.shopService.selectedCategoryId() ?? this.searchService.searchDerivedCategoryId();
       if (categoryId == null) return;
 
       this.shopService.shopMinPrice();
       this.shopService.shopMaxPrice();
-      this.shopService.selectedBrandIds();
-      this.shopService.selectedSearchFilters();
+      this.searchService.selectedBrandIds();
+      this.searchService.selectedSearchFilters();
 
       this.loadForCategory(categoryId);
     });
@@ -90,7 +92,7 @@ export class SearchFiltersSidebarComponent implements OnInit {
   ngOnInit(): void {
     // Load filter groups once when the sidebar mounts.
     this.filtersLoading.set(true);
-    this.shopService.setSearchFilterGroups([]);
+    this.searchService.setSearchFilterGroups([]);
 
     const categoryId = this.shopService.selectedCategoryId();
 
@@ -103,7 +105,7 @@ export class SearchFiltersSidebarComponent implements OnInit {
   private loadForCategory(id: number): void {
     this.filtersLoading.set(true);
     const additionalParams: Record<string, string | number | boolean> = {
-      ...this.shopService.getSelectedFilterQueryParams(),
+      ...this.searchService.getSelectedFilterQueryParams(),
       in_stock: true,
     };
     if (this.minPrice() > 0) additionalParams['min_price'] = this.minPrice();
@@ -114,13 +116,13 @@ export class SearchFiltersSidebarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: payload => {
-          this.shopService.setSearchFilterGroups(payload.filters);
-          this.shopService.setSearchBrands(payload.brands);
+          this.searchService.setSearchFilterGroups(payload.filters);
+          this.searchService.setSearchBrands(payload.brands);
           this.filtersLoading.set(false);
         },
         error: () => {
-          this.shopService.setSearchFilterGroups([]);
-          this.shopService.setSearchBrands([]);
+          this.searchService.setSearchFilterGroups([]);
+          this.searchService.setSearchBrands([]);
           this.filtersLoading.set(false);
         },
       });
@@ -158,7 +160,7 @@ export class SearchFiltersSidebarComponent implements OnInit {
   }
 
   clearAll(): void {
-    this.shopService.clearSearchFilters();
+    this.searchService.clearSearchFilters();
     this.expandedFields.set(new Set());
     // Reset to dynamic max price
     this.maxPrice.set(this.dynamicMaxPrice());
@@ -175,12 +177,6 @@ export class SearchFiltersSidebarComponent implements OnInit {
 
   setSortBy(value: string): void {
     this.sortBy.set(value);
-
-    // Reset price range when switching back to "popular" (default/standard sort)
-    if (value === 'popular') {
-      this.shopService.shopMinPrice.set(0);
-      this.shopService.shopMaxPrice.set(this.dynamicMaxPrice());
-    }
   }
 
   onMinPriceChange(event: Event): void {
@@ -189,7 +185,7 @@ export class SearchFiltersSidebarComponent implements OnInit {
   }
 
   onMaxPriceChange(event: Event): void {
-    const next = +(event.target as HTMLInputElement).value || 10000;
+    const next = +(event.target as HTMLInputElement).value || this.dynamicMaxPrice();
     this.maxPrice.set(next);
   }
 
@@ -207,19 +203,19 @@ export class SearchFiltersSidebarComponent implements OnInit {
   }
 
   isFilterOptionSelected(fieldId: number, optionId: number): boolean {
-    return this.shopService.isSearchFilterOptionSelected(fieldId, optionId);
+    return this.searchService.isSearchFilterOptionSelected(fieldId, optionId);
   }
 
   toggleFilterOption(fieldId: number, optionId: number): void {
-    this.shopService.toggleSearchFilterOption(fieldId, optionId);
+    this.searchService.toggleSearchFilterOption(fieldId, optionId);
   }
 
   isBrandSelected(brandId: number): boolean {
-    return this.shopService.isBrandSelected(brandId);
+    return this.searchService.isBrandSelected(brandId);
   }
 
   toggleBrand(brandId: number): void {
-    this.shopService.toggleBrandSelection(brandId);
+    this.searchService.toggleBrandSelection(brandId);
   }
 
   maxPriceForSlider(): number {
@@ -227,8 +223,8 @@ export class SearchFiltersSidebarComponent implements OnInit {
   }
 
   relevantCategoryChips = computed(() => {
-    const products = this.shopService.searchSidebarProducts();
-    const derived = this.shopService.searchDerivedCategoryId();
+    const products = this.searchService.searchSidebarProducts();
+    const derived = this.searchService.searchDerivedCategoryId();
 
     if (!products?.length) {
       if (derived == null) return [];

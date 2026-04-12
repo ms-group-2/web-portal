@@ -1,4 +1,12 @@
 {
+  "errors": {
+    "generic": "An error occurred, please try again",
+    "networkError": "Could not connect to server",
+    "saveSuccess": "Changes saved successfully",
+    "logoutSuccess": "Successfully logged out",
+    "loginSuccess": "Successfully logged in",
+    "registerSuccess": "Registration completed successfully"
+  },
   "header": {
     "register": "Register",
     "signIn": "Sign In",

@@ -110,7 +110,7 @@
     "placeholders": {
       "title": "შეიყვანეთ პროდუქტის დასახელება",
       "description": "შეიყვანეთ პროდუქტის აღწერა",
-      "sku": "მაგ., WH-PRO-001",
+      "sku": "მაგ., 1234",
       "imageUrl": "https://example.com/image.jpg",
       "optionId": "შეიყვანეთ ოფციის ID",
       "categoryId": "შეიყვანეთ კატეგორიის ID",

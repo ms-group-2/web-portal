@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, OnInit, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { TranslationService } from 'lib/services/translation.service';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
@@ -28,6 +29,7 @@ import { TrustSectionComponent } from './components/trust-section/trust-section'
 })
 export class Shop implements OnInit {
   private shopService = inject(ShopService);
+  private searchService = inject(ShopSearchService);
   private translation = inject(TranslationService);
   private destroyRef = inject(DestroyRef);
 
@@ -38,9 +40,8 @@ export class Shop implements OnInit {
 
     this.shopService.clearProductCaches();
 
-    // when returning to default shop, clearing any active search state
-    this.shopService.setSearchQuery('');
-    this.shopService.clearSearchFilters();
+    this.searchService.setSearchQuery('');
+    this.searchService.clearSearchFilters();
     this.shopService.selectCategory(null);
 
     this.shopService.getMainCategories()

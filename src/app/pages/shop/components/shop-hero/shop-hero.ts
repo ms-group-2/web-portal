@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
-import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
@@ -13,7 +13,7 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShopHeroComponent {
-  private shopService = inject(ShopService);
+  private searchService = inject(ShopSearchService);
   private cartService = inject(ShopCartService);
   private destroyRef = inject(DestroyRef);
   private searchSubject = new Subject<string>();
@@ -26,7 +26,7 @@ export class ShopHeroComponent {
       debounceTime(400),
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe(query => this.shopService.setSearchQuery(query));
+    ).subscribe(query => this.searchService.setSearchQuery(query));
   }
 
   onSearch(event: Event) {

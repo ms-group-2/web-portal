@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, tap } from 'rxjs';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { TranslationService } from 'lib/services/translation.service';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
@@ -17,12 +18,14 @@ import { ProductGridComponent } from '../components/product-grid/product-grid';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShopSearch implements OnInit {
-  shopService = inject(ShopService);
+  private shopService = inject(ShopService);
+  private searchService = inject(ShopSearchService);
   private translation = inject(TranslationService);
   private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
 
-  searchQueryText = computed(() => this.shopService.searchQuery().trim());
+  searchQueryText = computed(() => this.searchService.searchQuery().trim());
+  searchResultsCount = this.searchService.searchResultsCount;
   isGeorgian = computed(() => this.translation.isGeorgian());
 
   ngOnInit() {
@@ -30,8 +33,8 @@ export class ShopSearch implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
         const query = params['q'] || '';
-        if (query !== this.shopService.searchQuery()) {
-          this.shopService.setSearchQuery(query);
+        if (query !== this.searchService.searchQuery()) {
+          this.searchService.setSearchQuery(query);
         }
       });
 

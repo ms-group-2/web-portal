@@ -16,7 +16,7 @@ import { SnackbarService } from 'lib/services/snackbar.service';
 import { ConfirmationDialogService } from '../confirmation-dialog/confirmation-dialog.service';
 import { TranslationService } from 'lib/services/translation.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
-import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
 import { Product } from 'src/app/pages/shop/shop.models';
@@ -33,7 +33,7 @@ export class Header implements OnDestroy {
   private router = inject(Router);
   private confirmDialog = inject(ConfirmationDialogService);
   translation = inject(TranslationService);
-  private shopService = inject(ShopService);
+  private searchService = inject(ShopSearchService);
   private cartService = inject(ShopCartService);
   private favoritesService = inject(ShopFavoritesService);
   private document = inject(DOCUMENT);
@@ -181,7 +181,7 @@ export class Header implements OnDestroy {
     this.searchQuery.set(value);
     if (this.isShopRoute()) {
       if (!value.trim()) {
-        this.shopService.setSearchQuery('');
+        this.searchService.setSearchQuery('');
       }
       this.searchSubject.next(value);
     }
@@ -191,7 +191,7 @@ export class Header implements OnDestroy {
     const query = this.searchQuery().trim();
     if (!query) return;
 
-    this.shopService.setSearchQuery(query);
+    this.searchService.setSearchQuery(query);
     this.showSearchDropdown.set(false);
 
     this.router.navigate(['/shop/search'], { queryParams: { q: query } });
@@ -201,7 +201,7 @@ export class Header implements OnDestroy {
     const query = this.searchQuery().trim();
     if (!query) return;
 
-    this.shopService.setSearchQuery(query);
+    this.searchService.setSearchQuery(query);
 
     const currentUrl = (this.router.url || '').split('?')[0];
     if (currentUrl !== '/shop/search') {
@@ -235,7 +235,7 @@ export class Header implements OnDestroy {
 
   clearSearch() {
     this.searchQuery.set('');
-    this.shopService.setSearchQuery('');
+    this.searchService.setSearchQuery('');
     this.suggestedProducts.set([]);
     this.showSearchDropdown.set(false);
   }
@@ -244,7 +244,7 @@ export class Header implements OnDestroy {
     if (!query || query.trim().length === 0) {
       this.suggestedProducts.set([]);
       this.showSearchDropdown.set(false);
-      this.shopService.setSearchQuery('');
+      this.searchService.setSearchQuery('');
       return;
     }
 
@@ -255,7 +255,7 @@ export class Header implements OnDestroy {
     this.showSearchDropdown.set(true);
     this.searchLoading.set(true);
 
-    this.shopService.searchProducts(query, 1, 6).subscribe({
+    this.searchService.searchProducts(query, 1, 6).subscribe({
       next: products => {
         this.suggestedProducts.set(products);
         this.searchLoading.set(false);

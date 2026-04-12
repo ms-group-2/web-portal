@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { SnackbarService } from 'lib/services/snackbar.service';
-import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
+import { TranslationService } from 'lib/services/translation.service';
 
 /**
  * Centralised HTTP error interceptor.
@@ -16,6 +16,7 @@ import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const snackbar = inject(SnackbarService);
+  const translate = inject(TranslationService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -24,9 +25,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (error.status === 0) {
-        snackbar.error('ინტერნეტთან კავშირი ვერ მოხერხდა');
+        snackbar.error(translate.translate('errors.networkError'));
       } else if (error.status >= 500) {
-        snackbar.error(SNACKBAR_MESSAGES.ERROR_GENERIC);
+        snackbar.error(translate.translate('errors.generic'));
       }
 
       return throwError(() => error);

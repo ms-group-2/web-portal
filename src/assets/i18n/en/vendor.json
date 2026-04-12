@@ -110,7 +110,7 @@
     "placeholders": {
       "title": "Enter product title",
       "description": "Enter product description",
-      "sku": "e.g., WH-PRO-001",
+      "sku": "e.g., 1234",
       "imageUrl": "https://example.com/image.jpg",
       "optionId": "Enter option ID",
       "categoryId": "Enter category ID",

@@ -13,13 +13,16 @@ import { VerifyResponse } from './models/verify.response.model';
 import { MessageResponse } from './models/message.response.model';
 import { ChangePasswordRequest } from './models/change-password.request.model';
 
-
 import { tap } from 'rxjs';
+import { SnackbarService } from 'lib/services/snackbar.service';
+import { NotificationOptions, withNotification } from 'lib/utils/api-notification.util';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private tokens = inject(TokenManagementService);
   private vendorService = inject(VendorService);
+  private snackbar = inject(SnackbarService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
 
@@ -166,14 +169,18 @@ setNewPassword(payload: { email: string; new_password: string; password_change_t
   );
   }
 
-  changePassword(payload: ChangePasswordRequest) {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/auth/change-password`, payload);
+  changePassword(payload: ChangePasswordRequest, options?: NotificationOptions) {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/auth/change-password`, payload).pipe(
+      withNotification(this.snackbar, options)
+    );
   }
 
-  requestChangeEmail(newEmail: string) {
+  requestChangeEmail(newEmail: string, options?: NotificationOptions) {
     return this.http.post<MessageResponse>(`${this.baseUrl}/auth/change-email/request`, {
       new_email: newEmail,
-    });
+    }).pipe(
+      withNotification(this.snackbar, options)
+    );
   }
 
   verifyChangeEmail(payload: { new_email: string; code: string }) {

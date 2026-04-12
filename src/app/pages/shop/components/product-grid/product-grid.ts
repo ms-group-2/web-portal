@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductCardComponent } from '../product-card/product-card';
 import { ProductCardSkeletonComponent } from '../skeletons/product-card-skeleton';
 import { ShopService } from 'lib/services/shop/shop.service';
+import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { Product } from '../../shop.models';
 
 @Component({
@@ -13,6 +14,7 @@ import { Product } from '../../shop.models';
 })
 export class ProductGridComponent {
   private shopService = inject(ShopService);
+  private searchService = inject(ShopSearchService);
   private destroyRef = inject(DestroyRef);
 
   products = signal<Product[]>([]);
@@ -20,7 +22,7 @@ export class ProductGridComponent {
 
   // header search count in sync with what the user sees
   private setSearchResultsCountEffect = effect(() => {
-    this.shopService.setSearchResultsCount(this.totalItems());
+    this.searchService.setSearchResultsCount(this.totalItems());
   });
 
   isLoading = signal(false);
@@ -52,12 +54,12 @@ export class ProductGridComponent {
     effect(() => {
       const querySignature = JSON.stringify({
         categoryId: this.shopService.selectedCategoryId(),
-        search: this.shopService.searchQuery().trim(),
+        search: this.searchService.searchQuery().trim(),
         sortBy: this.shopService.shopSortBy(),
         minPrice: this.shopService.shopMinPrice(),
         maxPrice: this.shopService.shopMaxPrice(),
-        selectedBrands: this.shopService.selectedBrandIds(),
-        selectedSpecs: this.shopService.selectedSearchFilters(),
+        selectedBrands: this.searchService.selectedBrandIds(),
+        selectedSpecs: this.searchService.selectedSearchFilters(),
       });
 
       if (querySignature === this.lastQuerySignature) return;
@@ -76,16 +78,13 @@ export class ProductGridComponent {
       // so the sidebar can still show relevant categories/subcategories
       // even when checkboxes are active.
       const raw = this.products();
-      this.shopService.setSearchSidebarProducts(raw);
+      this.searchService.setSearchSidebarProducts(raw);
 
-      // Also derive a category id to load checkbox filter groups from.
-      // Backend expects a single category_id, so we pick the first product's
-      // most available category-ish field.
       const first = raw?.[0];
       const rawId = first?.category_id ?? first?.category?.id;
 
       const derived = rawId == null ? null : Number(rawId);
-      this.shopService.setSearchDerivedCategoryId(Number.isFinite(derived as number) ? (derived as number) : null);
+      this.searchService.setSearchDerivedCategoryId(Number.isFinite(derived as number) ? (derived as number) : null);
     });
   }
 
@@ -105,15 +104,14 @@ export class ProductGridComponent {
   }
 
   private fetchMaxPriceSample(): void {
-    const searchQuery = this.shopService.searchQuery();
+    const searchQuery = this.searchService.searchQuery();
     const categoryId = this.shopService.selectedCategoryId();
-    const extraFilters = this.shopService.getSelectedFilterQueryParams();
+    const extraFilters = this.searchService.getSelectedFilterQueryParams();
 
-    // Fetch a larger sample (100 items) to get better max price estimate
     const sampleSize = 100;
 
     if (searchQuery && searchQuery.trim().length >= 2) {
-      this.shopService.searchProductsPaginated(searchQuery, 1, sampleSize, {
+      this.searchService.searchProductsPaginated(searchQuery, 1, sampleSize, {
         category_id: categoryId ?? undefined,
         extra_filters: extraFilters,
       })
@@ -143,17 +141,15 @@ export class ProductGridComponent {
     const requestId = ++this.latestRequestId;
     this.isLoading.set(true);
 
-    const searchQuery = this.shopService.searchQuery();
+    const searchQuery = this.searchService.searchQuery();
     const categoryId = this.shopService.selectedCategoryId();
     const sortBy = this.shopService.shopSortBy();
     const minPrice = this.shopService.shopMinPrice();
     const maxPrice = this.shopService.shopMaxPrice();
     const dynamicMax = this.shopService.dynamicMaxPrice();
-    const extraFilters = this.shopService.getSelectedFilterQueryParams();
+    const extraFilters = this.searchService.getSelectedFilterQueryParams();
 
     if (searchQuery && searchQuery.trim().length >= 2) {
-      // Use dedicated search endpoint so header suggestions match.
-      // Pass sort + price to backend so pagination works correctly.
       const params = {
         sort_by: sortBy || undefined,
         min_price: minPrice > 0 ? minPrice : undefined,
@@ -163,7 +159,7 @@ export class ProductGridComponent {
         extra_filters: extraFilters,
       };
 
-      this.shopService.searchProductsPaginated(searchQuery, page, this.pageSize, params)
+      this.searchService.searchProductsPaginated(searchQuery, page, this.pageSize, params)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: response => {

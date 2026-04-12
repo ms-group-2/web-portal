@@ -1,19 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Profile, UpdateProfileRequest, WishlistResponse, WishlistToggleRequest, WishlistToggleResponse } from './models/profile.model';
-
-
-
-// export interface WishlistToggleResponse {
-//   message?: string;
-// }
+import { SnackbarService } from 'lib/services/snackbar.service';
+import { NotificationOptions, withNotification } from 'lib/utils/api-notification.util';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileApiService {
   private http = inject(HttpClient);
+  private snackbar = inject(SnackbarService);
   private baseUrl = `${environment.apiBaseUrl}/profile`;
   private profileCache$ = new Map<string, Observable<Profile>>();
 
@@ -27,11 +24,12 @@ export class ProfileApiService {
     return this.profileCache$.get(profileId)!;
   }
 
-  updateProfile(body: UpdateProfileRequest): Observable<Profile> {
+  updateProfile(body: UpdateProfileRequest, options?: NotificationOptions): Observable<Profile> {
     return this.http.put<Profile>(`${this.baseUrl}/me`, body, {
       headers: { 'Content-Type': 'application/json' }
     }).pipe(
-      tap(() => this.clearCache())
+      tap(() => this.clearCache()),
+      withNotification(this.snackbar, options)
     );
   }
 
@@ -39,17 +37,19 @@ export class ProfileApiService {
     this.profileCache$.clear();
   }
 
-  uploadAvatar(avatar: File): Observable<Profile> {
+  uploadAvatar(avatar: File, options?: NotificationOptions): Observable<Profile> {
     const formData = new FormData();
     formData.append('avatar', avatar);
     return this.http.patch<Profile>(`${this.baseUrl}/avatar`, formData).pipe(
-      tap(() => this.clearCache())
+      tap(() => this.clearCache()),
+      withNotification(this.snackbar, options)
     );
   }
 
-  deleteAvatar(): Observable<Profile> {
+  deleteAvatar(options?: NotificationOptions): Observable<Profile> {
     return this.http.delete<Profile>(`${this.baseUrl}/avatar`).pipe(
-      tap(() => this.clearCache())
+      tap(() => this.clearCache()),
+      withNotification(this.snackbar, options)
     );
   }
 
@@ -68,4 +68,3 @@ export class ProfileApiService {
     return this.http.post<WishlistToggleResponse>(`${this.baseUrl}/wishlist/toggle`, body);
   }
 }
-

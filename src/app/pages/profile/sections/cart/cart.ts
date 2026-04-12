@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, inject, computed, signal, OnInit, D
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
-import { ShopService } from 'lib/services/shop/shop.service';
 import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 import { TranslationService } from 'lib/services/translation.service';
@@ -17,7 +16,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartComponent implements OnInit {
-  private shopService = inject(ShopService);
   private cartService = inject(ShopCartService);
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
@@ -113,7 +111,7 @@ export class CartComponent implements OnInit {
     }
 
     this.checkingOut.set(true);
-    this.shopService.checkoutCart()
+    this.cartService.checkoutCart()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -136,7 +134,7 @@ export class CartComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
 
-    this.shopService.ensureCartLoaded()
+    this.cartService.ensureCartLoaded()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loading.set(false),

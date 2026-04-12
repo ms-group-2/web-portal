@@ -12,10 +12,10 @@
         <div class="mb-6">
           <h1 class="text-3xl font-black text-gray-900 mb-2">
             @if (isGeorgian()) {
-              ძიებისთვის {{ searchQueryText() }} ნაპოვნია {{ shopService.searchResultsCount() }}
+              ძიებისთვის {{ searchQueryText() }} ნაპოვნია {{ searchResultsCount() }}
               პროდუქტი
             } @else {
-              Results for {{ searchQueryText() }} {{ shopService.searchResultsCount() }} products
+              Results for {{ searchQueryText() }} {{ searchResultsCount() }} products
             }
           </h1>
         </div>

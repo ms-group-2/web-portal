@@ -74,4 +74,8 @@ export class SnackbarService {
   swap(text: string, closeIcon: string = 'close') {
     this.show(text, SnackbarType.SWAP, closeIcon);
   }
+
+  snackbar(type: 'info' | 'error' | 'success', text: string): void {
+    this.show(text, type as SnackbarType);
+  }
 }

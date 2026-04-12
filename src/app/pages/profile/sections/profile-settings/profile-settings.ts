@@ -3,7 +3,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { startWith, catchError, finalize } from 'rxjs/operators';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -24,7 +25,6 @@ import { GenderUtil } from 'lib/services/profile/utils/gender.util';
 import { COUNTRIES } from 'lib/constants/countries';
 import { AvatarUploadComponent } from '../../../../../lib/components/avatar-upload/avatar-upload';
 import { ChangePasswordDialogService } from '../../../../../lib/components/change-password-dialog/change-password-dialog.service';
-import { SNACKBAR_MESSAGES } from 'lib/constants/enums/snackbar-messages.enum';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { sanitizeTextInput, sanitizePhoneInput } from 'lib/utils/input-sanitizers.util';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
@@ -99,7 +99,6 @@ export class ProfileSettingsComponent implements OnInit {
     return date >= minDate && date <= maxDate;
   };
 
-  /** View mode label — form stores stable keys `male` | `female` | `-`, not translated text. */
   genderLabel = computed(() => {
     const g = this.formValue().gender;
     if (g === 'male' || g === 'კაცი' || g === 'Male') {
@@ -306,48 +305,38 @@ export class ProfileSettingsComponent implements OnInit {
 
     this.isLoading.set(true);
 
-    this.profileApi.updateProfile(updateRequest).subscribe({
-      next: (profile) => {
-        this.isLoading.set(false);
-
-        if (this.isBrowser) {
-          try {
-            localStorage.setItem('vipo_user_firstName', profile.name);
-            localStorage.setItem('vipo_user_lastName', profile.surname);
-            window.dispatchEvent(new Event('profileUpdated'));
-          } catch {
-            // ignore
+    this.profileApi.updateProfile(updateRequest, {
+      successMessage: this.translationService.translate('errors.saveSuccess'),
+      errorMap: {
+        413: this.translationService.translate('profile.errors.avatarTooLarge'),
+      },
+    }).pipe(
+      catchError(err => {
+        if (err?.status === 422 && Array.isArray(err?.error?.detail)) {
+          const firstError = err.error.detail[0];
+          if (firstError?.loc?.includes('phone_number')) {
+            this.form.controls.phoneNumber.setErrors({ invalidPhone: true });
           }
         }
+        return of(null);
+      }),
+      finalize(() => this.isLoading.set(false))
+    ).subscribe(profile => {
+      if (!profile) return;
 
-        this.patchFormWithProfile(profile);
-        this.isEditing.set(false);
-        this.snackbar.success(SNACKBAR_MESSAGES.SAVE_SUCCESS);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.snackbar.error(this.getErrorMessageFromResponse(err));
-      },
-    });
-  }
-
-  private getErrorMessageFromResponse(err: any): string {
-    if (err?.status === 413 || err?.status === 0) {
-      return this.translationService.translate('profile.errors.avatarTooLarge');
-    }
-
-    if (err?.status === 422 && Array.isArray(err?.error?.detail) && err.error.detail.length > 0) {
-      const firstError = err.error.detail[0];
-
-      if (firstError.loc && Array.isArray(firstError.loc) && firstError.loc.includes('phone_number')) {
-        return this.translationService.translate('profile.errors.invalidPhoneFormat');
+      if (this.isBrowser) {
+        try {
+          localStorage.setItem('vipo_user_firstName', profile.name);
+          localStorage.setItem('vipo_user_lastName', profile.surname);
+          window.dispatchEvent(new Event('profileUpdated'));
+        } catch {
+          // ignore
+        }
       }
-      return typeof firstError === 'string' ? firstError : firstError.msg || SNACKBAR_MESSAGES.ERROR_GENERIC;
-    }
 
-    return err?.status === 500
-      ? 'Server error (500). Check backend logs / profile_id might be wrong.'
-      : SNACKBAR_MESSAGES.ERROR_GENERIC;
+      this.patchFormWithProfile(profile);
+      this.isEditing.set(false);
+    });
   }
 
   getErrorMessage(controlName: 'firstName' | 'lastName'): string {
@@ -413,16 +402,16 @@ export class ProfileSettingsComponent implements OnInit {
     }
 
     this.isAvatarActionLoading.set(true);
-    this.profileApi.uploadAvatar(file).subscribe({
-      next: (profile) => {
-        this.isAvatarActionLoading.set(false);
-        this.patchFormWithProfile(profile);
-        this.snackbar.success(SNACKBAR_MESSAGES.SAVE_SUCCESS);
+    this.profileApi.uploadAvatar(file, {
+      successMessage: this.translationService.translate('errors.saveSuccess'),
+      errorMap: {
+        413: this.translationService.translate('profile.errors.avatarTooLarge'),
       },
-      error: (err) => {
-        this.isAvatarActionLoading.set(false);
-        this.snackbar.error(this.getErrorMessageFromResponse(err));
-      },
+    }).pipe(
+      catchError(() => of(null)),
+      finalize(() => this.isAvatarActionLoading.set(false))
+    ).subscribe(profile => {
+      if (profile) this.patchFormWithProfile(profile);
     });
   }
 
@@ -434,16 +423,13 @@ export class ProfileSettingsComponent implements OnInit {
     }
 
     this.isAvatarActionLoading.set(true);
-    this.profileApi.deleteAvatar().subscribe({
-      next: (profile) => {
-        this.isAvatarActionLoading.set(false);
-        this.patchFormWithProfile(profile);
-        this.snackbar.success(SNACKBAR_MESSAGES.SAVE_SUCCESS);
-      },
-      error: (err) => {
-        this.isAvatarActionLoading.set(false);
-        this.snackbar.error(this.getErrorMessageFromResponse(err));
-      },
+    this.profileApi.deleteAvatar({
+      successMessage: this.translationService.translate('errors.saveSuccess'),
+    }).pipe(
+      catchError(() => of(null)),
+      finalize(() => this.isAvatarActionLoading.set(false))
+    ).subscribe(profile => {
+      if (profile) this.patchFormWithProfile(profile);
     });
   }
 
@@ -472,70 +458,61 @@ export class ProfileSettingsComponent implements OnInit {
     }
 
     this.isEmailChangeLoading.set(true);
-    this.auth.requestChangeEmail(newEmail).subscribe({
-      next: () => {
-        this.isEmailChangeLoading.set(false);
-        this.changeEmailDialog.open({ newEmail }).subscribe(result => {
-          if (!result) return;
-
-          this.form.controls.email.setValue(result.email);
-          this.auth.loadMe().subscribe({
-            next: () => {
-              this.form.controls.email.setValue(this.auth.user()?.email ?? result.email);
-            },
-            error: () => {
-              // Keep optimistic value even if re-fetch fails.
-            },
-          });
-
-          if (this.originalFormValue) {
-            this.originalFormValue = {
-              ...this.originalFormValue,
-              email: result.email,
-            };
-          }
-          this.snackbar.success(this.translationService.translate('profile.emailChange.success'));
-        });
-      },
-      error: (err) => {
-        this.isEmailChangeLoading.set(false);
+    this.auth.requestChangeEmail(newEmail).pipe(
+      catchError(err => {
         if (err?.status === 409) {
-          emailControl.setErrors({ alreadyRegistered: true });
-          emailControl.markAsTouched();
-          return;
+          emailControl.setErrors({ alreadyRegistered: true }); emailControl.markAsTouched();
+        } else if (err?.status === 429) {
+          emailControl.setErrors({ rateLimitExceeded: true }); emailControl.markAsTouched();
         }
-        if (err?.status === 429) {
-          this.snackbar.error(this.translationService.translate('validation.rateLimitExceeded'));
-          return;
+        return of(null);
+      }),
+      finalize(() => this.isEmailChangeLoading.set(false))
+    ).subscribe(response => {
+      if (!response) return;
+
+      this.changeEmailDialog.open({ newEmail }).subscribe(result => {
+        if (!result) return;
+
+        this.form.controls.email.setValue(result.email);
+        this.auth.loadMe().subscribe({
+          next: () => {
+            this.form.controls.email.setValue(this.auth.user()?.email ?? result.email);
+          },
+          error: () => {
+            // Keep optimistic value even if re-fetch fails.
+          },
+        });
+
+        if (this.originalFormValue) {
+          this.originalFormValue = {
+            ...this.originalFormValue,
+            email: result.email,
+          };
         }
-        this.snackbar.error(SNACKBAR_MESSAGES.ERROR_GENERIC);
-      },
+        this.snackbar.success(this.translationService.translate('profile.emailChange.success'));
+      });
     });
   }
 
   changePassword(): void {
     this.changePasswordDialog.open().subscribe(result => {
-      if (result) {
-        this.auth.changePassword({
-          old_password: result.currentPassword,
-          new_password: result.newPassword,
-        }).subscribe({
-          next: () => {
-            this.snackbar.success(this.translationService.translate('profile.errors.passwordChangeSuccess'));
-          },
-          error: (err) => {
-            if (err.status === 400) {
-              this.snackbar.error(this.translationService.translate('profile.errors.incorrectCurrentPassword'));
-            } else if (err.status === 401 ) {
-              this.snackbar.error(this.translationService.translate('profile.errors.authenticationExpired'));
-            } else if (err.status === 404) {
-              this.snackbar.error(this.translationService.translate('profile.errors.userNotFound'));
-            } else if (err.status === 422) {
-              this.snackbar.error(this.translationService.translate('profile.errors.incorrectCurrentPassword'));
-            }
-          },
-        });
-      }
+      if (!result) return;
+
+      this.auth.changePassword({
+        old_password: result.currentPassword,
+        new_password: result.newPassword,
+      }, {
+        successMessage: this.translationService.translate('profile.errors.passwordChangeSuccess'),
+        errorMap: {
+          400: this.translationService.translate('profile.errors.incorrectCurrentPassword'),
+          401: this.translationService.translate('profile.errors.authenticationExpired'),
+          404: this.translationService.translate('profile.errors.userNotFound'),
+          422: this.translationService.translate('profile.errors.incorrectCurrentPassword'),
+        },
+      }).pipe(
+        catchError(() => of(null))
+      ).subscribe();
     });
   }
 
