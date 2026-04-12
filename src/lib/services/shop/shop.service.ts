@@ -3,13 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, map, tap, catchError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CategoriesResponse, CategoriesWithProductsResponse, ProductsResponse, Category, CategoryWithProducts, Product, GetFiltersResponse, FilterField, FilterBrand } from 'src/app/pages/shop/shop.models';
-import { CartResponse, CheckoutResponse } from 'lib/services/shop/models/shop-cart.models';
-import { ShopCartService } from './shop-cart.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShopService {
   private http = inject(HttpClient);
-  private cartService = inject(ShopCartService);
   private baseUrl = environment.apiBaseUrl;
 
   private headers = { 'ngrok-skip-browser-warning': 'true' };
@@ -36,7 +33,7 @@ export class ShopService {
     return url;
   }
 
-  private normalizeProduct(product: Product): Product {
+  normalizeProduct(product: Product): Product {
     const cover = this.normalizeImageUrl(product.cover_image_url || product.image_url || product.image);
 
     const qty =
@@ -50,22 +47,6 @@ export class ShopService {
       name: product.title || product.name,
       quantity: qty,
     };
-  }
-
-  clearCart(): void {
-    this.cartService.clearCart();
-  }
-
-  ensureCartLoaded(): Observable<void> {
-    return this.cartService.ensureCartLoaded();
-  }
-
-  getMyCart(): Observable<CartResponse> {
-    return this.cartService.getMyCart();
-  }
-
-  checkoutCart(): Observable<CheckoutResponse> {
-    return this.cartService.checkoutCart();
   }
 
   categoriesByParentId = signal<Partial<Record<number | 'root', Category[]>>>({});
@@ -87,32 +68,9 @@ export class ShopService {
   });
 
   selectedCategoryId = signal<number | null>(null);
-  searchQuery = signal<string>('');
 
-  // Search page filter state (sidebar checkboxes).
-  // Checkbox filters are applied client-side because the current search endpoint
-  // is wired only for price/sort (backend support for these filters may be added later).
-  searchFilterGroups = signal<FilterField[]>([]);
-  selectedSearchFilters = signal<Record<number, number[]>>({});
-  searchBrands = signal<FilterBrand[]>([]);
-  selectedBrandIds = signal<number[]>([]);
-
-  // Used by the search sidebar to display "relevant categories" derived from
-  // the currently displayed search results.
-  searchSidebarProducts = signal<Product[]>([]);
-
-  // When on the search page (no selectedCategoryId), we still need a category
-  // to load checkbox filter groups from the backend. We derive it from the
-  // first search result product.
-  searchDerivedCategoryId = signal<number | null>(null);
-
-  // Search page result count (used in the search header text).
-  searchResultsCount = signal<number>(0);
-
-  // Dynamic max price from current products
   dynamicMaxPrice = signal<number>(10000);
 
-  // Shared filter state for shop page
   shopSortBy = signal<string>('popular');
   shopMinPrice = signal<number>(0);
   shopMaxPrice = signal<number>(10000);
@@ -231,105 +189,6 @@ export class ShopService {
 
   selectCategory(categoryId: number | null): void {
     this.selectedCategoryId.set(categoryId);
-  }
-
-  setSearchQuery(query: string): void {
-    const next = query ?? '';
-    const current = this.searchQuery();
-    this.searchQuery.set(next);
-
-    // When changing queries, reset derived sidebar state so filters reflect
-    // the new results.
-    if (next.trim() === '' || next.trim() !== current.trim()) {
-      this.clearSearchFilters();
-    }
-  }
-
-  setSearchFilterGroups(filters: FilterField[]): void {
-    this.searchFilterGroups.set(filters);
-  }
-
-  setSearchBrands(brands: FilterBrand[]): void {
-    this.searchBrands.set(brands);
-  }
-
-  toggleSearchFilterOption(fieldId: number, optionId: number): void {
-    this.selectedSearchFilters.update(current => {
-      const selected = current[fieldId] || [];
-      const index = selected.indexOf(optionId);
-
-      if (index > -1) {
-        const nextSelected = selected.filter(id => id !== optionId);
-        if (nextSelected.length === 0) {
-          const { [fieldId]: _, ...rest } = current;
-          return rest;
-        }
-        return { ...current, [fieldId]: nextSelected };
-      }
-
-      return { ...current, [fieldId]: [...selected, optionId] };
-    });
-  }
-
-  isSearchFilterOptionSelected(fieldId: number, optionId: number): boolean {
-    const selected = this.selectedSearchFilters()[fieldId] || [];
-    return selected.includes(optionId);
-  }
-
-  clearSearchFilters(): void {
-    this.selectedSearchFilters.set({});
-    this.searchFilterGroups.set([]);
-    this.searchBrands.set([]);
-    this.selectedBrandIds.set([]);
-    this.shopSortBy.set('popular');
-    this.shopMinPrice.set(0);
-    this.shopMaxPrice.set(this.dynamicMaxPrice());
-    this.searchDerivedCategoryId.set(null);
-  }
-
-  setSearchSidebarProducts(products: Product[]): void {
-    this.searchSidebarProducts.set(products);
-  }
-
-  setSearchDerivedCategoryId(categoryId: number | null): void {
-    this.searchDerivedCategoryId.set(categoryId);
-  }
-
-  setSearchResultsCount(count: number): void {
-    this.searchResultsCount.set(count);
-  }
-
-  toggleBrandSelection(brandId: number): void {
-    this.selectedBrandIds.update(current =>
-      current.includes(brandId) ? current.filter(id => id !== brandId) : [...current, brandId]
-    );
-  }
-
-  isBrandSelected(brandId: number): boolean {
-    return this.selectedBrandIds().includes(brandId);
-  }
-
-  getSelectedFilterQueryParams(): Record<string, string> {
-    const params: Record<string, string> = {};
-
-    const selectedBrands = this.selectedBrandIds();
-    if (selectedBrands.length > 0) {
-      params['brand'] = selectedBrands.join(',');
-    }
-
-    const fieldsById = new Map(this.searchFilterGroups().map(field => [field.field_id, field]));
-    const selectedFields = this.selectedSearchFilters();
-    for (const [fieldIdRaw, optionIds] of Object.entries(selectedFields)) {
-      const fieldId = Number(fieldIdRaw);
-      if (!optionIds?.length) continue;
-
-      const field = fieldsById.get(fieldId);
-      if (!field) continue;
-
-      params[field.field_name] = optionIds.join(',');
-    }
-
-    return params;
   }
 
   getProductsPaginated(params?: {
@@ -529,81 +388,6 @@ export class ShopService {
           }
         }),
         catchError(() => of(null))
-      );
-  }
-
-  searchProductsPaginated(
-    query: string,
-    page: number = 1,
-    limit: number = 20,
-    params?: {
-      sort_by?: string;
-      min_price?: number;
-      max_price?: number;
-      category_id?: number;
-      in_stock?: boolean;
-      extra_filters?: Record<string, string>;
-    }
-  ): Observable<ProductsResponse> {
-    if (!query || query.trim().length < 2) {
-      return of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse);
-    }
-
-    const queryParams: Record<string, string | number | boolean> = { q: query.trim(), page, limit };
-    if (params?.sort_by) queryParams['sort_by'] = params.sort_by;
-    if (params?.min_price !== undefined) queryParams['min_price'] = params.min_price;
-    if (params?.max_price !== undefined) queryParams['max_price'] = params.max_price;
-    if (params?.category_id !== undefined) queryParams['category_id'] = params.category_id;
-    if (params?.in_stock !== undefined) queryParams['in_stock'] = params.in_stock;
-    if (params?.extra_filters) Object.assign(queryParams, params.extra_filters);
-
-    return this.http
-      .get<ProductsResponse>(`${this.baseUrl}/ecommerce/products/search`, {
-        headers: this.headers,
-        params: queryParams,
-      })
-      .pipe(
-        map(response => {
-          const rawItems = response?.items ?? response?.products ?? [];
-          if (!response || !rawItems) {
-            return { items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse;
-          }
-          const totalPages = response.total_pages ?? Math.ceil((response.total || 0) / Math.max(response.limit || limit, 1));
-          return {
-            ...response,
-            items: rawItems.map(product => this.normalizeProduct(product)),
-            total_pages: totalPages,
-          };
-        }),
-        catchError(() => of({ items: [], total: 0, page: 1, limit: 20, total_pages: 0 } as ProductsResponse))
-      );
-  }
-
-  searchProducts(query: string, page: number = 1, limit: number = 20): Observable<Product[]> {
-    if (!query || query.trim().length < 2) {
-      return of([]);
-    }
-
-    const queryParams = {
-      q: query.trim(),
-      page,
-      limit,
-    };
-
-    return this.http
-      .get<ProductsResponse>(`${this.baseUrl}/ecommerce/products/search`, {
-        headers: this.headers,
-        params: queryParams,
-      })
-      .pipe(
-        map(response => {
-          const rawItems = response?.items ?? response?.products ?? [];
-          if (!response || !rawItems) {
-            return [];
-          }
-          return rawItems.map(product => this.normalizeProduct(product));
-        }),
-        catchError(() => of([]))
       );
   }
 
