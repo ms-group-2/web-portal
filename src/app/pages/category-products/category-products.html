@@ -1,9 +1,6 @@
 <app-header variant="white"></app-header>
 
-
-
-
-<div class="min-h-screen bg-white pt-20">
+<div class="min-h-screen bg-white pt-20 lg:pt-32 2xl:pt-20">
   <div class="pt-8 pb-8 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
 
     <nav class="mb-8 sticky top-15 bg-white z-10 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-12 md:px-12 lg:-mx-20 lg:px-20 xl:-mx-32 xl:px-32">
@@ -28,9 +25,9 @@
       </ol>
     </nav>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="lg:grid lg:grid-cols-12 lg:gap-8">
 
-      <aside class="lg:col-span-3">
+      <aside class="hidden lg:block lg:col-span-3">
         <div class="bg-white rounded-lg border-2 border-gray-200 p-4 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
 
           @if (loading()) {
@@ -81,119 +78,27 @@
               </a>
             }
 
-      <div class="mb-5 pb-5 border-b border-gray-100">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-sm font-black text-gray-900 uppercase tracking-wide">
-            {{ 'shop.filters.sortBy' | translate }}
-          </span>
+            <div class="mb-5 pb-5 border-b border-gray-100">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-black text-gray-900 uppercase tracking-wide">
+                  {{ 'shop.filters.sortBy' | translate }}
+                </span>
+              </div>
+              <app-sort-options-list
+                [options]="sortOptions"
+                [currentValue]="sortBy()"
+                (selected)="setSortBy($event)" />
+            </div>
 
-          <!-- @if (sortBy()) {
-            <span class="text-xs font-bold uppercase text-market bg-market/10 px-2.5 py-1 rounded-full">
-              Active
-            </span>
-          } -->
-        </div>
-
-        <div class="rounded-2xl border border-gray-200 bg-gray-50 p-2 space-y-1">
-          @for (option of sortOptions; track option.value) {
-            <button
-              (click)="setSortBy(option.value)"
-              class="w-full flex items-center justify-between px-3 py-3 rounded-xl border"
-              [ngClass]="sortBy() === option.value
-                ? 'bg-white border-market/20 shadow-sm text-market'
-                : 'text-gray-700 hover:bg-white hover:border-gray-200 border-transparent transition-all'"
-            >
-              <span class="text-sm font-semibold">
-                {{ option.label | translate }}
-              </span>
-
-              <span
-                class="w-5 h-5 rounded-full"
-                [ngClass]="sortBy() === option.value
-                  ? 'bg-market text-white flex items-center justify-center text-xs font-bold'
-                  : 'border border-gray-300'">
-                @if (sortBy() === option.value) {
-                  ✓
-                }
-              </span>
-            </button>
-          }
-        </div>
-      </div>
-           <div class="mb-5 pb-5 border-b border-gray-100">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-sm font-black text-gray-900 uppercase tracking-wide">
-            {{ 'shop.filters.priceRange' | translate }}
-          </span>
-
-          <div class="text-xs font-semibold text-market bg-market/10 px-2.5 py-1 rounded-full">
-            ₾{{ minPrice() }} - ₾{{ maxPrice() }}
-          </div>
-        </div>
-
-  <div class="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4">
-    <div class="flex items-center justify-between text-xs font-bold text-gray-400 uppercase mb-2">
-      <span>Min</span>
-      <span>Max</span>
-    </div>
-
-    <mat-slider
-      class="price-slider w-full"
-      [min]="0"
-      [max]="categoryMaxPrice()"
-      [step]="categoryMaxPrice() > 1000 ? 100 : 10">
-      <input
-        matSliderStartThumb
-        [value]="minPrice()"
-        (valueChange)="minPrice.set($event); applyFilters()" />
-      <input
-        matSliderEndThumb
-        [value]="maxPrice()"
-        (valueChange)="maxPrice.set($event); applyFilters()" />
-    </mat-slider>
-
-    <div class="flex items-center justify-between text-xs text-gray-500 font-medium mt-1 mb-4 px-1">
-      <span>₾0</span>
-      <span>₾{{ categoryMaxPrice() }}</span>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">
-          From
-        </label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-semibold">₾</span>
-          <input
-            type="number"
-            [value]="minPrice()"
-            (change)="onMinPriceChange($event)"
-            min="0"
-            placeholder="0"
-            class="w-full h-11 pl-8 pr-3 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-market/20 focus:border-market transition-all"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-bold uppercase text-gray-400 mb-1">
-          To
-        </label>
-        <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-semibold">₾</span>
-          <input
-            type="number"
-            [value]="maxPrice()"
-            (change)="onMaxPriceChange($event)"
-            min="0"
-            placeholder="10000"
-            class="w-full h-11 pl-8 pr-3 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-market/20 focus:border-market transition-all"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+            <div class="mb-5 pb-5 border-b border-gray-100">
+              <app-price-range-filter
+                [min]="minPrice()"
+                [max]="maxPrice()"
+                [maxLimit]="categoryMaxPrice()"
+                [step]="categoryMaxPrice() > 1000 ? 100 : 10"
+                (minChange)="minPrice.set($event); applyFilters()"
+                (maxChange)="maxPrice.set($event); applyFilters()" />
+            </div>
 
             @if (filtersLoading()) {
               <div class="flex items-center justify-center py-8">
@@ -211,49 +116,11 @@
                     </button>
 
                     @if (isGroupExpanded(group.group_id)) {
-                      <div class="mt-2 mb-4 ml-2 space-y-2">
-                        @for (field of group.fields; track field.field_id) {
-                          <div class="border-l-2 border-gray-200 pl-3">
-                            <button
-                              (click)="toggleField(field.field_id)"
-                              class="w-full flex items-center justify-between py-1.5 text-left">
-                              <span class="text-xs font-bold text-gray-700">{{ field.field_name }}</span>
-                              <span class="text-gray-300 text-sm">{{ isFieldExpanded(field.field_id) ? '▼' : '▶' }}</span>
-                            </button>
-
-                            @if (isFieldExpanded(field.field_id)) {
-                              <div class="mt-1 space-y-0.5 max-h-40 overflow-y-auto pr-1">
-                                @for (option of field.options; track option.option_id) {
-                                  <label
-                                    class="flex items-center gap-2 px-1 py-1 rounded text-xs"
-                                    [ngClass]="{
-                                      'cursor-pointer hover:bg-gray-50': !isOptionDisabled(option),
-                                      'cursor-not-allowed opacity-50': isOptionDisabled(option)
-                                    }">
-                                    <input
-                                      type="checkbox"
-                                      [checked]="isFilterOptionSelected(field.field_id, option.option_id)"
-                                      [disabled]="isOptionDisabled(option)"
-                                      (change)="toggleFilterOption(field.field_id, option.option_id)"
-                                      class="w-3.5 h-3.5 text-market bg-gray-100 border-gray-300 rounded focus:ring-market flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    />
-                                    <span
-                                      class="leading-tight transition-colors"
-                                      [ngClass]="{
-                                        'text-gray-700 group-hover:text-market': !isOptionDisabled(option),
-                                        'text-gray-400': isOptionDisabled(option)
-                                      }">
-                                      {{ option.option_value }}
-                                      @if (option.product_count !== undefined) {
-                                        <span class="text-gray-400 ml-1">({{ option.product_count }})</span>
-                                      }
-                                    </span>
-                                  </label>
-                                }
-                              </div>
-                            }
-                          </div>
-                        }
+                      <div class="mt-2 mb-4 ml-2">
+                        <app-spec-filter-list
+                          [fields]="group.fields"
+                          [selectedFilters]="selectedFilters()"
+                          (filterToggled)="toggleFilterOption($event.fieldId, $event.optionId)" />
                       </div>
                     }
                   </div>
@@ -270,12 +137,28 @@
 
         <div class="mb-8">
           <h1 class="text-4xl font-black text-gray-900 mb-2">{{ categoryName() | translate }}</h1>
+
+          <div class="mt-3 mb-1">
+            <app-mobile-filter-bar
+              [filterCount]="activeFilterCount()"
+              [productCount]="subcategoriesWithProducts().length > 0 ? subcategoriesWithProducts().length : filteredProducts().length"
+              [productLabel]="subcategoriesWithProducts().length > 0 ? ('shop.categories.title' | translate) : 'products'"
+              [loading]="loading()"
+              [sortActive]="!!sortBy()"
+              [categoryCount]="childCategories().length"
+              (filterClick)="showMobileFilters.set(true)"
+              (sortClick)="showMobileSorting.set(true)"
+              (categoryClick)="showMobileCategories.set(true)" />
+          </div>
+
           @if (!loading()) {
-            @if (subcategoriesWithProducts().length > 0) {
-              <p class="text-gray-600">{{ subcategoriesWithProducts().length }} {{ 'shop.categories.title' | translate }}</p>
-            } @else {
-              <p class="text-gray-600">{{ filteredProducts().length }} products</p>
-            }
+            <div class="hidden lg:block">
+              @if (subcategoriesWithProducts().length > 0) {
+                <p class="text-gray-600">{{ subcategoriesWithProducts().length }} {{ 'shop.categories.title' | translate }}</p>
+              } @else {
+                <p class="text-gray-600">{{ filteredProducts().length }} products</p>
+              }
+            </div>
           }
         </div>
 
@@ -324,17 +207,21 @@
               <app-product-card [product]="product"></app-product-card>
             }
           </div>
+        } @else if (priceRangeInvalid()) {
+          <div class="w-full text-center py-16">
+            <p class="text-gray-500 text-sm">{{ 'shop.grid.noProducts' | translate }}</p>
+          </div>
         } @else {
           <div class="text-center py-20">
             <div class="flex justify-center mb-3">
               <mat-icon fontSet="material-icons-outlined" class="text-7xl !w-20 !h-20 text-gray-300">shopping_cart</mat-icon>
             </div>
             <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ 'shop.categories.noResults' | translate }}</h3>
-            <p class="text-gray-600 mb-6">No products found in this category</p>
+            <p class="text-gray-600 mb-6">{{ 'shop.categories.noProductsInCategory' | translate }}</p>
             <a
               routerLink="/shop"
               class="inline-block bg-market text-white px-6 py-3 rounded-lg font-bold hover:bg-market/90 transition-all">
-              Back to Shop
+              {{ 'shop.categories.backToShop' | translate }}
             </a>
           </div>
         }
@@ -344,5 +231,112 @@
     </div>
   </div>
 </div>
+
+<app-bottom-sheet [open]="showMobileCategories()" (closed)="showMobileCategories.set(false)">
+  <div class="flex items-center justify-between px-5 pt-4 pb-3" header>
+    <h3 class="text-lg font-black text-gray-900 uppercase">{{ 'shop.categories.title' | translate }}</h3>
+    <button (click)="showMobileCategories.set(false)" class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100">
+      <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-gray-600">close</mat-icon>
+    </button>
+  </div>
+
+  <div class="px-4 pb-6" body>
+    @if (parentCategory(); as parent) {
+      <a
+        [routerLink]="getCategoryRoute(parent.id)"
+        (click)="showMobileCategories.set(false)"
+        class="w-full text-left px-4 py-3 rounded-xl transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold flex items-center gap-2 mb-3">
+        <mat-icon class="!text-[18px] !w-[18px] !h-[18px] text-gray-500">arrow_back</mat-icon>
+        <span>{{ 'header.nav.back' | translate }}</span>
+      </a>
+    }
+
+    <div class="space-y-2">
+      @for (category of childCategories(); track category.id) {
+        <a
+          [routerLink]="getCategoryRoute(category.id)"
+          (click)="showMobileCategories.set(false)"
+          class="w-full text-left px-4 py-3.5 rounded-xl transition-all bg-gray-50 text-gray-700 hover:bg-gray-100 font-semibold flex items-center justify-between border border-gray-100">
+          <span>{{ category.name | translate }}</span>
+          @if (category.has_subcategories) {
+            <mat-icon class="!text-[18px] !w-[18px] !h-[18px] text-gray-400">chevron_right</mat-icon>
+          }
+        </a>
+      }
+    </div>
+  </div>
+</app-bottom-sheet>
+
+<app-bottom-sheet [open]="showMobileFilters()" (closed)="showMobileFilters.set(false)">
+  <div class="flex items-center justify-between px-5 pt-4 pb-3" header>
+    <h3 class="text-lg font-black text-gray-900 uppercase">{{ 'shop.filters.title' | translate }}</h3>
+    <button (click)="showMobileFilters.set(false)" class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100">
+      <mat-icon class="!text-xl !w-5 !h-5 text-gray-600">close</mat-icon>
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto" body>
+    <div class="mb-5 pb-5 border-b border-gray-100 px-5">
+      <app-price-range-filter
+        [min]="minPrice()"
+        [max]="maxPrice()"
+        [maxLimit]="categoryMaxPrice()"
+        [step]="categoryMaxPrice() > 1000 ? 100 : 10"
+        (minChange)="minPrice.set($event); applyFilters()"
+        (maxChange)="maxPrice.set($event); applyFilters()" />
+    </div>
+
+    @if (filtersLoading()) {
+      <div class="flex items-center justify-center py-8">
+        <div class="w-8 h-8 border-4 border-market border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    } @else {
+      @if (filterGroups().length > 0) {
+        <div class="px-5">
+          @for (group of filterGroups(); track group.group_id) {
+            <div class="mb-2">
+              <button
+                (click)="toggleGroup(group.group_id)"
+                class="w-full flex items-center justify-between py-2.5 px-3 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-200">
+                <span class="text-sm font-black text-gray-900">{{ group.group_name }}</span>
+                <span class="text-gray-400 text-lg font-bold">{{ isGroupExpanded(group.group_id) ? '−' : '+' }}</span>
+              </button>
+
+              @if (isGroupExpanded(group.group_id)) {
+                <div class="mt-2 mb-4 ml-2">
+                  <app-spec-filter-list
+                    [fields]="group.fields"
+                    [selectedFilters]="selectedFilters()"
+                    (filterToggled)="toggleFilterOption($event.fieldId, $event.optionId)" />
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <div class="flex gap-2.5 px-5 py-3 border-t border-gray-200 bg-white" footer
+    style="padding-bottom: max(12px, env(safe-area-inset-bottom))">
+    <button
+      (click)="clearFilters(); showMobileFilters.set(false)"
+      class="flex-1 h-12 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-sm uppercase">
+      {{ 'shop.filters.clear' | translate }}
+    </button>
+    <button
+      (click)="showMobileFilters.set(false)"
+      class="flex-1 h-12 rounded-xl bg-market text-white font-bold text-sm uppercase">
+      {{ filteredProducts().length }} products
+    </button>
+  </div>
+</app-bottom-sheet>
+
+<app-sort-bottom-sheet
+  [open]="showMobileSorting()"
+  [options]="sortOptions"
+  [currentValue]="sortBy()"
+  (closed)="showMobileSorting.set(false)"
+  (sortSelected)="setSortBy($event)" />
 
 <app-footer></app-footer>

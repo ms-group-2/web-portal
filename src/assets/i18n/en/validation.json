@@ -8,6 +8,7 @@
     "invalidBusinessRegistryId": "Identification number not found in the business registry.",
     "businessRegistryVerificationFailed": "Could not verify the identification number. Please try again.",
     "minLength": "Too short, minimum characters required",
+    "min": "Minimum value is {n}",
     "minlength": "Too short, minimum {n} characters",
     "maxlength": "Too long, maximum {n} characters",
     "emptySpace": "Empty spaces are not allowed",

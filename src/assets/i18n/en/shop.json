@@ -14,6 +14,8 @@
       "search": "Search categories...",
       "noResults": "No categories found",
       "noProducts": "No products yet",
+      "noProductsInCategory": "No products found in this category",
+      "backToShop": "Back to Shop",
       "viewAll": "View All",
       "vouchers": "Vouchers",
       "electronics": "Electronics",
@@ -30,13 +32,9 @@
     },
     "filters": {
       "title": "Filters",
-      "clear": "Clear All",
+      "clear": "Clear",
       "price": {
-        "title": "Price Range",
-        "under50": "Under ₾50",
-        "50to100": "₾50 – ₾100",
-        "100to200": "₾100 – ₾200",
-        "200plus": "₾200+"
+        "title": "Filter"
       },
       "allCategories": "All Categories",
       "category": {
@@ -45,7 +43,7 @@
         "lifestyle": "Lifestyle",
         "gifts": "Gifts"
       },
-      "priceRange": "Price Range",
+      "priceRange": "Filter",
       "from": "From",
       "to": "To",
       "rating": {
@@ -106,6 +104,9 @@
       "rating": "Rating",
       "category": "Category",
       "outOfStock": "Out of Stock"
+    },
+    "grid": {
+      "noProducts": "No products found"
     },
     "search": {
       "searching": "Searching...",

@@ -256,7 +256,7 @@ export class EditProduct implements OnInit {
         next: (product) => {
           if (this.isPendingApprovalProduct(product)) {
             this.isLoading.set(false);
-            this.snackbar.error('Products pending approval cannot be edited');
+            this.snackbar.error(this.translation.translate('vendor.errors.pendingCannotEdit'));
             this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
             return;
           }
@@ -417,7 +417,7 @@ export class EditProduct implements OnInit {
     const current = this.currentProduct();
     const taskId = this.extractTaskId(current) ?? (isUuid(productId) ? productId : null);
     if (!taskId) {
-      this.snackbar.error('Only draft products can be saved as draft');
+      this.snackbar.error(this.translation.translate('vendor.errors.onlyDraftCanSave'));
       return;
     }
 
@@ -465,12 +465,12 @@ export class EditProduct implements OnInit {
       .subscribe({
         next: () => {
           this.isSavingDraft.set(false);
-          this.snackbar.success('Draft saved successfully');
+          this.snackbar.success(this.translation.translate('vendor.errors.draftSuccess'));
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
         error: () => {
           this.isSavingDraft.set(false);
-          this.snackbar.error('Failed to save draft');
+          this.snackbar.error(this.translation.translate('vendor.errors.saveDraftFailed'));
         },
       });
   }
@@ -584,15 +584,15 @@ export class EditProduct implements OnInit {
         next: () => {
           this.isSubmitting.set(false);
           if (currentTaskId) {
-            this.snackbar.success('Product submitted successfully');
+            this.snackbar.success(this.translation.translate('vendor.errors.publishSuccess'));
           } else {
-            this.snackbar.success('Product updated successfully');
+            this.snackbar.success(this.translation.translate('vendor.errors.updateSuccess'));
           }
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
         error: () => {
           this.isSubmitting.set(false);
-          this.snackbar.error('Failed to update product');
+          this.snackbar.error(this.translation.translate('vendor.errors.updateFailed'));
         },
       });
   }
@@ -640,15 +640,15 @@ export class EditProduct implements OnInit {
         next: () => {
           this.isDeleting.set(false);
           if (taskId) {
-            this.snackbar.success('Draft deleted successfully');
+            this.snackbar.success(this.translation.translate('vendor.errors.draftDeleteSuccess'));
           } else {
-            this.snackbar.success('Product deleted successfully');
+            this.snackbar.success(this.translation.translate('vendor.errors.productDeleteSuccess'));
           }
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
         error: () => {
           this.isDeleting.set(false);
-          this.snackbar.error('Failed to delete product');
+          this.snackbar.error(this.translation.translate('vendor.errors.deleteFailed'));
         }
       });
   }
@@ -657,10 +657,10 @@ export class EditProduct implements OnInit {
     const control = this.productForm.get(controlName);
     if (!control || !control.touched) return '';
 
-    if (control.hasError('required')) return 'This field is required';
-    if (control.hasError('minlength')) return `Minimum length is ${control.getError('minlength').requiredLength}`;
-    if (control.hasError('min')) return `Minimum value is ${control.getError('min').min}`;
-    if (control.hasError('pattern')) return 'Invalid format';
+    if (control.hasError('required')) return this.translation.translate('validation.required');
+    if (control.hasError('minlength')) return this.translation.translate('validation.minlength', { n: control.getError('minlength').requiredLength });
+    if (control.hasError('min')) return this.translation.translate('validation.min', { n: control.getError('min').min });
+    if (control.hasError('pattern')) return this.translation.translate('validation.pattern');
 
     return '';
   }

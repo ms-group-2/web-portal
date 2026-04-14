@@ -1,45 +1,55 @@
-<div class="bg-white rounded-3xl border border-gray-200 shadow-sm p-5 lg:p-6">
+<div class="mb-4">
+  <app-mobile-filter-bar
+    [filterCount]="activeFilterCount()"
+    [productCount]="totalItems()"
+    productLabel="products"
+    [loading]="false"
+    [sortActive]="sortBy() !== 'popular'"
+    (filterClick)="showMobileFilters.set(true)"
+    (sortClick)="showMobileSorting.set(true)" />
+</div>
+
+<div class="hidden lg:block bg-white rounded-3xl border border-gray-200 shadow-sm p-5 lg:p-6">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-    <!-- Price -->
     <div>
-      <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center justify-between mb-2 gap-3">
         <label class="block text-xs font-black uppercase tracking-[0.12em] text-gray-500">
           {{ 'shop.filters.priceRange' | translate }}
         </label>
-
-        <div class="text-xs font-bold text-market">
-          ₾{{ minPrice() }} — ₾{{ maxPrice() }}
-        </div>
+        <button
+          type="button"
+          (click)="resetPriceFilters()"
+          class="shrink-0 text-xs font-bold uppercase text-market hover:underline">
+          {{ 'shop.filters.clear' | translate }}
+        </button>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">₾</span>
-            <input
-              type="number"
-              [value]="minPrice()"
-              (change)="onMinPriceChange($event)"
-              min="0"
-              [max]="maxPriceLimit()"
-              placeholder="0"
-              class="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 pl-8 pr-3 text-sm font-semibold text-gray-900 outline-none transition focus:border-market focus:ring-4 focus:ring-market/10"
-            />
-          </div>
-
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">₾</span>
-            <input
-              type="number"
-              [value]="maxPrice()"
-              (change)="onMaxPriceChange($event)"
-              min="0"
-              [max]="maxPriceLimit()"
-              [placeholder]="maxPriceLimit()"
-              class="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 pl-8 pr-3 text-sm font-semibold text-gray-900 outline-none transition focus:border-market focus:ring-4 focus:ring-market/10"
-            />
-          </div>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">₾</span>
+          <input
+            type="number"
+            [value]="minPrice()"
+            (change)="onMinPriceChange($event)"
+            min="0"
+            placeholder="0"
+            class="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 pl-8 pr-3 text-sm font-semibold text-gray-900 outline-none transition focus:border-market focus:ring-4 focus:ring-market/10"
+          />
         </div>
+
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">₾</span>
+          <input
+            type="number"
+            [value]="displayMaxPrice()"
+            (change)="onMaxPriceChange($event)"
+            min="0"
+            [placeholder]="maxPriceLimit()"
+            class="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 pl-8 pr-3 text-sm font-semibold text-gray-900 outline-none transition focus:border-market focus:ring-4 focus:ring-market/10"
+          />
+        </div>
+      </div>
     </div>
 
     <!-- Sort -->
@@ -48,22 +58,55 @@
         <label class="block text-xs font-black uppercase tracking-[0.12em] text-gray-500">
           {{ 'shop.filters.sortBy' | translate }}
         </label>
-
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-        @for (option of sortOptions; track option.value) {
-          <button
-            type="button"
-            (click)="setSortBy(option.value)"
-            [class]="sortBy() === option.value
-              ? 'h-12 rounded-2xl border border-market/20 bg-market text-white px-4 text-sm font-semibold shadow-sm transition'
-              : 'h-12 rounded-2xl border border-gray-200 bg-gray-50 hover:bg-white hover:border-gray-300 px-4 text-sm font-semibold text-gray-700 transition'">
-            {{ option.label | translate }}
-          </button>
-        }
-      </div>
+      <app-sort-options-list
+        [options]="sortOptions"
+        [currentValue]="sortBy()"
+        variant="pills"
+        (selected)="setSortBy($event)" />
     </div>
 
   </div>
 </div>
+
+<app-bottom-sheet [open]="showMobileFilters()" (closed)="showMobileFilters.set(false)">
+  <div class="flex items-center justify-between px-5 pt-4 pb-3" header>
+    <h3 class="text-lg font-black text-gray-900 uppercase">{{ 'shop.filters.priceRange' | translate }}</h3>
+    <button (click)="showMobileFilters.set(false)" class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100">
+      <mat-icon class="!text-[20px] !w-[20px] !h-[20px] text-gray-600">close</mat-icon>
+    </button>
+  </div>
+
+  <div class="px-5 pb-6" body>
+    <app-price-range-filter
+      [min]="minPrice()"
+      [max]="maxPrice()"
+      [maxLimit]="maxPriceLimit()"
+      [showSlider]="false"
+      (minChange)="shopService.shopMinPrice.set($event)"
+      (maxChange)="shopService.shopMaxPrice.set($event)" />
+  </div>
+
+  <div class="flex gap-2.5 px-5 py-3 border-t border-gray-200 bg-white" footer
+    style="padding-bottom: max(12px, env(safe-area-inset-bottom))">
+    <button
+      type="button"
+      (click)="resetPriceFilters(); showMobileFilters.set(false)"
+      class="flex-1 h-12 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-sm uppercase">
+      {{ 'shop.filters.clear' | translate }}
+    </button>
+    <button
+      (click)="showMobileFilters.set(false)"
+      class="flex-1 h-12 rounded-xl bg-market text-white font-bold text-sm uppercase">
+      {{ totalItems() }} products
+    </button>
+  </div>
+</app-bottom-sheet>
+
+<app-sort-bottom-sheet
+  [open]="showMobileSorting()"
+  [options]="sortOptions"
+  [currentValue]="sortBy()"
+  (closed)="showMobileSorting.set(false)"
+  (sortSelected)="setSortBy($event)" />

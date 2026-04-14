@@ -63,7 +63,6 @@ export class AddProduct implements OnInit {
   expandedFilterFields = signal<Set<number>>(new Set());
   selectedSpecFieldId = signal<number | null>(null);
 
-  // Image uploads
   coverImageFile: File | null = null;
   coverImagePreview = signal<string | null>(null);
   coverImageTouched = signal<boolean>(false);
@@ -218,7 +217,6 @@ export class AddProduct implements OnInit {
       }
     }
     this.cdr.markForCheck();
-    // Preserve dropdown selection after options list changes
     if (currentSelected !== null && currentSelected !== fieldId) {
       const preserved = currentSelected;
       this.selectedSpecFieldId.set(null);
@@ -250,11 +248,11 @@ export class AddProduct implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      this.snackbar.error('Please upload a valid image file');
+      this.snackbar.error(this.translation.translate('vendor.errors.invalidImageFile'));
       return;
     }
     if (!isValidImageFile(file)) {
-      this.snackbar.error('Image size must be up to 5MB');
+      this.snackbar.error(this.translation.translate('vendor.errors.imageSizeLimit'));
       return;
     }
 
@@ -314,9 +312,9 @@ export class AddProduct implements OnInit {
       });
 
       if (!this.coverImageFile) {
-        this.snackbar.error('Cover image is required');
+        this.snackbar.error(this.translation.translate('vendor.errors.coverImageRequired'));
       } else {
-        this.snackbar.error('Please fill in all required fields correctly');
+        this.snackbar.error(this.translation.translate('vendor.errors.fillRequiredFields'));
       }
       return;
     }
@@ -328,10 +326,10 @@ export class AddProduct implements OnInit {
     const control = this.productForm.get(controlName);
     if (!control || !control.touched) return '';
 
-    if (control.hasError('required')) return 'This field is required';
-    if (control.hasError('minlength')) return `Minimum length is ${control.getError('minlength').requiredLength}`;
-    if (control.hasError('min')) return `Minimum value is ${control.getError('min').min}`;
-    if (control.hasError('pattern')) return 'Invalid format';
+    if (control.hasError('required')) return this.translation.translate('validation.required');
+    if (control.hasError('minlength')) return this.translation.translate('validation.minlength', { n: control.getError('minlength').requiredLength });
+    if (control.hasError('min')) return this.translation.translate('validation.min', { n: control.getError('min').min });
+    if (control.hasError('pattern')) return this.translation.translate('validation.pattern');
 
     return '';
   }
@@ -352,7 +350,7 @@ export class AddProduct implements OnInit {
     }
 
     if (apiError?.status === 404 && apiError?.error?.error_code === 'SELLER_NOT_FOUND') {
-      return 'Seller profile not found. Please refresh the page and try again.';
+      return this.translation.translate('vendor.errors.sellerNotFound');
     }
 
     return SNACKBAR_MESSAGES.ERROR_GENERIC;
@@ -387,7 +385,7 @@ export class AddProduct implements OnInit {
       .subscribe({
         next: () => {
           this.setLoadingState(isDraft, false);
-          this.snackbar.success(isDraft ? 'Draft saved successfully' : 'Product submitted successfully');
+          this.snackbar.success(this.translation.translate(isDraft ? 'vendor.errors.draftSuccess' : 'vendor.errors.publishSuccess'));
           this.router.navigate(['/business/dashboard'], { queryParams: { tab: 'products' } });
         },
         error: (error: unknown) => {
@@ -400,12 +398,12 @@ export class AddProduct implements OnInit {
   private getValidProfile(): VendorProfile | null {
     const profile = this.vendorProfile();
     if (!profile) {
-      this.snackbar.error('Vendor profile not found. Please refresh and try again.');
+      this.snackbar.error(this.translation.translate('vendor.errors.vendorNotFound'));
       return null;
     }
 
     if ((profile.status || '').toLowerCase() === 'pending') {
-      this.snackbar.error('Your seller profile is pending approval.');
+      this.snackbar.error(this.translation.translate('vendor.errors.sellerPending'));
       return null;
     }
 

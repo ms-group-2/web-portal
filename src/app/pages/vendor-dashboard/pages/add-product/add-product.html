@@ -160,8 +160,8 @@
                              ? 'border-red-300 hover:border-red-400'
                              : 'border-gray-300 hover:border-categories hover:bg-categories/5')">
                   <i class="ph ph-upload-simple text-3xl text-gray-400 mb-2"></i>
-                  <p class="text-sm font-medium text-gray-600">Click to upload cover image</p>
-                  <p class="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                  <p class="text-sm font-medium text-gray-600">{{ 'vendor.errors.clickToUploadCover' | translate }}</p>
+                  <p class="text-xs text-gray-400 mt-1">{{ 'vendor.errors.imageFormatHint' | translate }}</p>
                 </label>
               }
               <input
@@ -172,7 +172,7 @@
                 class="hidden"
               />
               @if (coverImageTouched() && !coverImageFile) {
-                <p class="text-xs text-red-500 mt-2">Cover image is required</p>
+                <p class="text-xs text-red-500 mt-2">{{ 'vendor.errors.coverImageRequired' | translate }}</p>
               }
             </div>
 
@@ -211,7 +211,7 @@
                 (change)="onAdditionalImagesSelected($event)"
                 class="hidden"
               />
-              <p class="text-xs text-gray-400 mt-2">Up to 4 additional images</p>
+              <p class="text-xs text-gray-400 mt-2">{{ 'vendor.errors.upToAdditionalImages' | translate }}</p>
             </div>
           </div>
         </div>
@@ -220,7 +220,7 @@
           <h2 class="text-lg font-bold text-gray-900 mb-6">{{ 'vendor.productVariants' | translate }}</h2>
 
           @if (!productForm.get('category_id')?.value) {
-            <p class="text-sm text-gray-400">Select a category first to see available options</p>
+            <p class="text-sm text-gray-400">{{ 'vendor.errors.selectCategoryFirst' | translate }}</p>
           } @else if (filtersLoading()) {
             <div class="flex items-center gap-2 py-4">
               <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -247,7 +247,7 @@
             <!-- Dropdown to pick which spec to configure (only unconfigured fields) -->
             @if (getAvailableSpecFields().length > 0) {
               <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Select specification</mat-label>
+                <mat-label>{{ 'vendor.errors.selectSpecification' | translate }}</mat-label>
                 <mat-select [value]="selectedSpecFieldId()" (selectionChange)="onSpecFieldSelect($event.value)">
                   @for (field of getAvailableSpecFields(); track field.field_id) {
                     <mat-option [value]="field.field_id">{{ field.field_name }}</mat-option>
@@ -257,7 +257,6 @@
               </mat-form-field>
             }
 
-            <!-- Options for the currently selected spec field -->
             @if (getSelectedSpecField(); as specField) {
               <div class="mt-2">
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-2">{{ specField.field_name }}</label>
@@ -277,7 +276,7 @@
               </div>
             }
           } @else {
-            <p class="text-sm text-gray-400">No variant options available for this category</p>
+            <p class="text-sm text-gray-400">{{ 'vendor.errors.noVariantOptions' | translate }}</p>
           }
         </div>
       </div>
@@ -333,7 +332,6 @@
                 }
               </div>
 
-              <!-- Brand from filter options -->
               <input type="hidden" formControlName="brand_id" />
               @if (filtersLoading()) {
                 <div class="flex items-center gap-2 py-4">

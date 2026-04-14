@@ -5,10 +5,11 @@ import { ProductCardSkeletonComponent } from '../skeletons/product-card-skeleton
 import { ShopService } from 'lib/services/shop/shop.service';
 import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { Product } from '../../shop.models';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-product-grid',
-  imports: [ProductCardComponent, ProductCardSkeletonComponent],
+  imports: [ProductCardComponent, ProductCardSkeletonComponent, TranslatePipe],
   templateUrl: './product-grid.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -20,7 +21,6 @@ export class ProductGridComponent {
   products = signal<Product[]>([]);
   displayProducts = computed(() => this.products());
 
-  // header search count in sync with what the user sees
   private setSearchResultsCountEffect = effect(() => {
     this.searchService.setSearchResultsCount(this.totalItems());
   });
@@ -67,16 +67,11 @@ export class ProductGridComponent {
       this.lastQuerySignature = querySignature;
       this.currentPage.set(1);
 
-      // Fetch first page with larger sample to estimate max price immediately
       this.fetchMaxPriceSample();
       this.fetchProducts(1);
     });
 
-    // Keep search sidebar categories in sync with what the user is actually seeing.
     effect(() => {
-      // Use the raw API results here (before local checkbox filtering),
-      // so the sidebar can still show relevant categories/subcategories
-      // even when checkboxes are active.
       const raw = this.products();
       this.searchService.setSearchSidebarProducts(raw);
 
@@ -139,13 +134,22 @@ export class ProductGridComponent {
 
   private fetchProducts(page: number) {
     const requestId = ++this.latestRequestId;
-    this.isLoading.set(true);
 
     const searchQuery = this.searchService.searchQuery();
     const categoryId = this.shopService.selectedCategoryId();
     const sortBy = this.shopService.shopSortBy();
     const minPrice = this.shopService.shopMinPrice();
     const maxPrice = this.shopService.shopMaxPrice();
+
+    if (minPrice > maxPrice) {
+      this.products.set([]);
+      this.totalPages.set(0);
+      this.totalItems.set(0);
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.isLoading.set(true);
     const dynamicMax = this.shopService.dynamicMaxPrice();
     const extraFilters = this.searchService.getSelectedFilterQueryParams();
 
@@ -168,7 +172,6 @@ export class ProductGridComponent {
             this.totalPages.set(response.total_pages);
             this.totalItems.set(response.total);
 
-            // Accumulate max price across all pages visited
             this.shopService.updateDynamicMaxPrice(response.items);
 
             this.isLoading.set(false);
@@ -198,7 +201,6 @@ export class ProductGridComponent {
           this.totalPages.set(response.total_pages);
           this.totalItems.set(response.total);
 
-          // Accumulate max price across all pages visited
           this.shopService.updateDynamicMaxPrice(response.items);
 
           this.isLoading.set(false);

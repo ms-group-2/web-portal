@@ -1,17 +1,18 @@
 import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { NgClass } from '@angular/common';
-import { MatSlider, MatSliderRangeThumb } from '@angular/material/slider';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { ShopSearchService } from 'lib/services/shop/shop-search.service';
+import { SortOptionsList } from 'lib/components/sort-options-list/sort-options-list';
+import { PriceRangeFilter } from 'lib/components/price-range-filter/price-range-filter';
+import { BrandFilterList } from 'lib/components/brand-filter-list/brand-filter-list';
+import { SpecFilterList } from 'lib/components/spec-filter-list/spec-filter-list';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-search-filters-sidebar',
-  imports: [FormsModule, NgClass, MatSlider, MatSliderRangeThumb, TranslatePipe, RouterLink],
+  imports: [SortOptionsList, PriceRangeFilter, BrandFilterList, SpecFilterList, TranslatePipe, RouterLink],
   templateUrl: './search-filters-sidebar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -32,9 +33,6 @@ export class SearchFiltersSidebarComponent implements OnInit {
   maxPrice = this.shopService.shopMaxPrice;
   dynamicMaxPrice = this.shopService.dynamicMaxPrice;
 
-  // Accordion state (fields).
-  expandedFields = signal<Set<number>>(new Set());
-
   sortOptions = [
     { value: 'price_asc', label: 'shop.filters.sort.priceLow' },
     { value: 'price_desc', label: 'shop.filters.sort.priceHigh' },
@@ -46,14 +44,6 @@ export class SearchFiltersSidebarComponent implements OnInit {
   private loadedFor: number | null = null;
 
   constructor() {
-    // Update max price when dynamic max changes
-    effect(() => {
-      const newMax = this.dynamicMaxPrice();
-      if (this.maxPrice() > newMax) {
-        this.maxPrice.set(newMax);
-      }
-    });
-
     // Search page: derive a category_id from the first visible search product.
     // This avoids 404s and lets the sidebar show checkbox filters.
     effect(() => {
@@ -161,65 +151,15 @@ export class SearchFiltersSidebarComponent implements OnInit {
 
   clearAll(): void {
     this.searchService.clearSearchFilters();
-    this.expandedFields.set(new Set());
-    // Reset to dynamic max price
     this.maxPrice.set(this.dynamicMaxPrice());
-  }
-
-  getPriceStep(): number {
-    const max = this.maxPrice();
-    if (max <= 100) return 5;
-    if (max <= 500) return 10;
-    if (max <= 1000) return 25;
-    if (max <= 5000) return 50;
-    return 100;
-  }
-
-  setSortBy(value: string): void {
-    this.sortBy.set(value);
-  }
-
-  onMinPriceChange(event: Event): void {
-    const next = +(event.target as HTMLInputElement).value || 0;
-    this.minPrice.set(next);
-  }
-
-  onMaxPriceChange(event: Event): void {
-    const next = +(event.target as HTMLInputElement).value || this.dynamicMaxPrice();
-    this.maxPrice.set(next);
-  }
-
-  toggleField(fieldId: number): void {
-    this.expandedFields.update(current => {
-      const next = new Set(current);
-      if (next.has(fieldId)) next.delete(fieldId);
-      else next.add(fieldId);
-      return next;
-    });
-  }
-
-  isFieldExpanded(fieldId: number): boolean {
-    return this.expandedFields().has(fieldId);
-  }
-
-  isFilterOptionSelected(fieldId: number, optionId: number): boolean {
-    return this.searchService.isSearchFilterOptionSelected(fieldId, optionId);
   }
 
   toggleFilterOption(fieldId: number, optionId: number): void {
     this.searchService.toggleSearchFilterOption(fieldId, optionId);
   }
 
-  isBrandSelected(brandId: number): boolean {
-    return this.searchService.isBrandSelected(brandId);
-  }
-
   toggleBrand(brandId: number): void {
     this.searchService.toggleBrandSelection(brandId);
-  }
-
-  maxPriceForSlider(): number {
-    return this.dynamicMaxPrice();
   }
 
   relevantCategoryChips = computed(() => {
@@ -255,8 +195,6 @@ export class SearchFiltersSidebarComponent implements OnInit {
 
     if (chips.length > 0) return chips;
 
-    // Fallback: if we couldn't extract per-product category ids but we have a derived id,
-    // show it so users still see something meaningful.
     if (derived != null) {
       const categories = this.shopService.flatCategories();
       const match = categories.find(c => Number(c.id) === Number(derived));

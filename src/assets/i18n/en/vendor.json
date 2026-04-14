@@ -117,6 +117,31 @@
       "brandId": "Enter brand ID",
       "selectCategory": "Select a category",
       "selectSubcategory": "Select a subcategory"
+    },
+    "errors": {
+      "coverImageRequired": "Cover image is required",
+      "fillRequiredFields": "Please fill in all required fields correctly",
+      "invalidImageFile": "Please upload a valid image file",
+      "imageSizeLimit": "Image size must be up to 5MB",
+      "vendorNotFound": "Vendor profile not found. Please refresh and try again.",
+      "sellerPending": "Your seller profile is pending approval.",
+      "sellerNotFound": "Seller profile not found. Please refresh the page and try again.",
+      "draftSuccess": "Draft saved successfully",
+      "publishSuccess": "Product submitted successfully",
+      "selectCategoryFirst": "Select a category first to see available options",
+      "noVariantOptions": "No variant options available for this category",
+      "selectSpecification": "Select specification",
+      "clickToUploadCover": "Click to upload cover image",
+      "imageFormatHint": "PNG, JPG up to 5MB",
+      "upToAdditionalImages": "Up to 4 additional images",
+      "pendingCannotEdit": "Products pending approval cannot be edited",
+      "onlyDraftCanSave": "Only draft products can be saved as draft",
+      "draftDeleteSuccess": "Draft deleted successfully",
+      "productDeleteSuccess": "Product deleted successfully",
+      "updateSuccess": "Product updated successfully",
+      "updateFailed": "Failed to update product",
+      "saveDraftFailed": "Failed to save draft",
+      "deleteFailed": "Failed to delete product"
     }
   }
 }

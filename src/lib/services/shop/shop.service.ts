@@ -78,11 +78,20 @@ export class ShopService {
   updateDynamicMaxPrice(products: Product[], accumulate = true): void {
     const maxPrice = products.reduce((max, p) => Math.max(max, p.price || 0), 0);
     if (maxPrice > 0) {
-      const currentMax = this.dynamicMaxPrice();
+      const oldCeiling = this.dynamicMaxPrice();
       const newMax = Math.ceil(maxPrice / 100) * 100; // Round up to nearest 100
-      if (!accumulate || newMax > currentMax) {
+      if (!accumulate || newMax > oldCeiling) {
         this.dynamicMaxPrice.set(newMax);
+        // If user hasn't set a custom max (still at old ceiling), keep it at the new ceiling
+        if (this.shopMaxPrice() >= oldCeiling) {
+          this.shopMaxPrice.set(newMax);
+        }
       }
+    }
+    // Clamp down if above ceiling
+    const ceiling = this.dynamicMaxPrice();
+    if (ceiling > 0 && this.shopMaxPrice() > ceiling) {
+      this.shopMaxPrice.set(ceiling);
     }
   }
 
@@ -392,7 +401,6 @@ export class ShopService {
   }
 
   getFilterOptions(categoryId?: number, additionalParams?: Record<string, string | number | boolean>): Observable<{ filters: FilterField[]; brands: FilterBrand[] }> {
-    // Skip cache when additional params are present (filtering active)
     const useCache = !additionalParams || Object.keys(additionalParams).length === 0;
 
     if (categoryId && useCache) {
@@ -414,9 +422,6 @@ export class ShopService {
         map(response => {
           const rawFilters = response?.filters ?? [];
 
-          // Support both backend shapes:
-          // 1) flat: filters: FilterField[]
-          // 2) grouped: filters: [{ group_id, group_name, fields: FilterField[] }]
           const normalizedFilters: FilterField[] = (rawFilters as Array<FilterField & { fields?: FilterField[] }>).flatMap(entry => {
             if (Array.isArray(entry?.fields)) return entry.fields;
             return entry ? [entry] : [];
@@ -428,7 +433,6 @@ export class ShopService {
           };
         }),
         tap(payload => {
-          // Only cache when no additional filters are applied
           if (categoryId && useCache) {
             this.filterOptionsCache.update(prev => ({
               ...prev,
