@@ -99,7 +99,7 @@ export class Swap {
     this.isLoading.set(true);
     this.api.getAllListings().subscribe({
       next: (response) => {
-        const items = response.listings.map(listing => ({
+        const items = response.items.map(listing => ({
           ...listing,
           location: 'თბილისი',
           distance: '0 კმ',
@@ -169,7 +169,7 @@ export class Swap {
       if (photo.startsWith('http://') || photo.startsWith('https://')) {
         return photo;
       }
-      return this.api.getListingPhoto(photo);
+      return photo;
     }
     return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="18" fill="%239ca3af"%3Eფოტო არ არის%3C/text%3E%3C/svg%3E';
   }

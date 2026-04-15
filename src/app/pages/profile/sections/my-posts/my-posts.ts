@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, DestroyRef, inject } from '@angular
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { SwapItemsService, SwapListingApiService } from 'lib/services/swap';
+import { SwapItemsService } from 'lib/services/swap';
 import { ConfirmationDialogService } from 'lib/components/confirmation-dialog/confirmation-dialog.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
@@ -32,7 +32,7 @@ interface PostItem {
 export class MyPostsComponent {
   private swapItemsService = inject(SwapItemsService);
   private confirmDialog = inject(ConfirmationDialogService);
-  private api = inject(SwapListingApiService);
+
   private translation = inject(TranslationService);
   private destroyRef = inject(DestroyRef);
   private verificationService = inject(VerificationService);
@@ -84,7 +84,7 @@ export class MyPostsComponent {
       if (photo.startsWith('http://') || photo.startsWith('https://')) {
         return photo;
       }
-      return this.api.getListingPhoto(photo);
+      return photo;
     }
     return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="18" fill="%239ca3af"%3Eფოტო არ არის%3C/text%3E%3C/svg%3E';
   }

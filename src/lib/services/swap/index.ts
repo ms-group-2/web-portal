@@ -4,3 +4,4 @@ export * from './models/swap-listing.model';
 export * from './models/posted-swap-item.model';
 export * from './models/swap-listing.request.model';
 export * from './models/swap-listing.response.model';
+export * from './models/trade.model';

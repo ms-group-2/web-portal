@@ -1,10 +1,11 @@
 import { Injectable, signal, inject } from '@angular/core';
+import { Observable, of, forkJoin, switchMap, map } from 'rxjs';
 import { AuthService } from '../identity/auth.service';
 import { PostedSwapItem, SwapListingApiService, SwapListing } from './';
 import { SnackbarService } from '../snackbar.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SwapItemsService {
   private auth = inject(AuthService);
@@ -28,66 +29,72 @@ export class SwapItemsService {
     this._isLoading.set(true);
     this.api.getListingsByProfile(userId).subscribe({
       next: (response) => {
-        const items = response.listings.map(this.mapToPostedItem);
+        const items = response.items.map(this.mapToPostedItem);
         this._postedItems.set(items);
         this._isLoading.set(false);
       },
       error: () => {
         this._isLoading.set(false);
-      }
+      },
     });
   }
 
-  addItem(item: { title: string; description: string; wantedItem: string; images: File[] }) {
+  addItem(item: {
+    title: string;
+    description: string;
+    wantedItem: string;
+    images: File[];
+  }): Observable<SwapListing> | undefined {
     const userId = this.auth.user()?.id;
     if (!userId) {
       this.snackbar.error('განცხადების ატვირთვა მხოლოდ ავტორიზებულ პროფილებს შეუძლიათ');
-      return;
+      return undefined;
     }
 
     this._isLoading.set(true);
-    return this.api.createListing(userId, {
-      title: item.title,
-      swap_item_title: item.wantedItem,
-      description: item.description,
-      files: item.images
-    });
+    return this.api
+      .createListing(userId, {
+        title: item.title,
+        swap_item_title: item.wantedItem,
+        description: item.description,
+      })
+      .pipe(
+        switchMap((listing) => {
+          if (item.images.length === 0) return of(listing);
+          const uploads = item.images.map((file) => this.api.uploadPhoto(listing.id, file));
+          return forkJoin(uploads).pipe(map(() => listing));
+        })
+      );
   }
 
-  updateItem(id: string, updates: { title?: string; description?: string; wantedItem?: string; photos_to_delete?: string[]; new_files?: File[] }) {
-    const userId = this.auth.user()?.id;
-    if (!userId) return;
-
+  updateItem(id: string, updates: { title?: string; description?: string; wantedItem?: string }) {
     this._isLoading.set(true);
-    this.api.updateListing(id, userId, {
-      title: updates.title,
-      swap_item_title: updates.wantedItem,
-      description: updates.description,
-      photos_to_delete: updates.photos_to_delete,
-      new_files: updates.new_files
-    }).subscribe({
-      next: () => {
-        this.loadUserListings();
-      },
-      error: () => {
-        this._isLoading.set(false);
-      }
-    });
+    this.api
+      .updateListing(id, {
+        title: updates.title,
+        swap_item_title: updates.wantedItem,
+        description: updates.description,
+      })
+      .subscribe({
+        next: () => {
+          this.loadUserListings();
+        },
+        error: () => {
+          this._isLoading.set(false);
+        },
+      });
   }
 
   deleteItem(id: string) {
-    const userId = this.auth.user()?.id;
-    if (!userId) return;
-
     this._isLoading.set(true);
-    this.api.deleteListing(id, userId).subscribe({
+    this.api.deleteListing(id).subscribe({
       next: () => {
-        this._postedItems.update(items => items.filter(item => item.id !== id));
+        this._postedItems.update((items) => items.filter((item) => item.id !== id));
         this._isLoading.set(false);
       },
       error: () => {
         this._isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -99,8 +106,8 @@ export class SwapItemsService {
       description: listing.description,
       wantedItem: listing.swap_item_title,
       photos: listing.photos,
-      status: 'active', // Backend doesn't have status yet, default to active
-      createdAt: new Date(listing.created_at).toLocaleDateString('ka-GE')
+      status: listing.is_locked ? 'inactive' : 'active',
+      createdAt: new Date(listing.created_at).toLocaleDateString('ka-GE'),
     };
   }
 }
