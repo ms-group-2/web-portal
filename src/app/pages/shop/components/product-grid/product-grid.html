@@ -9,8 +9,8 @@
         <p class="text-gray-400 text-sm">{{ 'shop.grid.noProducts' | translate }}</p>
       </div>
     } @else {
-      @for (product of displayProducts(); track product.id) {
-        <app-product-card [product]="product"></app-product-card>
+      @for (product of displayProducts(); track product.id; let i = $index) {
+        <app-product-card appScrollAnimate="fade-up" [delay]="(i % 5) * 60" [product]="product"></app-product-card>
       }
     }
   </div>

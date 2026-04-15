@@ -58,23 +58,17 @@ export class ProductDetail implements OnInit {
     const product = this.product();
     if (!product?.category_id) return [];
 
-    const fromApi = this.categoryTrailFromNested(product.category);
-    if (fromApi.length > 0) {
-      return fromApi;
+    const fromNested = this.categoryTrailFromNested(product.category);
+    const fromFlat = this.buildCategoryTrailFromFlat(product.category_id);
+
+    if (fromFlat.length === 0) {
+      return fromNested;
     }
-
-    const categories = this.shopService.flatCategories();
-    const trail: Category[] = [];
-    let currentCategoryId: number | null = product.category_id;
-
-    while (currentCategoryId !== null) {
-      const category = categories.find(c => Number(c.id) === currentCategoryId);
-      if (!category) break;
-      trail.unshift(category);
-      currentCategoryId = category.parent_id;
+    if (fromNested.length === 0) {
+      return fromFlat;
     }
-
-    return trail;
+    // API nested category is often depth-capped; prefer the longer trail so the root (main) category is not dropped.
+    return fromFlat.length >= fromNested.length ? fromFlat : fromNested;
   });
 
   goBack() {
@@ -120,6 +114,21 @@ export class ProductDetail implements OnInit {
           this.loading.set(false);
         }
       });
+  }
+
+  private buildCategoryTrailFromFlat(categoryId: number): Category[] {
+    const categories = this.shopService.flatCategories();
+    const trail: Category[] = [];
+    let currentCategoryId: number | null = categoryId;
+
+    while (currentCategoryId !== null) {
+      const category = categories.find(c => Number(c.id) === currentCategoryId);
+      if (!category) break;
+      trail.unshift(category);
+      currentCategoryId = category.parent_id;
+    }
+
+    return trail;
   }
 
   private categoryTrailFromNested(nested: ProductCategoryNested | null | undefined): Category[] {

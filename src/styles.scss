@@ -17,13 +17,17 @@
 }
 
 :root {
+  /* Set live by app-header (ResizeObserver); fallback for first paint / no header */
+  --app-header-height: 5rem;
+
   --color-primary: #885DDE;
   --color-primary-rgb: 136, 93, 222;
   --color-accent: #7A1DFF;
 
   // --color-swap: #faae78e0;
   --color-swap: #90427b;
-  --color-booking: #80CBC4;
+  --color-booking: #FF8C42;
+  --color-booking-light: #FF8C42;
   --color-market: #3E5AD8;
 
   --color-registerBusiness: #4F5FD8;

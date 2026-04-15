@@ -267,7 +267,40 @@ header.bg-white.shop-header {
   }
 }
 
-// Swap 
+// Booking
+header.bg-white.booking-header {
+  .active-nav-link {
+    background-color: rgba(255, 107, 53, 0.1);
+    color: var(--color-booking) !important;
+  }
+
+  .nav-link {
+    color: rgba(255, 107, 53, 0.7);
+
+    &:hover {
+      color: var(--color-booking);
+    }
+  }
+
+  .header-icon {
+    color: var(--color-booking) !important;
+  }
+
+  .lang-btn {
+    color: var(--color-booking);
+  }
+
+  .register-btn {
+    border-color: rgba(255, 107, 53, 0.4);
+    color: var(--color-booking);
+
+    &:hover {
+      background-color: rgba(255, 107, 53, 0.1);
+    }
+  }
+}
+
+// Swap
 header.bg-white.swap-header {
   .active-nav-link {
     background-color: rgba(151, 73, 130, 0.2);

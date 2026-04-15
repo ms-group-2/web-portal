@@ -1,5 +1,4 @@
 <div class="min-h-screen bg-vendorPageBackground">
-  <!-- Top Header -->
   <div class="bg-white border-b border-gray-200 py-4 sticky top-0 z-10">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between">
@@ -48,7 +47,7 @@
   } @else {
     <form [formGroup]="productForm" (ngSubmit)="handleSubmit()" class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Left Column - Main Form -->
+        <!-- Lefft - Main Form -->
         <div class="lg:col-span-2 space-y-6">
           <button
             type="button"
@@ -58,8 +57,7 @@
             <i class="ph ph-arrow-left text-xl group-hover:-translate-x-1 transition-transform"></i>
             <span class="font-semibold">{{ 'vendor.backToProducts' | translate }}</span>
           </button>
-
-          <!-- Basic Information -->
+//basic info
           <div class="bg-white rounded-xl border border-gray-200 p-6">
             <h2 class="text-lg font-bold text-gray-900 mb-6">{{ 'vendor.basicInformation' | translate }}</h2>
 
@@ -99,7 +97,6 @@
             </div>
           </div>
 
-          <!-- Pricing -->
           <div class="bg-white rounded-xl border border-gray-200 p-6">
             <h2 class="text-lg font-bold text-gray-900 mb-6">{{ 'vendor.pricingInventory' | translate }}</h2>
 
@@ -160,12 +157,10 @@
             </div>
           </div>
 
-          <!-- Product Images -->
           <div class="bg-white rounded-xl border border-gray-200 p-6">
             <h2 class="text-lg font-bold text-gray-900 mb-6">{{ 'vendor.productImages' | translate }}</h2>
 
             <div class="space-y-5">
-              <!-- Cover Image -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                   {{ 'vendor.coverImage' | translate }} <span class="text-red-500">*</span>
@@ -202,7 +197,6 @@
                 }
               </div>
 
-              <!-- Additional Images -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                   {{ 'vendor.additionalImages' | translate }}
@@ -243,7 +237,6 @@
             </div>
           </div>
 
-          <!-- Product Variants / Filter Options -->
           <div class="bg-white rounded-xl border border-gray-200 p-6">
             <h2 class="text-lg font-bold text-gray-900 mb-6">{{ 'vendor.productVariants' | translate }}</h2>
 
@@ -255,7 +248,6 @@
                 <span class="text-sm text-gray-500">Loading options...</span>
               </div>
             } @else if (getAllSpecFields().length > 0) {
-              <!-- Summary of all selected specs -->
               @if (fieldOptionsArray.length > 0) {
                 <div class="flex flex-wrap gap-2 mb-4">
                   @for (field of getAllSpecFields(); track field.field_id) {
@@ -272,11 +264,10 @@
                 </div>
               }
 
-              <!-- Dropdown to pick which spec to configure -->
               @if (getAvailableSpecFields().length > 0) {
                 <mat-form-field appearance="outline" class="w-full">
                   <mat-label>{{ 'vendor.errors.selectSpecification' | translate }}</mat-label>
-                  <mat-select [value]="selectedSpecFieldId()" (selectionChange)="onSpecFieldSelect($event.value)">
+                  <mat-select disableOptionCentering [value]="selectedSpecFieldId()" (selectionChange)="onSpecFieldSelect($event.value)">
                     @for (field of getAvailableSpecFields(); track field.field_id) {
                       <mat-option [value]="field.field_id">{{ field.field_name }}</mat-option>
                     }
@@ -285,7 +276,6 @@
                 </mat-form-field>
               }
 
-              <!-- Options for the currently selected spec field -->
               @if (getSelectedSpecField(); as specField) {
                 <div class="mt-2">
                   <label class="block text-xs font-bold text-gray-500 uppercase mb-2">{{ specField.field_name }}</label>
@@ -310,21 +300,18 @@
           </div>
         </div>
 
-        <!-- Right Column - Category & Brand -->
         <div class="lg:col-span-1">
           <div class="lg:sticky lg:top-24 space-y-6">
-            <!-- Organization -->
-            <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="bg-white rounded-xl border border-gray-200 p-6 relative isolate">
               <h2 class="text-lg font-bold text-gray-900 mb-6">{{ 'vendor.organization' | translate }}</h2>
 
               <div class="space-y-4">
-                <!-- Category Selection - Cascading dropdowns -->
-                <div class="space-y-3">
+                <div class="space-y-5">
                   <input type="hidden" formControlName="category_id" />
 
-                  <mat-form-field appearance="outline" class="w-full">
+                  <mat-form-field appearance="outline" class="w-full" floatLabel="always">
                     <mat-label>{{ 'vendor.category' | translate }}</mat-label>
-                    <mat-select (selectionChange)="onParentCategoryChange($event.value)">
+                    <mat-select disableOptionCentering (selectionChange)="onParentCategoryChange($event.value)">
                       @for (cat of mainCategories(); track cat.id) {
                         <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
                       }
@@ -333,9 +320,9 @@
                   </mat-form-field>
 
                   @if (subcategories().length > 0) {
-                    <mat-form-field appearance="outline" class="w-full">
+                    <mat-form-field appearance="outline" class="w-full" floatLabel="always">
                       <mat-label>{{ 'vendor.placeholders.selectSubcategory' | translate }}</mat-label>
-                      <mat-select (selectionChange)="onSubCategoryChange($event.value)">
+                      <mat-select disableOptionCentering (selectionChange)="onSubCategoryChange($event.value)">
                         @for (cat of subcategories(); track cat.id) {
                           <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
                         }
@@ -345,9 +332,9 @@
                   }
 
                   @if (subSubcategories().length > 0) {
-                    <mat-form-field appearance="outline" class="w-full">
+                    <mat-form-field appearance="outline" class="w-full" floatLabel="always">
                       <mat-label>{{ 'vendor.placeholders.selectSubcategory' | translate }}</mat-label>
-                      <mat-select (selectionChange)="onSubSubCategoryChange($event.value)">
+                      <mat-select disableOptionCentering (selectionChange)="onSubSubCategoryChange($event.value)">
                         @for (cat of subSubcategories(); track cat.id) {
                           <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
                         }
@@ -361,7 +348,6 @@
                   }
                 </div>
 
-                <!-- Brand from filter options -->
                 <input type="hidden" formControlName="brand_id" />
                 @if (filtersLoading()) {
                   <div class="flex items-center gap-2 py-4">
@@ -369,9 +355,9 @@
                     <span class="text-sm text-gray-500">Loading brands...</span>
                   </div>
                 } @else if (getBrandOptions().length > 0) {
-                  <mat-form-field appearance="outline" class="w-full">
+                  <mat-form-field appearance="outline" class="w-full" floatLabel="always">
                     <mat-label>{{ 'vendor.brand' | translate }}</mat-label>
-                    <mat-select (selectionChange)="productForm.patchValue({ brand_id: $event.value })">
+                    <mat-select disableOptionCentering (selectionChange)="productForm.patchValue({ brand_id: $event.value })">
                       @for (brand of getBrandOptions(); track brand.option_id) {
                         <mat-option [value]="brand.option_id">{{ brand.option_value }}</mat-option>
                       }
@@ -379,7 +365,7 @@
                     <mat-icon matPrefix class="mr-2 text-gray-400">branding_watermark</mat-icon>
                   </mat-form-field>
                 } @else if (productForm.get('category_id')?.value && !filtersLoading()) {
-                  <mat-form-field appearance="outline" class="w-full">
+                  <mat-form-field appearance="outline" class="w-full" floatLabel="always">
                     <mat-label>{{ 'vendor.brand' | translate }}</mat-label>
                     <input matInput type="number" formControlName="brand_id" placeholder="Brand ID" />
                     <mat-icon matPrefix class="mr-2 text-gray-400">branding_watermark</mat-icon>

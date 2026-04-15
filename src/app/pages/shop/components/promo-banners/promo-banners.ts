@@ -1,10 +1,10 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { ScrollAnimateDirective } from 'lib/directives/scroll-animate.directive';
 
 @Component({
   selector: 'app-promo-banners',
-  imports: [ TranslatePipe],
+  imports: [TranslatePipe, ScrollAnimateDirective],
   templateUrl: './promo-banners.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

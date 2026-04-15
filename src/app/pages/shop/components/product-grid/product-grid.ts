@@ -4,12 +4,13 @@ import { ProductCardComponent } from '../product-card/product-card';
 import { ProductCardSkeletonComponent } from '../skeletons/product-card-skeleton';
 import { ShopService } from 'lib/services/shop/shop.service';
 import { ShopSearchService } from 'lib/services/shop/shop-search.service';
+import { ScrollAnimateDirective } from 'lib/directives/scroll-animate.directive';
 import { Product } from '../../shop.models';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 
 @Component({
   selector: 'app-product-grid',
-  imports: [ProductCardComponent, ProductCardSkeletonComponent, TranslatePipe],
+  imports: [ProductCardComponent, ProductCardSkeletonComponent, TranslatePipe, ScrollAnimateDirective],
   templateUrl: './product-grid.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

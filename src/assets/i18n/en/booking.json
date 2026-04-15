@@ -1,0 +1,108 @@
+{
+  "booking": {
+    "hero": {
+      "slides": {
+        "0": {
+          "title": "Book Your Next Experience",
+          "subtitle": "From dining to gaming, discover and reserve instantly",
+          "button": "Start Exploring"
+        },
+        "1": {
+          "title": "Unforgettable Dining",
+          "subtitle": "Reserve tables at top-rated restaurants near you",
+          "button": "Find Restaurants"
+        },
+        "2": {
+          "title": "Level Up Your Game",
+          "subtitle": "Premium gaming lounges and entertainment venues",
+          "button": "Book Now"
+        }
+      },
+      "search": {
+        "queryLabel": "What are you looking for?",
+        "queryPlaceholder": "Restaurants, gaming spaces, hotels...",
+        "locationLabel": "Location",
+        "locationPlaceholder": "Where do you want to go?",
+        "button": "Search"
+      }
+    },
+    "categories": {
+      "all": "All",
+      "restaurants": "Restaurants",
+      "hotels": "Hotels",
+      "gaming": "Gaming Spaces",
+      "cafes": "Cafes",
+      "gyms": "Gyms",
+      "beauty": "Beauty & Care"
+    },
+    "trending": {
+      "title": "Trending This Week",
+      "subtitle": "Most popular destinations right now",
+      "viewAll": "View All",
+      "experiences": "experiences",
+      "destinations": {
+        "0": { "name": "Downtown" },
+        "1": { "name": "Marina District" },
+        "2": { "name": "Tech Valley" },
+        "3": { "name": "Arts District" }
+      }
+    },
+    "listings": {
+      "exploreAll": "Explore All",
+      "results": "Results"
+    },
+    "hosts": {
+      "title": "Featured Hosts",
+      "subtitle": "Meet our top-rated venue owners",
+      "reviews": "reviews"
+    },
+    "reviews": {
+      "title": "Guest Reviews",
+      "subtitle": "What our community is saying",
+      "venue": "Venue",
+      "items": {
+        "0": {
+          "text": "Amazing experience! The booking process was seamless and the venue exceeded all expectations. Will definitely use again!",
+          "venue": "Downtown Restaurant",
+          "date": "2 days ago"
+        },
+        "1": {
+          "text": "Perfect for our gaming tournament. Great facilities, responsive host, and instant confirmation. Highly recommend!",
+          "venue": "VR Gaming Center",
+          "date": "1 week ago"
+        },
+        "2": {
+          "text": "Best hotel experience in the city. Clean, modern, and the booking was confirmed instantly. Five stars all around!",
+          "venue": "Boutique Hotel",
+          "date": "3 weeks ago"
+        }
+      }
+    },
+    "features": {
+      "title": "Why Book With Us?",
+      "subtitle": "Your trusted platform for seamless reservations",
+      "instant": {
+        "title": "Instant Booking",
+        "description": "Reserve instantly without waiting for approval"
+      },
+      "verified": {
+        "title": "Verified Venues",
+        "description": "All hosts are verified and trusted"
+      },
+      "price": {
+        "title": "Best Price Guarantee",
+        "description": "Find the best deals or we'll match it"
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Get help anytime, anywhere"
+      }
+    },
+    "cta": {
+      "title": "Register as a Host",
+      "description": "Share your restaurant, gaming space, hotel, or any venue with thousands of customers",
+      "getStarted": "Get Started",
+      "learnMore": "Learn More"
+    }
+  }
+}

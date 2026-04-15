@@ -37,9 +37,9 @@ export class ProfileSidebarComponent implements OnInit, OnDestroy {
   ];
 
   historyNavItems: NavItem[] = [
-    { route: '/profile/history/swap', icon: 'swap_horiz', label: 'profile.nav.swapHistory', activeClass: 'bg-swap text-black' },
-    { route: '/profile/history/shop', icon: 'shopping_bag', label: 'profile.nav.shopHistory', activeClass: 'bg-primary text-white' },
-    { route: '/profile/history/booking', icon: 'event', label: 'profile.nav.bookingHistory', activeClass: 'bg-market text-white' },
+    { route: '/profile/history/swap', icon: 'swap_horiz', label: 'profile.nav.swapHistory', activeClass: 'bg-swap text-white' },
+    { route: '/profile/history/shop', icon: 'shopping_bag', label: 'profile.nav.shopHistory', activeClass: 'bg-market text-white' },
+    { route: '/profile/history/booking', icon: 'event', label: 'profile.nav.bookingHistory', activeClass: 'bg-booking-light text-white' },
   ];
 
   userName = computed(() => {

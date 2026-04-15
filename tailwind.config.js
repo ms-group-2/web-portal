@@ -18,7 +18,10 @@ module.exports = {
         },
         accent: 'var(--color-accent)',
         swap: 'var(--color-swap)',
-        booking: 'var(--color-booking)',
+        booking: {
+          DEFAULT: 'var(--color-booking)',
+          light: 'var(--color-booking-light)',
+        },
         market: 'var(--color-market)',
         textBlue: 'var(--color-textBlue)',
         background: 'var(--color-background)',

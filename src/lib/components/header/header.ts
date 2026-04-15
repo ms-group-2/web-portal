@@ -1,4 +1,15 @@
-import { Component, inject, signal, computed, input, OnDestroy, HostListener, afterNextRender } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  input,
+  OnDestroy,
+  HostListener,
+  afterNextRender,
+  viewChild,
+  ElementRef,
+} from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { filter, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -38,6 +49,10 @@ export class Header implements OnDestroy {
   private favoritesService = inject(ShopFavoritesService);
   private document = inject(DOCUMENT);
 
+  /** Measured `<header>` height for `padding-top` / `sticky top` below the fixed bar */
+  private headerMeasureRoot = viewChild<ElementRef<HTMLElement>>('headerMeasureRoot');
+  private headerResizeObserver: ResizeObserver | null = null;
+
   variant = input<'gradient' | 'white'>('gradient');
   navContainerClass = input<string>('');
 
@@ -63,6 +78,10 @@ export class Header implements OnDestroy {
   isSwapRoute = computed(() => {
     return this.currentRoute().includes('/swap');
   });
+
+  isBookingRoute = computed(() => {
+    return this.currentRoute().includes('/booking');
+  });
   cartBadgeClass = computed(() => {
     const route = this.currentRoute();
     if (route.includes('/shop') || route.includes('/profile/cart')) {
@@ -77,18 +96,34 @@ export class Header implements OnDestroy {
     return 'bg-primary';
   });
 
-  headerGradient = computed(() => {
-    const route = this.currentRoute();
-    if (route.includes('/shop')) {
-      return 'bg-gradient-to-r from-market to-teal-400';
+  // headerGradient = computed(() => {
+    // const route = this.currentRoute();
+    // if (route.includes('/shop')) {
+    //   return 'bg-gradient-to-r from-market to-teal-400';
     // } else if (route.includes('/booking')) {
-    //   return 'bg-gradient-to-r from-booking to-blue-500';
-    }
-    return 'bg-gradient-to-r from-accent to-purple-600';
-  });
+    //   return 'bg-gradient-to-r from-booking to-booking-light';
+  //   }
+  //   return 'bg-gradient-to-r from-accent to-purple-600';
+  // });
 
   constructor() {
     afterNextRender(() => this.authReady.set(true));
+
+    afterNextRender(() => {
+      const ref = this.headerMeasureRoot();
+      const el = ref?.nativeElement;
+      if (!el || typeof ResizeObserver === 'undefined') {
+        return;
+      }
+      const root = this.document.documentElement;
+      const sync = () => {
+        const h = Math.ceil(el.getBoundingClientRect().height);
+        root.style.setProperty('--app-header-height', `${h}px`);
+      };
+      sync();
+      this.headerResizeObserver = new ResizeObserver(sync);
+      this.headerResizeObserver.observe(el);
+    });
 
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -109,6 +144,9 @@ export class Header implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.headerResizeObserver?.disconnect();
+    this.headerResizeObserver = null;
+    this.document.documentElement.style.removeProperty('--app-header-height');
     this.document.body.style.overflow = '';
     this.destroy$.next();
     this.destroy$.complete();

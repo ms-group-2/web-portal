@@ -10,9 +10,9 @@ import { MatIcon } from '@angular/material/icon';
       <button
         (click)="filterClick.emit()"
         class="relative w-11 h-11 flex items-center justify-center rounded-xl bg-gray-100 border border-gray-200 active:scale-95 transition-transform">
-        <mat-icon fontSet="material-icons-outlined" class="!text-[22px] !w-[22px] !h-[22px] text-gray-700">tune</mat-icon>
+        <mat-icon fontSet="material-icons-outlined" class="!text-lg !w-5 !h-5 text-gray-700">tune</mat-icon>
         @if (filterCount() > 0) {
-          <span class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-market text-white text-[11px] font-bold px-1">
+          <span class="absolute -top-1.5 -right-1.5 min-w-lg h-5 flex items-center justify-center rounded-full bg-market text-white text-xs font-bold px-1">
             {{ filterCount() }}
           </span>
         }
@@ -29,8 +29,8 @@ import { MatIcon } from '@angular/material/icon';
           <button
             (click)="categoryClick.emit()"
             class="relative w-11 h-11 flex items-center justify-center rounded-xl bg-gray-100 border border-gray-200 active:scale-95 transition-transform">
-            <mat-icon fontSet="material-icons-outlined" class="!text-[22px] !w-[22px] !h-[22px] text-gray-700">category</mat-icon>
-            <span class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-market text-white text-[11px] font-bold px-1">
+            <mat-icon fontSet="material-icons-outlined" class="!text-lg !w-5 !h-5 text-gray-700">category</mat-icon>
+            <span class="absolute -top-1.5 -right-1.5 min-w-lg h-5 flex items-center justify-center rounded-full bg-market text-white text-xs font-bold px-1">
               {{ categoryCount() }}
             </span>
           </button>
@@ -39,7 +39,7 @@ import { MatIcon } from '@angular/material/icon';
         <button
           (click)="sortClick.emit()"
           class="relative w-11 h-11 flex items-center justify-center rounded-xl bg-gray-100 border border-gray-200 active:scale-95 transition-transform">
-          <mat-icon fontSet="material-icons-outlined" class="!text-[22px] !w-[22px] !h-[22px] text-gray-700">sort</mat-icon>
+          <mat-icon fontSet="material-icons-outlined" class="!text-lg !w-5 !h-5 text-gray-700">sort</mat-icon>
           @if (sortActive()) {
             <span class="absolute -top-1.5 -right-1.5 w-2.5 h-2.5 rounded-full bg-market"></span>
           }

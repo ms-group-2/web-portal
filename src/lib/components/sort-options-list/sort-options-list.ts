@@ -40,15 +40,6 @@ export interface SortOption {
               <span class="text-sm font-semibold">
                 {{ option.label | translate }}
               </span>
-              <span
-                class="w-5 h-5 rounded-full"
-                [ngClass]="currentValue() === option.value
-                  ? 'bg-market text-white flex items-center justify-center text-xs font-bold'
-                  : 'border border-gray-300'">
-                @if (currentValue() === option.value) {
-                  ✓
-                }
-              </span>
             </button>
           }
         </div>

@@ -3,23 +3,38 @@
 <div class="min-h-screen bg-white pt-20 lg:pt-32 2xl:pt-20">
   <div class="pt-8 pb-8 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
 
-    <nav class="mb-8 sticky top-15 bg-white z-10 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-12 md:px-12 lg:-mx-20 lg:px-20 xl:-mx-32 xl:px-32">
-      <ol class="flex items-center gap-2 text-sm flex-wrap">
-        <li>
+    <nav
+      class="mb-8 sticky top-15 bg-white z-10 py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-12 md:px-12 lg:-mx-20 lg:px-20 xl:-mx-32 xl:px-32"
+      aria-label="Breadcrumb"
+    >
+      <ol class="m-0 flex list-none flex-wrap items-center gap-x-1.5 gap-y-1 p-0 text-sm leading-normal">
+        <li class="inline-flex items-center">
           <a routerLink="/shop" class="text-market hover:underline">{{ 'shop.hero.title' | translate }}</a>
         </li>
-        <li class="text-gray-400">/</li>
+        <li class="inline-flex items-center text-gray-400" aria-hidden="true">
+          <mat-icon
+            class="!inline-flex !size-4 !items-center !justify-center !text-base !leading-none -translate-y-[0.05em]"
+            >chevron_right
+          </mat-icon>
+        </li>
 
         @for (category of breadcrumbTrail(); track category.id; let isLast = $last) {
-          @if (!isLast) {
-            <li>
+          <li class="inline-flex items-center">
+            @if (!isLast) {
               <a [routerLink]="getCategoryRoute(category.id)" class="text-market hover:underline">
                 {{ category.name | translate }}
               </a>
+            } @else {
+              <span class="text-gray-900 font-medium">{{ category.name | translate }}</span>
+            }
+          </li>
+          @if (!isLast) {
+            <li class="inline-flex items-center text-gray-400" aria-hidden="true">
+              <mat-icon
+                class="!inline-flex !size-4 !items-center !justify-center !text-base !leading-none -translate-y-[0.05em]"
+                >chevron_right
+              </mat-icon>
             </li>
-            <li class="text-gray-400">/</li>
-          } @else {
-            <li class="text-gray-900 font-medium">{{ category.name | translate }}</li>
           }
         }
       </ol>
@@ -44,7 +59,7 @@
               <a
                 [routerLink]="getCategoryRoute(parent.id)"
                 class="w-full text-left px-4 py-3 rounded-lg transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium flex items-center gap-2 mb-4">
-                <span>{{ 'header.nav.back' | translate }}</span>
+                <span>← {{ 'header.nav.back' | translate }}</span>
               </a>
             }
 
@@ -74,7 +89,7 @@
               <a
                 [routerLink]="getCategoryRoute(parent.id)"
                 class="w-full text-left px-4 py-3 rounded-lg transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium flex items-center gap-2 mb-4">
-                <span>← Back</span>
+                <span>← {{ 'header.nav.back' | translate }}</span>
               </a>
             }
 

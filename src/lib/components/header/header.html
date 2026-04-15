@@ -1,8 +1,11 @@
-<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
+<header
+  #headerMeasureRoot
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
   [ngClass]="[
-    variant() === 'white' ? 'bg-white border-gray-200' : headerGradient() + ' border-transparent',
+    variant() === 'white' ? 'bg-white border-gray-200' : 'bg-gradient-to-r from-accent to-purple-600 border-transparent',
     isShopRoute() ? 'shop-header' : '',
-    isSwapRoute() ? 'swap-header' : ''
+    isSwapRoute() ? 'swap-header' : '',
+    isBookingRoute() ? 'booking-header' : ''
   ]">
   <nav
     [class]="'flex flex-wrap items-center gap-x-2 gap-y-2 py-2 md:py-3 ' + (navContainerClass() || 'px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32')">
@@ -13,7 +16,7 @@
       aria-label="Vipo home"
     >
       <img
-        [src]="variant() === 'white' ? (isShopRoute() ? 'assets/logo/logo-blue.svg' : isSwapRoute() ? 'assets/logo/logo-plum.svg' : 'assets/logo/logo-purple.svg') : 'assets/logo/logo-white.svg'"
+        [src]="variant() === 'white' ? (isShopRoute() ? 'assets/logo/logo-blue.svg' : isSwapRoute() ? 'assets/logo/logo-plum.svg' : isBookingRoute() ? 'assets/logo/logo-orange.svg' : 'assets/logo/logo-purple.svg') : 'assets/logo/logo-white.svg'"
         alt="Vipo Logo"
         class="w-24 h-8 sm:w-28 sm:h-9 md:w-32 md:h-10"
       />

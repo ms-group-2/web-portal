@@ -41,7 +41,7 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
         </div>
       }
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-bold uppercase text-gray-400 mb-1">
             {{ 'shop.filters.from' | translate }}

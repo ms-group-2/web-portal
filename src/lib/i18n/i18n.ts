@@ -47,6 +47,9 @@ import enValidation from '../../assets/i18n/en/validation.json';
 import kaVendor from '../../assets/i18n/ka/vendor.json';
 import enVendor from '../../assets/i18n/en/vendor.json';
 
+import kaBooking from '../../assets/i18n/ka/booking.json';
+import enBooking from '../../assets/i18n/en/booking.json';
+
 export const I18N: Record<Language, Record<string, any>> = {
   ka: {
     ...(kaBase as any),
@@ -57,6 +60,7 @@ export const I18N: Record<Language, Record<string, any>> = {
     ...(kaSwap as any),
     ...(kaValidation as any),
     ...(kaVendor as any),
+    ...(kaBooking as any),
   },
   en: {
     ...(enBase as any),
@@ -67,6 +71,7 @@ export const I18N: Record<Language, Record<string, any>> = {
     ...(enSwap as any),
     ...(enValidation as any),
     ...(enVendor as any),
+    ...(enBooking as any),
   },
 };
 
