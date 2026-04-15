@@ -103,6 +103,9 @@
       "description": "Share your restaurant, gaming space, hotel, or any venue with thousands of customers",
       "getStarted": "Get Started",
       "learnMore": "Learn More"
+    },
+    "chat": {
+      "ariaLabel": "Contact support"
     }
   }
 }
