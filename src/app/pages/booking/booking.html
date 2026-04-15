@@ -22,4 +22,13 @@
   </div>
 </div>
 
+<button
+  type="button"
+  class="fixed bottom-9 right-9 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-booking-light text-white shadow-lg transition hover:scale-105 hover:shadow-xl"
+  [attr.aria-label]="'booking.chat.ariaLabel' | translate"
+  (click)="openSupportChat()"
+>
+  <mat-icon class="!text-3xl !h-10 !w-10">chat</mat-icon>
+</button>
+
 <app-footer></app-footer>

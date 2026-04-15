@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, output, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, output, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
@@ -11,7 +11,9 @@ import { HERO_SLIDES } from '../../booking.mock-data';
   styleUrl: './booking-hero.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BookingHero {
+export class BookingHero implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   slides = HERO_SLIDES;
   currentIndex = signal(0);
   slideDirection = signal<'next' | 'prev'>('next');
@@ -21,6 +23,11 @@ export class BookingHero {
   search = output<{ query: string; location: string }>();
 
   currentSlide = computed(() => this.slides[this.currentIndex()]);
+
+  ngOnInit() {
+    const intervalId = setInterval(() => this.nextSlide(), 3000);
+    this.destroyRef.onDestroy(() => clearInterval(intervalId));
+  }
 
   nextSlide() {
     this.slideDirection.set('next');

@@ -1,7 +1,9 @@
 import { Component, ChangeDetectionStrategy, OnInit, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatIconModule } from '@angular/material/icon';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { BookingHero } from './components/booking-hero/booking-hero';
 import { BookingTrending } from './components/booking-trending/booking-trending';
@@ -17,6 +19,8 @@ import { BookingHostCta } from './components/booking-host-cta/booking-host-cta';
   imports: [
     Header,
     Footer,
+    MatIconModule,
+    TranslatePipe,
     BookingHero,
     BookingTrending,
     BookingCategoryBar,
@@ -43,5 +47,9 @@ export class Booking implements OnInit {
 
   onSearch(event: { query: string; location: string }) {
     console.log('Search:', event);
+  }
+
+  openSupportChat() {
+    window.location.href = 'mailto:vipo.support@gmail.com';
   }
 }

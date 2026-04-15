@@ -89,13 +89,13 @@
         <mat-icon class="text-gray-900">chevron_right</mat-icon>
       </button>
 
-      <div class="absolute bottom-32 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-        @for (slide of slides; track slide.titleKey; let i = $index) {
+      <!-- <div class="absolute bottom-32 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+        @for (slide of slides; track slide.titleKey; let i = $index) {z
           <button
             (click)="goToSlide(i)"
             [class]="'h-3 rounded-full transition-all duration-300 ' + (i === currentIndex() ? 'bg-white w-12 shadow-lg' : 'bg-white/60 w-3 hover:bg-white/80')"
           ></button>
         }
-      </div>
+      </div> -->
     </div>
 </section>
