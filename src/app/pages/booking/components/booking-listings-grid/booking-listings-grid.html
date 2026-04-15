@@ -1,0 +1,24 @@
+<section class="py-20 bg-gray-50">
+  <div appScrollAnimate="fade-up" class="flex items-center justify-between mb-10">
+      <h2 class="text-5xl font-black text-gray-900 uppercase tracking-tight">
+        @if (selectedCategory() === 'booking.categories.all') {
+          {{ 'booking.listings.exploreAll' | translate }}
+        } @else {
+          {{ selectedCategory() | translate }}
+        }
+      </h2>
+      <span class="text-sm font-black text-gray-500 uppercase tracking-wide">
+        {{ filteredListings().length }} {{ 'booking.listings.results' | translate }}
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      @for (listing of filteredListings(); track listing.id; let i = $index) {
+        <app-booking-listing-card appScrollAnimate="fade-up" [delay]="i * 80"
+          [listing]="listing"
+          [isFavorite]="isFavorite(listing.id)"
+          (favoriteToggle)="toggleFavorite($event)"
+        />
+      }
+    </div>
+</section>

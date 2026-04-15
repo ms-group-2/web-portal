@@ -1,0 +1,43 @@
+<section class="py-20 bg-white">
+  <div appScrollAnimate="fade-up" class="text-center mb-12">
+      <div class="flex items-center justify-center gap-3 mb-3">
+        <mat-icon class="text-booking" style="font-size: 30px; width: 30px; height: 30px; line-height: 30px;">emoji_events</mat-icon>
+        <h2 class="text-5xl font-black text-gray-900 uppercase tracking-tight">
+          {{ 'booking.hosts.title' | translate }}
+        </h2>
+      </div>
+      <p class="text-lg text-gray-600 font-medium">
+        {{ 'booking.hosts.subtitle' | translate }}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @for (host of hosts; track host.name; let i = $index) {
+        <div appTilt appScrollAnimate="fade-up" [delay]="i * 150" class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 text-center shadow-lg hover:shadow-2xl transition-shadow cursor-pointer group">
+          <div class="relative inline-block mb-6">
+            <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg">
+              <img
+                [src]="host.avatar"
+                [alt]="host.name"
+                class="size-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            </div>
+            @if (host.verified) {
+              <div class="absolute bottom-0 right-0 w-10 h-10 bg-booking rounded-full flex items-center justify-center border-4 border-white">
+                <mat-icon class="text-white" style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">verified_user</mat-icon>
+              </div>
+            }
+          </div>
+          <h3 class="text-xl font-black text-gray-900 mb-1 uppercase">{{ host.name }}</h3>
+          <p class="text-sm text-gray-600 font-semibold mb-4">{{ host.venue }}</p>
+          <div class="flex items-center justify-center gap-2 mb-2">
+            <mat-icon class="text-booking" style="font-size: 20px; width: 20px; height: 20px; line-height: 20px;">star</mat-icon>
+            <span class="text-lg font-black text-gray-900">{{ host.rating }}</span>
+          </div>
+          <p class="text-xs text-gray-500 font-semibold">
+            {{ host.reviews }} {{ 'booking.hosts.reviews' | translate }}
+          </p>
+        </div>
+      }
+    </div>
+</section>

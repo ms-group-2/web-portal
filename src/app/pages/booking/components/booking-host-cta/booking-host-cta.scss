@@ -1,0 +1,72 @@
+:host {
+  display: block;
+}
+
+.cta-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.cta-blob-1 {
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.25);
+  top: -100px;
+  left: -50px;
+  animation: blobFloat1 8s ease-in-out infinite;
+}
+
+.cta-blob-2 {
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 200, 100, 0.3);
+  bottom: -80px;
+  right: -30px;
+  animation: blobFloat2 10s ease-in-out infinite;
+}
+
+.cta-blob-3 {
+  width: 250px;
+  height: 250px;
+  background: rgba(255, 255, 255, 0.2);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: blobFloat3 12s ease-in-out infinite;
+}
+
+@keyframes blobFloat1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(60px, 40px) scale(1.1);
+  }
+  66% {
+    transform: translate(-30px, 60px) scale(0.95);
+  }
+}
+
+@keyframes blobFloat2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-50px, -30px) scale(1.15);
+  }
+  66% {
+    transform: translate(40px, -50px) scale(0.9);
+  }
+}
+
+@keyframes blobFloat3 {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-30%, -60%) scale(1.2);
+  }
+}

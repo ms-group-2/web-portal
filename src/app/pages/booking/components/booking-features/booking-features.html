@@ -1,0 +1,26 @@
+<section class="py-20 bg-white">
+  <div appScrollAnimate="fade-up" class="text-center mb-12">
+      <h2 class="text-5xl font-black text-gray-900 mb-4 uppercase tracking-tight">
+        {{ 'booking.features.title' | translate }}
+      </h2>
+      <p class="text-lg text-gray-600 font-medium">
+        {{ 'booking.features.subtitle' | translate }}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      @for (feature of features; track feature.titleKey; let i = $index) {
+        <div appScrollAnimate="zoom-in" [delay]="i * 100" class="text-center">
+          <div class="w-20 h-20 bg-gradient-to-br from-booking to-booking-light rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <mat-icon class="text-white" style="font-size: 36px; width: 36px; height: 36px; line-height: 36px;">{{ feature.icon }}</mat-icon>
+          </div>
+          <h3 class="text-xl font-black text-gray-900 mb-3 uppercase">
+            {{ feature.titleKey | translate }}
+          </h3>
+          <p class="text-sm text-gray-600 font-medium">
+            {{ feature.descriptionKey | translate }}
+          </p>
+        </div>
+      }
+    </div>
+</section>

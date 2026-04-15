@@ -1,0 +1,28 @@
+<section class="py-20 bg-gradient-to-b from-white to-gray-50">
+  <div appScrollAnimate="zoom-in" class="cta-container bg-gradient-to-r from-booking via-[#FF7F50] to-booking-light rounded-3xl p-20 text-center relative overflow-hidden">
+      <div class="cta-blob cta-blob-1"></div>
+      <div class="cta-blob cta-blob-2"></div>
+      <div class="cta-blob cta-blob-3"></div>
+
+      <div class="absolute inset-0 opacity-20"
+        style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9Ii4xIi8+PC9nPjwvc3ZnPg==')">
+      </div>
+
+      <div class="relative z-10">
+        <h2 class="text-6xl font-black text-white mb-6 uppercase tracking-tight drop-shadow-lg">
+          {{ 'booking.cta.title' | translate }}
+        </h2>
+        <p class="text-2xl text-white mb-10 max-w-3xl mx-auto font-semibold">
+          {{ 'booking.cta.description' | translate }}
+        </p>
+        <div class="flex items-center justify-center gap-6">
+          <button class="px-12 py-5 bg-white text-booking font-black rounded-2xl hover:shadow-2xl transition-all uppercase text-base tracking-wide hover:scale-105">
+            {{ 'booking.cta.getStarted' | translate }}
+          </button>
+          <button class="px-12 py-5 bg-white/10 border-2 border-white text-white font-black rounded-2xl hover:bg-white/20 transition-all uppercase text-base tracking-wide hover:scale-105">
+            {{ 'booking.cta.learnMore' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+</section>

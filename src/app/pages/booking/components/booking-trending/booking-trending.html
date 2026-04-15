@@ -1,0 +1,45 @@
+<section class="py-20 bg-gradient-to-b from-white to-gray-50">
+  <div appScrollAnimate="fade-up" class="flex items-center justify-between mb-10">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <mat-icon class="text-booking" style="font-size: 30px; width: 30px; height: 30px; line-height: 30px;">trending_up</mat-icon>
+          <h2 class="text-5xl font-black text-gray-900 uppercase tracking-tight">
+            {{ 'booking.trending.title' | translate }}
+          </h2>
+        </div>
+        <p class="text-lg text-gray-600 font-medium">
+          {{ 'booking.trending.subtitle' | translate }}
+        </p>
+      </div>
+      <button class="px-6 py-3 text-booking font-black uppercase text-sm tracking-wide hover:bg-booking/5 rounded-xl transition-all">
+        {{ 'booking.trending.viewAll' | translate }} →
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (destination of destinations; track destination.nameKey; let i = $index) {
+        <div appTilt appScrollAnimate="fade-up" [delay]="i * 100" class="relative rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-2xl transition-shadow">
+          <div class="aspect-[4/3]">
+            <img
+              [src]="destination.image"
+              [alt]="destination.nameKey | translate"
+              class="size-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="absolute top-4 right-4 px-3 py-2 bg-booking text-white rounded-full text-xs font-black uppercase tracking-wide flex items-center gap-1">
+            <mat-icon class="text-sm">trending_up</mat-icon>
+            {{ destination.trend }}
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 p-6">
+            <h3 class="text-2xl font-black text-white mb-1 uppercase">
+              {{ destination.nameKey | translate }}
+            </h3>
+            <p class="text-sm text-white/80 font-semibold">
+              {{ destination.count }} {{ 'booking.trending.experiences' | translate }}
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+</section>

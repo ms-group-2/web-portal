@@ -1,0 +1,101 @@
+<section class="pt-[calc(var(--app-header-height)+70px)]">
+  <div class="relative h-[37.5rem] rounded-3xl overflow-hidden">
+      @for (slide of slides; track slide.titleKey; let i = $index) {
+        <div
+          class="absolute inset-0 transition-all duration-700 ease-in-out"
+          [class]="i === currentIndex()
+            ? 'opacity-100 scale-100 z-10'
+            : 'opacity-0 z-0 ' + (slideDirection() === 'next' ? 'scale-105' : 'scale-95')"
+        >
+          <img
+            [src]="slide.image"
+            [alt]="slide.titleKey | translate"
+            class="size-full object-cover"
+          />
+          <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
+        </div>
+      }
+
+      <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 pb-40 z-20">
+        <h1
+          class="text-7xl font-black text-white mb-4 uppercase tracking-tight drop-shadow-2xl transition-all duration-500"
+          [class]="currentIndex() !== undefined ? 'animate-hero-text-in' : ''"
+        >
+          {{ currentSlide().titleKey | translate }}
+        </h1>
+        <p
+          class="text-2xl text-white mb-10 font-semibold drop-shadow-lg max-w-3xl transition-all duration-500 delay-100"
+          [class]="currentIndex() !== undefined ? 'animate-hero-text-in' : ''"
+        >
+          {{ currentSlide().subtitleKey | translate }}
+        </p>
+        <button
+          class="px-12 py-5 bg-gradient-to-r from-booking to-booking-light text-white font-black rounded-2xl hover:shadow-2xl transition-all uppercase text-base tracking-wide hover:scale-105 animate-hero-text-in delay-200"
+        >
+          {{ currentSlide().buttonKey | translate }}
+        </button>
+      </div>
+
+      <div class="absolute bottom-10 left-10 right-10 z-20">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 mt-12">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-black text-gray-900 mb-3 uppercase tracking-wider">
+                {{ 'booking.hero.search.queryLabel' | translate }}
+              </label>
+              <input
+                type="text"
+                [ngModel]="searchQuery()"
+                (ngModelChange)="searchQuery.set($event)"
+                [placeholder]="'booking.hero.search.queryPlaceholder' | translate"
+                class="w-full px-5 py-4 bg-gray-50 border-0 rounded-xl text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-booking transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-black text-gray-900 mb-3 uppercase tracking-wider">
+                {{ 'booking.hero.search.locationLabel' | translate }}
+              </label>
+              <input
+                type="text"
+                [ngModel]="searchLocation()"
+                (ngModelChange)="searchLocation.set($event)"
+                [placeholder]="'booking.hero.search.locationPlaceholder' | translate"
+                class="w-full px-5 py-4 bg-gray-50 border-0 rounded-xl text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-booking transition-all"
+              />
+            </div>
+            <div class="flex items-end">
+              <button
+                (click)="onSearch()"
+                class="w-full px-8 py-4 bg-gradient-to-r from-booking to-booking-light text-white font-black rounded-xl hover:shadow-xl transition-all uppercase text-base tracking-wide flex items-center justify-center gap-3 hover:scale-105"
+              >
+                <mat-icon>search</mat-icon>
+                {{ 'booking.hero.search.button' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        (click)="prevSlide()"
+        class="absolute left-8 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/95 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-xl hover:scale-110 z-20 active:scale-95"
+      >
+        <mat-icon class="text-gray-900">chevron_left</mat-icon>
+      </button>
+      <button
+        (click)="nextSlide()"
+        class="absolute right-8 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/95 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-xl hover:scale-110 z-20 active:scale-95"
+      >
+        <mat-icon class="text-gray-900">chevron_right</mat-icon>
+      </button>
+
+      <div class="absolute bottom-32 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+        @for (slide of slides; track slide.titleKey; let i = $index) {
+          <button
+            (click)="goToSlide(i)"
+            [class]="'h-3 rounded-full transition-all duration-300 ' + (i === currentIndex() ? 'bg-white w-12 shadow-lg' : 'bg-white/60 w-3 hover:bg-white/80')"
+          ></button>
+        }
+      </div>
+    </div>
+</section>

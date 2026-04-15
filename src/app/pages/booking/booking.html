@@ -1,0 +1,25 @@
+<app-header variant="white"></app-header>
+
+<div class="min-h-screen bg-white">
+  <div class="px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32">
+    <app-booking-hero (search)="onSearch($event)" />
+
+    <app-booking-trending />
+  </div>
+
+  <app-booking-category-bar [(selectedCategory)]="selectedCategory" />
+
+  <div class="px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32">
+    <app-booking-listings-grid [selectedCategory]="selectedCategory()" />
+
+    <app-booking-featured-hosts />
+
+    <app-booking-reviews />
+
+    <app-booking-features />
+
+    <app-booking-host-cta />
+  </div>
+</div>
+
+<app-footer></app-footer>
