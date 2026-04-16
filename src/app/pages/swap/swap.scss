@@ -1,3 +1,20 @@
+:host {
+  --swap-live-bar-height: 4rem;
+}
+
+// ── Scrollbar hide ──────────────────────────────────────────
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// ── Material icon overrides ─────────────────────────────────
+
 mat-icon {
   display: inline-flex !important;
   align-items: center !important;

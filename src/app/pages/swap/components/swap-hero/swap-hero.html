@@ -1,0 +1,117 @@
+<section class="swap-hero relative pb-0 overflow-hidden bg-swap pt-[calc(var(--app-header-height)+70px)]">
+  <!-- Background pattern -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+    <div class="absolute top-10 right-20 w-72 h-72 border-2 border-white/10 rounded-full"></div>
+    <div class="absolute bottom-20 left-10 w-96 h-96 border border-white/10 rounded-full"></div>
+    <div class="absolute top-1/2 left-1/3 w-48 h-48 border-2 border-white/5 rounded-full"></div>
+    <div class="absolute inset-0 dot-pattern"></div>
+  </div>
+
+  <div class="mx-auto px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32 relative z-10">
+    <!-- Carousel -->
+    <div class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+      @for (swap of heroSwaps; track swap.id; let i = $index) {
+        <div
+          class="hero-slide absolute inset-0 transition-all duration-500"
+          [ngClass]="currentSlide() === i ? 'opacity-100 z-10' : 'opacity-0 z-0'">
+          <div class="relative w-full h-full">
+            <img
+              [src]="swap.image"
+              [alt]="swap.title"
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+
+            <div class="absolute inset-0 flex items-center">
+              <div class="px-16 max-w-3xl">
+                <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full mb-6">
+                  <span class="text-sm font-black text-white uppercase tracking-wide flex items-center gap-2">
+                    <mat-icon class="!w-4 !h-4 !text-base">bolt</mat-icon>
+                    {{ swap.badge }}
+                  </span>
+                </div>
+                <h2 class="text-6xl font-black text-white mb-6 leading-tight">
+                  {{ swap.title }}
+                </h2>
+                <div class="flex items-center gap-6 mb-8">
+                  <div class="flex items-center gap-3 text-white/90">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                      <mat-icon>swap_horiz</mat-icon>
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold opacity-70">{{ 'swap.hero.wants' | translate }}</p>
+                      <p class="text-lg font-black">{{ swap.wantInReturn }}</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 text-white/90">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                      <mat-icon>location_on</mat-icon>
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold opacity-70">{{ 'swap.hero.location' | translate }}</p>
+                      <p class="text-lg font-black">{{ swap.location }}</p>
+                    </div>
+                  </div>
+                </div>
+                <button class="px-10 py-5 bg-white text-swap rounded-2xl font-black uppercase text-sm tracking-wide hover:bg-gray-100 transition-all hover:scale-105 shadow-2xl">
+                  {{ 'swap.hero.viewDetails' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Navigation arrows -->
+      <button
+        (click)="prevSlide()"
+        class="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-white/30 hover:bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center transition-all">
+        <mat-icon class="!text-white">chevron_left</mat-icon>
+      </button>
+      <button
+        (click)="nextSlide()"
+        class="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-white/30 hover:bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center transition-all">
+        <mat-icon class="!text-white">chevron_right</mat-icon>
+      </button>
+
+      <!-- Slide indicators -->
+      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+        @for (swap of heroSwaps; track swap.id; let i = $index) {
+          <button
+            (click)="goToSlide(i)"
+            class="h-2 rounded-full transition-all"
+            [ngClass]="currentSlide() === i ? 'w-12 bg-white' : 'w-2 bg-white/50'">
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Post -->
+  <div class="mx-auto px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32 py-12 relative z-10">
+    <div class="flex items-center gap-6">
+      <div class="flex-1 relative">
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          (keydown.enter)="onSearch()"
+          [placeholder]="'swap.hero.searchPlaceholder' | translate"
+          class="w-full px-7 py-5 pr-16 rounded-2xl bg-white/95 backdrop-blur-sm border border-white/20 focus:outline-none focus:ring-2 focus:ring-white text-gray-900 font-semibold placeholder:text-gray-500 shadow-xl"
+        />
+        <button
+          (click)="onSearch()"
+          class="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl bg-white text-swap flex items-center justify-center transition-all hover:bg-gray-100 hover:scale-105 shadow-lg">
+          <mat-icon>search</mat-icon>
+        </button>
+      </div>
+
+      <button
+        (click)="onPostItem()"
+        class="px-10 py-5 bg-white text-swap rounded-2xl font-black uppercase text-sm tracking-wide shadow-xl hover:shadow-2xl transition-all hover:scale-105 flex items-center gap-3 whitespace-nowrap">
+        <mat-icon>add</mat-icon>
+        {{ 'swap.hero.postItem' | translate }}
+      </button>
+    </div>
+  </div>
+</section>

@@ -8,6 +8,80 @@
     "swapRequest": "გაცვლის მოთხოვნა",
     "pending": "მიმდინარე",
     "completed": "დასრულებული",
-    "cancelled": "გაუქმებული"
+    "cancelled": "გაუქმებული",
+
+    "hero": {
+      "searchPlaceholder": "მოძებნე ნივთები გასაცვლელად...",
+      "postItem": "ნივთის დამატება",
+      "wants": "სურს",
+      "location": "მდებარეობა",
+      "viewDetails": "დეტალურად"
+    },
+
+    "liveBar": {
+      "liveNow": "ახლა ლაივში",
+      "usersOnline": "მომხმარებელი ონლაინ"
+    },
+
+    "aiMatch": {
+      "title": "AI რეკომენდაციები ",
+      "subtitle": "პერსონალიზებული რეკომენდაციები შენთვის",
+      "seeAll": "ყველას ნახვა",
+  
+      "viewDetails": "დეტალურად"
+    },
+
+    "trending": {
+      "title": "ახლად დამატებული",
+      "subtitle": "გაეცანი უახლეს ნივთებს გაცვლის საზოგადოებაში",
+      "new": "ახალი",
+      "views": "ნახვა",
+      "wants": "სურს:"
+    },
+
+    "categoryBar": {
+      "all": "ყველა"
+    },
+
+    "listings": {
+      "title": "ყველა გაცვლა",
+      "available": "ხელმისაწვდომი",
+      "loading": "იტვირთება...",
+      "noListings": "განცხადებები ვერ მოიძებნა",
+      "beFirst": "იყავი პირველი, ვინც დაამატებს ნივთს",
+      "postItem": "ნივთის დამატება"
+    },
+
+    "itemCard": {
+      "inTrade": "გაცვლაში",
+      "featured": "გამორჩეული",
+      "wants": "სურს"
+    },
+
+    "recentTrades": {
+      "title": "ბოლო წარმატებული გაცვლები",
+      "subtitle": "ნახე რას ცვლიან სხვები",
+      "verified": "დადასტურებული გაცვლა",
+      "bothRated": "ორივე მხარემ შეაფასა"
+    },
+
+    "postDialog": {
+      "title": "დაამატე ნივთი გასაცვლელად",
+      "titleLabel": "სათაური",
+      "descriptionLabel": "აღწერა",
+      "wantedItemLabel": "რაში გსურს გაცვლა?",
+      "photosLabel": "ფოტოები",
+      "titlePlaceholder": "მაგ., ვინტაჟური ტყავის ქურთუკი",
+      "descriptionPlaceholder": "დეტალურად აღწერე შენი ნივთი...",
+      "wantedItemPlaceholder": "მაგ., ელექტრონიკა, სპორტული ინვენტარი...",
+      "uploadPhotos": "დააჭირე ფოტოების ასატვირთად",
+      "uploadFormat": "PNG, JPG მაქსიმუმ 10MB",
+      "titleRequired": "სათაური აუცილებელია",
+      "titleMinLength": "სათაური უნდა იყოს მინიმუმ 3 სიმბოლო",
+      "descriptionRequired": "აღწერა აუცილებელია",
+      "descriptionMinLength": "აღწერა უნდა იყოს მინიმუმ 10 სიმბოლო",
+      "cancel": "გაუქმება",
+      "add": "დამატება"
+    }
   }
 }

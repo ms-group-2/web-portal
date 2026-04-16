@@ -1,13 +1,13 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-// import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-footer',
-  imports: [RouterLink, MatIconModule, TranslatePipe],
+  imports: [NgClass, RouterLink, MatIconModule, TranslatePipe],
   templateUrl: './footer.html',
 })
 export class Footer {
@@ -41,6 +41,9 @@ export class Footer {
 
   currentYear = new Date().getFullYear();
   currentRoute = signal('');
+
+  /** Rounded top cap where the footer meets a flat page background (swap). */
+  swapFooterTopRounded = computed(() => this.currentRoute().includes('/swap'));
 
   footerGradient = computed(() => {
     const route = this.currentRoute();

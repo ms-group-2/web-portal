@@ -1,7 +1,7 @@
 <div class="flex flex-col max-h-[90vh] bg-white rounded-3xl overflow-hidden">
   <div class="sticky top-0 bg-swap !pr-8 !py-2 flex items-center justify-between border-b-2 border-swap z-10">
     <h2 mat-dialog-title class="!m-0 !text-white !text-2xl !font-black uppercase tracking-tight">
-      დაამატე ნივთი გასაცვლელად
+      {{ 'swap.postDialog.title' | translate }}
     </h2>
     <button
       mat-icon-button
@@ -15,59 +15,59 @@
     <form [formGroup]="swapForm" class="flex flex-col !gap-3">
       <div>
         <label class="block text-base font-bold text-gray-600 mb-2 uppercase tracking-wide">
-          სათაური *
+          {{ 'swap.postDialog.titleLabel' | translate }} *
         </label>
         <mat-form-field appearance="outline" class="w-full">
           <input
             matInput
             formControlName="title"
-            placeholder="მაგ., ვინტაჯური ტყავის ქურთუკი"
+            [placeholder]="'swap.postDialog.titlePlaceholder' | translate"
           />
           @if (swapForm.get('title')?.hasError('required')) {
-            <mat-error>სათაური აუცილებელია</mat-error>
+            <mat-error>{{ 'swap.postDialog.titleRequired' | translate }}</mat-error>
           }
           @if (swapForm.get('title')?.hasError('minlength')) {
-            <mat-error>სათაური უნდა იყოს მინიმუმ 3 სიმბოლო</mat-error>
+            <mat-error>{{ 'swap.postDialog.titleMinLength' | translate }}</mat-error>
           }
         </mat-form-field>
       </div>
 
       <div>
         <label class="block text-base font-bold text-gray-600 mb-2 uppercase tracking-wide">
-          აღწერა *
+          {{ 'swap.postDialog.descriptionLabel' | translate }} *
         </label>
         <mat-form-field appearance="outline" class="w-full">
           <textarea
             matInput
             formControlName="description"
-            placeholder="დეტალურად აღწერე შენი ნივთი..."
+            [placeholder]="'swap.postDialog.descriptionPlaceholder' | translate"
             rows="4"
           ></textarea>
           @if (swapForm.get('description')?.hasError('required')) {
-            <mat-error>აღწერა აუცილებელია</mat-error>
+            <mat-error>{{ 'swap.postDialog.descriptionRequired' | translate }}</mat-error>
           }
           @if (swapForm.get('description')?.hasError('minlength')) {
-            <mat-error>აღწერა უნდა იყოს მინიმუმ 10 სიმბოლო</mat-error>
+            <mat-error>{{ 'swap.postDialog.descriptionMinLength' | translate }}</mat-error>
           }
         </mat-form-field>
       </div>
 
       <div>
         <label class="block text-base font-bold text-gray-600 mb-2 uppercase tracking-wide">
-          რაში გსურს გაცვლა?
+          {{ 'swap.postDialog.wantedItemLabel' | translate }}
         </label>
         <mat-form-field appearance="outline" class="w-full">
           <input
             matInput
             formControlName="wantedItem"
-            placeholder="მაგ., ელექტრონიკა, სპორტული ინვენტარი..."
+            [placeholder]="'swap.postDialog.wantedItemPlaceholder' | translate"
           />
         </mat-form-field>
       </div>
 
       <div>
         <label class="block text-base font-bold text-gray-600 mb-2 uppercase tracking-wide">
-          ფოტოები *
+          {{ 'swap.postDialog.photosLabel' | translate }} *
         </label>
 
         @if (previewUrls.length === 0) {
@@ -75,8 +75,8 @@
             for="file-upload"
             class="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 cursor-pointer hover:border-swap hover:bg-swap transition-all">
             <mat-icon class="!w-12 !h-12 !text-5xl text-gray-400 mb-2">add_circle_outline</mat-icon>
-            <p class="text-sm font-medium text-gray-600">დააჭირე ფოტოების ასატვირთად</p>
-            <p class="text-xs text-gray-500 mt-1">PNG, JPG მაქსიმუმ 10MB</p>
+            <p class="text-sm font-medium text-gray-600">{{ 'swap.postDialog.uploadPhotos' | translate }}</p>
+            <p class="text-xs text-gray-500 mt-1">{{ 'swap.postDialog.uploadFormat' | translate }}</p>
           </label>
           <input
             id="file-upload"
@@ -160,7 +160,7 @@
       type="button"
       (click)="onCancel()"
       class="flex-1 !px-6 !py-4 !bg-gray-200 !text-gray-900 !rounded-xl !font-bold hover:!bg-gray-300 !uppercase !tracking-wide !border-0">
-      გაუქმება
+      {{ 'swap.postDialog.cancel' | translate }}
     </button>
     <button
       mat-raised-button
@@ -168,7 +168,7 @@
       (click)="onSubmit()"
       [disabled]="swapForm.invalid"
       class="flex-1 !px-6 !py-4 !bg-swap !text-white !rounded-xl !font-bold hover:!shadow-lg !uppercase !tracking-wide hover:!scale-[1.02] disabled:!opacity-50 disabled:!cursor-not-allowed transition-all">
-      დამატება
+      {{ 'swap.postDialog.add' | translate }}
     </button>
   </div>
 </div>

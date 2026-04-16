@@ -1,0 +1,48 @@
+<section class="py-16 bg-white">
+  <div>
+    <div class="flex items-center justify-between mb-10" appScrollAnimate="fade-up">
+      <h2 class="text-4xl font-black text-gray-900">{{ 'swap.listings.title' | translate }}</h2>
+      <span class="text-sm font-black text-gray-500 uppercase tracking-wide">
+        {{ items().length }} {{ 'swap.listings.available' | translate }}
+      </span>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex justify-center items-center py-20">
+        <div class="text-center">
+          <div class="inline-block w-12 h-12 border-4 border-swap border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p class="text-gray-600 font-semibold">{{ 'swap.listings.loading' | translate }}</p>
+        </div>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="text-center py-20">
+        <mat-icon class="!w-20 !h-20 !text-8xl text-gray-300 mb-4">inventory_2</mat-icon>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ 'swap.listings.noListings' | translate }}</h3>
+        <p class="text-swap font-semibold mb-6">{{ 'swap.listings.beFirst' | translate }}</p>
+        <button
+          (click)="postItem.emit()"
+          class="inline-flex items-center gap-2 px-8 py-4 bg-swap text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg hover:shadow-xl transition-all hover:scale-105">
+          <mat-icon>add</mat-icon>
+          {{ 'swap.listings.postItem' | translate }}
+        </button>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @for (item of items(); track item.id; let i = $index) {
+          <div
+            (mouseenter)="hoveredCardId.set(item.id)"
+            (mouseleave)="hoveredCardId.set(null)"
+            appScrollAnimate="fade-up"
+            [delay]="(i % 4) * 80">
+            <app-swap-item-card
+              [item]="item"
+              [isHovered]="hoveredCardId() === item.id"
+              [isFavorite]="isFavorite(item.id)"
+              (favoriteToggle)="toggleFavorite(item.id)"
+            />
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -8,7 +8,80 @@
     "swapRequest": "Swap Request",
     "pending": "Pending",
     "completed": "Completed",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+
+    "hero": {
+      "searchPlaceholder": "Search for items to swap...",
+      "postItem": "Post Item",
+      "wants": "WANTS",
+      "location": "LOCATION",
+      "viewDetails": "View Details"
+    },
+
+    "liveBar": {
+      "liveNow": "Live Now",
+      "usersOnline": "users online"
+    },
+
+    "aiMatch": {
+      "title": "AI Perfect Match",
+      "subtitle": "Personalized recommendations just for you",
+      "seeAll": "See All Matches",
+      "match": "Match",
+      "viewDetails": "View Details"
+    },
+
+    "trending": {
+      "title": "Newly added",
+      "subtitle": "Check out the latest items added to the swap community",
+      "new": "New",
+      "views": "views",
+      "wants": "Wants:"
+    },
+
+    "categoryBar": {
+      "all": "All"
+    },
+
+    "listings": {
+      "title": "All Swaps",
+      "available": "available",
+      "loading": "Loading...",
+      "noListings": "No listings found",
+      "beFirst": "Be the first to post an item",
+      "postItem": "Post Item"
+    },
+
+    "itemCard": {
+      "inTrade": "In Trade",
+      "featured": "Featured",
+      "wants": "Wants"
+    },
+
+    "recentTrades": {
+      "title": "Recent Successful Swaps",
+      "subtitle": "See what others are trading",
+      "verified": "Verified Swap",
+      "bothRated": "Both parties rated"
+    },
+
+    "postDialog": {
+      "title": "Add item for exchange",
+      "titleLabel": "Title",
+      "descriptionLabel": "Description",
+      "wantedItemLabel": "What do you want to exchange for?",
+      "photosLabel": "Photos",
+      "titlePlaceholder": "E.g., Vintage leather jacket",
+      "descriptionPlaceholder": "Describe your item in detail...",
+      "wantedItemPlaceholder": "E.g., Electronics, sports equipment...",
+      "uploadPhotos": "Click to upload photos",
+      "uploadFormat": "PNG, JPG max 10MB",
+      "titleRequired": "Title is required",
+      "titleMinLength": "Title must be at least 3 characters",
+      "descriptionRequired": "Description is required",
+      "descriptionMinLength": "Description must be at least 10 characters",
+      "cancel": "Cancel",
+      "add": "Add"
+    }
   }
 }
-

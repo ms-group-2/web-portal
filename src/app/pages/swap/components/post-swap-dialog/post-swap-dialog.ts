@@ -1,23 +1,23 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { SwapFormData } from '../../swap.models';
 
 @Component({
   selector: 'app-post-swap-dialog',
   imports: [
-    // CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatIconModule
+    MatIconModule,
+    TranslatePipe
   ],
   templateUrl: './post-swap-dialog.html',
   styleUrl: './post-swap-dialog.scss',
