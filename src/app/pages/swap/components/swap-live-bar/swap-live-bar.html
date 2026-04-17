@@ -15,20 +15,31 @@
 
         <div class="h-8 w-px bg-white/20"></div>
 
-
-
-        <div class="flex items-center gap-6 overflow-hidden">
-          @for (activity of liveActivities(); track activity.id) {
-            <div class="flex items-center gap-2 text-white/90 text-sm  font-semibold whitespace-nowrap">
-              @switch (activity.type) {
-                @case ('swap') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">swap_horiz</mat-icon> }
-                @case ('new') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">auto_awesome</mat-icon> }
-                @case ('match') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">gps_fixed</mat-icon> }
-              }
-              <span>{{ activity.user }} {{ activity.item }}</span>
-              <span class="text-white/60 text-xs">{{ activity.time }}</span>
-            </div>
-          }
+        <div class="ticker-wrap overflow-hidden flex-1">
+          <div class="ticker flex items-center gap-8">
+            @for (activity of liveActivities(); track activity.id) {
+              <div class="flex items-center gap-2 text-white/90 text-sm font-semibold whitespace-nowrap">
+                @switch (activity.type) {
+                  @case ('swap') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">swap_horiz</mat-icon> }
+                  @case ('new') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">auto_awesome</mat-icon> }
+                  @case ('match') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">gps_fixed</mat-icon> }
+                }
+                <span>{{ activity.user }} {{ activity.item }}</span>
+                <span class="text-white/60 text-xs">{{ activity.time }}</span>
+              </div>
+            }
+            @for (activity of liveActivities(); track activity.id + '-dup') {
+              <div class="flex items-center gap-2 text-white/90 text-sm font-semibold whitespace-nowrap">
+                @switch (activity.type) {
+                  @case ('swap') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">swap_horiz</mat-icon> }
+                  @case ('new') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">auto_awesome</mat-icon> }
+                  @case ('match') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">gps_fixed</mat-icon> }
+                }
+                <span>{{ activity.user }} {{ activity.item }}</span>
+                <span class="text-white/60 text-xs">{{ activity.time }}</span>
+              </div> 
+            }
+          </div>
         </div>
       </div>
     </div>

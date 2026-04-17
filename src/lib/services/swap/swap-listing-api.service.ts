@@ -26,7 +26,7 @@ export class SwapListingApiService {
     let params = new HttpParams();
     if (pagination?.page) params = params.set('page', pagination.page);
     if (pagination?.limit) params = params.set('limit', pagination.limit);
-    return this.http.get<PaginatedListingsResponse>(this.baseUrl, { params, headers: this.headers });
+    return this.http.get<PaginatedListingsResponse>(`${this.baseUrl}/`, { params, headers: this.headers });
   }
 
   getListing(listingId: string): Observable<SwapListing> {
@@ -45,7 +45,7 @@ export class SwapListingApiService {
 
   createListing(profileId: string, data: CreateListingRequest): Observable<SwapListing> {
     const params = new HttpParams().set('profile_id', profileId);
-    return this.http.post<SwapListing>(this.baseUrl, data, { params, headers: this.headers });
+    return this.http.post<SwapListing>(`${this.baseUrl}/`, data, { params, headers: this.headers });
   }
 
   updateListing(listingId: string, data: UpdateListingRequest): Observable<SwapListing> {

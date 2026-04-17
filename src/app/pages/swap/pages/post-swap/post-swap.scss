@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+// Step transition animation
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Progress dots
+.dot {
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: all 0.5s;
+
+  &.active {
+    width: 2rem;
+    background-color: white;
+  }
+
+  &.completed {
+    width: 0.5rem;
+    background-color: white;
+  }
+
+  &.upcoming {
+    width: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+// Category button states
+.category-btn {
+  &--selected {
+    background-color: #90427b;
+    color: white;
+    border-color: #90427b;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  &--unselected {
+    background-color: #f9fafb;
+    color: #374151;
+    border-color: #e5e7eb;
+
+    &:hover {
+      border-color: #90427b;
+    }
+  }
+}
+
+// Next/Submit button states
+.next-btn {
+  &--active {
+    background-color: #90427b;
+    color: white;
+
+    &:hover {
+      background-color: #7d3a6b;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                  0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      transform: scale(1.05);
+    }
+  }
+
+  &--disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+}
+
+// Upload area icon
+.upload-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+// Step input focus style
+.step-input:focus {
+  border-bottom-color: #90427b;
+}

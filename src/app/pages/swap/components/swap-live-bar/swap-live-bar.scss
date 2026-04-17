@@ -11,3 +11,22 @@
 .live-pulse {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+
+.ticker-wrap {
+  mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker {
+  animation: ticker-scroll 22s linear infinite;
+  width: max-content;
+}

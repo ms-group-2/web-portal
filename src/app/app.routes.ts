@@ -14,7 +14,7 @@ export const routes: Routes = [
 
   {
     path: 'swap',
-    loadComponent: () => import('./pages/swap/swap').then(m => m.Swap),
+    loadChildren: () => import('./pages/swap/swap.routes').then(m => m.swapRoutes),
   },
 
   {
