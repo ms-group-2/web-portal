@@ -6,7 +6,7 @@
   <app-swap-live-bar [liveActivities]="liveActivities" [onlineUsers]="onlineUsers()"></app-swap-live-bar>
 
   <div class="px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32">
-    <app-swap-trending [trendingSwaps]="trendingSwaps"></app-swap-trending>
+    <app-swap-trending [items]="newlyAddedItems()"></app-swap-trending>
 
     <app-swap-ai-match [aiMatches]="aiMatches"></app-swap-ai-match>
   </div>

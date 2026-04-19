@@ -1,0 +1,30 @@
+<div
+  class="swap-listing-photo relative h-full w-full min-h-0 overflow-hidden bg-gray-100"
+  [class.swap-listing-photo--zoom]="hoverZoom()">
+  <img
+    [src]="currentPhoto()"
+    [alt]="alt()"
+    class="swap-listing-photo__img relative z-0 h-full w-full object-cover"
+    loading="lazy"
+  />
+
+  @if (showPhotoDots()) {
+    <div
+      class="swap-listing-photo__dots absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-3"
+      (pointerleave)="onDotsLeave()"
+      (click)="$event.stopPropagation()">
+      @for (idx of previewDots(); track idx) {
+        <button
+          type="button"
+          class="swap-listing-photo__dot-trigger flex cursor-pointer items-center justify-center border-0 bg-transparent p-2 -m-2"
+          (pointerenter)="onDotEnter(idx, $event)"
+          [attr.aria-label]="('swap.itemCard.viewPhoto' | translate) + ' ' + (idx + 1) + ' / ' + previewDots().length">
+          <span
+            class="swap-listing-photo__dot-pill block h-2 rounded-full shadow-sm ring-1 ring-black/20 transition-all duration-300"
+            [ngClass]="isDotActive(idx) ? 'w-12 bg-white' : 'w-2 bg-white/50'">
+          </span>
+        </button>
+      }
+    </div>
+  }
+</div>

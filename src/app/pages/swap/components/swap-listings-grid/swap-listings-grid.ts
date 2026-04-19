@@ -17,7 +17,6 @@ export class SwapListingsGrid {
 
   postItem = output<void>();
 
-  hoveredCardId = signal<string | null>(null);
   favorites = signal<Set<string>>(new Set());
 
   toggleFavorite(itemId: string) {

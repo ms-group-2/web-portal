@@ -2,25 +2,26 @@
   class="swap-card bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-swap transition-all duration-300 hover:shadow-2xl cursor-pointer"
   [class.opacity-60]="item().is_locked">
   <div class="relative h-52 overflow-hidden bg-gray-100">
-    <img
-      [src]="photo()"
+    <app-swap-listing-photo
+      [photos]="item().photos"
+      [listingId]="item().id"
       [alt]="item().title"
-      class="swap-card-image w-full h-full object-cover"
-      loading="lazy"
+      [locked]="item().is_locked"
+      [hoverZoom]="true"
     />
 
     @if (item().is_locked) {
-      <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
-        <div class="bg-white px-5 py-2 rounded-full">
-          <span class="text-sm font-black text-gray-900 uppercase">{{ 'swap.itemCard.inTrade' | translate }}</span>
+      <div class="absolute inset-0 z-30 flex items-center justify-center bg-black/50">
+        <div class="rounded-full bg-white px-5 py-2">
+          <span class="text-sm font-black uppercase text-gray-900">{{ 'swap.itemCard.inTrade' | translate }}</span>
         </div>
       </div>
     }
 
     @if (item().featured && !item().is_locked) {
-      <div class="absolute top-3 left-3 px-3 py-1.5 bg-swap rounded-full shadow-lg">
-        <span class="text-xs font-black text-white uppercase flex items-center gap-1">
-          <mat-icon class="!w-3 !h-3 !text-xs">bolt</mat-icon>
+      <div class="absolute left-3 top-3 z-20 rounded-full bg-swap px-3 py-1.5 shadow-lg">
+        <span class="flex items-center gap-1 text-xs font-black uppercase text-white">
+          <mat-icon class="!h-3 !w-3 !text-xs">bolt</mat-icon>
           {{ 'swap.itemCard.featured' | translate }}
         </span>
       </div>
@@ -29,9 +30,9 @@
     @if (!item().is_locked) {
       <button
         (click)="onToggleFavorite($event)"
-        class="absolute top-3 right-3 w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg"
+        class="absolute right-3 top-3 z-30 flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all"
         [ngClass]="isFavorite() ? 'bg-swap text-white scale-110' : 'bg-white/95 text-gray-700'">
-        <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">
+        <mat-icon class="!inline-flex !h-4 !w-4 !items-center !justify-center !text-base">
           {{ isFavorite() ? 'favorite' : 'favorite_border' }}
         </mat-icon>
       </button>
@@ -39,31 +40,31 @@
   </div>
 
   <div class="p-5">
-    <h3 class="text-lg font-black text-gray-900 mb-2 line-clamp-1">
+    <h3 class="mb-2 line-clamp-1 text-lg font-black text-gray-900">
       {{ item().title }}
     </h3>
 
-    <p class="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+    <p class="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-600">
       {{ item().description }}
     </p>
 
-    <div class="mb-4 pb-4 border-b border-gray-100">
+    <div class="mb-4 border-b border-gray-100 pb-4">
       <div class="flex items-start gap-2">
-        <mat-icon class="!w-4 !h-4 !text-base text-swap mt-0.5 flex-shrink-0">swap_horiz</mat-icon>
+        <mat-icon class="!h-4 !w-4 !shrink-0 !text-base text-swap mt-0.5">swap_horiz</mat-icon>
         <div>
-          <p class="text-xs font-black text-gray-500 uppercase mb-1">{{ 'swap.itemCard.wants' | translate }}</p>
-          <p class="text-sm text-gray-900 font-bold line-clamp-1">{{ item().swap_item_title }}</p>
+          <p class="mb-1 text-xs font-black uppercase text-gray-500">{{ 'swap.itemCard.wants' | translate }}</p>
+          <p class="line-clamp-1 text-sm font-bold text-gray-900">{{ item().swap_item_title }}</p>
         </div>
       </div>
     </div>
 
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2 text-xs text-gray-500">
-        <mat-icon class="!w-3.5 !h-3.5 !text-sm">location_on</mat-icon>
+        <mat-icon class="!inline-flex !h-3.5 !w-3.5 !items-center !justify-center !text-sm">location_on</mat-icon>
         <span class="font-bold">{{ item().location }}</span>
       </div>
       <div class="flex items-center gap-1.5 text-xs text-gray-400">
-        <mat-icon class="!w-3.5 !h-3.5 !text-sm">schedule</mat-icon>
+        <mat-icon class="!inline-flex !h-3.5 !w-3.5 !items-center !justify-center !text-sm">schedule</mat-icon>
         <span class="font-bold">{{ item().postedDate }}</span>
       </div>
     </div>

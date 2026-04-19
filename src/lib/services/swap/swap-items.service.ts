@@ -1,5 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { Observable, of, forkJoin, switchMap, map } from 'rxjs';
+import { Observable, of, forkJoin, switchMap, map, throwError } from 'rxjs';
 import { AuthService } from '../identity/auth.service';
 import { PostedSwapItem, SwapListingApiService, SwapListing } from './';
 import { SnackbarService } from '../snackbar.service';
@@ -61,6 +61,9 @@ export class SwapItemsService {
       .pipe(
         switchMap((listing) => {
           if (item.images.length === 0) return of(listing);
+          // if (!listing.id) {
+          //   return throwError(() => new Error('Listing created but no ID returned'));
+          // }
           const uploads = item.images.map((file) => this.api.uploadPhoto(listing.id, file));
           return forkJoin(uploads).pipe(map(() => listing));
         })

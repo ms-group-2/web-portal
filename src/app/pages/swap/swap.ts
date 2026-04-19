@@ -13,11 +13,11 @@ import { SwapListingsGrid } from './components/swap-listings-grid/swap-listings-
 import { SwapRecentTrades } from './components/swap-recent-trades/swap-recent-trades';
 import {
   MOCK_SWAP_ITEMS,
-  TRENDING_SWAPS,
   AI_MATCHES,
   RECENT_TRADES,
   LIVE_ACTIVITIES,
 } from './swap.mock-data';
+import { formatRelativeShort } from 'lib/utils/relative-time';
 
 @Component({
   selector: 'app-swap',
@@ -47,12 +47,18 @@ export class Swap {
   onlineUsers = signal(847);
 
   // Mock data
-  trendingSwaps = TRENDING_SWAPS;
   aiMatches = AI_MATCHES;
   recentTrades = RECENT_TRADES;
   liveActivities = LIVE_ACTIVITIES;
 
-  // Computed
+  private readonly FOUR_DAYS_MS = 4 * 24 * 60 * 60 * 1000;
+
+  newlyAddedItems = computed(() =>
+    this.swapItems().filter(
+      (item) => Date.now() - new Date(item.created_at).getTime() <= this.FOUR_DAYS_MS
+    )
+  );
+
   filteredItems = computed(() => {
     return this.swapItems();
   });
@@ -70,7 +76,7 @@ export class Swap {
             ...listing,
             location: 'Tbilisi',
             postedBy: 'User',
-            postedDate: this.getRelativeTime(listing.created_at),
+            postedDate: formatRelativeShort(listing.created_at),
           }));
           this.swapItems.set(items);
         }
@@ -82,7 +88,6 @@ export class Swap {
     });
   }
 
-  // ── Hero events ───────────────────────────────────────────
 
   onSearch(_query: string) {
     // TODO: wire up search
@@ -92,15 +97,4 @@ export class Swap {
     this.router.navigate(['/swap/create']);
   }
 
-  // ── Helpers ───────────────────────────────────────────────
-
-  private getRelativeTime(dateStr: string): string {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const hours = Math.floor(diff / 3600000);
-    if (hours < 1) return 'now';
-    if (hours < 24) return `${hours}h`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d`;
-    return `${Math.floor(days / 7)}w`;
-  }
 }

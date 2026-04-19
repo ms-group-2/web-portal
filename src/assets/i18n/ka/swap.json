@@ -43,8 +43,13 @@
       "all": "ყველა"
     },
 
+    "newlyAdded": {
+      "title": "ახლახან დამატებული",
+      "count": "ახალი"
+    },
+
     "listings": {
-      "title": "ყველა გაცვლა",
+      "title": "ყველა პოსტი",
       "available": "ხელმისაწვდომი",
       "loading": "იტვირთება...",
       "noListings": "განცხადებები ვერ მოიძებნა",
@@ -55,7 +60,8 @@
     "itemCard": {
       "inTrade": "გაცვლაში",
       "featured": "გამორჩეული",
-      "wants": "სურს"
+      "wants": "სურს",
+      "viewPhoto": "ნახე ფოტო"
     },
 
     "recentTrades": {
@@ -63,6 +69,51 @@
       "subtitle": "ნახე რას ცვლიან სხვები",
       "verified": "დადასტურებული გაცვლა",
       "bothRated": "ორივე მხარემ შეაფასა"
+    },
+
+    "chat": {
+      "ariaLabel": "მხარდაჭერასთან დაკავშირება"
+    },
+
+    "postForm": {
+      "step1Title": "რას ცვლი?",
+      "step1Subtitle": "მოგვიყევი რას ცვლი...",
+      "step1Placeholder": "Canon AE-1 ფილმის კამერა",
+      "step2Title": "აირჩიე კატეგორია",
+      "step2Subtitle": "რა ტიპის ნივთია ეს?",
+      "step3Title": "დაამატე ფოტოები",
+      "step3Subtitle": "3-5 ფოტო 3-ჯერ მეტ გაცვლას იღებს",
+      "step3Upload": "დააჭირე ასატვირთად",
+      "step3DragDrop": "ან ჩააგდე პირდაპირ",
+      "step3Skip": "გამოტოვე ახლა",
+      "step4Title": "მოგვიყევი\nნივთის შესახებ",
+      "step4Subtitle": "მდგომარეობა, რამდენი ხანია რაც გაქვთ, რით გამოირჩევა...",
+      "step4Placeholder": "ეს არის ვინტაჟური 1970-იანი კამერა შესანიშნავ მდგომარეობაში. მუშაობს იდეალურად...",
+      "step4Characters": "სიმბოლო",
+      "step5Title": "თითქმის მზადაა!",
+      "step5Subtitle": "კიდევ ორი რამ...",
+      "step5WantLabel": "რა გინდა სანაცვლოდ?",
+      "step5WantPlaceholder": "ვინილის ფირფიტები, სახელოვნებო მასალები ან გამიკვირვე!",
+      "step5LocationLabel": "სად ხარ?",
+      "step5LocationPlaceholder": "ვაკე, თბილისი",
+      "step5NearbyCount": "847 გამცვლელი ახლოს ახლავე",
+      "step6Title": "გადახედე",
+      "step6Subtitle": "ასე გამოჩნდება შენი გაცვლა",
+      "step6WantsLabel": "სურს სანაცვლოდ",
+      "step6PostedBy": "გამოაქვეყნა",
+      "step6GoLive": "პოსტი გამოქვეყნდება დაუყონვებლივ!",
+      "back": "უკან",
+      "continue": "გაგრძელება",
+      "submit": "გამოაქვეყნე!",
+      "sidebarPreview": "გადახედვა",
+      "sidebarTitle": "სათაური",
+      "sidebarCategory": "კატეგორია",
+      "sidebarDescription": "აღწერა",
+      "sidebarWants": "სურს",
+      "sidebarLocation": "მდებარეობა",
+      "step3InvalidFormat": "მხოლოდ JPG და PNG ფორმატის ფოტოებია დაშვებული",
+      "submitSuccess": "განცხადება წარმატებით გამოქვეყნდა!",
+      "submitError": "განცხადების გამოქვეყნება ვერ მოხერხდა. სცადეთ თავიდან."
     },
 
     "postDialog": {

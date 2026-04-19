@@ -31,31 +31,35 @@
       <div
         class="flex gap-6 transition-transform duration-500 ease-out"
         [style.transform]="trendingTransform()">
-        @for (item of trendingSwaps(); track item.id; let i = $index) {
+        @for (item of items(); track item.id; let i = $index) {
           <div
             class="min-w-[calc(33.33%-16px)] bg-white rounded-2xl overflow-hidden border-2 border-transparent hover:border-swap transition-all hover:shadow-2xl cursor-pointer"
             appScrollAnimate="fade-up"
             [delay]="i * 100">
-            <div class="relative h-64">
-              <img [src]="item.image" [alt]="item.title" class="w-full h-full object-cover" loading="lazy" />
-              @if (item.hot) {
-                <div class="absolute top-4 left-4 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-xl flex items-center gap-2">
-                  <mat-icon class="!w-4 !h-4 !text-base !text-white !inline-flex !items-center !justify-center">local_fire_department</mat-icon>
-                  <span class="text-white font-black text-sm uppercase">{{ 'swap.trending.new' | translate }}</span>
-                </div>
-              }
-              <div class="absolute bottom-4 right-4 px-4 py-2 bg-black/70 backdrop-blur-sm rounded-full">
-                <div class="flex items-center gap-2">
-                  <mat-icon class="!w-4 !h-4 !text-base !text-white">show_chart</mat-icon>
-                  <span class="text-white font-black text-sm">{{ item.views }} {{ 'swap.trending.views' | translate }}</span>
-                </div>
+            <div class="relative h-64 overflow-hidden bg-gray-100">
+              <app-swap-listing-photo
+                [photos]="item.photos"
+                [listingId]="item.id"
+                [alt]="item.title"
+                [locked]="false"
+                [hoverZoom]="true"
+              />
+              <div class="pointer-events-none absolute top-4 left-4 z-30 flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 shadow-xl">
+                <mat-icon class="!w-4 !h-4 !text-base !text-white !inline-flex !items-center !justify-center">local_fire_department</mat-icon>
+                <span class="text-white font-black text-sm uppercase">{{ 'swap.trending.new' | translate }}</span>
               </div>
             </div>
             <div class="p-5">
               <h3 class="text-xl font-black text-gray-900 mb-2">{{ item.title }}</h3>
-              <div class="flex items-center gap-2 text-sm text-gray-600">
-                <mat-icon class="!w-4 !h-4 !text-base text-swap">swap_horiz</mat-icon>
-                <span class="font-bold">{{ 'swap.trending.wants' | translate }} {{ item.wants }}</span>
+              <div class="flex items-center justify-between gap-3 text-sm text-gray-600">
+                <div class="flex min-w-0 flex-1 items-center gap-2">
+                  <mat-icon class="!h-4 !w-4 !shrink-0 !text-base text-swap">swap_horiz</mat-icon>
+                  <span class="min-w-0 truncate font-bold">{{ 'swap.trending.wants' | translate }} {{ item.swap_item_title }}</span>
+                </div>
+                <div class="flex shrink-0 items-center gap-1 text-xs font-bold text-gray-400">
+                  <mat-icon class="!inline-flex !h-3.5 !w-3.5 !items-center !justify-center !text-sm">schedule</mat-icon>
+                  <span>{{ postedDisplay(item) }}</span>
+                </div>
               </div>
             </div>
           </div>

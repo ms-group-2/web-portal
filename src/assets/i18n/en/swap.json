@@ -43,8 +43,13 @@
       "all": "All"
     },
 
+    "newlyAdded": {
+      "title": "Newly Added",
+      "count": "new"
+    },
+
     "listings": {
-      "title": "All Swaps",
+      "title": "All Posts",
       "available": "available",
       "loading": "Loading...",
       "noListings": "No listings found",
@@ -55,7 +60,8 @@
     "itemCard": {
       "inTrade": "In Trade",
       "featured": "Featured",
-      "wants": "Wants"
+      "wants": "Wants",
+      "viewPhoto": "View photo"
     },
 
     "recentTrades": {
@@ -63,6 +69,50 @@
       "subtitle": "See what others are trading",
       "verified": "Verified Swap",
       "bothRated": "Both parties rated"
+    },
+
+    "chat": {
+      "ariaLabel": "Contact support"
+    },
+
+    "postForm": {
+      "step1Title": "What are you\nswapping?",
+      "step1Subtitle": "Give it a catchy name",
+      "step1Placeholder": "Canon AE-1 Film Camera",
+      "step2Title": "Pick a category",
+      "step2Subtitle": "What type of item is this?",
+      "step3Title": "Add some photos?",
+      "step3Subtitle": "3-5 pics get 3x more swaps",
+      "step3Upload": "Click to upload",
+      "step3DragDrop": "or drag and drop",
+      "step4Title": "Tell us about it",
+      "step4Subtitle": "Condition, age, why it's cool...",
+      "step4Placeholder": "It's a vintage 1970s camera in great condition. Works perfectly, just upgraded to digital...",
+      "step4Characters": "characters",
+      "step5Title": "Almost done!",
+      "step5Subtitle": "Just two more things...",
+      "step5WantLabel": "What do you want for it?",
+      "step5WantPlaceholder": "Vinyl records, art supplies, or surprise me!",
+      "step5LocationLabel": "Where are you located?",
+      "step5LocationPlaceholder": "Vake, Tbilisi",
+      "step5NearbyCount": "847 swappers nearby right now",
+      "step6Title": "Look good?",
+      "step6Subtitle": "Here's how your swap will appear",
+      "step6WantsLabel": "Wants in return",
+      "step6PostedBy": "Posted by",
+      "step6GoLive": "This will go live immediately after posting",
+      "back": "Back",
+      "continue": "Continue",
+      "submit": "Post My Swap!",
+      "sidebarPreview": "Preview",
+      "sidebarTitle": "Title",
+      "sidebarCategory": "Category",
+      "sidebarDescription": "Description",
+      "sidebarWants": "Wants",
+      "sidebarLocation": "Location",
+      "step3InvalidFormat": "Only JPG and PNG images are allowed",
+      "submitSuccess": "Swap item posted successfully!",
+      "submitError": "Failed to post swap item. Please try again."
     },
 
     "postDialog": {

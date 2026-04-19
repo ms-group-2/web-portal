@@ -6,12 +6,18 @@ import {
   inject,
   DestroyRef,
   ElementRef,
+  effect,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { SwapItemsService } from 'lib/services/swap';
 import { SnackbarService } from 'lib/services/snackbar.service';
+import { TranslatePipe } from 'lib/pipes/translate.pipe';
+import { TranslationService } from 'lib/services/translation.service';
+import { Footer } from "lib/components/footer/footer";
+import { Header } from "lib/components/header/header";
+import { NgClass } from '@angular/common';
 
 interface SwapCategory {
   name: string;
@@ -32,7 +38,7 @@ const SWAP_CATEGORIES: SwapCategory[] = [
 
 @Component({
   selector: 'app-post-swap',
-  imports: [MatIconModule],
+  imports: [MatIconModule, NgClass, Header, TranslatePipe],
   templateUrl: './post-swap.html',
   styleUrl: './post-swap.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,12 +49,14 @@ export class PostSwap {
   private swapItems = inject(SwapItemsService);
   private snackbar = inject(SnackbarService);
   private destroyRef = inject(DestroyRef);
+  private translation = inject(TranslationService);
+
+  private readonly STORAGE_KEY = 'post-swap-draft';
 
   readonly categories = SWAP_CATEGORIES;
   readonly totalSteps = 6;
   readonly stepNumbers = [1, 2, 3, 4, 5, 6];
 
-  // Form state
   title = signal('');
   category = signal('');
   description = signal('');
@@ -57,18 +65,57 @@ export class PostSwap {
   selectedFiles = signal<File[]>([]);
   previewUrls = signal<string[]>([]);
 
-  // UI state
   step = signal(1);
   isSubmitting = signal(false);
+  userName = signal(localStorage.getItem('vipo_user_firstName') || 'You');
+
+  constructor() {
+    this.restoreDraft();
+
+    effect(() => {
+      const draft = {
+        title: this.title(),
+        category: this.category(),
+        description: this.description(),
+        wantInReturn: this.wantInReturn(),
+        location: this.location(),
+        previewUrls: this.previewUrls(),
+        step: this.step(),
+      };
+      sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(draft));
+    });
+  }
+
+  private restoreDraft() {
+    const saved = sessionStorage.getItem(this.STORAGE_KEY);
+    if (!saved) return;
+
+    try {
+      const draft = JSON.parse(saved);
+      if (draft.title) this.title.set(draft.title);
+      if (draft.category) this.category.set(draft.category);
+      if (draft.description) this.description.set(draft.description);
+      if (draft.wantInReturn) this.wantInReturn.set(draft.wantInReturn);
+      if (draft.location) this.location.set(draft.location);
+      if (draft.previewUrls?.length) this.previewUrls.set(draft.previewUrls);
+      if (draft.step) this.step.set(draft.step);
+    } catch {
+      sessionStorage.removeItem(this.STORAGE_KEY);
+    }
+  }
+
+  private clearDraft() {
+    sessionStorage.removeItem(this.STORAGE_KEY);
+  }
 
   canProceed = computed(() => {
     switch (this.step()) {
       case 1: return this.title().length > 0;
       case 2: return this.category().length > 0;
-      case 3: return true;
+      case 3: return this.selectedFiles().length > 0;
       case 4: return this.description().length > 0;
-      case 5: return this.wantInReturn().length > 0;
-      case 6: return this.location().length > 0;
+      case 5: return this.wantInReturn().length > 0 && this.location().length > 0;
+      case 6: return true; 
       default: return false;
     }
   });
@@ -101,9 +148,16 @@ export class PostSwap {
     const remaining = maxPhotos - this.selectedFiles().length;
     if (remaining <= 0) return;
 
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     const newFiles = Array.from(input.files)
-      .filter(f => f.type.startsWith('image/'))
+      .filter(f => allowedTypes.includes(f.type))
       .slice(0, remaining);
+
+    if (newFiles.length === 0 && input.files.length > 0) {
+      this.snackbar.error(this.translation.translate('swap.postForm.step3InvalidFormat'));
+      input.value = '';
+      return;
+    }
 
     this.selectedFiles.update(files => [...files, ...newFiles]);
 
@@ -145,12 +199,13 @@ export class PostSwap {
     result.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.snackbar.success('Swap item posted successfully!');
+        this.clearDraft();
+        this.snackbar.success(this.translation.translate('swap.postForm.submitSuccess'));
         this.router.navigate(['/swap']);
       },
       error: () => {
         this.isSubmitting.set(false);
-        this.snackbar.error('Failed to post swap item. Please try again.');
+        this.snackbar.error(this.translation.translate('swap.postForm.submitError'));
       },
     });
   }

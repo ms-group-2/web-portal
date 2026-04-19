@@ -1,23 +1,24 @@
-<div class="min-h-screen bg-gradient-to-br from-[#90427b] to-[#a05589] flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
+<app-header variant="white"></app-header>
+<div class="min-h-screen bg-gradient-to-br from-swapPost to-[#a05589] flex items-center justify-center p-4 md:p-8 relative overflow-hidden"
+     style="padding-top: calc(var(--app-header-height, 64px) + 5rem)">
 
-  <!-- Background shapes -->
   <div class="absolute inset-0 opacity-10 pointer-events-none">
     <div class="absolute top-20 left-20 w-64 h-64 bg-white rounded-full blur-3xl animate-pulse"></div>
     <div class="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse"
          style="animation-delay: 1s"></div>
   </div>
 
-  <!-- Close button -->
   <button
     type="button"
     (click)="close()"
-    class="absolute top-4 right-4 md:top-8 md:right-8 w-12 h-12 bg-white/20 hover:bg-white/30
-           backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-50">
+    class="absolute right-4 md:right-8 w-12 h-12 bg-white/20 hover:bg-white/30
+           backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-50"
+    style="top: calc(var(--app-header-height, 64px) + 2rem)">
     <mat-icon class="text-white">close</mat-icon>
   </button>
 
-  <!-- Progress dots -->
-  <div class="absolute top-6 md:top-8 left-1/2 -translate-x-1/2 flex gap-2">
+  <div class="absolute left-1/2 -translate-x-1/2 flex gap-2"
+       style="top: calc(var(--app-header-height, 64px) + 2.25rem)">
     @for (s of stepNumbers; track s) {
       <div
         class="dot"
@@ -28,27 +29,26 @@
     }
   </div>
 
-  <!-- Main content area -->
-  <div class="relative w-full max-w-2xl">
-    <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-12 min-h-[500px] flex flex-col">
+  <div class="relative w-full transition-all duration-500"
+       [class.max-w-3xl]="step() !== totalSteps"
+       [class.max-w-xl]="step() === totalSteps">
+    <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-12 flex flex-col"
+         [class.min-h-[500px]]="step() !== totalSteps">
 
       @switch (step()) {
 
-        <!-- Step 1: Title -->
         @case (1) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in">
             <div class="mb-8">
-              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">
-                What are you<br/>swapping?
-              </h2>
-              <p class="text-lg md:text-xl text-gray-500 font-semibold">Give it a catchy name</p>
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4 whitespace-pre-line">{{ 'swap.postForm.step1Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step1Subtitle' | translate }}</p>
             </div>
             <input
               type="text"
               [value]="title()"
               (input)="title.set($any($event.target).value)"
               (keydown.enter)="canProceed() && nextStep()"
-              placeholder="Canon AE-1 Film Camera"
+              [placeholder]="'swap.postForm.step1Placeholder' | translate"
               autofocus
               class="step-input w-full px-0 py-4 text-xl md:text-3xl font-bold text-gray-900
                      border-0 border-b-4 border-gray-200 focus:outline-none transition-all
@@ -56,22 +56,23 @@
           </div>
         }
 
-        <!-- Step 2: Category -->
         @case (2) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in">
             <div class="mb-8">
-              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">Pick a category</h2>
-              <p class="text-lg md:text-xl text-gray-500 font-semibold">What type of item is this?</p>
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.postForm.step2Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step2Subtitle' | translate }}</p>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
               @for (cat of categories; track cat.name) {
                 <button
                   type="button"
                   (click)="selectCategory(cat.name)"
-                  class="p-4 md:p-6 rounded-2xl font-bold transition-all border-2 hover:scale-105"
-                  [class.category-btn--selected]="category() === cat.name"
-                  [class.category-btn--unselected]="category() !== cat.name">
-                  <mat-icon class="text-4xl mb-2 block">{{ cat.icon }}</mat-icon>
+                  class="p-4 md:p-6 rounded-2xl font-bold transition-all border-2 hover:scale-105 flex flex-col items-center justify-center text-center"
+                  [ngClass]="{
+                            'category-btn--selected': category() === cat.name,
+                            'category-btn--unselected': category() !== cat.name
+                            }">
+                  <mat-icon class="!text-4xl !w-10 !h-10 mb-2">{{ cat.icon }}</mat-icon>
                   <span class="text-sm">{{ cat.name }}</span>
                 </button>
               }
@@ -79,50 +80,47 @@
           </div>
         }
 
-        <!-- Step 3: Photos -->
         @case (3) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in">
             <div class="mb-8">
-              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">
-                Add some<br/>photos?
-              </h2>
-              <p class="text-lg md:text-xl text-gray-500 font-semibold">3-5 pics get 3x more swaps</p>
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4 whitespace-pre-line">{{ 'swap.postForm.step3Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step3Subtitle' | translate }}</p>
             </div>
 
             <input
               type="file"
               #fileInput
-              accept="image/*"
+              accept="image/jpeg,image/png,image/jpg"
               multiple
-              class="hidden"
+              class="hidden "
               (change)="onFilesSelected($event)" />
 
             @if (previewUrls().length === 0) {
               <div
                 (click)="fileInput.click()"
-                class="border-[3px] border-dashed border-gray-300 hover:border-[#90427b]
+                class="border-[3px] m border-dashed border-gray-300 hover:border-swapPost
                        rounded-3xl p-10 md:p-16 text-center bg-gray-50 transition-all cursor-pointer group">
-                <div class="w-16 h-16 md:w-20 md:h-20 bg-[#90427b] group-hover:bg-[#7d3a6b]
+                <div class="w-16 h-16 md:w-20 md:h-20 bg-swapPost group-hover:bg-[#7d3a6b]
                             rounded-3xl flex items-center justify-center mx-auto mb-6 transition-all">
                   <mat-icon class="upload-icon text-white">photo_camera</mat-icon>
                 </div>
-                <p class="text-lg md:text-xl font-bold text-gray-900 mb-2">Click to upload</p>
-                <p class="text-gray-500 font-semibold">or drag and drop</p>
+                <p class="text-lg md:text-xl font-bold text-gray-900 mb-2">{{ 'swap.postForm.step3Upload' | translate }}</p>
+                <p class="text-gray-500 font-semibold">{{ 'swap.postForm.step3DragDrop' | translate }}</p>
               </div>
             } @else {
-              <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
+              <div class="grid grid-cols-3 sm:grid-cols-3 gap-4 md:gap-5">
                 @for (url of previewUrls(); track $index; let i = $index) {
                   <div class="relative group">
                     <img
                       [src]="url"
                       [alt]="'Photo ' + (i + 1)"
-                      class="w-full h-20 md:h-24 object-cover rounded-xl" />
+                      class="w-full h-28 md:h-36 object-cover rounded-2xl" />
                     <button
                       type="button"
                       (click)="removePhoto(i)"
-                      class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full
+                      class="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full
                              opacity-0 group-hover:opacity-100 transition-opacity
-                             flex items-center justify-center">
+                             flex items-center justify-center shadow-md">
                       <mat-icon class="!text-sm">close</mat-icon>
                     </button>
                   </div>
@@ -131,95 +129,151 @@
                   <button
                     type="button"
                     (click)="fileInput.click()"
-                    class="h-20 md:h-24 border-2 border-dashed border-gray-300 hover:border-[#90427b]
-                           rounded-xl flex items-center justify-center transition-all">
-                    <mat-icon class="text-gray-400">add</mat-icon>
+                    class="h-28 md:h-36 border-2 border-dashed border-gray-300 hover:border-swapPost
+                           rounded-2xl flex items-center justify-center transition-all">
+                    <mat-icon class="text-gray-400 !text-3xl !w-8 !h-8">add</mat-icon>
                   </button>
                 }
               </div>
             }
-
-            <button
-              type="button"
-              (click)="nextStep()"
-              class="mt-6 text-gray-500 font-bold hover:text-gray-700 transition-all self-start">
-              Skip for now &rarr;
-            </button>
           </div>
         }
 
-        <!-- Step 4: Description -->
         @case (4) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in">
             <div class="mb-8">
-              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">
-                Tell us<br/>about it
-              </h2>
-              <p class="text-lg md:text-xl text-gray-500 font-semibold">Condition, age, why it's cool...</p>
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4 whitespace-pre-line">{{ 'swap.postForm.step4Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step4Subtitle' | translate }}</p>
             </div>
             <textarea
               [value]="description()"
               (input)="description.set($any($event.target).value)"
-              placeholder="It's a vintage 1970s camera in great condition. Works perfectly, just upgraded to digital..."
-              rows="5"
+              [placeholder]="'swap.postForm.step4Placeholder' | translate"
+              rows="3"
               class="step-input w-full px-0 py-4 text-lg md:text-2xl font-medium text-gray-900
                      border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                      resize-none placeholder:text-gray-300 bg-transparent leading-relaxed"></textarea>
-            <p class="text-sm text-gray-400 font-semibold mt-3">{{ description().length }} characters</p>
+            <p class="text-sm text-gray-400 font-semibold mt-3">{{ description().length }} {{ 'swap.postForm.step4Characters' | translate }}</p>
           </div>
         }
 
-        <!-- Step 5: What do you want -->
         @case (5) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in">
             <div class="mb-8">
-              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">
-                What do you<br/>want for it?
-              </h2>
-              <p class="text-lg md:text-xl text-gray-500 font-semibold">Stay flexible for better matches</p>
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.postForm.step5Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step5Subtitle' | translate }}</p>
             </div>
-            <input
-              type="text"
-              [value]="wantInReturn()"
-              (input)="wantInReturn.set($any($event.target).value)"
-              (keydown.enter)="canProceed() && nextStep()"
-              placeholder="Vinyl records, art supplies, or surprise me!"
-              class="step-input w-full px-0 py-4 text-xl md:text-3xl font-bold text-gray-900
-                     border-0 border-b-4 border-gray-200 focus:outline-none transition-all
-                     placeholder:text-gray-300 bg-transparent" />
+
+            <div class="space-y-8">
+              <div>
+                <label class="text-lg font-black text-gray-700 mb-3 block">{{ 'swap.postForm.step5WantLabel' | translate }}</label>
+                <input
+                  type="text"
+                  [value]="wantInReturn()"
+                  (input)="wantInReturn.set($any($event.target).value)"
+                  [placeholder]="'swap.postForm.step5WantPlaceholder' | translate"
+                  autofocus
+                  class="step-input w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
+                         border-0 border-b-4 border-gray-200 focus:outline-none transition-all
+                         placeholder:text-gray-300 bg-transparent" />
+              </div>
+
+              <div>
+                <label class="text-lg font-black text-gray-700 mb-3 block">{{ 'swap.postForm.step5LocationLabel' | translate }}</label>
+                <input
+                  type="text"
+                  [value]="location()"
+                  (input)="location.set($any($event.target).value)"
+                  (keydown.enter)="canProceed() && nextStep()"
+                  [placeholder]="'swap.postForm.step5LocationPlaceholder' | translate"
+                  class="step-input w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
+                         border-0 border-b-4 border-gray-200 focus:outline-none transition-all
+                         placeholder:text-gray-300 bg-transparent" />
+                <p class="text-sm text-gray-400 font-semibold mt-2">{{ 'swap.postForm.step5NearbyCount' | translate }}</p>
+              </div>
+            </div>
           </div>
         }
 
-        <!-- Step 6: Location -->
         @case (6) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in">
-            <div class="mb-8">
-              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">
-                Where are<br/>you located?
-              </h2>
-              <p class="text-lg md:text-xl text-gray-500 font-semibold">847 swappers nearby right now</p>
+            <div class="mb-8 text-center">
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.postForm.step6Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step6Subtitle' | translate }}</p>
             </div>
-            <input
-              type="text"
-              [value]="location()"
-              (input)="location.set($any($event.target).value)"
-              (keydown.enter)="canProceed() && nextStep()"
-              placeholder="Vake, Tbilisi"
-              class="step-input w-full px-0 py-4 text-xl md:text-3xl font-bold text-gray-900
-                     border-0 border-b-4 border-gray-200 focus:outline-none transition-all
-                     placeholder:text-gray-300 bg-transparent" />
+
+            <div class="bg-white border-2 border-gray-200 rounded-3xl overflow-hidden shadow-xl
+                        hover:shadow-2xl transition-all mb-2">
+              @if (previewUrls().length > 0) {
+                <div class="relative h-28 md:h-36 bg-gray-100 overflow-hidden">
+                  <img
+                    [src]="previewUrls()[0]"
+                    [alt]="title()"
+                    class="w-full h-full object-cover" />
+                  @if (category()) {
+                    <div class="absolute top-4 right-4 px-3 py-1.5 bg-swapPost text-white
+                                rounded-full text-xs font-black uppercase">
+                      {{ category() }}
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="relative h-28 md:h-36 bg-gray-100 flex items-center justify-center">
+                  <mat-icon class="!text-6xl text-gray-300">image</mat-icon>
+                  @if (category()) {
+                    <div class="absolute top-4 right-4 px-3 py-1.5 bg-swapPost text-white
+                                rounded-full text-xs font-black uppercase">
+                      {{ category() }}
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="px-10 py-5">
+                <h3 class="text-2xl font-black text-gray-900 mb-3">{{ title() }}</h3>
+
+                @if (description()) {
+                  <p class="text-gray-600 font-medium mb-4 line-clamp-3">{{ description() }}</p>
+                }
+
+                <div class="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
+                  <mat-icon class="text-swapPost">swap_horiz</mat-icon>
+                  <div>
+                    <p class="text-xs font-black text-gray-500 uppercase tracking-wide">{{ 'swap.postForm.step6WantsLabel' | translate }}</p>
+                    <p class="font-bold text-gray-900">{{ wantInReturn() }}</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2 text-gray-500">
+                    <mat-icon class="!text-lg">location_on</mat-icon>
+                    <span class="text-sm font-bold">{{ location() }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-gray-500">{{ 'swap.postForm.step6PostedBy' | translate }}</span>
+                    <span class="text-sm font-black text-gray-900">{{ userName() }}-მ</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 text-center">
+              <p class="text-sm text-gray-500 font-semibold">
+                <mat-icon class="!text-sm align-middle">auto_awesome</mat-icon>
+                {{ 'swap.postForm.step6GoLive' | translate }}
+              </p>
+            </div>
           </div>
         }
       }
 
-      <!-- Navigation footer -->
-      <div class="flex items-center justify-between mt-8 md:mt-12 pt-6 md:pt-8 border-t border-gray-100">
+      <div class="flex items-center justify-between mt-5 md:mt-8 pt-6 md:pt-8 border-t border-gray-100">
         @if (step() > 1) {
           <button
             type="button"
             (click)="prevStep()"
             class="px-4 md:px-6 py-3 text-gray-500 font-black hover:text-gray-700 transition-all">
-            &larr; Back
+            &larr; {{ 'swap.postForm.back' | translate }}
           </button>
         } @else {
           <div></div>
@@ -235,48 +289,55 @@
           [class.next-btn--disabled]="!canProceed() || isSubmitting()">
           @if (step() === totalSteps) {
             <mat-icon>bolt</mat-icon>
-            Post Swap
+            {{ 'swap.postForm.submit' | translate }}
             <mat-icon>check</mat-icon>
           } @else {
-            Continue
+            {{ 'swap.postForm.continue' | translate }}
             <mat-icon>arrow_forward</mat-icon>
           }
         </button>
       </div>
     </div>
+  </div>
 
-    <!-- Preview sidebar (visible on xl+ screens) -->
-    @if (step() > 1) {
+    <!-- Preview sidebar (visible on xl+ screens, hidden on preview step)
+    @if (step() > 1 && step() < totalSteps) {
       <div class="hidden xl:block absolute -right-72 top-0 w-64 bg-white/10 backdrop-blur-sm
                   rounded-2xl p-6 text-white animate-fade-in">
-        <p class="text-xs font-black uppercase tracking-wide mb-4 opacity-70">Preview</p>
+        <p class="text-xs font-black uppercase tracking-wide mb-4 opacity-70">{{ 'swap.postForm.sidebarPreview' | translate }}</p>
         <div class="space-y-3">
           @if (title()) {
             <div>
-              <p class="text-xs opacity-70 font-bold mb-1">Title</p>
+              <p class="text-xs opacity-70 font-bold mb-1">{{ 'swap.postForm.sidebarTitle' | translate }}</p>
               <p class="font-bold">{{ title() }}</p>
             </div>
           }
           @if (category()) {
             <div>
-              <p class="text-xs opacity-70 font-bold mb-1">Category</p>
+              <p class="text-xs opacity-70 font-bold mb-1">{{ 'swap.postForm.sidebarCategory' | translate }}</p>
               <p class="font-bold">{{ category() }}</p>
             </div>
           }
           @if (description()) {
             <div>
-              <p class="text-xs opacity-70 font-bold mb-1">Description</p>
+              <p class="text-xs opacity-70 font-bold mb-1">{{ 'swap.postForm.sidebarDescription' | translate }}</p>
               <p class="font-semibold text-sm line-clamp-3">{{ description() }}</p>
             </div>
           }
           @if (wantInReturn()) {
             <div>
-              <p class="text-xs opacity-70 font-bold mb-1">Wants</p>
+              <p class="text-xs opacity-70 font-bold mb-1">{{ 'swap.postForm.sidebarWants' | translate }}</p>
               <p class="font-bold">{{ wantInReturn() }}</p>
+            </div>
+          }
+          @if (location()) {
+            <div>
+              <p class="text-xs opacity-70 font-bold mb-1">{{ 'swap.postForm.sidebarLocation' | translate }}</p>
+              <p class="font-bold">{{ location() }}</p>
             </div>
           }
         </div>
       </div>
     }
-  </div>
-</div>
+  </div> -->
+</div> 

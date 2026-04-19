@@ -29,14 +29,9 @@
     } @else {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         @for (item of items(); track item.id; let i = $index) {
-          <div
-            (mouseenter)="hoveredCardId.set(item.id)"
-            (mouseleave)="hoveredCardId.set(null)"
-            appScrollAnimate="fade-up"
-            [delay]="(i % 4) * 80">
+          <div appScrollAnimate="fade-up" [delay]="(i % 4) * 80">
             <app-swap-item-card
               [item]="item"
-              [isHovered]="hoveredCardId() === item.id"
               [isFavorite]="isFavorite(item.id)"
               (favoriteToggle)="toggleFavorite(item.id)"
             />
