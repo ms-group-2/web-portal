@@ -291,6 +291,20 @@
       }
     }
   },
+  "userProfile": {
+    "loading": "Loading...",
+    "back": "Back",
+    "memberSince": "Member since",
+    "activeListings": "Active Listings",
+    "swapListings": "Swap Listings",
+    "loadingListings": "Loading listings...",
+    "noListings": "No listings yet",
+    "noListingsSubtitle": "This user hasn't posted any swap items yet",
+    "inTrade": "In Trade",
+    "notFound": "User Not Found",
+    "notFoundSubtitle": "This profile doesn't exist or has been removed",
+    "backToSwaps": "Back to Swaps"
+  },
   "validation": {
     "required": "This field is required",
     "minlength": "Too short, minimum {n} characters",

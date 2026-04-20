@@ -34,6 +34,7 @@
               [item]="item"
               [isFavorite]="isFavorite(item.id)"
               (favoriteToggle)="toggleFavorite(item.id)"
+              (cardClick)="navigateToDetail(item.id)"
             />
           </div>
         }

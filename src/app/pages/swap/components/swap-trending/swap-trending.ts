@@ -1,10 +1,11 @@
-import { Component, ChangeDetectionStrategy, input, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, signal, computed, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ScrollAnimateDirective } from 'lib/directives/scroll-animate.directive';
 import { SwapItem } from '../../swap.models';
 import { SwapListingPhoto } from '../swap-listing-photo/swap-listing-photo';
 import { formatRelativeShort } from 'lib/utils/relative-time';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-swap-trending',
@@ -13,6 +14,7 @@ import { formatRelativeShort } from 'lib/utils/relative-time';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwapTrending {
+  private router = inject(Router);
   items = input.required<SwapItem[]>();
 
   trendingIndex = signal(0);
@@ -28,5 +30,9 @@ export class SwapTrending {
 
   postedDisplay(item: SwapItem): string {
     return item.postedDate ?? formatRelativeShort(item.created_at);
+  }
+
+  navigateToDetail(itemId: string) {
+    this.router.navigate(['/swap', itemId]);
   }
 }

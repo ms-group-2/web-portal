@@ -20,6 +20,14 @@
       (postItem)="onPostItem()"
     ></app-swap-listings-grid>
 
+    <app-swap-my-trades
+      [trades]="myTradeCards()"
+      [isLoading]="isTradesLoading()"
+      [error]="tradesError()"
+      [votingChainIds]="votingChainIds()"
+      (vote)="onTradeVote($event)"
+    ></app-swap-my-trades>
+
     <app-swap-recent-trades [recentTrades]="recentTrades"></app-swap-recent-trades>
   </div>
 </div>

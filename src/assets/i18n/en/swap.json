@@ -71,8 +71,35 @@
       "bothRated": "Both parties rated"
     },
 
+    "myTrades": {
+      "title": "My Trades",
+      "subtitle": "Manage your active trade chains",
+      "loading": "Loading your trades...",
+      "error": "Unable to load trades right now.",
+      "empty": "You do not have any trade chains yet.",
+      "chain": "Chain",
+      "created": "Created",
+      "expires": "Expires",
+      "accept": "Accept",
+      "decline": "Decline"
+    },
+
     "chat": {
       "ariaLabel": "Contact support"
+    },
+
+    "detail": {
+      "loading": "Loading...",
+      "backToSwaps": "Back to Swaps",
+      "featured": "Featured",
+      "inTrade": "In Trade",
+      "description": "Description",
+      "wantsInReturn": "Wants in return",
+      "safetyNote": "Protected by Swap Safety \u2022 Meet in public \u2022 Verify items",
+      "proposeSwap": "Propose a Swap",
+      "message": "Message",
+      "report": "Report",
+      "similarSwaps": "Similar Swaps"
     },
 
     "postForm": {
@@ -82,7 +109,7 @@
       "step2Title": "Pick a category",
       "step2Subtitle": "What type of item is this?",
       "step3Title": "Add some photos?",
-      "step3Subtitle": "3-5 pics get 3x more swaps",
+      "step3Subtitle": "We recommend 3-5 photos",
       "step3Upload": "Click to upload",
       "step3DragDrop": "or drag and drop",
       "step4Title": "Tell us about it",

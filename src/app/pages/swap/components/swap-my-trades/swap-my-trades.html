@@ -1,0 +1,82 @@
+<section class="py-16" appScrollAnimate="fade-up">
+  <div class="mb-8 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="h-11 w-11 rounded-2xl bg-swap/10 text-swap flex items-center justify-center">
+        <mat-icon>handshake</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-3xl font-black text-gray-900">{{ 'swap.myTrades.title' | translate }}</h2>
+        <p class="text-sm font-semibold text-gray-600">{{ 'swap.myTrades.subtitle' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="rounded-3xl border-2 border-gray-100 bg-gray-50 p-8 text-center font-semibold text-gray-600">
+      {{ 'swap.myTrades.loading' | translate }}
+    </div>
+  } @else if (error()) {
+    <div class="rounded-3xl border-2 border-red-100 bg-red-50 p-8 text-center text-red-600">
+      {{ 'swap.myTrades.error' | translate }}
+    </div>
+  } @else if (!trades().length) {
+    <div class="rounded-3xl border-2 border-gray-100 bg-gray-50 p-8 text-center text-gray-600">
+      {{ 'swap.myTrades.empty' | translate }}
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 gap-5">
+      @for (trade of trades(); track trade.id) {
+        <article class="rounded-3xl border-2 border-gray-100 bg-white p-5 md:p-6">
+          <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-extrabold uppercase tracking-wide text-gray-500">
+                {{ 'swap.myTrades.chain' | translate }} #{{ trade.id.slice(0, 8) }}
+              </p>
+              <p class="mt-1 text-sm font-semibold text-gray-600">
+                {{ 'swap.myTrades.created' | translate }} {{ trade.createdLabel }}
+              </p>
+              <p class="text-sm font-semibold text-gray-600">
+                {{ 'swap.myTrades.expires' | translate }} {{ trade.expiresLabel }}
+              </p>
+            </div>
+
+            <span
+              class="rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide"
+              [class.bg-amber-100]="trade.isPending"
+              [class.text-amber-700]="trade.isPending"
+              [class.bg-emerald-100]="!trade.isPending"
+              [class.text-emerald-700]="!trade.isPending">
+              {{ trade.status }}
+            </span>
+          </div>
+
+          <div class="mb-5 flex flex-wrap gap-2">
+            @for (item of trade.participantItems; track item) {
+              <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">{{ item }}</span>
+            }
+          </div>
+
+          @if (trade.isPending) {
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="rounded-2xl bg-emerald-500 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="votingChainIds().includes(trade.id)"
+                (click)="vote.emit({ chainId: trade.id, accept: true })">
+                {{ 'swap.myTrades.accept' | translate }}
+              </button>
+
+              <button
+                type="button"
+                class="rounded-2xl border-2 border-gray-200 px-5 py-2.5 text-sm font-black text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="votingChainIds().includes(trade.id)"
+                (click)="vote.emit({ chainId: trade.id, accept: false })">
+                {{ 'swap.myTrades.decline' | translate }}
+              </button>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

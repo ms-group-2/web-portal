@@ -290,6 +290,20 @@
       }
     }
   },
+  "userProfile": {
+    "loading": "იტვირთება...",
+    "back": "უკან",
+    "memberSince": "წევრი",
+    "activeListings": "აქტიური განცხადებები",
+    "swapListings": "გაცვლის განცხადებები",
+    "loadingListings": "განცხადებები იტვირთება...",
+    "noListings": "განცხადებები ჯერ არ არის",
+    "noListingsSubtitle": "ამ მომხმარებელს ჯერ არ დაუმატებია გაცვლის ნივთები",
+    "inTrade": "გაცვლაში",
+    "notFound": "მომხმარებელი ვერ მოიძებნა",
+    "notFoundSubtitle": "ეს პროფილი არ არსებობს ან წაშლილია",
+    "backToSwaps": "გაცვლებზე დაბრუნება"
+  },
   "validation": {
     "required": "ეს ველი აუცილებელია",
     "minlength": "მინიმუმ {n} სიმბოლო",

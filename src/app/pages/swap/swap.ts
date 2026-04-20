@@ -11,6 +11,7 @@ import { SwapAiMatch } from './components/swap-ai-match/swap-ai-match';
 import { SwapCategoryBar } from './components/swap-category-bar/swap-category-bar';
 import { SwapListingsGrid } from './components/swap-listings-grid/swap-listings-grid';
 import { SwapRecentTrades } from './components/swap-recent-trades/swap-recent-trades';
+import { SwapMyTrades, SwapMyTradeCard } from './components/swap-my-trades/swap-my-trades';
 import {
   MOCK_SWAP_ITEMS,
   AI_MATCHES,
@@ -18,6 +19,8 @@ import {
   LIVE_ACTIVITIES,
 } from './swap.mock-data';
 import { formatRelativeShort } from 'lib/utils/relative-time';
+import { TradeChain } from 'lib/services/swap';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-swap',
@@ -31,6 +34,7 @@ import { formatRelativeShort } from 'lib/utils/relative-time';
     SwapCategoryBar,
     SwapListingsGrid,
     SwapRecentTrades,
+    SwapMyTrades,
   ],
   templateUrl: './swap.html',
   styleUrl: './swap.scss',
@@ -43,6 +47,10 @@ export class Swap {
   // State
   swapItems = signal<SwapItem[]>(MOCK_SWAP_ITEMS);
   isLoading = signal(false);
+  isTradesLoading = signal(false);
+  tradesError = signal<string | null>(null);
+  myTrades = signal<TradeChain[]>([]);
+  votingChainIds = signal<string[]>([]);
   selectedCategoryId = signal<number | null>(null);
   onlineUsers = signal(847);
 
@@ -63,8 +71,20 @@ export class Swap {
     return this.swapItems();
   });
 
+  myTradeCards = computed<SwapMyTradeCard[]>(() =>
+    this.myTrades().map((trade) => ({
+      id: trade.id,
+      status: trade.status,
+      createdLabel: formatRelativeShort(trade.created_at),
+      expiresLabel: formatRelativeShort(trade.expires_at),
+      participantItems: trade.participants.map((participant) => participant.receives_item).filter(Boolean),
+      isPending: trade.status.toLowerCase() === 'pending',
+    }))
+  );
+
   constructor() {
     this.loadAllListings();
+    this.loadMyTrades();
   }
 
   loadAllListings() {
@@ -86,6 +106,40 @@ export class Swap {
         this.isLoading.set(false);
       },
     });
+  }
+
+  loadMyTrades() {
+    this.isTradesLoading.set(true);
+    this.tradesError.set(null);
+    this.api.getMyTrades().subscribe({
+      next: (trades) => {
+        this.myTrades.set(trades);
+        this.isTradesLoading.set(false);
+      },
+      error: () => {
+        this.tradesError.set('load_failed');
+        this.isTradesLoading.set(false);
+      },
+    });
+  }
+
+  onTradeVote(payload: { chainId: string; accept: boolean }) {
+    const currentVotingIds = this.votingChainIds();
+    if (currentVotingIds.includes(payload.chainId)) return;
+
+    this.votingChainIds.set([...currentVotingIds, payload.chainId]);
+
+    this.api
+      .voteOnTrade(payload.chainId, { accept: payload.accept })
+      .pipe(finalize(() => this.votingChainIds.set(this.votingChainIds().filter((id) => id !== payload.chainId))))
+      .subscribe({
+        next: () => {
+          this.loadMyTrades();
+        },
+        error: () => {
+          this.tradesError.set('vote_failed');
+        },
+      });
   }
 
 

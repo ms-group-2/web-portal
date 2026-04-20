@@ -75,7 +75,13 @@ body {
 
   background-color: var(--mat-sys-surface);
   color: #101828;
+}
 
+mat-icon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
 }
 
 

@@ -9,7 +9,6 @@ import { SwapListingPhoto } from '../swap-listing-photo/swap-listing-photo';
   selector: 'app-swap-item-card',
   imports: [NgClass, MatIconModule, TranslatePipe, SwapListingPhoto],
   templateUrl: './swap-item-card.html',
-  styleUrl: './swap-item-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwapItemCard {
@@ -17,9 +16,14 @@ export class SwapItemCard {
   isFavorite = input(false);
 
   favoriteToggle = output<Event>();
+  cardClick = output<void>();
 
   onToggleFavorite(event: Event) {
     event.stopPropagation();
     this.favoriteToggle.emit(event);
+  }
+
+  onCardClick() {
+    this.cardClick.emit();
   }
 }

@@ -115,5 +115,10 @@ export const routes: Routes = [
     ]
   },
 
+  {
+    path: 'user/:id',
+    loadComponent: () => import('./pages/user-profile/user-profile').then(m => m.UserProfile),
+  },
+
   { path: '**', redirectTo: 'landing' },
 ];

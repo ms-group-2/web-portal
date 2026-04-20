@@ -1,0 +1,258 @@
+<app-header variant="white"></app-header>
+
+@if (isLoading()) {
+  <div class="flex min-h-screen items-center justify-center bg-white">
+    <div class="text-center">
+      <div class="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-swap border-t-transparent"></div>
+      <p class="font-semibold text-gray-600">{{ 'swap.detail.loading' | translate }}</p>
+    </div>
+  </div>
+} @else if (item(); as item) {
+  <div class="min-h-screen bg-white">
+    <!-- Header with Back Button -->
+    <div class=" border-gray-200  pt-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-8 pt-6">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="group flex items-center gap-3 font-bold text-swap transition-all hover:text-swap">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-white transition-all group-hover:bg-[#90427b]/10">
+            <mat-icon class="!text-2xl">arrow_back</mat-icon>
+          </div>
+          <span class="text-base font-bold uppercase tracking-wide">{{ 'swap.detail.backToSwaps' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-8 pb-12 pt-8 ">
+      <div class="grid gap-12 lg:grid-cols-2">
+        <!-- Left Column: Image Gallery -->
+        <div class="space-y-6">
+          <!-- Main Image -->
+          <div class="relative aspect-square overflow-hidden rounded-3xl bg-gray-100">
+            <img
+              [src]="currentPhoto()"
+              [alt]="item.title"
+              class="h-full w-full object-cover"
+            />
+
+            <!-- Image Navigation -->
+            @if (photos().length > 1) {
+              <button
+                type="button"
+                (click)="prevImage()"
+                class="absolute left-4 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-xl transition-all hover:bg-white">
+                <mat-icon class="!text-3xl text-gray-900">chevron_left</mat-icon>
+              </button>
+              <button
+                type="button"
+                (click)="nextImage()"
+                class="absolute right-4 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-xl transition-all hover:bg-white">
+                <mat-icon class="!text-3xl text-gray-900">chevron_right</mat-icon>
+              </button>
+
+              <!-- Image Indicators -->
+              <div class="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
+                @for (photo of photos(); track $index) {
+                  <button
+                    type="button"
+                    (click)="selectImage($index)"
+                    class="h-2.5 rounded-full transition-all"
+                    [ngClass]="$index === currentImageIndex() ? 'w-10 bg-white' : 'w-2.5 bg-white/50'"
+                  ></button>
+                }
+              </div>
+            }
+
+            <!-- Featured Badge -->
+            @if (item.featured) {
+              <div class="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-gradient-to-r from-[#F3B582] to-[#FAAF78] px-5 py-3 text-sm font-black uppercase tracking-wide text-black shadow-xl">
+                <mat-icon class="!h-5 !w-5 !text-xl">auto_awesome</mat-icon>
+                {{ 'swap.detail.featured' | translate }}
+              </div>
+            }
+
+            <!-- Locked Badge -->
+            @if (item.is_locked) {
+              <div class="absolute left-6 top-6 rounded-full bg-swap px-5 py-3 text-sm font-black uppercase tracking-wide text-white shadow-xl">
+                {{ 'swap.detail.inTrade' | translate }}
+              </div>
+            }
+          </div>
+
+          <!-- Thumbnail Strip -->
+          @if (photos().length > 1) {
+            <div class="grid grid-cols-4 gap-4">
+              @for (photo of thumbnails(); track $index) {
+                <button
+                  type="button"
+                  (click)="selectImage($index)"
+                  class="relative aspect-square overflow-hidden rounded-2xl border-4 transition-all"
+                  [ngClass]="$index === currentImageIndex()
+                    ? 'border-swap scale-105'
+                    : 'border-gray-200 hover:border-gray-300'">
+                  <img
+                    [src]="photo"
+                    [alt]="item.title + ' ' + ($index + 1)"
+                    class="h-full w-full object-cover"
+                  />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Right Column: Details -->
+        <div class="space-y-8">
+          <!-- Title & Actions -->
+          <div>
+            <div class="mb-4 flex items-start justify-between">
+              <h1 class="flex-1 text-5xl font-black uppercase leading-tight text-gray-900">{{ item.title }}</h1>
+
+              <div class="ml-6 flex gap-3">
+                <button
+                  type="button"
+                  (click)="toggleFavorite()"
+                  class="flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all"
+                  [ngClass]="isFavorited()
+                    ? 'bg-swap border-swap text-white'
+                    : 'bg-gray-100 border-gray-200 text-gray-600 hover:border-swap'">
+                  <mat-icon class="!text-2xl">{{ isFavorited() ? 'favorite' : 'favorite_border' }}</mat-icon>
+                </button>
+                <button
+                  type="button"
+                  class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-100 transition-all hover:bg-gray-200">
+                  <mat-icon class="!text-2xl text-gray-600">share</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Meta -->
+            <div class="flex flex-wrap items-center gap-6 text-base">
+              @if (posterProfile(); as poster) {
+                <button
+                  type="button"
+                  (click)="navigateToProfile()"
+                  class="flex items-center gap-2 text-gray-600 transition-colors hover:text-swap">
+                  @if (poster.avatar_url) {
+                    <img [src]="poster.avatar_url" [alt]="poster.name" class="h-7 w-7 rounded-full object-cover" />
+                  } @else {
+                    <mat-icon class="!text-xl">person</mat-icon>
+                  }
+                  <span class="font-bold underline-offset-2 hover:underline">{{ poster.name }} {{ poster.surname }}</span>
+                </button>
+              } @else if (item.postedBy) {
+                <div class="flex items-center gap-2 text-gray-600">
+                  <mat-icon class="!text-xl">person</mat-icon>
+                  <span class="font-bold">{{ item.postedBy }}</span>
+                </div>
+              }
+              @if (item.postedDate) {
+                <div class="flex items-center gap-2 text-gray-500">
+                  <mat-icon class="!text-xl">calendar_today</mat-icon>
+                  <span class="font-semibold">{{ item.postedDate }}</span>
+                </div>
+              }
+              @if (posterProfile()?.location || item.location) {
+                <div class="flex items-center gap-2 text-gray-600">
+                  <mat-icon class="!text-xl text-swap">location_on</mat-icon>
+                  <span class="font-bold">{{ posterProfile()?.location || item.location }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="space-y-4">
+            <h3 class="text-sm font-black uppercase tracking-wider text-gray-500">{{ 'swap.detail.description' | translate }}</h3>
+            <p class="text-xl font-medium leading-relaxed text-gray-700">{{ item.description }}</p>
+          </div>
+
+          <!-- What They Want -->
+          <div class="rounded-3xl border-2 border-gray-200 bg-gray-50 p-8">
+            <div class="flex items-start gap-5">
+              <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-swap">
+                <mat-icon class="!text-3xl text-white">swap_horiz</mat-icon>
+              </div>
+              <div class="flex-1">
+                <p class="mb-3 text-xs font-black uppercase tracking-wider text-gray-500">{{ 'swap.detail.wantsInReturn' | translate }}</p>
+                <p class="text-2xl font-black text-gray-900">{{ item.swap_item_title }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trust & Safety -->
+          <div class="rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
+            <div class="flex items-center gap-3">
+              <mat-icon class="!text-2xl text-blue-600">shield</mat-icon>
+              <p class="text-base font-bold text-blue-900">
+                {{ 'swap.detail.safetyNote' | translate }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-4 pt-4">
+            <button
+              type="button"
+              class="flex w-full items-center justify-center gap-4 rounded-2xl bg-swap px-4 sm:px-8 py-6 text-xl font-black uppercase tracking-wide text-white shadow-lg transition-all hover:scale-105 hover:bg-[#7d3a6b] hover:shadow-xl">
+              <mat-icon class="!text-3xl">swap_horiz</mat-icon>
+              {{ 'swap.detail.proposeSwap' | translate }}
+            </button>
+
+            <div class="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                class="flex items-center justify-center gap-3 rounded-2xl border-2 border-swap bg-white px-6 py-5 text-base font-black uppercase tracking-wide text-swap transition-all hover:bg-gray-50">
+                <mat-icon class="!text-2xl">chat</mat-icon>
+                {{ 'swap.detail.message' | translate }}
+              </button>
+              <button
+                type="button"
+                class="flex items-center justify-center gap-3 rounded-2xl border-2 border-gray-200 bg-gray-100 px-6 py-5 text-base font-bold uppercase tracking-wide text-gray-700 transition-all hover:bg-gray-200">
+                <mat-icon class="!text-2xl">flag</mat-icon>
+                {{ 'swap.detail.report' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Similar Items Section -->
+    @if (similarItems().length > 0) {
+      <div class="mt-16 bg-gray-50 py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-8">
+          <h2 class="mb-8 text-4xl font-black uppercase text-gray-900">{{ 'swap.detail.similarSwaps' | translate }}</h2>
+          <div class="grid grid-cols-2 gap-6 md:grid-cols-4">
+            @for (similar of similarItems(); track similar.id) {
+              <button
+                type="button"
+                (click)="onSimilarItemClick(similar)"
+                class="group overflow-hidden rounded-2xl border-2 border-gray-200 bg-white text-left transition-all hover:scale-105 hover:border-swap">
+                <div class="relative h-48 overflow-hidden bg-gray-100">
+                  <img
+                    [src]="similarItemPhotos()[similar.id]"
+                    [alt]="similar.title"
+                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
+                <div class="p-5">
+                  <h3 class="mb-2 line-clamp-1 text-base font-black text-gray-900">{{ similar.title }}</h3>
+                  <p class="mb-3 line-clamp-1 text-sm font-semibold text-gray-500">{{ similar.swap_item_title }}</p>
+                  <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <mat-icon class="!h-4 !w-4 !text-base">location_on</mat-icon>
+                    <span class="font-bold">{{ similar.location }}</span>
+                  </div>
+                </div>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<app-footer></app-footer>

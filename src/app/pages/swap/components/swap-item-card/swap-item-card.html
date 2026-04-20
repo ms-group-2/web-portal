@@ -1,6 +1,7 @@
 <div
   class="swap-card bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-swap transition-all duration-300 hover:shadow-2xl cursor-pointer"
-  [class.opacity-60]="item().is_locked">
+  [class.opacity-60]="item().is_locked"
+  (click)="onCardClick()">
   <div class="relative h-52 overflow-hidden bg-gray-100">
     <app-swap-listing-photo
       [photos]="item().photos"

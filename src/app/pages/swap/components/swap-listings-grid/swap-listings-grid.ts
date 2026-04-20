@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, input, output, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ScrollAnimateDirective } from 'lib/directives/scroll-animate.directive';
@@ -12,6 +13,8 @@ import { SwapItemCard } from '../swap-item-card/swap-item-card';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwapListingsGrid {
+  private router = inject(Router);
+
   items = input.required<SwapItem[]>();
   isLoading = input(false);
 
@@ -33,5 +36,9 @@ export class SwapListingsGrid {
 
   isFavorite(itemId: string): boolean {
     return this.favorites().has(itemId);
+  }
+
+  navigateToDetail(itemId: string) {
+    this.router.navigate(['/swap', itemId]);
   }
 }

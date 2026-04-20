@@ -1,0 +1,153 @@
+<app-header variant="white"></app-header>
+
+@if (isLoading()) {
+  <div class="flex min-h-screen items-center justify-center bg-white">
+    <div class="text-center">
+      <div class="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-swap border-t-transparent"></div>
+      <p class="font-semibold text-gray-600">{{ 'userProfile.loading' | translate }}</p>
+    </div>
+  </div>
+} @else if (profile(); as profile) {
+  <div class="min-h-screen bg-white">
+    <!-- Back Button -->
+    <div class="pt-24">
+      <div class="mx-auto max-w-5xl px-4 pt-6 sm:px-8">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="group flex items-center gap-3 font-bold text-swap transition-all hover:text-[#90427b]">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 transition-all group-hover:bg-[#90427b]/10">
+            <mat-icon class="!text-2xl">arrow_back</mat-icon>
+          </div>
+          <span class="text-base font-bold uppercase tracking-wide">{{ 'userProfile.back' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Profile Header -->
+    <div class="mx-auto max-w-5xl px-4 py-12 sm:px-8">
+      <div class="flex flex-col items-center gap-8 sm:flex-row sm:items-start">
+        <!-- Avatar -->
+        <div class="relative">
+          @if (profile.avatar_url) {
+            <img
+              [src]="profile.avatar_url"
+              [alt]="fullName()"
+              class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-xl sm:h-40 sm:w-40"
+            />
+          } @else {
+            <div class="flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-swap text-4xl font-black text-white shadow-xl sm:h-40 sm:w-40 sm:text-5xl">
+              {{ initials() }}
+            </div>
+          }
+        </div>
+
+        <!-- Info -->
+        <div class="flex-1 text-center sm:text-left">
+          <h1 class="mb-2 text-4xl font-black text-gray-900 sm:text-5xl">{{ fullName() }}</h1>
+
+          <div class="mb-4 flex flex-wrap items-center justify-center gap-4 sm:justify-start">
+            @if (profile.location) {
+              <div class="flex items-center gap-2 text-gray-600">
+                <mat-icon class="!text-xl text-swap">location_on</mat-icon>
+                <span class="font-bold">{{ profile.location }}</span>
+              </div>
+            }
+            @if (memberSince()) {
+              <div class="flex items-center gap-2 text-gray-500">
+                <mat-icon class="!text-xl">calendar_today</mat-icon>
+                <span class="font-semibold">{{ 'userProfile.memberSince' | translate }} {{ memberSince() }}</span>
+              </div>
+            }
+          </div>
+
+          @if (profile.bio) {
+            <p class="mb-6 max-w-2xl text-lg leading-relaxed text-gray-600">{{ profile.bio }}</p>
+          }
+
+          <!-- Stats -->
+          <div class="flex flex-wrap items-center justify-center gap-6 sm:justify-start">
+            <div class="rounded-2xl border-2 border-gray-200 bg-gray-50 px-6 py-3 text-center">
+              <p class="text-2xl font-black text-swap">{{ listings().length }}</p>
+              <p class="text-xs font-bold uppercase tracking-wide text-gray-500">{{ 'userProfile.activeListings' | translate }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Listings Section -->
+    <div class="border-t border-gray-100 bg-gray-50 py-16">
+      <div class="mx-auto max-w-5xl px-4 sm:px-8">
+        <h2 class="mb-8 text-3xl font-black uppercase text-gray-900">{{ 'userProfile.swapListings' | translate }}</h2>
+
+        @if (isListingsLoading()) {
+          <div class="flex items-center justify-center py-20">
+            <div class="text-center">
+              <div class="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-swap border-t-transparent"></div>
+              <p class="font-semibold text-gray-600">{{ 'userProfile.loadingListings' | translate }}</p>
+            </div>
+          </div>
+        } @else if (listings().length === 0) {
+          <div class="py-20 text-center">
+            <mat-icon class="!text-8xl text-gray-300">inventory_2</mat-icon>
+            <h3 class="mt-4 text-2xl font-bold text-gray-900">{{ 'userProfile.noListings' | translate }}</h3>
+            <p class="mt-2 font-semibold text-gray-500">{{ 'userProfile.noListingsSubtitle' | translate }}</p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @for (listing of listings(); track listing.id) {
+              <button
+                type="button"
+                (click)="navigateToListing(listing.id)"
+                class="group overflow-hidden rounded-2xl border-2 border-gray-200 bg-white text-left transition-all hover:scale-[1.02] hover:border-swap hover:shadow-lg">
+                <div class="relative h-52 overflow-hidden bg-gray-100">
+                  <img
+                    [src]="getListingPhoto(listing)"
+                    [alt]="listing.title"
+                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  @if (listing.is_locked) {
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/50">
+                      <span class="rounded-full bg-white px-4 py-2 text-sm font-black uppercase text-gray-900">
+                        {{ 'userProfile.inTrade' | translate }}
+                      </span>
+                    </div>
+                  }
+                </div>
+                <div class="p-5">
+                  <h3 class="mb-2 line-clamp-1 text-lg font-black text-gray-900">{{ listing.title }}</h3>
+                  <p class="mb-3 line-clamp-2 text-sm leading-relaxed text-gray-600">{{ listing.description }}</p>
+                  <div class="flex items-center justify-between border-t border-gray-100 pt-3">
+                    <div class="flex items-center gap-2">
+                      <mat-icon class="!text-base text-swap">swap_horiz</mat-icon>
+                      <span class="line-clamp-1 text-sm font-bold text-gray-700">{{ listing.swap_item_title }}</span>
+                    </div>
+                    <span class="text-xs font-semibold text-gray-400">{{ getRelativeDate(listing.created_at) }}</span>
+                  </div>
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+} @else {
+  <!-- Profile not found -->
+  <div class="flex min-h-screen items-center justify-center bg-white pt-24">
+    <div class="text-center">
+      <mat-icon class="!h-20 !w-20 !text-8xl text-gray-300">person_off</mat-icon>
+      <h2 class="mt-4 text-3xl font-black text-gray-900">{{ 'userProfile.notFound' | translate }}</h2>
+      <p class="mt-2 font-semibold text-gray-500">{{ 'userProfile.notFoundSubtitle' | translate }}</p>
+      <button
+        type="button"
+        (click)="goBack()"
+        class="mt-8 rounded-2xl bg-swap px-8 py-4 font-black uppercase tracking-wide text-white transition-all hover:scale-105 hover:shadow-lg">
+        {{ 'userProfile.backToSwaps' | translate }}
+      </button>
+    </div>
+  </div>
+}
+
+<app-footer></app-footer>

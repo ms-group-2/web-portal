@@ -15,6 +15,10 @@ export const swapRoutes: Routes = [
         canActivate: [authGuard],
         loadComponent: () => import('./pages/post-swap/post-swap').then((m) => m.PostSwap),
       },
+      {
+        path: ':id',
+        loadComponent: () => import('./pages/swap-detail/swap-detail').then((m) => m.SwapDetail),
+      },
     ],
   },
 ];

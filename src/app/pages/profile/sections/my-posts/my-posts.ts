@@ -26,7 +26,6 @@ interface PostItem {
   selector: 'app-my-posts',
   imports: [ MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './my-posts.html',
-  styleUrl: './my-posts.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyPostsComponent {
@@ -58,9 +57,9 @@ export class MyPostsComponent {
     }
   }
 
-  editPost(_post: PostItem) {
-    // todo: implement post editing
-  }
+  // editPost(_post: PostItem) {
+  //   // todo: implement post editing
+  // }
 
   deletePost(post: PostItem) {
     this.confirmDialog.confirm({
