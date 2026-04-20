@@ -1,11 +1,11 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { TranslationService } from '../translation.service';
-import { escape } from 'node:querystring';
 
 export interface ChatMessage {
   role: 'user' | 'bot';
   text: string;
   timestamp: Date;
+  suggestions?: string[];
 }
 
 @Injectable({ providedIn: 'root' })

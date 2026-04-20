@@ -1,10 +1,24 @@
 {
   "chat": {
     "open": "Open chat",
+    "name": "vipo",
     "title": "Vipo Assistant",
     "subtitle": "Ask me anything",
-    "empty": "No messages yet",
-    "emptyHint": "Type a message to start the conversation",
-    "placeholder": "Type a message..."
+    "status": "online & ready to help!",
+    "welcome": "hey there! \ud83d\udc4b i'm vipo, your swap, shop, book buddy! what can i help you with today?",
+    "placeholder": "type your message...",
+    "poweredBy": "vipo is powered by AI \u2022 responses may vary \u2728",
+    "action": {
+      "swap": "swap",
+      "shop": "shop",
+      "book": "book",
+      "trending": "trending"
+    },
+    "suggestion": {
+      "findSwap": "find a swap",
+      "shopProducts": "shop products",
+      "bookService": "book a service",
+      "browseDeals": "browse deals"
+    }
   }
 }

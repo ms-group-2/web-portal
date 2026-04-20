@@ -3,6 +3,30 @@
   30% { opacity: 1; transform: translateY(-4px); }
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .typing-dot {
   animation: typing 1.2s infinite ease-in-out;
+}
+
+.chat-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.chat-fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
