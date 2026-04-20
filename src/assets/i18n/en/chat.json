@@ -1,0 +1,10 @@
+{
+  "chat": {
+    "open": "Open chat",
+    "title": "Vipo Assistant",
+    "subtitle": "Ask me anything",
+    "empty": "No messages yet",
+    "emptyHint": "Type a message to start the conversation",
+    "placeholder": "Type a message..."
+  }
+}

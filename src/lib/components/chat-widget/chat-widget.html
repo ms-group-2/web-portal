@@ -1,0 +1,85 @@
+<button
+  type="button"
+  class="chat-fab fixed bottom-9 right-9 z-50 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition hover:scale-105 hover:shadow-xl"
+  [style.background-color]="color()"
+  [attr.aria-label]="'chat.open' | translate"
+  (click)="chatService.toggle()">
+  <mat-icon class="!text-3xl !h-10 !w-10">
+    {{ chatService.isOpen() ? 'close' : 'chat' }}
+  </mat-icon>
+</button>
+
+@if (chatService.isOpen()) {
+  <div class="fixed bottom-28 right-9 z-50 flex w-[380px] max-w-[calc(100vw-2rem)] flex-col rounded-2xl bg-white shadow-2xl border border-gray-200 overflow-hidden"
+       style="height: 500px; max-height: calc(100dvh - 10rem);">
+
+    <div class="flex items-center gap-3 px-5 py-4 text-white"
+         [style.background-color]="color()">
+      <mat-icon>smart_toy</mat-icon>
+      <div class="flex-1">
+        <h3 class="text-base font-bold leading-tight">{{ 'chat.title' | translate }}</h3>
+        <p class="text-xs opacity-80">{{ 'chat.subtitle' | translate }}</p>
+      </div>
+      <button type="button" mat-icon-button (click)="chatService.close()" class="!text-white">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div #messagesContainer class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">
+      @if (chatService.messages().length === 0 && !chatService.isLoading()) {
+        <div class="flex flex-col items-center justify-center h-full text-center px-4">
+          <mat-icon class="!text-5xl !h-14 !w-14 text-gray-300 mb-3">chat_bubble_outline</mat-icon>
+          <p class="text-gray-500 font-semibold text-sm">{{ 'chat.empty' | translate }}</p>
+          <p class="text-gray-400 text-xs mt-1">{{ 'chat.emptyHint' | translate }}</p>
+        </div>
+      }
+
+      @for (msg of chatService.messages(); track msg.timestamp) {
+        <div class="flex" [class]="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+          @if (msg.role === 'user') {
+            <div class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed bg-primary text-white rounded-br-sm">
+              {{ msg.text }}
+            </div>
+          } @else if (msg.text) {
+            <div class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed bg-white text-gray-800 border border-gray-200 rounded-bl-sm shadow-sm"
+                 [innerHTML]="formatMessage(msg.text)">
+            </div>
+          }
+        </div>
+      }
+
+      @if (chatService.isLoading()) {
+        <div class="flex justify-start">
+          <div class="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
+            <div class="flex gap-1.5">
+              <span class="typing-dot w-2 h-2 rounded-full bg-gray-400"></span>
+              <span class="typing-dot w-2 h-2 rounded-full bg-gray-400" style="animation-delay: 0.15s"></span>
+              <span class="typing-dot w-2 h-2 rounded-full bg-gray-400" style="animation-delay: 0.3s"></span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="border-t border-gray-200 bg-white px-4 py-3">
+      <div class="flex items-end gap-2">
+        <textarea
+          #messageInput
+          class="flex-1 resize-none rounded-xl border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none transition focus:border-gray-400 focus:bg-white"
+          [placeholder]="'chat.placeholder' | translate"
+          [disabled]="chatService.isBusy()"
+          rows="1"
+          (keydown.enter)="onEnter($event)"
+          (input)="autoResize($event)"></textarea>
+        <button
+          type="button"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white transition hover:opacity-90 disabled:opacity-40"
+          [style.background-color]="color()"
+          [disabled]="chatService.isBusy()"
+          (click)="send(messageInput)">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+}
