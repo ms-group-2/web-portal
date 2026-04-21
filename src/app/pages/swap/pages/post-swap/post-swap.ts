@@ -61,6 +61,7 @@ export class PostSwap {
   category = signal('');
   description = signal('');
   wantInReturn = signal('');
+  price = signal<number | null>(null);
   location = signal('');
   selectedFiles = signal<File[]>([]);
   previewUrls = signal<string[]>([]);
@@ -78,6 +79,7 @@ export class PostSwap {
         category: this.category(),
         description: this.description(),
         wantInReturn: this.wantInReturn(),
+        price: this.price(),
         location: this.location(),
         previewUrls: this.previewUrls(),
         step: this.step(),
@@ -96,6 +98,7 @@ export class PostSwap {
       if (draft.category) this.category.set(draft.category);
       if (draft.description) this.description.set(draft.description);
       if (draft.wantInReturn) this.wantInReturn.set(draft.wantInReturn);
+      if (draft.price != null) this.price.set(draft.price);
       if (draft.location) this.location.set(draft.location);
       if (draft.previewUrls?.length) this.previewUrls.set(draft.previewUrls);
       if (draft.step) this.step.set(draft.step);
@@ -188,6 +191,7 @@ export class PostSwap {
       title: this.title(),
       description: this.description(),
       wantedItem: this.wantInReturn(),
+      price: this.price() ?? 0,
       images: this.selectedFiles(),
     });
 

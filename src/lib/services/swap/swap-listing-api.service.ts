@@ -8,6 +8,7 @@ import {
   UpdateListingRequest,
   PaginationParams,
   PaginatedListingsResponse,
+  UploadUrlResponse,
   TradeChain,
   VoteRequest,
 } from './';
@@ -58,12 +59,28 @@ export class SwapListingApiService {
 
   // ── Photos ────────────────────────────────────────────────
 
-  uploadPhoto(listingId: string, file: File): Observable<Record<string, unknown>> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<Record<string, unknown>>(`${this.baseUrl}/${listingId}/photos`, formData, {
-      headers: this.headers,
+  getPhotoUploadUrl(listingId: string, filename: string): Observable<UploadUrlResponse> {
+    const params = new HttpParams().set('filename', filename);
+    return this.http.post<UploadUrlResponse>(
+      `${this.baseUrl}/${listingId}/photos/upload-url`,
+      null,
+      { params, headers: this.headers }
+    );
+  }
+
+  uploadToPresignedUrl(uploadUrl: string, file: File): Observable<unknown> {
+    return this.http.put(uploadUrl, file, {
+      headers: { 'Content-Type': file.type },
     });
+  }
+
+  confirmPhoto(listingId: string, objectPath: string): Observable<Record<string, unknown>> {
+    const params = new HttpParams().set('object_path', objectPath);
+    return this.http.post<Record<string, unknown>>(
+      `${this.baseUrl}/${listingId}/photos/confirm`,
+      null,
+      { params, headers: this.headers }
+    );
   }
 
   deletePhoto(listingId: string, photoUrl: string): Observable<void> {

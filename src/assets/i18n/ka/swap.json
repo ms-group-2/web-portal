@@ -121,6 +121,8 @@
       "step5Subtitle": "კიდევ ორი რამ...",
       "step5WantLabel": "რა გინდა სანაცვლოდ?",
       "step5WantPlaceholder": "ვინილის ფირფიტები, სახელოვნებო მასალები ან გამიკვირვე!",
+      "step5PriceLabel": "სავარაუდო ფასი (₾)",
+      "step5PricePlaceholder": "0",
       "step5LocationLabel": "სად ხარ?",
       "step5LocationPlaceholder": "ვაკე, თბილისი",
       "step5NearbyCount": "847 გამცვლელი ახლოს ახლავე",

@@ -179,6 +179,19 @@
               </div>
 
               <div>
+                <label class="text-lg font-black text-gray-700 mb-3 block">{{ 'swap.postForm.step5PriceLabel' | translate }}</label>
+                <input
+                  type="number"
+                  [value]="price()"
+                  (input)="price.set($any($event.target).valueAsNumber || null)"
+                  [placeholder]="'swap.postForm.step5PricePlaceholder' | translate"
+                  min="0"
+                  class="step-input w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
+                         border-0 border-b-4 border-gray-200 focus:outline-none transition-all
+                         placeholder:text-gray-300 bg-transparent" />
+              </div>
+
+              <div>
                 <label class="text-lg font-black text-gray-700 mb-3 block">{{ 'swap.postForm.step5LocationLabel' | translate }}</label>
                 <input
                   type="text"
@@ -243,6 +256,16 @@
                     <p class="font-bold text-gray-900">{{ wantInReturn() }}</p>
                   </div>
                 </div>
+
+                @if (price()) {
+                  <div class="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
+                    <mat-icon class="text-swapPost">payments</mat-icon>
+                    <div>
+                      <p class="text-xs font-black text-gray-500 uppercase tracking-wide">{{ 'swap.postForm.step5PriceLabel' | translate }}</p>
+                      <p class="font-bold text-gray-900">{{ price() }} ₾</p>
+                    </div>
+                  </div>
+                }
 
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2 text-gray-500">
