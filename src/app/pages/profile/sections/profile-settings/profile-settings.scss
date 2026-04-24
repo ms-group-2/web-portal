@@ -84,37 +84,19 @@
 ::ng-deep .gender-select {
   @include outline-form-field;
 
-  ::ng-deep {
-    .mat-mdc-select-value {
-      padding-inline: 1rem;
-    }
+  select {
+    padding-inline: 1rem;
+    font-weight: 800;
+    color: #111827;
+    cursor: pointer;
+    background: transparent;
 
-    .mat-mdc-select-arrow-wrapper {
-      margin-right: 1rem !important;
-    }
-  }
-}
-
-::ng-deep .cdk-overlay-pane:has(.gender-dropdown-panel) {
-  transform: translateX(0px) translateY(8px) !important;
-}
-
-::ng-deep .gender-dropdown-panel {
-  background: white !important;
-
-  .mat-mdc-option {
-    background: white !important;
-
-    &:hover {
-      background: var(--color-backgroundIcon) !important;
-    }
-
-    &.mdc-list-item--selected {
-      background: var(--color-borderColor) !important;
-    }
-
-    .mat-pseudo-checkbox {
-      display: none !important;
+    option {
+      background: white;
+      color: #374151;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.5rem;
     }
   }
 }

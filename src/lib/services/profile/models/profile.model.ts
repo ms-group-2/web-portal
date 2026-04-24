@@ -1,6 +1,6 @@
 export interface Profile {
   id: string;
-  email?: string; 
+  email?: string;
   name: string;
   surname: string;
   phone_number: string;
@@ -9,8 +9,15 @@ export interface Profile {
   location: string;
   gender: boolean | null;
   bio: string;
+  kyc_verified: boolean;
   updated_at: string;
-  created_at?: string; 
+  created_at?: string;
+}
+
+export interface VerificationStartResponse {
+  session_id: string;
+  url: string;
+  status: string;
 }
 
 export interface UpdateProfileRequest {

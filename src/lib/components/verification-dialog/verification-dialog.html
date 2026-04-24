@@ -1,5 +1,5 @@
 <mat-dialog-content class="!pt-10">
-    <div class="text-center mb-6">
+  <div class="text-center mb-6">
     <div class="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full mb-4 shadow-lg shadow-green-400/30">
       <mat-icon class="!w-10 !h-10 !text-4xl text-white">verified</mat-icon>
     </div>
@@ -7,6 +7,22 @@
     <p class="text-gray-600 text-sm leading-relaxed">{{ 'profile.verification.subtitle' | translate }}</p>
   </div>
 
+  <div class="space-y-3 mb-6">
+    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+      <mat-icon class="!w-5 !h-5 !text-xl text-green-600 flex-shrink-0">storefront</mat-icon>
+      <span class="text-sm text-gray-800 font-medium">{{ 'profile.verification.benefit1' | translate }}</span>
+    </div>
+    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+      <mat-icon class="!w-5 !h-5 !text-xl text-green-600 flex-shrink-0">swap_horiz</mat-icon>
+      <span class="text-sm text-gray-800 font-medium">{{ 'profile.verification.benefit2' | translate }}</span>
+    </div>
+    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+      <mat-icon class="!w-5 !h-5 !text-xl text-green-600 flex-shrink-0">shield</mat-icon>
+      <span class="text-sm text-gray-800 font-medium">{{ 'profile.verification.benefit3' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Old form fields (commented out for future reference)
   <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
     <div class="grid grid-cols-2 gap-4">
       <div>
@@ -66,38 +82,31 @@
         }
       </mat-form-field>
     </div>
-
-    <div class="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-      <mat-icon class="!w-5 !h-5 !text-xl !leading-none text-blue-600 flex-shrink-0">info</mat-icon>
-      <p class="text-sm text-blue-900 leading-relaxed m-0">{{ 'profile.verification.infoText' | translate }}</p>
-    </div>
   </form>
+  -->
+
+  <div class="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+    <mat-icon class="!w-5 !h-5 !text-xl !leading-none text-blue-600 flex-shrink-0">info</mat-icon>
+    <p class="text-sm text-blue-900 leading-relaxed m-0">{{ 'profile.verification.infoText' | translate }}</p>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="gap-2">
   <button
     mat-button
     (click)="close()"
-    [disabled]="isSubmitting()"
     class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
   >
     {{ 'profile.verification.cancel' | translate }}
   </button>
   <button
     mat-raised-button
-    [disabled]="isSubmitting() || form.invalid"
-    (click)="submit()"
+    (click)="confirm()"
     class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all"
-    [class.opacity-60]="isSubmitting() || form.invalid"
   >
     <div class="flex items-center justify-center gap-2">
-      @if (isSubmitting()) {
-        <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-        <span>{{ 'profile.verification.verifying' | translate }}</span>
-      } @else {
-        <mat-icon class="!w-5 !h-5 !text-xl !leading-none">check_circle</mat-icon>
-        <span>{{ 'profile.verification.verify' | translate }}</span>
-      }
+      <mat-icon class="!w-5 !h-5 !text-xl !leading-none">check_circle</mat-icon>
+      <span>{{ 'profile.verification.verify' | translate }}</span>
     </div>
   </button>
 </mat-dialog-actions>

@@ -1,25 +1,28 @@
 <section class="bg-swap px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32 sticky z-40 h-[var(--swap-live-bar-height)] flex items-center border-b border-white/10 shadow-lg [top:var(--app-header-height)]">
   <div class="w-full">
     <div class="flex items-center justify-between">
-      <div class="flex items-center gap-8">
+      <div class="flex items-center gap-6 sm:gap-5">
         <div class="flex items-center gap-3">
           <div class="relative">
             <mat-icon class="!text-white">radio</mat-icon>
             <span class="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full live-pulse"></span>
           </div>
-          <div>
+          <div class="hidden md:block">
             <p class="text-white font-black text-sm uppercase">{{ 'swap.liveBar.liveNow' | translate }}</p>
             <p class="text-white/80 text-xs font-bold">{{ onlineUsers() }} {{ 'swap.liveBar.usersOnline' | translate }}</p>
           </div>
         </div>
 
-        <div class="h-8 w-px bg-white/20"></div>
+        <div class="h-7 w-px bg-white/20"></div>
 
         <div class="ticker-wrap overflow-hidden flex-1">
           <div class="ticker flex items-center gap-8">
             @for (activity of liveActivities(); track activity.id) {
               <div class="flex items-center gap-2 text-white/90 text-sm font-semibold whitespace-nowrap">
                 @switch (activity.type) {
+                  <!-- @for (item of items; track $index) {
+                    @case (item.id) { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">{{ item.icon }}</mat-icon> }
+                  } -->
                   @case ('swap') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">swap_horiz</mat-icon> }
                   @case ('new') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">auto_awesome</mat-icon> }
                   @case ('match') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">gps_fixed</mat-icon> }

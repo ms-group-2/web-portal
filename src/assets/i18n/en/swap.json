@@ -122,6 +122,8 @@
       "step5WantPlaceholder": "Vinyl records, art supplies, or surprise me!",
       "step5LocationLabel": "Where are you located?",
       "step5LocationPlaceholder": "Vake, Tbilisi",
+      "step5PriceLabel": "Estimated value (₾)",
+      "step5PricePlaceholder": " ",
       "step5NearbyCount": "847 swappers nearby right now",
       "step6Title": "Look good?",
       "step6Subtitle": "Here's how your swap will appear",

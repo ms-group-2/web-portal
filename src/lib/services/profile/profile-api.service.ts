@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Profile, UpdateProfileRequest, WishlistResponse, WishlistToggleRequest, WishlistToggleResponse } from './models/profile.model';
+import { Profile, UpdateProfileRequest, VerificationStartResponse, WishlistResponse, WishlistToggleRequest, WishlistToggleResponse } from './models/profile.model';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { NotificationOptions, withNotification } from 'lib/utils/api-notification.util';
 
@@ -25,7 +25,7 @@ export class ProfileApiService {
   }
 
   updateProfile(body: UpdateProfileRequest, options?: NotificationOptions): Observable<Profile> {
-    return this.http.put<Profile>(`${this.baseUrl}/me`, body, {
+    return this.http.put<Profile>(`${this.baseUrl}/`, body, {
       headers: { 'Content-Type': 'application/json' }
     }).pipe(
       tap(() => this.clearCache()),
@@ -66,5 +66,13 @@ export class ProfileApiService {
   toggleWishlist(productId: number): Observable<WishlistToggleResponse> {
     const body: WishlistToggleRequest = { product_id: productId };
     return this.http.post<WishlistToggleResponse>(`${this.baseUrl}/wishlist/toggle`, body);
+  }
+
+  startVerification(callbackUrl?: string): Observable<VerificationStartResponse> {
+    const params: Record<string, string> = {};
+    if (callbackUrl) {
+      params['callback_url'] = callbackUrl;
+    }
+    return this.http.post<VerificationStartResponse>(`${this.baseUrl}/verify/start`, null, { params });
   }
 }

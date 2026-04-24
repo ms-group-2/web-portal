@@ -64,13 +64,7 @@ export class SwapItemsService {
         switchMap((listing) => {
           if (item.images.length === 0) return of(listing);
           const uploads = item.images.map((file) =>
-            this.api.getPhotoUploadUrl(listing.id, file.name).pipe(
-              switchMap(({ upload_url, object_path }) =>
-                this.api.uploadToPresignedUrl(upload_url, file).pipe(
-                  switchMap(() => this.api.confirmPhoto(listing.id, object_path))
-                )
-              )
-            )
+            this.api.uploadPhoto(listing.id, file)
           );
           return forkJoin(uploads).pipe(map(() => listing));
         })

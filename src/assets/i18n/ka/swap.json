@@ -33,7 +33,7 @@
 
     "trending": {
       "title": "ახლად დამატებული",
-      "subtitle": "გაეცანი უახლეს ნივთებს გაცვლის საზოგადოებაში",
+      "subtitle": "გაეცანი უახლეს ნივთებს გაცვლის ",
       "new": "ახალი",
       "views": "ნახვა",
       "wants": "სურს:"
@@ -122,7 +122,7 @@
       "step5WantLabel": "რა გინდა სანაცვლოდ?",
       "step5WantPlaceholder": "ვინილის ფირფიტები, სახელოვნებო მასალები ან გამიკვირვე!",
       "step5PriceLabel": "სავარაუდო ფასი (₾)",
-      "step5PricePlaceholder": "0",
+      "step5PricePlaceholder": " ",
       "step5LocationLabel": "სად ხარ?",
       "step5LocationPlaceholder": "ვაკე, თბილისი",
       "step5NearbyCount": "847 გამცვლელი ახლოს ახლავე",

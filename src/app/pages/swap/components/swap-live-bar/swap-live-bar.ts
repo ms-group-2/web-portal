@@ -3,6 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { LiveActivity } from '../../swap.models';
 
+
 @Component({
   selector: 'app-swap-live-bar',
   imports: [MatIconModule, TranslatePipe],

@@ -45,10 +45,17 @@
         @if (!isVerified()) {
           <button
             (click)="openVerificationDialog()"
+            [disabled]="isVerificationLoading()"
             class="mt-3 inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-xs transition-all duration-300 hover:shadow-lg hover:shadow-red-400/50 hover:-translate-y-0.5 active:translate-y-0"
+            [class.opacity-60]="isVerificationLoading()"
           >
-            <mat-icon class="!w-4 !h-4 !text-base !leading-none flex items-center">shield_person</mat-icon>
-            <span class="leading-none">{{ 'profile.verification.getVerified' | translate }}</span>
+            @if (isVerificationLoading()) {
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span class="leading-none">{{ 'profile.verification.verifying' | translate }}</span>
+            } @else {
+              <mat-icon class="!w-4 !h-4 !text-base !leading-none flex items-center">shield_person</mat-icon>
+              <span class="leading-none">{{ 'profile.verification.getVerified' | translate }}</span>
+            }
           </button>
         }
       </div>
@@ -80,16 +87,26 @@
                 class="field-input"
                 [class.border-red-500]="form.controls.firstName.invalid && form.controls.firstName.touched"
                 [class.border-gray-300]="!form.controls.firstName.invalid || !form.controls.firstName.touched"
+                [class.bg-gray-100]="isVerified()"
+                [class.cursor-not-allowed]="isVerified()"
+                [attr.disabled]="isVerified() ? true : null"
                 (input)="onTextInput($event, 'firstName')"
               />
-              @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+              @if (isVerified()) {
+                <p class="text-amber-600 text-xs mt-1 font-medium flex items-center gap-1">
+                  <mat-icon class="!w-3 !h-3 !text-xs">lock</mat-icon>
+                  {{ 'profile.verification.fieldLocked' | translate }}
+                </p>
+              } @else if (form.controls.firstName.invalid && form.controls.firstName.touched) {
                 <p class="text-red-400 text-xs mt-1 font-normal">
                   {{ getErrorMessage('firstName') }}
                 </p>
               }
-              <div class="text-xs text-gray-500 mt-1 text-right">
-                {{ form.controls.firstName.value.length || 0 }}/50
-              </div>
+              @if (!isVerified()) {
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ form.controls.firstName.value.length || 0 }}/50
+                </div>
+              }
             </div>
             <div class="w-full">
               <input
@@ -100,16 +117,26 @@
                 class="field-input"
                 [class.border-red-500]="form.controls.lastName.invalid && form.controls.lastName.touched"
                 [class.border-gray-300]="!form.controls.lastName.invalid || !form.controls.lastName.touched"
+                [class.bg-gray-100]="isVerified()"
+                [class.cursor-not-allowed]="isVerified()"
+                [attr.disabled]="isVerified() ? true : null"
                 (input)="onTextInput($event, 'lastName')"
               />
-              @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+              @if (isVerified()) {
+                <p class="text-amber-600 text-xs mt-1 font-medium flex items-center gap-1">
+                  <mat-icon class="!w-3 !h-3 !text-xs">lock</mat-icon>
+                  {{ 'profile.verification.fieldLocked' | translate }}
+                </p>
+              } @else if (form.controls.lastName.invalid && form.controls.lastName.touched) {
                 <p class="text-red-400 text-xs mt-1 font-normal">
                   {{ getErrorMessage('lastName') }}
                 </p>
               }
-              <div class="text-xs text-gray-500 mt-1 text-right">
-                {{ form.controls.lastName.value.length || 0 }}/50
-              </div>
+              @if (!isVerified()) {
+                <div class="text-xs text-gray-500 mt-1 text-right">
+                  {{ form.controls.lastName.value.length || 0 }}/50
+                </div>
+              }
             </div>
           </div>
         } @else {
@@ -220,19 +247,11 @@
         <label class="field-label">{{ 'profile.gender' | translate }}</label>
         @if (isEditing()) {
           <mat-form-field appearance="outline" class="w-full gender-select">
-            <mat-select
-              [formControl]="form.controls.gender"
-              panelClass="gender-dropdown-panel"
-            >
-              @if (formValue().gender && formValue().gender !== '-') {
-                <mat-option value="male">{{ 'profile.genderMale' | translate }}</mat-option>
-                <mat-option value="female">{{ 'profile.genderFemale' | translate }}</mat-option>
-              } @else {
-                <mat-option value="-">{{ 'profile.genderNotSpecified' | translate }}</mat-option>
-                <mat-option value="male">{{ 'profile.genderMale' | translate }}</mat-option>
-                <mat-option value="female">{{ 'profile.genderFemale' | translate }}</mat-option>
-              }
-            </mat-select>
+            <select matNativeControl [formControl]="form.controls.gender">
+              <option value="-">{{ 'profile.genderNotSpecified' | translate }}</option>
+              <option value="male">{{ 'profile.genderMale' | translate }}</option>
+              <option value="female">{{ 'profile.genderFemale' | translate }}</option>
+            </select>
           </mat-form-field>
         } @else {
           <p class="field-display">{{ genderLabel() }}</p>
@@ -248,6 +267,7 @@
               type="text"
               maxlength="50"
               class="field-input"
+              [placeholder]="'profile.address' | translate"
             />
             <div class="text-xs text-gray-500 mt-1 text-right">
               {{ (form.controls.location.value || '').length }}/50
@@ -268,6 +288,7 @@
             class="field-textarea"
             rows="4"
             maxlength="400"
+            [placeholder]="'profile.aboutMe' | translate"
           ></textarea>
           <div class="text-xs text-gray-500 mt-1 text-right">
             {{ (form.controls.bio.value || '').length }}/400
@@ -275,7 +296,7 @@
         </div>
       } @else {
         <p class="field-display-optional leading-relaxed break-words"
-         [class]="formValue().bio ? 'text-gray-600 font-medium' : 'text-gray-500 font-normal'">{{ formValue().bio || ('profile.notSpecified' | translate) }}</p>
+         [ngClass]="{'text-gray-600 font-medium': formValue().bio, 'text-gray-500 font-normal': !formValue().bio}">{{ formValue().bio || ('profile.notSpecified' | translate) }}</p>
       }
     </div>
   </div>

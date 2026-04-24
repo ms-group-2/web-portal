@@ -1,17 +1,16 @@
-import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy, PLATFORM_ID, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { of } from 'rxjs';
-import { startWith, catchError, finalize } from 'rxjs/operators';
+import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { of, timer } from 'rxjs';
+import { startWith, catchError, finalize, switchMap, takeWhile, take, tap } from 'rxjs/operators';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
@@ -44,15 +43,12 @@ import { strictEmailValidator } from 'lib/validators/strict-email.validator';
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatOptionModule,
     MatInputModule,
     MatFormFieldModule,
-    MatSelectModule,
     ReactiveFormsModule,
     AvatarUploadComponent,
     TranslatePipe,
     ProfileSettingsSkeletonComponent,
-
   ],
   templateUrl: './profile-settings.html',
   styleUrls: [
@@ -73,6 +69,7 @@ export class ProfileSettingsComponent implements OnInit {
   private changeEmailDialog = inject(ChangeEmailDialogService);
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
   private isBrowser = isPlatformBrowser(this.platformId);
 
   isEditing = signal(false);
@@ -166,6 +163,13 @@ export class ProfileSettingsComponent implements OnInit {
     const userId = this.profileId();
     if (userId) {
       this.loadProfile(userId);
+
+      if (this.isBrowser && new URLSearchParams(window.location.search).has('kyc_callback')) {
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete('kyc_callback');
+        window.history.replaceState({}, '', cleanUrl.toString());
+        this.pollVerificationStatus(userId);
+      }
     }
     //  else {
     //   this.prefillFromFallbacks();
@@ -205,6 +209,7 @@ export class ProfileSettingsComponent implements OnInit {
     this.originalFormValue = this.form.getRawValue();
 
     this.avatarUrl.set(profile.avatar_url || null);
+    this.verificationService.setVerified(profile.kyc_verified ?? false);
   }
 
   private splitPhoneNumber(fullNumber: string | null): { code: string, number: string } {
@@ -245,6 +250,7 @@ export class ProfileSettingsComponent implements OnInit {
     this.isEditing.set(true);
   }
 
+  
   cancelEdit() {
     if (this.originalFormValue) {
       this.form.patchValue(this.originalFormValue);
@@ -516,11 +522,53 @@ export class ProfileSettingsComponent implements OnInit {
     });
   }
 
+  isVerificationLoading = signal(false);
+
   openVerificationDialog(): void {
-    this.verificationDialog.open().subscribe(data => {
-      if (data) {
-        this.verificationService.verify(data.idNumber);
-        this.snackbar.success(this.translationService.translate('profile.verification.verified'));
+    this.verificationDialog.open().subscribe(result => {
+      if (!result?.confirmed) return;
+
+      this.isVerificationLoading.set(true);
+      let callbackUrl: string | undefined;
+      if (this.isBrowser) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('kyc_callback', '1');
+        callbackUrl = url.toString();
+      }
+
+      this.verificationService.startVerification(callbackUrl).pipe(
+        catchError(() => {
+          this.snackbar.error(this.translationService.translate('profile.verification.error'));
+          return of(null);
+        }),
+        finalize(() => this.isVerificationLoading.set(false))
+      ).subscribe(response => {
+        if (!response?.url) return;
+        if (this.isBrowser) {
+          window.location.href = response.url;
+        }
+      });
+    });
+  }
+
+  private pollVerificationStatus(userId: string): void {
+    this.isVerificationLoading.set(true);
+
+    timer(2000, 3000).pipe(
+      take(10),
+      tap(() => this.profileApi.clearCache()),
+      switchMap(() => this.profileApi.getProfile(userId)),
+      takeWhile(profile => !profile.kyc_verified, true),
+      finalize(() => {
+        this.isVerificationLoading.set(false);
+        this.profileApi.clearCache();
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(profile => {
+      if (profile.kyc_verified) {
+        this.verificationService.setVerified(true);
+        this.auth.loadMe().subscribe();
+        this.snackbar.success(this.translationService.translate('profile.verification.success'));
       }
     });
   }

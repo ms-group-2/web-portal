@@ -143,17 +143,23 @@
     },
     "verification": {
       "title": "Get Verified",
-      "subtitle": "Verify your identity to unlock exclusive features and become a seller",
+      "subtitle": "Verify your identity to become a vendor, business provider and start swapping",
       "idNumber": "ID Number",
       "idPlaceholder": "Enter your ID number",
       "idError": "Please enter a valid ID number (9-11 digits)",
-      "infoText": "Your information is securely encrypted and will only be used for verification purposes.",
+      "infoText": "You will be redirected to a secure verification page. The process takes just a few minutes.",
       "cancel": "Cancel",
-      "verify": "Verify Now",
-      "verifying": "Verifying...",
+      "verify": "Start Verification",
+      "verifying": "Redirecting...",
       "verified": "Verified",
       "getVerified": "Get Verified",
-      "verifiedBadge": "Verified User"
+      "verifiedBadge": "Verified User",
+      "benefit1": "Become a vendor and sell products on the marketplace",
+      "benefit2": "Start swapping items with other verified users",
+      "benefit3": "Get a verified badge and build trust with the community",
+      "error": "Failed to start verification. Please try again.",
+      "fieldLocked": "Locked after verification",
+      "success": "Your identity has been verified successfully!"
     },
     "vendor": {
       "title": "Become a Seller",
