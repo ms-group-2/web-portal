@@ -68,6 +68,7 @@ export class PostSwap {
 
   step = signal(1);
   isSubmitting = signal(false);
+  showErrors = signal(false);
   userName = signal(localStorage.getItem('vipo_user_firstName') || 'You');
 
   constructor() {
@@ -100,11 +101,28 @@ export class PostSwap {
       if (draft.wantInReturn) this.wantInReturn.set(draft.wantInReturn);
       if (draft.price != null) this.price.set(draft.price);
       if (draft.location) this.location.set(draft.location);
-      if (draft.previewUrls?.length) this.previewUrls.set(draft.previewUrls);
+      if (draft.previewUrls?.length) {
+        this.previewUrls.set(draft.previewUrls);
+        this.restoreFilesFromUrls(draft.previewUrls);
+      }
       if (draft.step) this.step.set(draft.step);
     } catch {
       sessionStorage.removeItem(this.STORAGE_KEY);
     }
+  }
+
+  private restoreFilesFromUrls(urls: string[]) {
+    const files: File[] = [];
+    for (const url of urls) {
+      const [header, base64] = url.split(',');
+      if (!header || !base64) continue;
+      const mime = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg';
+      const bytes = atob(base64);
+      const arr = new Uint8Array(bytes.length);
+      for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+      files.push(new File([arr], `restored-${files.length}.${mime.split('/')[1]}`, { type: mime }));
+    }
+    this.selectedFiles.set(files);
   }
 
   private clearDraft() {
@@ -113,18 +131,25 @@ export class PostSwap {
 
   canProceed = computed(() => {
     switch (this.step()) {
-      case 1: return this.title().length > 0;
+      case 1: return this.title().trim().length > 0;
       case 2: return this.category().length > 0;
-      case 3: return this.selectedFiles().length > 0;
-      case 4: return this.description().length > 0;
-      case 5: return this.wantInReturn().length > 0 && this.location().length > 0;
-      case 6: return true; 
+      case 3: return this.selectedFiles().length > 0 || this.previewUrls().length > 0;
+      case 4: return this.description().trim().length > 0;
+      case 5:
+        return this.wantInReturn().trim().length > 0
+          && this.price() !== null && this.price()! > 0
+          && this.location().trim().length > 0;
+      case 6: return true;
       default: return false;
     }
   });
 
   nextStep() {
-    if (!this.canProceed()) return;
+    if (!this.canProceed()) {
+      this.showErrors.set(true);
+      return;
+    }
+    this.showErrors.set(false);
     if (this.step() === this.totalSteps) {
       this.submit();
     } else {
@@ -178,6 +203,26 @@ export class PostSwap {
   removePhoto(index: number) {
     this.selectedFiles.update(files => files.filter((_, i) => i !== index));
     this.previewUrls.update(urls => urls.filter((_, i) => i !== index));
+  }
+
+  onPriceKeydown(event: KeyboardEvent) {
+    if (['e', 'E', '+', '-', '.', ','].includes(event.key)) {
+      event.preventDefault();
+      return;
+    }
+    const input = event.target as HTMLInputElement;
+    const isDigit = event.key >= '0' && event.key <= '9';
+    if (isDigit && input.value.length >= 6 && input.selectionStart === input.selectionEnd) {
+      event.preventDefault();
+    }
+  }
+
+  onPriceInput(value: number) {
+    if (isNaN(value)) {
+      this.price.set(null);
+    } else {
+      this.price.set(Math.min(Math.max(0, value), 999999));
+    }
   }
 
   close() {

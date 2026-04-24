@@ -54,6 +54,9 @@
               class="step-input w-full px-0 py-4 text-xl md:text-3xl font-bold text-gray-900
                      border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                      placeholder:text-gray-300 bg-transparent" />
+            @if (showErrors() && !title().trim()) {
+              <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.fieldRequired' | translate }}</p>
+            }
           </div>
         }
 
@@ -155,6 +158,9 @@
                      border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                      resize-none placeholder:text-gray-300 bg-transparent leading-relaxed"></textarea>
             <p class="text-sm text-gray-400 font-semibold mt-3">{{ description().length }} {{ 'swap.postForm.step4Characters' | translate }}</p>
+            @if (showErrors() && !description().trim()) {
+              <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.fieldRequired' | translate }}</p>
+            }
           </div>
         }
 
@@ -177,6 +183,9 @@
                   class="step-input w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                          placeholder:text-gray-300 bg-transparent" />
+                @if (showErrors() && !wantInReturn().trim()) {
+                  <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.fieldRequired' | translate }}</p>
+                }
               </div>
 
               <div>
@@ -184,12 +193,17 @@
                 <input
                   type="number"
                   [value]="price()"
-                  (input)="price.set($any($event.target).valueAsNumber || null)"
+                  (input)="onPriceInput($any($event.target).valueAsNumber)"
+                  (keydown)="onPriceKeydown($event)"
                   [placeholder]="'swap.postForm.step5PricePlaceholder' | translate"
-                  min="0"
+                  min="1"
+                  max="999999"
                   class="step-input w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                          placeholder:text-gray-300 bg-transparent" />
+                @if (showErrors() && (!price() || price()! <= 0)) {
+                  <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.fieldRequired' | translate }}</p>
+                }
               </div>
 
               <div>
@@ -200,9 +214,13 @@
                   (input)="location.set($any($event.target).value)"
                   (keydown.enter)="canProceed() && nextStep()"
                   [placeholder]="'swap.postForm.step5LocationPlaceholder' | translate"
+                  maxlength="50"
                   class="step-input w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                          placeholder:text-gray-300 bg-transparent" />
+                @if (showErrors() && !location().trim()) {
+                  <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.fieldRequired' | translate }}</p>
+                }
                 <p class="text-sm text-gray-400 font-semibold mt-2">{{ 'swap.postForm.step5NearbyCount' | translate }}</p>
               </div>
             </div>
@@ -306,7 +324,7 @@
         <button
           type="button"
           (click)="nextStep()"
-          [disabled]="!canProceed() || isSubmitting()"
+          [disabled]="isSubmitting()"
           class="next-btn px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black uppercase tracking-wide
                  text-sm flex items-center gap-3 transition-all"
           [class.next-btn--active]="canProceed() && !isSubmitting()"

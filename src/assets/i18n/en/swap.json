@@ -141,7 +141,8 @@
       "sidebarLocation": "Location",
       "step3InvalidFormat": "Only JPG and PNG images are allowed",
       "submitSuccess": "Swap item posted successfully!",
-      "submitError": "Failed to post swap item. Please try again."
+      "submitError": "Failed to post swap item. Please try again.",
+      "fieldRequired": "This field is required"
     },
 
     "postDialog": {
