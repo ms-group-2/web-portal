@@ -49,6 +49,7 @@
               (input)="title.set($any($event.target).value)"
               (keydown.enter)="canProceed() && nextStep()"
               [placeholder]="'swap.postForm.step1Placeholder' | translate"
+              maxlength="25"
               autofocus
               class="step-input w-full px-0 py-4 text-xl md:text-3xl font-bold text-gray-900
                      border-0 border-b-4 border-gray-200 focus:outline-none transition-all

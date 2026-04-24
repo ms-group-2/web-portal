@@ -523,6 +523,7 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   isVerificationLoading = signal(false);
+  verificationPollTimedOut = signal(false);
 
   openVerificationDialog(): void {
     this.verificationDialog.open().subscribe(result => {
@@ -551,11 +552,19 @@ export class ProfileSettingsComponent implements OnInit {
     });
   }
 
+  recheckVerification(): void {
+    const userId = this.profileId();
+    if (userId) {
+      this.verificationPollTimedOut.set(false);
+      this.pollVerificationStatus(userId);
+    }
+  }
+
   private pollVerificationStatus(userId: string): void {
     this.isVerificationLoading.set(true);
 
-    timer(2000, 3000).pipe(
-      take(10),
+    timer(2000, 5000).pipe(
+      take(20),
       tap(() => this.profileApi.clearCache()),
       switchMap(() => this.profileApi.getProfile(userId)),
       takeWhile(profile => !profile.kyc_verified, true),
@@ -567,8 +576,11 @@ export class ProfileSettingsComponent implements OnInit {
     ).subscribe(profile => {
       if (profile.kyc_verified) {
         this.verificationService.setVerified(true);
+        this.verificationPollTimedOut.set(false);
         this.auth.loadMe().subscribe();
         this.snackbar.success(this.translationService.translate('profile.verification.success'));
+      } else {
+        this.verificationPollTimedOut.set(true);
       }
     });
   }

@@ -159,7 +159,9 @@
       "benefit3": "Get a verified badge and build trust with the community",
       "error": "Failed to start verification. Please try again.",
       "fieldLocked": "Locked after verification",
-      "success": "Your identity has been verified successfully!"
+      "success": "Your identity has been verified successfully!",
+      "pollTimeout": "Verification is being processed. It may take a moment.",
+      "recheckStatus": "Check Status"
     },
     "vendor": {
       "title": "Become a Seller",
