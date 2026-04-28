@@ -7,7 +7,6 @@ export interface PostedSwapItem {
   photos: string[];
   status: 'active' | 'inactive' | 'completed';
   createdAt: string;
-
   location?: string;
   valueRange?: string;
   condition?: string;

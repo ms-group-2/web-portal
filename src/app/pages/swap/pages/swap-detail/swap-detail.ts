@@ -153,4 +153,11 @@ export class SwapDetail {
   onSimilarItemClick(item: SwapItem) {
     this.router.navigate(['/swap', item.id]);
   }
+
+  proposeSwap() {
+    const item = this.item();
+    if (item) {
+      this.router.navigate(['/swap/propose', item.id]);
+    }
+  }
 }

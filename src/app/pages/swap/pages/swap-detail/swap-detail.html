@@ -104,11 +104,11 @@
         </div>
 
         <!-- Right Column: Details -->
-        <div class="space-y-8">
+        <div class="space-y-8 min-w-0">
           <!-- Title & Actions -->
           <div>
             <div class="mb-4 flex items-start justify-between">
-              <h1 class="flex-1 text-5xl font-black uppercase leading-tight text-gray-900">{{ item.title }}</h1>
+              <h1 class="flex-1 min-w-0 break-words text-5xl font-black uppercase leading-tight text-gray-900">{{ item.title }}</h1>
 
               <div class="ml-6 flex gap-3">
                 <button
@@ -164,9 +164,9 @@
           </div>
 
           <!-- Description -->
-          <div class="space-y-4">
+          <div class="space-y-4 overflow-hidden">
             <h3 class="text-sm font-black uppercase tracking-wider text-gray-500">{{ 'swap.detail.description' | translate }}</h3>
-            <p class="text-xl font-medium leading-relaxed text-gray-700">{{ item.description }}</p>
+            <p class="text-xl font-medium leading-relaxed text-gray-700 break-words whitespace-pre-wrap">{{ item.description }}</p>
           </div>
 
           <!-- What They Want -->
@@ -196,6 +196,7 @@
           <div class="space-y-4 pt-4">
             <button
               type="button"
+              (click)="proposeSwap()"
               class="flex w-full items-center justify-center gap-4 rounded-2xl bg-swap px-4 sm:px-8 py-6 text-xl font-black uppercase tracking-wide text-white shadow-lg transition-all hover:scale-105 hover:bg-[#7d3a6b] hover:shadow-xl">
               <mat-icon class="!text-3xl">swap_horiz</mat-icon>
               {{ 'swap.detail.proposeSwap' | translate }}

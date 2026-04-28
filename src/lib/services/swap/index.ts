@@ -5,3 +5,5 @@ export * from './models/posted-swap-item.model';
 export * from './models/swap-listing.request.model';
 export * from './models/swap-listing.response.model';
 export * from './models/trade.model';
+export * from './models/proposal.model';
+export * from './proposal-sse.service';

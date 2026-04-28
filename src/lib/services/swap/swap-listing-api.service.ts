@@ -11,6 +11,12 @@ import {
 
   TradeChain,
   VoteRequest,
+
+  ProposalSessionResponse,
+  ProposalUploadUrlRequest,
+  ProposalUploadUrlResponse,
+  CreateProposalRequest,
+  ProposalResponse,
 } from './';
 
 @Injectable({
@@ -82,5 +88,38 @@ export class SwapListingApiService {
 
   voteOnTrade(chainId: string, vote: VoteRequest): Observable<string> {
     return this.http.post<string>(`${this.baseUrl}/trades/${chainId}/vote`, vote, { headers: this.headers });
+  }
+
+  // ── Proposals ────────────────────────────────────────────
+
+  createProposalSession(): Observable<ProposalSessionResponse> {
+    return this.http.get<ProposalSessionResponse>(
+      `${this.baseUrl}/proposals/session`,
+      { headers: this.headers },
+    );
+  }
+
+  getProposalUploadUrl(body: ProposalUploadUrlRequest): Observable<ProposalUploadUrlResponse> {
+    return this.http.post<ProposalUploadUrlResponse>(
+      `${this.baseUrl}/proposals/upload-url`,
+      body,
+      { headers: this.headers },
+    );
+  }
+
+  addItemToSession(sessionId: string, body: { temp_path: string }): Observable<unknown> {
+    return this.http.post(
+      `${this.baseUrl}/proposals/session/${sessionId}/add-item`,
+      body,
+      { headers: this.headers },
+    );
+  }
+
+  createProposal(body: CreateProposalRequest): Observable<ProposalResponse> {
+    return this.http.post<ProposalResponse>(
+      `${this.baseUrl}/proposals/`,
+      body,
+      { headers: this.headers },
+    );
   }
 }

@@ -15,7 +15,6 @@ export interface SwapMyTradeCard {
 
 @Component({
   selector: 'app-swap-my-trades',
-  standalone: true,
   imports: [MatIconModule, TranslatePipe, ScrollAnimateDirective],
   templateUrl: './swap-my-trades.html',
   styleUrl: './swap-my-trades.scss',

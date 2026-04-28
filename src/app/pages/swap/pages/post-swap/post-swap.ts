@@ -101,28 +101,11 @@ export class PostSwap {
       if (draft.wantInReturn) this.wantInReturn.set(draft.wantInReturn);
       if (draft.price != null) this.price.set(draft.price);
       if (draft.location) this.location.set(draft.location);
-      if (draft.previewUrls?.length) {
-        this.previewUrls.set(draft.previewUrls);
-        this.restoreFilesFromUrls(draft.previewUrls);
-      }
+      if (draft.previewUrls?.length) this.previewUrls.set(draft.previewUrls);
       if (draft.step) this.step.set(draft.step);
     } catch {
       sessionStorage.removeItem(this.STORAGE_KEY);
     }
-  }
-
-  private restoreFilesFromUrls(urls: string[]) {
-    const files: File[] = [];
-    for (const url of urls) {
-      const [header, base64] = url.split(',');
-      if (!header || !base64) continue;
-      const mime = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg';
-      const bytes = atob(base64);
-      const arr = new Uint8Array(bytes.length);
-      for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-      files.push(new File([arr], `restored-${files.length}.${mime.split('/')[1]}`, { type: mime }));
-    }
-    this.selectedFiles.set(files);
   }
 
   private clearDraft() {
@@ -133,7 +116,7 @@ export class PostSwap {
     switch (this.step()) {
       case 1: return this.title().trim().length > 0;
       case 2: return this.category().length > 0;
-      case 3: return this.selectedFiles().length > 0 || this.previewUrls().length > 0;
+      case 3: return this.selectedFiles().length > 0;
       case 4: return this.description().trim().length > 0;
       case 5:
         return this.wantInReturn().trim().length > 0

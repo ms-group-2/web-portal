@@ -6,7 +6,7 @@ import { SwapListingApiService } from 'lib/services/swap';
 import { SwapItem } from './swap.models';
 import { SwapHero } from './components/swap-hero/swap-hero';
 import { SwapLiveBar } from './components/swap-live-bar/swap-live-bar';
-import { SwapTrending } from './components/swap-trending/swap-trending';
+import { SwapTrending } from './components/swap-newly-added/swap-trending';
 import { SwapAiMatch } from './components/swap-ai-match/swap-ai-match';
 import { SwapCategoryBar } from './components/swap-category-bar/swap-category-bar';
 import { SwapListingsGrid } from './components/swap-listings-grid/swap-listings-grid';

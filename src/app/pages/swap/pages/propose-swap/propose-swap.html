@@ -1,0 +1,473 @@
+<app-header variant="white"></app-header>
+<div class="min-h-screen bg-gradient-to-br from-swapPost to-[#a05589] flex items-center justify-center p-4 md:p-8 relative overflow-hidden"
+     style="padding-top: calc(var(--app-header-height, 64px) + 5rem)">
+
+  <div class="absolute inset-0 opacity-10 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-white rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse"
+         style="animation-delay: 1s"></div>
+  </div>
+
+  <button
+    type="button"
+    (click)="close()"
+    class="absolute right-4 md:right-8 w-12 h-12 bg-white/20 hover:bg-white/30
+           backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-50"
+    style="top: calc(var(--app-header-height, 64px) + 2rem)">
+    <mat-icon class="text-white">close</mat-icon>
+  </button>
+
+  <div class="absolute left-1/2 -translate-x-1/2 flex gap-2"
+       style="top: calc(var(--app-header-height, 64px) + 2.25rem)">
+    @for (s of stepNumbers; track s) {
+      <div
+        class="dot"
+        [class.active]="s === step()"
+        [class.completed]="s < step()"
+        [class.upcoming]="s > step()">
+      </div>
+    }
+  </div>
+
+  <div class="relative w-full transition-all duration-500"
+       [class.max-w-3xl]="step() !== totalSteps"
+       [class.max-w-xl]="step() === totalSteps">
+    <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-12 flex flex-col"
+         [class.min-h-[500px]]="step() !== totalSteps">
+
+      @switch (step()) {
+
+        <!-- Step 1: Target listing -->
+        @case (1) {
+          <div class="flex-1 flex flex-col justify-center animate-fade-in">
+            <div class="mb-8">
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.proposeForm.step1Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.proposeForm.step1Subtitle' | translate }}</p>
+            </div>
+
+            @if (targetListing(); as listing) {
+              <div class="flex items-center gap-4 p-6 bg-gray-50 rounded-2xl border-2 border-gray-100">
+                @if (targetPhotos().length > 0) {
+                  <img [src]="targetPhotos()[0]" [alt]="listing.title"
+                       class="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
+                } @else {
+                  <div class="w-24 h-24 rounded-xl bg-gray-200 flex items-center justify-center flex-shrink-0">
+                    <mat-icon class="text-gray-400 !text-3xl">image</mat-icon>
+                  </div>
+                }
+                <div class="min-w-0">
+                  <p class="text-xs font-black text-gray-500 uppercase tracking-wide mb-1">{{ 'swap.proposeForm.step1TargetLabel' | translate }}</p>
+                  <h3 class="text-xl font-black text-gray-900 truncate">{{ listing.title }}</h3>
+                  @if (listing.swap_item_title) {
+                    <p class="text-sm text-gray-500 font-semibold flex items-center gap-1 mt-1">
+                      <mat-icon class="!text-sm text-swapPost">swap_horiz</mat-icon>
+                      {{ listing.swap_item_title }}
+                    </p>
+                  }
+                </div>
+              </div>
+            } @else if (isLoadingListing()) {
+              <div class="flex items-center justify-center p-8">
+                <div class="w-8 h-8 border-4 border-swapPost/30 border-t-swapPost rounded-full animate-spin"></div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Step 2: Add items (multi-source) -->
+        @case (2) {
+          <div class="flex-1 flex flex-col animate-fade-in">
+            <div class="mb-6">
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.proposeForm.step2Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.proposeForm.step2Subtitle' | translate }}</p>
+            </div>
+
+            <!-- Source tabs -->
+            <div class="flex gap-2 mb-6 bg-gray-100 rounded-2xl p-1.5">
+              <button
+                type="button"
+                (click)="setSource('listings')"
+                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all"
+                [class.bg-white]="activeSource() === 'listings'"
+                [class.shadow-sm]="activeSource() === 'listings'"
+                [class.text-gray-900]="activeSource() === 'listings'"
+                [class.text-gray-500]="activeSource() !== 'listings'">
+                <mat-icon class="!text-lg">inventory_2</mat-icon>
+                {{ 'swap.proposeForm.step2SourceListings' | translate }}
+              </button>
+              <button
+                type="button"
+                (click)="setSource('computer')"
+                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all"
+                [class.bg-white]="activeSource() === 'computer'"
+                [class.shadow-sm]="activeSource() === 'computer'"
+                [class.text-gray-900]="activeSource() === 'computer'"
+                [class.text-gray-500]="activeSource() !== 'computer'">
+                <mat-icon class="!text-lg">upload_file</mat-icon>
+                {{ 'swap.proposeForm.step2SourceComputer' | translate }}
+              </button>
+              <button
+                type="button"
+                (click)="setSource('qr')"
+                class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all"
+                [class.bg-white]="activeSource() === 'qr'"
+                [class.shadow-sm]="activeSource() === 'qr'"
+                [class.text-gray-900]="activeSource() === 'qr'"
+                [class.text-gray-500]="activeSource() !== 'qr'">
+                <mat-icon class="!text-lg">qr_code_scanner</mat-icon>
+                {{ 'swap.proposeForm.step2SourceQr' | translate }}
+              </button>
+            </div>
+
+            <!-- Source: My Listings -->
+            @if (activeSource() === 'listings') {
+              <div class="flex-1 overflow-y-auto max-h-[360px] pr-1">
+                @if (userListings().length === 0) {
+                  <div class="flex flex-col items-center justify-center py-10 text-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <mat-icon class="!text-3xl text-gray-400">inventory_2</mat-icon>
+                    </div>
+                    <p class="text-lg font-bold text-gray-500">{{ 'swap.proposeForm.step2MyListingsEmpty' | translate }}</p>
+                  </div>
+                } @else {
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    @for (listing of userListings(); track listing.id) {
+                      <button
+                        type="button"
+                        (click)="selectListing(listing)"
+                        class="relative group text-left rounded-2xl border-2 overflow-hidden transition-all"
+                        [class.border-swapPost]="selectedListingIds().has(listing.photos[0])"
+                        [class.bg-swapPost/5]="selectedListingIds().has(listing.photos[0])"
+                        [class.border-gray-200]="!selectedListingIds().has(listing.photos[0])"
+                        [class.hover:border-gray-300]="!selectedListingIds().has(listing.photos[0])">
+                        <div class="relative h-24 bg-gray-100 overflow-hidden">
+                          @if (listing.photos.length > 0) {
+                            <img [src]="listing.photos[0]" [alt]="listing.title"
+                                 class="w-full h-full object-cover" />
+                          } @else {
+                            <div class="w-full h-full flex items-center justify-center">
+                              <mat-icon class="!text-3xl text-gray-300">image</mat-icon>
+                            </div>
+                          }
+                          @if (selectedListingIds().has(listing.photos[0])) {
+                            <div class="absolute inset-0 bg-swapPost/20 flex items-center justify-center">
+                              <div class="w-8 h-8 bg-swapPost rounded-full flex items-center justify-center">
+                                <mat-icon class="!text-lg text-white">check</mat-icon>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                        <div class="p-3">
+                          <p class="text-sm font-bold text-gray-900 truncate">{{ listing.title }}</p>
+                        </div>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Source: Computer upload -->
+            @if (activeSource() === 'computer') {
+              <div class="flex-1">
+                <input
+                  type="file"
+                  #computerFileInput
+                  accept="image/jpeg,image/png,image/jpg"
+                  multiple
+                  class="hidden"
+                  (change)="onComputerFilesSelected($event)" />
+
+                @if (isLoadingSession()) {
+                  <div class="flex flex-col items-center justify-center py-10">
+                    <div class="w-10 h-10 border-4 border-swapPost/30 border-t-swapPost rounded-full animate-spin mb-4"></div>
+                    <p class="text-gray-500 font-semibold">{{ 'swap.proposeForm.step1Loading' | translate }}</p>
+                  </div>
+                } @else {
+                  <div
+                    (click)="computerFileInput.click()"
+                    class="border-[3px] border-dashed border-gray-300 hover:border-swapPost
+                           rounded-3xl p-10 md:p-14 text-center bg-gray-50 transition-all cursor-pointer group">
+                    @if (isUploading()) {
+                      <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 border-4 border-swapPost/30 border-t-swapPost rounded-full animate-spin mb-4"></div>
+                        <p class="text-lg font-bold text-gray-900">{{ 'swap.proposeForm.step2Uploading' | translate }}</p>
+                      </div>
+                    } @else {
+                      <div class="w-16 h-16 md:w-20 md:h-20 bg-swapPost group-hover:bg-[#7d3a6b]
+                                  rounded-3xl flex items-center justify-center mx-auto mb-6 transition-all">
+                        <mat-icon class="upload-icon text-white">photo_camera</mat-icon>
+                      </div>
+                      <p class="text-lg md:text-xl font-bold text-gray-900 mb-2">{{ 'swap.proposeForm.step2UploadFromComputer' | translate }}</p>
+                      <p class="text-gray-500 font-semibold">{{ 'swap.postForm.step3DragDrop' | translate }}</p>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Source: QR Code -->
+            @if (activeSource() === 'qr') {
+              <div class="flex-1 flex flex-col items-center justify-center">
+                @if (isLoadingSession()) {
+                  <div class="flex flex-col items-center justify-center py-8">
+                    <div class="w-10 h-10 border-4 border-swapPost/30 border-t-swapPost rounded-full animate-spin mb-4"></div>
+                    <p class="text-gray-500 font-semibold">{{ 'swap.proposeForm.step1Loading' | translate }}</p>
+                  </div>
+                } @else if (session(); as s) {
+                  <div class="flex flex-col items-center">
+                    <!-- Connection status -->
+                    <div class="flex items-center gap-2 mb-4">
+                      <div class="w-2.5 h-2.5 rounded-full"
+                           [class.bg-green-500]="sseConnected()"
+                           [class.bg-red-500]="sseError()"
+                           [class.bg-yellow-500]="!sseConnected() && !sseError()"
+                           [class.animate-pulse]="sseConnected()">
+                      </div>
+                      <span class="text-sm font-semibold"
+                            [class.text-green-600]="sseConnected()"
+                            [class.text-red-600]="sseError()"
+                            [class.text-yellow-600]="!sseConnected() && !sseError()">
+                        @if (sseConnected()) {
+                          {{ 'swap.proposeForm.step2Connected' | translate }}
+                        } @else if (sseError()) {
+                          {{ 'swap.proposeForm.step2Disconnected' | translate }}
+                        } @else {
+                          {{ 'swap.proposeForm.step2Connecting' | translate }}
+                        }
+                      </span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-lg border-2 border-gray-100 mb-4">
+                      <img [src]="'data:image/png;base64,' + s.qr_code_base64"
+                           alt="QR Code"
+                           class="w-48 h-48 md:w-56 md:h-56" />
+                    </div>
+                    <p class="text-sm text-gray-500 font-semibold text-center max-w-xs">
+                      {{ 'swap.proposeForm.step1ScanHint' | translate }}
+                    </p>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Accumulated items strip -->
+            @if (itemDrafts().length > 0) {
+              <div class="mt-6 pt-6 border-t border-gray-100">
+                <p class="text-xs font-black text-gray-500 uppercase tracking-wide mb-3">
+                  {{ 'swap.proposeForm.step4YourItems' | translate }} ({{ itemDrafts().length }})
+                </p>
+                <div class="flex gap-3 overflow-x-auto pb-2">
+                  @for (draft of itemDrafts(); track draft.temp_path; let i = $index) {
+                    <div class="relative group flex-shrink-0 w-20">
+                      <div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 bg-gray-100">
+                        @if (draft.previewUrl) {
+                          <img [src]="draft.previewUrl" [alt]="draft.title"
+                               class="w-full h-full object-cover" />
+                        } @else {
+                          <div class="w-full h-full flex items-center justify-center">
+                            <mat-icon class="!text-2xl text-gray-400">photo</mat-icon>
+                          </div>
+                        }
+                      </div>
+                      <p class="text-xs font-bold text-gray-700 truncate mt-1 text-center">
+                        {{ draft.title || ('swap.proposeForm.step2ItemLabel' | translate) + ' ' + (i + 1) }}
+                      </p>
+                      <button
+                        type="button"
+                        (click)="removeItem(i)"
+                        class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full
+                               opacity-0 group-hover:opacity-100 transition-opacity
+                               flex items-center justify-center shadow-md">
+                        <mat-icon class="!text-xs">close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Step 3: Titles + message -->
+        @case (3) {
+          <div class="flex-1 flex flex-col justify-center animate-fade-in">
+            <div class="mb-8">
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.proposeForm.step3Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.proposeForm.step3Subtitle' | translate }}</p>
+            </div>
+
+            <div class="space-y-6">
+              @for (draft of itemDrafts(); track draft.temp_path; let i = $index) {
+                <div class="flex items-start gap-4">
+                  @if (draft.previewUrl) {
+                    <img [src]="draft.previewUrl" [alt]="draft.title"
+                         class="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                  } @else {
+                    <div class="w-14 h-14 rounded-xl bg-gray-200 flex items-center justify-center flex-shrink-0">
+                      <mat-icon class="text-gray-400">photo</mat-icon>
+                    </div>
+                  }
+                  <div class="flex-1">
+                    <label class="text-sm font-black text-gray-700 mb-2 block">
+                      {{ 'swap.proposeForm.step2ItemLabel' | translate }} {{ i + 1 }}
+                    </label>
+                    <input
+                      type="text"
+                      [value]="draft.title"
+                      (input)="updateItemTitle(i, $any($event.target).value)"
+                      [placeholder]="'swap.proposeForm.step3ItemTitlePlaceholder' | translate"
+                      maxlength="50"
+                      [readOnly]="!!draft.fromListing"
+                      class="step-input w-full px-0 py-3 text-lg font-bold text-gray-900
+                             border-0 border-b-4 border-gray-200 focus:outline-none transition-all
+                             placeholder:text-gray-300 bg-transparent"
+                      [class.text-gray-500]="draft.fromListing" />
+                    @if (showErrors() && !draft.title.trim()) {
+                      <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.proposeForm.fieldRequired' | translate }}</p>
+                    }
+                  </div>
+                </div>
+              }
+
+              <div class="pt-4">
+                <label class="text-lg font-black text-gray-700 mb-3 block">{{ 'swap.proposeForm.step3MessageLabel' | translate }}</label>
+                <textarea
+                  [value]="message()"
+                  (input)="message.set($any($event.target).value)"
+                  [placeholder]="'swap.proposeForm.step3MessagePlaceholder' | translate"
+                  rows="3"
+                  class="step-input w-full px-0 py-3 text-lg font-medium text-gray-900
+                         border-0 border-b-4 border-gray-200 focus:outline-none transition-all
+                         resize-none placeholder:text-gray-300 bg-transparent leading-relaxed"></textarea>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Step 4: Review -->
+        @case (4) {
+          <div class="flex-1 flex flex-col justify-center animate-fade-in">
+            <div class="mb-8 text-center">
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.proposeForm.step4Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.proposeForm.step4Subtitle' | translate }}</p>
+            </div>
+
+            <div class="space-y-6">
+              @if (targetListing(); as listing) {
+                <div>
+                  <p class="text-xs font-black text-gray-500 uppercase tracking-wide mb-3">{{ 'swap.proposeForm.step4TargetItem' | translate }}</p>
+                  <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-gray-100">
+                    @if (targetPhotos().length > 0) {
+                      <img [src]="targetPhotos()[0]" [alt]="listing.title"
+                           class="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                    } @else {
+                      <div class="w-16 h-16 rounded-xl bg-gray-200 flex items-center justify-center flex-shrink-0">
+                        <mat-icon class="text-gray-400 !text-2xl">image</mat-icon>
+                      </div>
+                    }
+                    <div>
+                      <h4 class="font-black text-gray-900">{{ listing.title }}</h4>
+                      @if (listing.swap_item_title) {
+                        <p class="text-sm text-gray-500 font-semibold">{{ listing.swap_item_title }}</p>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <div>
+                <p class="text-xs font-black text-gray-500 uppercase tracking-wide mb-3">{{ 'swap.proposeForm.step4YourItems' | translate }}</p>
+                <div class="space-y-3">
+                  @for (draft of itemDrafts(); track draft.temp_path) {
+                    <div class="flex items-center gap-4 p-4 bg-swapPost/5 rounded-2xl border-2 border-swapPost/20">
+                      @if (draft.previewUrl) {
+                        <img [src]="draft.previewUrl" [alt]="draft.title"
+                             class="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                      } @else {
+                        <div class="w-12 h-12 bg-swapPost/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <mat-icon class="text-swapPost">inventory_2</mat-icon>
+                        </div>
+                      }
+                      <p class="font-black text-gray-900">{{ draft.title }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              @if (message().trim()) {
+                <div>
+                  <p class="text-xs font-black text-gray-500 uppercase tracking-wide mb-3">{{ 'swap.proposeForm.step4YourMessage' | translate }}</p>
+                  <div class="p-4 bg-gray-50 rounded-2xl border-2 border-gray-100">
+                    <p class="text-gray-700 font-medium whitespace-pre-line">{{ message() }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Step 5: Success -->
+        @case (5) {
+          <div class="flex-1 flex flex-col items-center justify-center animate-fade-in py-8">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+              <mat-icon class="!text-5xl text-green-600">check_circle</mat-icon>
+            </div>
+            <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4 text-center">{{ 'swap.proposeForm.step5Title' | translate }}</h2>
+            <p class="text-lg md:text-xl text-gray-500 font-semibold text-center mb-8 max-w-md">{{ 'swap.proposeForm.step5Subtitle' | translate }}</p>
+
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+              <button
+                type="button"
+                (click)="close()"
+                class="flex-1 px-6 py-4 rounded-2xl border-2 border-swapPost text-swapPost font-black
+                       uppercase tracking-wide text-sm transition-all hover:bg-swapPost/5 text-center">
+                {{ 'swap.proposeForm.step5ViewListing' | translate }}
+              </button>
+              <button
+                type="button"
+                (click)="goToSwaps()"
+                class="flex-1 px-6 py-4 rounded-2xl bg-swapPost text-white font-black
+                       uppercase tracking-wide text-sm transition-all hover:bg-[#7d3a6b] text-center">
+                {{ 'swap.proposeForm.step5BackToSwaps' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Bottom navigation -->
+      @if (step() < 5) {
+        <div class="flex items-center justify-between mt-5 md:mt-8 pt-6 md:pt-8 border-t border-gray-100">
+          @if (step() > 1) {
+            <button
+              type="button"
+              (click)="prevStep()"
+              class="px-4 md:px-6 py-3 text-gray-500 font-black hover:text-gray-700 transition-all">
+              &larr; {{ 'swap.proposeForm.back' | translate }}
+            </button>
+          } @else {
+            <div></div>
+          }
+
+          <button
+            type="button"
+            (click)="nextStep()"
+            [disabled]="isSubmitting()"
+            class="next-btn px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black uppercase tracking-wide
+                   text-sm flex items-center gap-3 transition-all"
+            [class.next-btn--active]="canProceed() && !isSubmitting()"
+            [class.next-btn--disabled]="!canProceed() || isSubmitting()">
+            @if (step() === 4) {
+              <mat-icon>send</mat-icon>
+              {{ 'swap.proposeForm.submit' | translate }}
+            } @else {
+              {{ 'swap.proposeForm.continue' | translate }}
+              <mat-icon>arrow_forward</mat-icon>
+            }
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>
