@@ -1,0 +1,144 @@
+<app-header variant="white"></app-header>
+
+@if (isLoading()) {
+  <div class="flex min-h-screen items-center justify-center bg-white">
+    <div class="text-center">
+      <div class="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-swap border-t-transparent"></div>
+      <p class="font-semibold text-gray-600">{{ 'swap.detail.loading' | translate }}</p>
+    </div>
+  </div>
+} @else {
+  <div class="min-h-screen bg-gray-50">
+    <div class="pt-28">
+      <div class="mx-auto max-w-3xl px-4 sm:px-8 pt-6">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="animate-slide-in-left group flex items-center gap-3 font-bold text-swap transition-all hover:text-swap">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-white transition-all duration-300 group-hover:bg-[#90427b]/10 group-hover:scale-110">
+            <mat-icon class="!text-2xl transition-transform duration-300 group-hover:-translate-x-0.5">arrow_back</mat-icon>
+          </div>
+          <span class="text-base font-bold uppercase tracking-wide">{{ 'swap.editForm.back' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-4 sm:px-8 pb-20 pt-8">
+      <h1 class="animate-fade-in-up delay-100 text-3xl font-black uppercase text-gray-900 mb-8">{{ 'swap.editForm.title' | translate }}</h1>
+
+      @if (isLocked()) {
+        <div class="animate-scale-in delay-150 rounded-2xl border-2 border-orange-200 bg-orange-50 p-6 mb-8">
+          <div class="flex items-center gap-3">
+            <mat-icon class="!text-2xl text-orange-600">lock</mat-icon>
+            <p class="text-base font-bold text-orange-900">{{ 'swap.editForm.lockedMessage' | translate }}</p>
+          </div>
+        </div>
+      }
+
+      <div class="space-y-6">
+        <!-- Title -->
+        <div class="animate-fade-in-up delay-200 card-hover rounded-2xl bg-white p-6 border border-gray-200">
+          <label class="block text-sm font-black uppercase tracking-wider text-gray-500 mb-3">
+            {{ 'swap.editForm.titleLabel' | translate }}
+          </label>
+          <input
+            type="text"
+            [value]="title()"
+            (input)="title.set($any($event.target).value)"
+            [disabled]="isLocked()"
+            maxlength="25"
+            class="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-lg font-bold text-gray-900 outline-none transition-all focus:border-swap disabled:bg-gray-100 disabled:text-gray-400"
+          />
+        </div>
+
+        <!-- What you want -->
+        <div class="animate-fade-in-up delay-250 card-hover rounded-2xl bg-white p-6 border border-gray-200">
+          <label class="block text-sm font-black uppercase tracking-wider text-gray-500 mb-3">
+            {{ 'swap.editForm.wantLabel' | translate }}
+          </label>
+          <input
+            type="text"
+            [value]="wantInReturn()"
+            (input)="wantInReturn.set($any($event.target).value)"
+            [disabled]="isLocked()"
+            maxlength="150"
+            class="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-lg font-bold text-gray-900 outline-none transition-all focus:border-swap disabled:bg-gray-100 disabled:text-gray-400"
+          />
+        </div>
+
+        <!-- Description -->
+        <div class="animate-fade-in-up delay-300 card-hover rounded-2xl bg-white p-6 border border-gray-200">
+          <label class="block text-sm font-black uppercase tracking-wider text-gray-500 mb-3">
+            {{ 'swap.editForm.descriptionLabel' | translate }}
+          </label>
+          <textarea
+            [value]="description()"
+            (input)="description.set($any($event.target).value)"
+            [disabled]="isLocked()"
+            rows="4"
+            class="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-base text-gray-900 outline-none transition-all focus:border-swap resize-none disabled:bg-gray-100 disabled:text-gray-400"
+          ></textarea>
+        </div>
+
+        <!-- Photos -->
+        <div class="animate-fade-in-up delay-350 card-hover rounded-2xl bg-white p-6 border border-gray-200">
+          <label class="block text-sm font-black uppercase tracking-wider text-gray-500 mb-3">
+            {{ 'swap.editForm.photosLabel' | translate }}
+          </label>
+
+          <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
+            @for (photo of displayPhotos(); track photo.url; let i = $index) {
+              <div class="photo-card relative aspect-square rounded-xl overflow-hidden border-2 border-gray-200 group">
+                <img [src]="photo.url" alt="" class="h-full w-full object-cover" />
+                @if (!isLocked()) {
+                  <button
+                    type="button"
+                    (click)="photo.type === 'existing' ? removeExistingPhoto(photo.url) : removeNewPhoto(i - (existingPhotos().length - photosToRemove().length))"
+                    class="absolute top-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100">
+                    <mat-icon class="!text-base !h-4 !w-4">close</mat-icon>
+                  </button>
+                }
+              </div>
+            }
+
+            @if (totalPhotoCount() < 5 && !isLocked()) {
+              <label class="relative aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-swap hover:bg-swap/5 transition-all duration-200 hover:scale-[1.06]">
+                <mat-icon class="!text-2xl text-gray-400">add_photo_alternate</mat-icon>
+                <span class="text-xs font-bold text-gray-400 mt-1 text-center px-1">{{ 'swap.editForm.addPhotos' | translate }}</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  multiple
+                  (change)="onFilesSelected($event)"
+                  class="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </label>
+            }
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="animate-fade-in-up delay-550 flex gap-4 pt-4">
+          <button
+            type="button"
+            (click)="save()"
+            [disabled]="!canSave() || isSaving()"
+            class="flex-1 rounded-2xl bg-swap px-6 py-4 text-base font-black uppercase tracking-wide text-white transition-all duration-300 hover:bg-[#7d3a6b] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+            @if (isSaving()) {
+              <div class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div>
+            }
+            {{ 'swap.editForm.save' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="goBack()"
+            class="flex-1 rounded-2xl border-2 border-gray-200 bg-white px-6 py-4 text-base font-black uppercase tracking-wide text-gray-700 transition-all duration-300 hover:bg-gray-50 hover:scale-[1.02] active:scale-[0.98]">
+            {{ 'swap.editForm.cancel' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<app-footer></app-footer>

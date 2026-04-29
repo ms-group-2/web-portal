@@ -10,7 +10,7 @@
 </button>
 
 @if (chatService.isOpen()) {
-  <div class="fixed bottom-28 right-9 z-50 chat-slide-up">
+  <div class="fixed bottom-28 right-9 z-50 animate-slide-up">
     <div class="bg-white rounded-[1rem] shadow-2xl w-[410px] max-w-[calc(100vw-2rem)] flex flex-col overflow-hidden border-1 border-gray-200"
          style="height: 560px; max-height: calc(100dvh - 10rem);">
 
@@ -52,7 +52,7 @@
       <div #messagesContainer class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
 
         @if (chatService.messages().length === 0 && !chatService.isLoading()) {
-          <div class="chat-fade-in">
+          <div class="animate-fade-in">
             <div class="flex gap-3">
               <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-md"
                    style="background: linear-gradient(to bottom right, #885dde, #a05589)">
@@ -78,7 +78,7 @@
         }
 
         @for (msg of chatService.messages(); track msg.timestamp) {
-          <div class="chat-fade-in">
+          <div class="animate-fade-in">
             @if (msg.role === 'bot' && msg.text) {
               <div class="flex gap-3">
                 <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-md"
@@ -117,7 +117,7 @@
         }
 
         @if (chatService.isLoading()) {
-          <div class="flex gap-3 chat-fade-in">
+          <div class="flex gap-3 animate-fade-in">
             <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-md"
                  style="background: linear-gradient(to bottom right, #885dde, #a05589)">
               <mat-icon class="!text-xl !w-5 !h-5 text-white">smart_toy</mat-icon>

@@ -5,6 +5,7 @@ import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { TranslationService } from 'lib/services/translation.service';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
+import { ScrollTopFab } from 'lib/components/scroll-top-fab/scroll-top-fab';
 import { CategoryMenu } from 'lib/components/category-dialog/category-dialog';
 import { CategoryScrollerComponent } from './components/category-scroller/category-scroller';
 import { PromoBannersComponent } from './components/promo-banners/promo-banners';
@@ -23,6 +24,7 @@ import { TrustSectionComponent } from './components/trust-section/trust-section'
     ProductFiltersComponent,
     ProductGridComponent,
     TrustSectionComponent,
+    ScrollTopFab,
   ],
   templateUrl: './shop.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

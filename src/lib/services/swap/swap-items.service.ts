@@ -71,21 +71,13 @@ export class SwapItemsService {
       );
   }
 
-  updateItem(id: string, updates: { title?: string; description?: string; wantedItem?: string }) {
+  updateItem(id: string, updates: { title?: string; description?: string; wantedItem?: string }): Observable<SwapListing> {
     this._isLoading.set(true);
-    this.api
+    return this.api
       .updateListing(id, {
         title: updates.title,
         swap_item_title: updates.wantedItem,
         description: updates.description,
-      })
-      .subscribe({
-        next: () => {
-          this.loadUserListings();
-        },
-        error: () => {
-          this._isLoading.set(false);
-        },
       });
   }
 

@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@a
 import { Router } from '@angular/router';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
+import { ScrollTopFab } from 'lib/components/scroll-top-fab/scroll-top-fab';
 import { SwapListingApiService } from 'lib/services/swap';
 import { SwapItem } from './swap.models';
 import { SwapHero } from './components/swap-hero/swap-hero';
@@ -35,6 +36,7 @@ import { finalize } from 'rxjs';
     SwapListingsGrid,
     SwapRecentTrades,
     SwapMyTrades,
+    ScrollTopFab,
   ],
   templateUrl: './swap.html',
   styleUrl: './swap.scss',

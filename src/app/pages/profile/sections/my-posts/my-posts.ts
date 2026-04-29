@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SwapItemsService } from 'lib/services/swap';
@@ -29,6 +30,7 @@ interface PostItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyPostsComponent {
+  private router = inject(Router);
   private swapItemsService = inject(SwapItemsService);
   private confirmDialog = inject(ConfirmationDialogService);
 
@@ -57,9 +59,9 @@ export class MyPostsComponent {
     }
   }
 
-  // editPost(_post: PostItem) {
-  //   // todo: implement post editing
-  // }
+  editPost(post: PostItem) {
+    this.router.navigate(['/swap/edit', post.id]);
+  }
 
   deletePost(post: PostItem) {
     this.confirmDialog.confirm({

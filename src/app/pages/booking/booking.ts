@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, DestroyRef, inject, signal 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
+import { ScrollTopFab } from 'lib/components/scroll-top-fab/scroll-top-fab';
 import { TranslationService } from 'lib/services/translation.service';
 import { BookingHero } from './components/booking-hero/booking-hero';
 import { BookingTrending } from './components/booking-trending/booking-trending';
@@ -25,6 +26,7 @@ import { BookingHostCta } from './components/booking-host-cta/booking-host-cta';
     BookingReviews,
     BookingFeatures,
     BookingHostCta,
+    ScrollTopFab,
   ],
   templateUrl: './booking.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

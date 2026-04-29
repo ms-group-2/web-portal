@@ -16,7 +16,6 @@ import { TranslationService } from 'lib/services/translation.service';
   selector: 'app-chat-widget',
   imports: [MatIconModule, TranslatePipe],
   templateUrl: './chat-widget.html',
-  styleUrl: './chat-widget.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatWidget {

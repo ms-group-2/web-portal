@@ -21,6 +21,11 @@ export const swapRoutes: Routes = [
         loadComponent: () => import('./pages/propose-swap/propose-swap').then((m) => m.ProposeSwap),
       },
       {
+        path: 'edit/:listingId',
+        canActivate: [authGuard],
+        loadComponent: () => import('./pages/edit-swap/edit-swap').then((m) => m.EditSwap),
+      },
+      {
         path: ':id',
         loadComponent: () => import('./pages/swap-detail/swap-detail').then((m) => m.SwapDetail),
       },

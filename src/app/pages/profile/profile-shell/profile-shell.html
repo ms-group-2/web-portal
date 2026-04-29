@@ -2,7 +2,6 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50/30 flex">
 
   @if (isCartRoute()) {
-    <!-- Cart routes: full-width content, no profile sidebar -->
     <div class="flex-1 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
       <div class="container-max">
         <router-outlet></router-outlet>
@@ -10,12 +9,10 @@
     </div>
   } @else {
 
-    <!-- Mobile sidebar overlay -->
     @if (sidebarOpen()) {
       <div class="fixed inset-0 bg-black/40 z-40 lg:hidden" (click)="toggleSidebar()"></div>
     }
 
-    <!-- Mobile sliding sidebar -->
     <div
       [ngClass]="{ '-translate-x-full': !sidebarOpen(), 'translate-x-0': sidebarOpen() }"
       class="fixed lg:hidden inset-y-0 left-0 z-50 w-72 bg-white flex flex-col overflow-y-auto transition-transform duration-200"
@@ -25,12 +22,10 @@
       </div>
     </div>
 
-    <!-- Main content (desktop + mobile) -->
     <div class="flex-1 pt-28 pb-6 sm:pt-32 sm:pb-8 lg:pt-32 lg:pb-12 px-4 sm:px-6 md:px-12 lg:px-20 xl:px-32">
       <div class="container-max">
 
         <div class="mb-6 ml-2 flex items-center gap-4">
-          <!-- Hamburger for mobile -->
           <button
             type="button"
             (click)="toggleSidebar()"
@@ -50,7 +45,6 @@
         </div>
 
         <div class="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
-          <!-- Desktop sidebar (always visible) -->
           <div class="hidden lg:block">
             <app-profile-sidebar></app-profile-sidebar>
           </div>

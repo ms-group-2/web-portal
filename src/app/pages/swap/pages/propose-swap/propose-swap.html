@@ -21,10 +21,7 @@
        style="top: calc(var(--app-header-height, 64px) + 2.25rem)">
     @for (s of stepNumbers; track s) {
       <div
-        class="dot"
-        [class.active]="s === step()"
-        [class.completed]="s < step()"
-        [class.upcoming]="s > step()">
+        [class]="'h-2 rounded-full transition-all duration-500 ' + (s === step() ? 'w-8 bg-white' : s < step() ? 'w-2 bg-white' : 'w-2 bg-white/30')">
       </div>
     }
   </div>
@@ -39,7 +36,7 @@
 
         <!-- Step 1: Target listing -->
         @case (1) {
-          <div class="flex-1 flex flex-col justify-center animate-fade-in">
+          <div class="flex-1 flex flex-col justify-center animate-fade-in-up">
             <div class="mb-8">
               <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.proposeForm.step1Title' | translate }}</h2>
               <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.proposeForm.step1Subtitle' | translate }}</p>
@@ -76,7 +73,7 @@
 
         <!-- Step 2: Add items (multi-source) -->
         @case (2) {
-          <div class="flex-1 flex flex-col animate-fade-in">
+          <div class="flex-1 flex flex-col animate-fade-in-up">
             <div class="mb-6">
               <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.proposeForm.step2Title' | translate }}</h2>
               <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.proposeForm.step2Subtitle' | translate }}</p>
@@ -291,7 +288,7 @@
 
         <!-- Step 3: Titles + message -->
         @case (3) {
-          <div class="flex-1 flex flex-col justify-center animate-fade-in">
+          <div class="flex-1 flex flex-col justify-center animate-fade-in-up">
             <div class="mb-8">
               <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.proposeForm.step3Title' | translate }}</h2>
               <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.proposeForm.step3Subtitle' | translate }}</p>
@@ -319,7 +316,7 @@
                       [placeholder]="'swap.proposeForm.step3ItemTitlePlaceholder' | translate"
                       maxlength="50"
                       [readOnly]="!!draft.fromListing"
-                      class="step-input w-full px-0 py-3 text-lg font-bold text-gray-900
+                      class="focus:!border-b-swapw-full px-0 py-3 text-lg font-bold text-gray-900
                              border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                              placeholder:text-gray-300 bg-transparent"
                       [class.text-gray-500]="draft.fromListing" />
@@ -337,7 +334,7 @@
                   (input)="message.set($any($event.target).value)"
                   [placeholder]="'swap.proposeForm.step3MessagePlaceholder' | translate"
                   rows="3"
-                  class="step-input w-full px-0 py-3 text-lg font-medium text-gray-900
+                  class="focus:!border-b-swapw-full px-0 py-3 text-lg font-medium text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                          resize-none placeholder:text-gray-300 bg-transparent leading-relaxed"></textarea>
               </div>
@@ -347,7 +344,7 @@
 
         <!-- Step 4: Review -->
         @case (4) {
-          <div class="flex-1 flex flex-col justify-center animate-fade-in">
+          <div class="flex-1 flex flex-col justify-center animate-fade-in-up">
             <div class="mb-8 text-center">
               <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.proposeForm.step4Title' | translate }}</h2>
               <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.proposeForm.step4Subtitle' | translate }}</p>
@@ -409,7 +406,7 @@
 
         <!-- Step 5: Success -->
         @case (5) {
-          <div class="flex-1 flex flex-col items-center justify-center animate-fade-in py-8">
+          <div class="flex-1 flex flex-col items-center justify-center animate-fade-in-up py-8">
             <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
               <mat-icon class="!text-5xl text-green-600">check_circle</mat-icon>
             </div>
@@ -454,10 +451,10 @@
             type="button"
             (click)="nextStep()"
             [disabled]="isSubmitting()"
-            class="next-btn px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black uppercase tracking-wide
-                   text-sm flex items-center gap-3 transition-all"
-            [class.next-btn--active]="canProceed() && !isSubmitting()"
-            [class.next-btn--disabled]="!canProceed() || isSubmitting()">
+            [class]="'px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black uppercase tracking-wide text-sm flex items-center gap-3 transition-all '
+              + (canProceed() && !isSubmitting()
+                ? 'bg-swap text-white hover:bg-[#7d3a6b] hover:shadow-xl hover:scale-105'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed')">
             @if (step() === 4) {
               <mat-icon>send</mat-icon>
               {{ 'swap.proposeForm.submit' | translate }}

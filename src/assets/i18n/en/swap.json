@@ -188,6 +188,22 @@
       "fieldRequired": "This field is required"
     },
 
+    "editForm": {
+      "title": "Edit Listing",
+      "titleLabel": "Title",
+      "descriptionLabel": "Description",
+      "wantLabel": "What do you want for it?",
+      "photosLabel": "Photos",
+      "addPhotos": "Add photos",
+      "save": "Save Changes",
+      "cancel": "Cancel",
+      "back": "Back",
+      "saveSuccess": "Listing updated successfully!",
+      "saveError": "Failed to update listing. Please try again.",
+      "loadError": "Failed to load listing.",
+      "lockedMessage": "This listing is currently in a trade and cannot be edited."
+    },
+
     "postDialog": {
       "title": "Add item for exchange",
       "titleLabel": "Title",

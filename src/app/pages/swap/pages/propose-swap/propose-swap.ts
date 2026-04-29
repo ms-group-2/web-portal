@@ -32,7 +32,6 @@ type ItemSource = 'listings' | 'computer' | 'qr';
   selector: 'app-propose-swap',
   imports: [MatIconModule, Header, TranslatePipe],
   templateUrl: './propose-swap.html',
-  styleUrl: './propose-swap.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProposeSwap {
