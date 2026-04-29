@@ -11,15 +11,14 @@ import { VerificationService } from 'lib/services/verification/verification.serv
 
 interface PostItem {
   id: string;
-  profile_id: string;
+  owner_id: string;
   title: string;
   description: string;
   wantedItem: string;
   photos: string[];
-  status: 'active' | 'inactive' | 'completed';
+  status: string;
   createdAt: string;
   location?: string;
-  valueRange?: string;
   condition?: string;
 }
 

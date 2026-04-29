@@ -97,13 +97,15 @@ export class SwapItemsService {
   private mapToPostedItem(listing: SwapListing): PostedSwapItem {
     return {
       id: listing.id,
-      profile_id: listing.profile_id,
+      owner_id: listing.owner_id,
       title: listing.title,
       description: listing.description,
       wantedItem: listing.swap_item_title,
       photos: listing.photos,
-      status: listing.is_locked ? 'inactive' : 'active',
+      status: listing.status,
       createdAt: new Date(listing.created_at).toLocaleDateString('ka-GE'),
+      location: listing.location,
+      condition: listing.condition,
     };
   }
 }

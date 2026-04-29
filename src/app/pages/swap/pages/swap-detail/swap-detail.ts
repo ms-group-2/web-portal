@@ -92,12 +92,13 @@ export class SwapDetail {
         next: (listing) => {
           const item: SwapItem = {
             ...listing,
-            location: 'Tbilisi',
             postedDate: formatRelativeShort(listing.created_at),
           };
           this.item.set(item);
           this.isLoading.set(false);
-          this.loadPosterProfile(listing.profile_id);
+          if (listing.owner_id) {
+            this.loadPosterProfile(listing.owner_id);
+          }
         },
         error: () => {
           const mock = MOCK_SWAP_ITEMS.find((m) => m.id === id);

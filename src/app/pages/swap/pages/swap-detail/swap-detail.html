@@ -74,7 +74,7 @@
             }
 
             <!-- Locked Badge -->
-            @if (item.is_locked) {
+            @if (item.status === 'locked') {
               <div class="absolute left-6 top-6 rounded-full bg-swap px-5 py-3 text-sm font-black uppercase tracking-wide text-white shadow-xl">
                 {{ 'swap.detail.inTrade' | translate }}
               </div>

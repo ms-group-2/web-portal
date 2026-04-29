@@ -40,6 +40,7 @@ const SWAP_CATEGORIES: SwapCategory[] = [
   selector: 'app-post-swap',
   imports: [MatIconModule, NgClass, Header, TranslatePipe],
   templateUrl: './post-swap.html',
+  styleUrl: './post-swap.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostSwap {

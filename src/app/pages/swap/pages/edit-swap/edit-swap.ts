@@ -90,7 +90,7 @@ export class EditSwap implements OnInit {
           this.description.set(listing.description);
           this.wantInReturn.set(listing.swap_item_title);
           this.existingPhotos.set(listing.photos ?? []);
-          this.isLocked.set(listing.is_locked);
+          this.isLocked.set(listing.status === 'locked');
           this.isLoading.set(false);
         },
         error: () => {

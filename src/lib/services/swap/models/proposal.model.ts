@@ -30,6 +30,7 @@ export interface ProposalItem {
   id: string;
   title: string;
   image_url: string;
+  condition: string;
 }
 
 export interface ProposalResponse {

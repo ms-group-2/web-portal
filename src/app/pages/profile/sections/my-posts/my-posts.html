@@ -47,13 +47,9 @@
               <span>{{ item.location }}</span>
             </div>
 
-            @if (item.valueRange) {
+            @if (item.condition) {
               <div class="flex items-center gap-2 text-sm">
-                <span class="font-black text-swap">{{ item.valueRange }}</span>
-                @if (item.condition) {
-                  <span class="text-gray-400">•</span>
-                  <span class="text-gray-600">{{ item.condition }}</span>
-                }
+                <span class="text-gray-600">{{ item.condition }}</span>
               </div>
             }
 

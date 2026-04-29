@@ -1,8 +1,8 @@
-export interface TradeParticipant {
-  id: string;
-  profile_id: string;
-  gives_listing_id: string;
-  receives_item: string;
+export interface TradeChainItem {
+  id: number;
+  user_id: string;
+  from_item_id: string;
+  to_item_id: string;
   status: string;
 }
 
@@ -11,7 +11,7 @@ export interface TradeChain {
   status: string;
   created_at: string;
   expires_at: string;
-  participants: TradeParticipant[];
+  items: TradeChainItem[];
 }
 
 export interface VoteRequest {

@@ -1,14 +1,22 @@
 export interface SwapItem {
   id: string;
-  profile_id: string;
+  owner_id: string;
+  category_id: number | null;
   title: string;
   description: string;
   swap_item_title: string;
+  price: number;
+  location: string;
+  condition: string;
+  status: string;
+  boost_tier: string | null;
+  boost_expires_at: string | null;
+  stickers: string[];
+  specifications: { attribute_id: number; value: string }[];
+  desired_category_ids: number[];
   photos: string[];
   created_at: string;
   updated_at: string;
-  is_locked: boolean;
-  location?: string;
   postedBy?: string;
   postedDate?: string;
   featured?: boolean;

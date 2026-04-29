@@ -79,7 +79,7 @@ export class Swap {
       status: trade.status,
       createdLabel: formatRelativeShort(trade.created_at),
       expiresLabel: formatRelativeShort(trade.expires_at),
-      participantItems: trade.participants.map((participant) => participant.receives_item).filter(Boolean),
+      participantItems: trade.items.map((item) => item.to_item_id).filter(Boolean),
       isPending: trade.status.toLowerCase() === 'pending',
     }))
   );
@@ -96,7 +96,6 @@ export class Swap {
         if (response.items.length > 0) {
           const items: SwapItem[] = response.items.map((listing) => ({
             ...listing,
-            location: 'Tbilisi',
             postedBy: 'User',
             postedDate: formatRelativeShort(listing.created_at),
           }));
