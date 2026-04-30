@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Observable, of, map, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   SwapListing,
@@ -60,6 +60,19 @@ export class SwapListingApiService {
 
   deleteListing(listingId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${listingId}`, { headers: this.headers });
+  }
+
+  checkCanCreateListing(profileId: string): Observable<{ canCreate: boolean; message?: string }> {
+    const params = new HttpParams().set('profile_id', profileId);
+    return this.http.post<SwapListing>(`${this.baseUrl}/`, {}, { params, headers: this.headers }).pipe(
+      map(() => ({ canCreate: true })),
+      catchError((err: HttpErrorResponse) => {
+        if (err.error?.error_code === 'MONTHLY_LIMIT_REACHED') {
+          return of({ canCreate: false, message: err.error.message as string });
+        }
+        return of({ canCreate: true });
+      }),
+    );
   }
 
   // ── Photos ────────────────────────────────────────────────

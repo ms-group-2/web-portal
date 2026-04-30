@@ -1,6 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   signal,
   computed,
   inject,
@@ -11,7 +12,9 @@ import {
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { SwapItemsService } from 'lib/services/swap';
+import { SwapItemsService, SwapListingApiService } from 'lib/services/swap';
+import { AuthService } from 'lib/services/identity/auth.service';
+import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
@@ -40,13 +43,16 @@ const SWAP_CATEGORIES: SwapCategory[] = [
   selector: 'app-post-swap',
   imports: [MatIconModule, NgClass, Header, TranslatePipe],
   templateUrl: './post-swap.html',
-  styleUrl: './post-swap.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostSwap {
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   private elementRef = inject(ElementRef);
   private swapItems = inject(SwapItemsService);
+  private api = inject(SwapListingApiService);
+  private auth = inject(AuthService);
+  private profileApi = inject(ProfileApiService);
   private snackbar = inject(SnackbarService);
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
@@ -63,16 +69,20 @@ export class PostSwap {
   wantInReturn = signal('');
   price = signal<number | null>(null);
   location = signal('');
+  locationPrefilled = signal(false);
   selectedFiles = signal<File[]>([]);
   previewUrls = signal<string[]>([]);
 
   step = signal(1);
   isSubmitting = signal(false);
   showErrors = signal(false);
+  limitReached = signal(false);
   userName = signal(localStorage.getItem('vipo_user_firstName') || 'You');
 
   constructor() {
     this.restoreDraft();
+    this.prefillLocation();
+    this.checkQuota();
 
     effect(() => {
       const draft = {
@@ -108,6 +118,34 @@ export class PostSwap {
     }
   }
 
+  private checkQuota() {
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
+    this.api.checkCanCreateListing(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ canCreate }) => {
+        if (!canCreate) {
+          this.limitReached.set(true);
+          this.snackbar.error(this.translation.translate('swap.postForm.monthlyLimitReached'));
+        }
+      });
+  }
+
+  private prefillLocation() {
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
+    this.profileApi.getProfile(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (profile) => {
+          if (profile.location) {
+            this.location.set(profile.location);
+            this.locationPrefilled.set(true);
+          }
+        },
+      });
+  }
+
   private clearDraft() {
     sessionStorage.removeItem(this.STORAGE_KEY);
   }
@@ -128,6 +166,7 @@ export class PostSwap {
   });
 
   nextStep() {
+    if (this.limitReached()) return;
     if (!this.canProceed()) {
       this.showErrors.set(true);
       return;
@@ -157,17 +196,27 @@ export class PostSwap {
 
     const maxPhotos = 5;
     const remaining = maxPhotos - this.selectedFiles().length;
-    if (remaining <= 0) return;
+    if (remaining <= 0) {
+      this.snackbar.error(this.translation.translate('swap.postForm.step3MaxPhotos'));
+      input.value = '';
+      return;
+    }
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    const newFiles = Array.from(input.files)
-      .filter(f => allowedTypes.includes(f.type))
-      .slice(0, remaining);
+    const validFiles = Array.from(input.files).filter(f => allowedTypes.includes(f.type));
 
-    if (newFiles.length === 0 && input.files.length > 0) {
+    if (validFiles.length === 0 && input.files.length > 0) {
       this.snackbar.error(this.translation.translate('swap.postForm.step3InvalidFormat'));
       input.value = '';
       return;
+    }
+
+    const newFiles = validFiles.slice(0, remaining);
+
+    if (validFiles.length > remaining) {
+      this.snackbar.error(
+        this.translation.translate('swap.postForm.step3MaxPhotos')
+      );
     }
 
     this.selectedFiles.update(files => [...files, ...newFiles]);
@@ -176,6 +225,7 @@ export class PostSwap {
       const reader = new FileReader();
       reader.onload = e => {
         this.previewUrls.update(urls => [...urls, e.target?.result as string]);
+        this.cdr.markForCheck();
       };
       reader.readAsDataURL(file);
     });
@@ -220,6 +270,7 @@ export class PostSwap {
       description: this.description(),
       wantedItem: this.wantInReturn(),
       price: this.price() ?? 0,
+      location: this.location(),
       images: this.selectedFiles(),
     });
 
@@ -235,9 +286,14 @@ export class PostSwap {
         this.snackbar.success(this.translation.translate('swap.postForm.submitSuccess'));
         this.router.navigate(['/swap']);
       },
-      error: () => {
+      error: (err: { error?: { error_code?: string } }) => {
         this.isSubmitting.set(false);
-        this.snackbar.error(this.translation.translate('swap.postForm.submitError'));
+        if (err.error?.error_code === 'MONTHLY_LIMIT_REACHED') {
+          this.limitReached.set(true);
+          this.snackbar.error(this.translation.translate('swap.postForm.monthlyLimitReached'));
+        } else {
+          this.snackbar.error(this.translation.translate('swap.postForm.submitError'));
+        }
       },
     });
   }

@@ -27,10 +27,26 @@
   </div>
 
   <div class="relative w-full transition-all duration-500"
-       [class.max-w-3xl]="step() !== totalSteps"
-       [class.max-w-xl]="step() === totalSteps">
+       [class.max-w-3xl]="step() !== totalSteps && !limitReached()"
+       [class.max-w-xl]="step() === totalSteps || limitReached()">
     <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-12 flex flex-col"
-         [class.min-h-[500px]]="step() !== totalSteps">
+         [class.min-h-[500px]]="step() !== totalSteps && !limitReached()">
+
+      @if (limitReached()) {
+        <div class="flex-1 flex flex-col items-center justify-center text-center py-12 animate-fade-in-up">
+          <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <mat-icon class="!text-4xl !w-10 !h-10 text-red-500">block</mat-icon>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-black text-gray-900 mb-3">{{ 'swap.postForm.monthlyLimitReached' | translate }}</h2>
+          <button
+            type="button"
+            (click)="close()"
+            class="mt-8 px-8 py-4 rounded-2xl bg-swap text-white font-black uppercase tracking-wide
+                   hover:bg-[#7d3a6b] transition-all hover:shadow-xl">
+            {{ 'swap.detail.backToSwaps' | translate }}
+          </button>
+        </div>
+      } @else {
 
       @switch (step()) {
 
@@ -48,7 +64,7 @@
               [placeholder]="'swap.postForm.step1Placeholder' | translate"
               maxlength="25"
               autofocus
-              class="focus:!border-b-swapw-full px-0 py-4 text-xl md:text-3xl font-bold text-gray-900
+              class="focus:!border-b-swap w-full px-0 py-4 text-xl md:text-3xl font-bold text-gray-900
                      border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                      placeholder:text-gray-300 bg-transparent" />
             @if (showErrors() && !title().trim()) {
@@ -150,7 +166,7 @@
               (input)="description.set($any($event.target).value)"
               [placeholder]="'swap.postForm.step4Placeholder' | translate"
               rows="2"
-              class="focus:!border-b-swapw-full px-0 py-4 text-lg md:text-2xl font-medium text-gray-900
+              class="focus:!border-b-swap w-full px-0 py-4 text-lg md:text-2xl font-medium text-gray-900
                      border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                      resize-none placeholder:text-gray-300 bg-transparent leading-relaxed"></textarea>
             <p class="text-sm text-gray-400 font-semibold mt-3">{{ description().length }} {{ 'swap.postForm.step4Characters' | translate }}</p>
@@ -177,7 +193,7 @@
                   [placeholder]="'swap.postForm.step5WantPlaceholder' | translate"
                   maxlength="150"
                   autofocus
-                  class="focus:!border-b-swapw-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
+                  class="focus:!border-b-swap w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                          placeholder:text-gray-300 bg-transparent" />
                 @if (showErrors() && !wantInReturn().trim()) {
@@ -195,7 +211,7 @@
                   [placeholder]="'swap.postForm.step5PricePlaceholder' | translate"
                   min="1"
                   max="999999"
-                  class="focus:!border-b-swapw-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
+                  class="focus:!border-b-swap w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                          placeholder:text-gray-300 bg-transparent" />
                 @if (showErrors() && (!price() || price()! <= 0)) {
@@ -211,14 +227,19 @@
                   (input)="location.set($any($event.target).value)"
                   (keydown.enter)="canProceed() && nextStep()"
                   [placeholder]="'swap.postForm.step5LocationPlaceholder' | translate"
+                  [disabled]="locationPrefilled()"
                   maxlength="50"
-                  class="focus:!border-b-swapw-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
+                  class="focus:!border-b-swap w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
-                         placeholder:text-gray-300 bg-transparent" />
+                         placeholder:text-gray-300 bg-transparent disabled:text-swap/40 disabled:border-swap/20" />
                 @if (showErrors() && !location().trim()) {
                   <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.fieldRequired' | translate }}</p>
                 }
-                <p class="text-sm text-gray-400 font-semibold mt-2">{{ 'swap.postForm.step5NearbyCount' | translate }}</p>
+                @if (locationPrefilled()) {
+                  <p class="text-sm text-swap font-semibold mt-2">{{ 'swap.postForm.step5LocationFromProfile' | translate }}</p>
+                } @else {
+                  <p class="text-sm text-gray-400 font-semibold mt-2">{{ 'swap.postForm.step5EnterAdress' | translate }}</p>
+                }
               </div>
             </div>
           </div>
@@ -337,6 +358,7 @@
           }
         </button>
       </div>
+      }
     </div>
   </div>
 

@@ -124,7 +124,8 @@
       "step5LocationPlaceholder": "Vake, Tbilisi",
       "step5PriceLabel": "Estimated value (₾)",
       "step5PricePlaceholder": " ",
-      "step5NearbyCount": "847 swappers nearby right now",
+      "step5EnterAdress": "Enter your location",
+      "step5LocationFromProfile": "Address can be changed from your profile settings",
       "step6Title": "Look good?",
       "step6Subtitle": "Here's how your swap will appear",
       "step6WantsLabel": "Wants in return",
@@ -140,8 +141,11 @@
       "sidebarWants": "Wants",
       "sidebarLocation": "Location",
       "step3InvalidFormat": "Only JPG and PNG images are allowed",
+      "step3MaxPhotos": "Maximum 5 photos allowed",
+      "step3PhotosDropped": "Only {{count}} photo(s) added — maximum 5 allowed",
       "submitSuccess": "Swap item posted successfully!",
       "submitError": "Failed to post swap item. Please try again.",
+      "monthlyLimitReached": "You've reached your free monthly listing limit",
       "fieldRequired": "This field is required"
     },
 

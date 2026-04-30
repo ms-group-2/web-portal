@@ -44,6 +44,7 @@ export class SwapItemsService {
     description: string;
     wantedItem: string;
     price: number;
+    location?: string;
     images: File[];
   }): Observable<SwapListing> | undefined {
     const userId = this.auth.user()?.id;
@@ -59,6 +60,7 @@ export class SwapItemsService {
         swap_item_title: item.wantedItem,
         description: item.description,
         price: item.price,
+        location: item.location,
       })
       .pipe(
         switchMap((listing) => {

@@ -154,10 +154,10 @@
                   <span class="font-semibold">{{ item.postedDate }}</span>
                 </div>
               }
-              @if (posterProfile()?.location || item.location) {
+              @if (item.location) {
                 <div class="flex items-center gap-2 text-gray-600">
                   <mat-icon class="!text-xl text-swap">location_on</mat-icon>
-                  <span class="font-bold">{{ posterProfile()?.location || item.location }}</span>
+                  <span class="font-bold">{{ item.location }}</span>
                 </div>
               }
             </div>
