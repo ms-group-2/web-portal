@@ -116,6 +116,13 @@
         <div class="animate-fade-in-up delay-550 flex gap-4 pt-4">
           <button
             type="button"
+            (click)="openBoostDialog()"
+            [disabled]="isLocked() || isSaving()"
+            class="flex-1 rounded-2xl border-2 border-swap bg-white px-6 py-4 text-base font-black uppercase tracking-wide text-swap transition-all duration-300 hover:bg-swap/5 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+            {{ 'swap.boost.open' | translate }}
+          </button>
+          <button
+            type="button"
             (click)="save()"
             [disabled]="!canSave() || isSaving()"
             class="flex-1 rounded-2xl bg-swap px-6 py-4 text-base font-black uppercase tracking-wide text-white transition-all duration-300 hover:bg-[#7d3a6b] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">

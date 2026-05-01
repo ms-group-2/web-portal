@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
@@ -54,6 +54,7 @@ export class Swap {
   myTrades = signal<TradeChain[]>([]);
   votingChainIds = signal<string[]>([]);
   selectedCategoryId = signal<number | null>(null);
+  searchQuery = signal('');
   onlineUsers = signal(847);
 
   // Mock data
@@ -85,13 +86,20 @@ export class Swap {
   );
 
   constructor() {
-    this.loadAllListings();
+    effect(() => {
+      const categoryId = this.selectedCategoryId();
+      const query = this.searchQuery();
+      this.loadAllListings(categoryId, query);
+    });
     this.loadMyTrades();
   }
 
-  loadAllListings() {
+  loadAllListings(categoryId?: number | null, query?: string) {
     this.isLoading.set(true);
-    this.api.getAllListings().subscribe({
+    this.api.getAllListings({
+      category_id: categoryId ?? undefined,
+      q: query?.trim() || undefined,
+    }).subscribe({
       next: (response) => {
         if (response.items.length > 0) {
           const items: SwapItem[] = response.items.map((listing) => ({
@@ -144,8 +152,8 @@ export class Swap {
   }
 
 
-  onSearch(_query: string) {
-    // TODO: wire up search
+  onSearch(query: string) {
+    this.searchQuery.set(query);
   }
 
   onPostItem() {

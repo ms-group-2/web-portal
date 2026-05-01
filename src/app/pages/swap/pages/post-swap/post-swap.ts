@@ -12,7 +12,13 @@ import {
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { SwapItemsService, SwapListingApiService } from 'lib/services/swap';
+import {
+  BoostPackage,
+  MonetizationInfoResponse,
+  StickerInfo,
+  SwapItemsService,
+  SwapListingApiService,
+} from 'lib/services/swap';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
@@ -21,6 +27,7 @@ import { TranslationService } from 'lib/services/translation.service';
 import { Footer } from "lib/components/footer/footer";
 import { Header } from "lib/components/header/header";
 import { NgClass } from '@angular/common';
+import { PostSwapDraftPhotosService } from 'lib/services/swap/post-swap-draft-photos.service';
 
 interface SwapCategory {
   name: string;
@@ -56,6 +63,7 @@ export class PostSwap {
   private snackbar = inject(SnackbarService);
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
+  private draftPhotos = inject(PostSwapDraftPhotosService);
 
   private readonly STORAGE_KEY = 'post-swap-draft';
 
@@ -72,6 +80,10 @@ export class PostSwap {
   locationPrefilled = signal(false);
   selectedFiles = signal<File[]>([]);
   previewUrls = signal<string[]>([]);
+  monetization = signal<MonetizationInfoResponse | null>(null);
+  selectedBoostIndex = signal<number>(-1);
+  selectedStickers = signal<Set<string>>(new Set());
+  autoUpdateDays = signal<number>(0);
 
   step = signal(1);
   isSubmitting = signal(false);
@@ -81,8 +93,11 @@ export class PostSwap {
 
   constructor() {
     this.restoreDraft();
+    void this.restoreDraftPhotos();
     this.prefillLocation();
-    this.checkQuota();
+    // TEMP: disable monthly listing quota guard in UI
+    // this.checkQuota();
+    this.loadMonetization();
 
     effect(() => {
       const draft = {
@@ -92,7 +107,9 @@ export class PostSwap {
         wantInReturn: this.wantInReturn(),
         price: this.price(),
         location: this.location(),
-        previewUrls: this.previewUrls(),
+        selectedBoostIndex: this.selectedBoostIndex(),
+        selectedStickers: Array.from(this.selectedStickers()),
+        autoUpdateDays: this.autoUpdateDays(),
         step: this.step(),
       };
       sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(draft));
@@ -111,7 +128,9 @@ export class PostSwap {
       if (draft.wantInReturn) this.wantInReturn.set(draft.wantInReturn);
       if (draft.price != null) this.price.set(draft.price);
       if (draft.location) this.location.set(draft.location);
-      if (draft.previewUrls?.length) this.previewUrls.set(draft.previewUrls);
+      if (typeof draft.selectedBoostIndex === 'number') this.selectedBoostIndex.set(draft.selectedBoostIndex);
+      if (Array.isArray(draft.selectedStickers)) this.selectedStickers.set(new Set(draft.selectedStickers));
+      if (typeof draft.autoUpdateDays === 'number') this.autoUpdateDays.set(draft.autoUpdateDays);
       if (draft.step) this.step.set(draft.step);
     } catch {
       sessionStorage.removeItem(this.STORAGE_KEY);
@@ -148,7 +167,32 @@ export class PostSwap {
 
   private clearDraft() {
     sessionStorage.removeItem(this.STORAGE_KEY);
+    void this.draftPhotos.clear();
   }
+
+  private loadMonetization() {
+    this.api.getMonetizationInfo()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.monetization.set(res),
+      });
+  }
+
+  boostPackages = computed<BoostPackage[]>(() => this.monetization()?.boost_packages ?? []);
+  stickers = computed<StickerInfo[]>(() => this.monetization()?.stickers ?? []);
+  selectedBoostPackage = computed<BoostPackage | null>(() => {
+    const index = this.selectedBoostIndex();
+    if (index < 0) return null;
+    return this.boostPackages()[index] ?? null;
+  });
+  boostEstimatedTotal = computed(() => {
+    const boostCost = this.selectedBoostPackage()?.price ?? 0;
+    const stickerCost = this.stickers()
+      .filter((sticker) => this.selectedStickers().has(sticker.code))
+      .reduce((sum, sticker) => sum + sticker.price, 0);
+    const autoCost = this.autoUpdateDays() * (this.monetization()?.auto_update_daily_price ?? 0);
+    return boostCost + stickerCost + autoCost;
+  });
 
   canProceed = computed(() => {
     switch (this.step()) {
@@ -180,6 +224,12 @@ export class PostSwap {
     }
   }
 
+  onEnterNextStep() {
+    if (this.canProceed()) {
+      this.nextStep();
+    }
+  }
+
   prevStep() {
     this.step.update(s => Math.max(1, s - 1));
     this.focusStepInput();
@@ -195,6 +245,7 @@ export class PostSwap {
     if (!input.files) return;
 
     const maxPhotos = 5;
+    const maxFileSizeBytes = 5 * 1024 * 1024;
     const remaining = maxPhotos - this.selectedFiles().length;
     if (remaining <= 0) {
       this.snackbar.error(this.translation.translate('swap.postForm.step3MaxPhotos'));
@@ -203,10 +254,18 @@ export class PostSwap {
     }
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    const validFiles = Array.from(input.files).filter(f => allowedTypes.includes(f.type));
+    const typeValidFiles = Array.from(input.files).filter(f => allowedTypes.includes(f.type));
+    const validFiles = typeValidFiles.filter((f) => f.size <= maxFileSizeBytes);
+
+    if (typeValidFiles.length !== input.files.length) {
+      this.snackbar.error(this.translation.translate('swap.postForm.step3InvalidFormat'));
+    }
+
+    if (validFiles.length !== typeValidFiles.length) {
+      this.snackbar.error(this.translation.translate('swap.postForm.step3MaxSize'));
+    }
 
     if (validFiles.length === 0 && input.files.length > 0) {
-      this.snackbar.error(this.translation.translate('swap.postForm.step3InvalidFormat'));
       input.value = '';
       return;
     }
@@ -231,11 +290,13 @@ export class PostSwap {
     });
 
     input.value = '';
+    void this.draftPhotos.persist(this.selectedFiles());
   }
 
   removePhoto(index: number) {
     this.selectedFiles.update(files => files.filter((_, i) => i !== index));
     this.previewUrls.update(urls => urls.filter((_, i) => i !== index));
+    void this.draftPhotos.persist(this.selectedFiles());
   }
 
   onPriceKeydown(event: KeyboardEvent) {
@@ -258,6 +319,34 @@ export class PostSwap {
     }
   }
 
+  selectBoost(index: number) {
+    if (this.selectedBoostIndex() === index) {
+      this.selectedBoostIndex.set(-1);
+      return;
+    }
+    this.selectedBoostIndex.set(index);
+  }
+
+  toggleSticker(code: string) {
+    this.selectedStickers.update((current) => {
+      const next = new Set(current);
+      if (next.has(code)) {
+        next.delete(code);
+      } else {
+        next.add(code);
+      }
+      return next;
+    });
+  }
+
+  setAutoUpdateDays(value: number) {
+    if (!Number.isFinite(value)) {
+      this.autoUpdateDays.set(0);
+      return;
+    }
+    this.autoUpdateDays.set(Math.max(0, Math.floor(value)));
+  }
+
   close() {
     this.router.navigate(['/swap']);
   }
@@ -272,6 +361,19 @@ export class PostSwap {
       price: this.price() ?? 0,
       location: this.location(),
       images: this.selectedFiles(),
+      boost: this.selectedBoostPackage()
+        ? {
+            boost_tier: this.selectedBoostPackage()?.tier,
+            boost_days: this.selectedBoostPackage()?.days,
+            auto_update_days: this.autoUpdateDays(),
+            stickers: Array.from(this.selectedStickers()),
+          }
+        : this.autoUpdateDays() > 0 || this.selectedStickers().size > 0
+          ? {
+              auto_update_days: this.autoUpdateDays(),
+              stickers: Array.from(this.selectedStickers()),
+            }
+          : undefined,
     });
 
     if (!result) {
@@ -286,16 +388,33 @@ export class PostSwap {
         this.snackbar.success(this.translation.translate('swap.postForm.submitSuccess'));
         this.router.navigate(['/swap']);
       },
-      error: (err: { error?: { error_code?: string } }) => {
+      error: (err: unknown) => {
         this.isSubmitting.set(false);
-        if (err.error?.error_code === 'MONTHLY_LIMIT_REACHED') {
-          this.limitReached.set(true);
-          this.snackbar.error(this.translation.translate('swap.postForm.monthlyLimitReached'));
-        } else {
-          this.snackbar.error(this.translation.translate('swap.postForm.submitError'));
-        }
+        this.snackbar.error(this.formatSubmitError(err));
       },
     });
+  }
+
+  private formatSubmitError(err: unknown): string {
+    const fallback = this.translation.translate('swap.postForm.submitError');
+    if (!err || typeof err !== 'object') return fallback;
+
+    const e = err as {
+      status?: number;
+      error?: { message?: string; error_code?: string; detail?: unknown };
+      message?: string;
+    };
+
+    const detail = e.error?.detail;
+    if (Array.isArray(detail) && detail.length > 0) {
+      const first = detail[0] as { msg?: string; loc?: unknown[] };
+      if (first?.msg) {
+        const field = Array.isArray(first.loc) ? first.loc[first.loc.length - 1] : '';
+        return field ? `${field}: ${first.msg}` : first.msg;
+      }
+    }
+
+    return e.error?.message || e.message || fallback;
   }
 
   private focusStepInput() {
@@ -303,5 +422,16 @@ export class PostSwap {
       const input = this.elementRef.nativeElement.querySelector('.step-input');
       input?.focus();
     });
+  }
+
+  private async restoreDraftPhotos(): Promise<void> {
+    const { files, previews } = await this.draftPhotos.restore();
+    if (!files.length) {
+      return;
+    }
+    
+      this.selectedFiles.set(files);
+      this.previewUrls.set(previews);
+      this.cdr.markForCheck();
   }
 }

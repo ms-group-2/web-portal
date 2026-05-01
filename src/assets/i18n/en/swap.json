@@ -142,11 +142,21 @@
       "sidebarLocation": "Location",
       "step3InvalidFormat": "Only JPG and PNG images are allowed",
       "step3MaxPhotos": "Maximum 5 photos allowed",
+      "step3MaxSize": "Each photo must be 5 MB or smaller",
       "step3PhotosDropped": "Only {{count}} photo(s) added — maximum 5 allowed",
+      "photosNeedReuploadAfterRefresh": "For security reasons, photos need to be re-uploaded after refresh.",
       "submitSuccess": "Swap item posted successfully!",
       "submitError": "Failed to post swap item. Please try again.",
+      "photoUploadPartialError": "Some photos failed to upload. Listing was still created.",
+      "boostApplyFailedAfterCreate": "Listing was posted, but boost could not be applied.",
       "monthlyLimitReached": "You've reached your free monthly listing limit",
-      "fieldRequired": "This field is required"
+      "fieldRequired": "This field is required",
+      "boostTitle": "Boost your listing (optional)",
+      "boostSubtitle": "Pick a package to get more visibility right after posting.",
+      "boostTotal": "Estimated boost total",
+      "autoUpdateDays": "Auto-update days",
+      "stickers": "Stickers",
+      "days": "days"
     },
 
     "proposeForm": {
@@ -206,6 +216,24 @@
       "saveError": "Failed to update listing. Please try again.",
       "loadError": "Failed to load listing.",
       "lockedMessage": "This listing is currently in a trade and cannot be edited."
+    },
+
+    "boost": {
+      "open": "Boost Listing",
+      "title": "Boost Listing",
+      "subtitle": "Promote your listing with tier boosts and stickers.",
+      "loadingOptions": "Loading boost options...",
+      "package": "Boost package",
+      "days": "days",
+      "autoUpdateDays": "Auto-update days",
+      "stickers": "Stickers",
+      "total": "Estimated total",
+      "cancel": "Cancel",
+      "apply": "Apply Boost",
+      "applying": "Applying...",
+      "loadError": "Failed to load boost options",
+      "applySuccess": "Boost applied successfully",
+      "applyError": "Failed to apply boost"
     },
 
     "postDialog": {

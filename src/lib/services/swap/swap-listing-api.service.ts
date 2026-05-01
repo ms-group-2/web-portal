@@ -1,14 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Observable, of, map, catchError } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   SwapListing,
   CreateListingRequest,
   UpdateListingRequest,
-  PaginationParams,
+  ListingQueryParams,
   PaginatedListingsResponse,
-  UploadUrlResponse,
   TradeChain,
   VoteRequest,
   ProposalSessionResponse,
@@ -16,6 +15,14 @@ import {
   ProposalUploadUrlResponse,
   CreateProposalRequest,
   ProposalResponse,
+  MonetizationInfoResponse,
+  BoostedListingsResponse,
+  CategoryAttributesListResponse,
+  ApplyBoostRequest,
+  ApplyBoostResponse,
+  CreateSwapOfferRequest,
+  SwapOfferResponse,
+  RespondSwapOfferRequest,
 } from './';
 
 @Injectable({
@@ -26,12 +33,16 @@ export class SwapListingApiService {
   private baseUrl = `${environment.apiBaseUrl}/swap/listing`;
   private headers = { 'ngrok-skip-browser-warning': 'true' };
 
-  // ── Listings ──────────────────────────────────────────────
-
-  getAllListings(pagination?: PaginationParams): Observable<PaginatedListingsResponse> {
+  getAllListings(query?: ListingQueryParams): Observable<PaginatedListingsResponse> {
     let params = new HttpParams();
-    if (pagination?.page) params = params.set('page', pagination.page);
-    if (pagination?.limit) params = params.set('limit', pagination.limit);
+    if (query?.page) params = params.set('page', query.page);
+    if (query?.limit) params = params.set('limit', query.limit);
+    if (query?.q) params = params.set('q', query.q);
+    if (query?.category_id != null) params = params.set('category_id', query.category_id);
+    if (query?.sort_by) params = params.set('sort_by', query.sort_by);
+    if (query?.min_price != null) params = params.set('min_price', query.min_price);
+    if (query?.max_price != null) params = params.set('max_price', query.max_price);
+    if (query?.status) params = params.set('status', query.status);
     return this.http.get<PaginatedListingsResponse>(`${this.baseUrl}/`, { params, headers: this.headers });
   }
 
@@ -39,10 +50,10 @@ export class SwapListingApiService {
     return this.http.get<SwapListing>(`${this.baseUrl}/${listingId}`, { headers: this.headers });
   }
 
-  getListingsByProfile(profileId: string, pagination?: PaginationParams): Observable<PaginatedListingsResponse> {
+  getListingsByProfile(profileId: string, query?: ListingQueryParams): Observable<PaginatedListingsResponse> {
     let params = new HttpParams();
-    if (pagination?.page) params = params.set('page', pagination.page);
-    if (pagination?.limit) params = params.set('limit', pagination.limit);
+    if (query?.page) params = params.set('page', query.page);
+    if (query?.limit) params = params.set('limit', query.limit);
     return this.http.get<PaginatedListingsResponse>(`${this.baseUrl}/profile/${profileId}`, {
       params,
       headers: this.headers,
@@ -62,43 +73,33 @@ export class SwapListingApiService {
     return this.http.delete<void>(`${this.baseUrl}/${listingId}`, { headers: this.headers });
   }
 
+  getMonetizationInfo(): Observable<MonetizationInfoResponse> {
+    return this.http.get<MonetizationInfoResponse>(`${this.baseUrl}/monetization`, { headers: this.headers });
+  }
+
+  getBoostedListings(limit = 10): Observable<BoostedListingsResponse> {
+    const params = new HttpParams().set('limit', limit);
+    return this.http.get<BoostedListingsResponse>(`${this.baseUrl}/boosted`, { params, headers: this.headers });
+  }
+
+  getCategoryAttributes(categoryId: number): Observable<CategoryAttributesListResponse> {
+    return this.http.get<CategoryAttributesListResponse>(`${this.baseUrl}/categories/${categoryId}/attributes`, {
+      headers: this.headers,
+    });
+  }
+
+  applyBoost(listingId: string, payload: ApplyBoostRequest): Observable<ApplyBoostResponse> {
+    return this.http.post<ApplyBoostResponse>(`${this.baseUrl}/${listingId}/boost`, payload, { headers: this.headers });
+  }
+
   checkCanCreateListing(profileId: string): Observable<{ canCreate: boolean; message?: string }> {
-    const params = new HttpParams().set('profile_id', profileId);
-    return this.http.post<SwapListing>(`${this.baseUrl}/`, {}, { params, headers: this.headers }).pipe(
-      map(() => ({ canCreate: true })),
-      catchError((err: HttpErrorResponse) => {
-        if (err.error?.error_code === 'MONTHLY_LIMIT_REACHED') {
-          return of({ canCreate: false, message: err.error.message as string });
-        }
-        return of({ canCreate: true });
-      }),
-    );
+    void profileId;
+    return of({ canCreate: true });
   }
 
-  // ── Photos ────────────────────────────────────────────────
-
-  getPhotoUploadUrl(listingId: string, filename: string): Observable<UploadUrlResponse> {
-    const params = new HttpParams().set('filename', filename);
-    return this.http.post<UploadUrlResponse>(
-      `${this.baseUrl}/${listingId}/photos/upload-url`,
-      null,
-      { params, headers: this.headers },
-    );
-  }
-
-  confirmPhoto(listingId: string, objectPath: string): Observable<Record<string, unknown>> {
-    const params = new HttpParams().set('object_path', objectPath);
-    return this.http.post<Record<string, unknown>>(
-      `${this.baseUrl}/${listingId}/photos/confirm`,
-      null,
-      { params, headers: this.headers },
-    );
-  }
-
-  /** @deprecated Use getPhotoUploadUrl + confirmPhoto instead */
   uploadPhoto(listingId: string, file: File): Observable<Record<string, unknown>> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file, file.name);
     return this.http.post<Record<string, unknown>>(
       `${this.baseUrl}/${listingId}/photos`,
       formData,
@@ -110,8 +111,6 @@ export class SwapListingApiService {
     const params = new HttpParams().set('photo_url', photoUrl);
     return this.http.delete<void>(`${this.baseUrl}/${listingId}/photos`, { params, headers: this.headers });
   }
-
-  // ── Trades ────────────────────────────────────────────────
 
   getRecentTrades(limit = 10): Observable<TradeChain[]> {
     const params = new HttpParams().set('limit', limit);
@@ -125,8 +124,6 @@ export class SwapListingApiService {
   voteOnTrade(chainId: string, vote: VoteRequest): Observable<string> {
     return this.http.post<string>(`${this.baseUrl}/trades/${chainId}/vote`, vote, { headers: this.headers });
   }
-
-  // ── Proposals ────────────────────────────────────────────
 
   createProposalSession(): Observable<ProposalSessionResponse> {
     return this.http.get<ProposalSessionResponse>(
@@ -168,5 +165,21 @@ export class SwapListingApiService {
       `${this.baseUrl}/proposals/listing/${listingId}`,
       { headers: this.headers },
     );
+  }
+
+  createSwapOffer(payload: CreateSwapOfferRequest): Observable<SwapOfferResponse[]> {
+    return this.http.post<SwapOfferResponse[]>(`${this.baseUrl}/swap-offers/`, payload, { headers: this.headers });
+  }
+
+  respondToSwapOffer(offerId: string, payload: RespondSwapOfferRequest): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}/swap-offers/${offerId}/respond`, payload, { headers: this.headers });
+  }
+
+  getMySentSwapOffers(): Observable<SwapOfferResponse[]> {
+    return this.http.get<SwapOfferResponse[]>(`${this.baseUrl}/swap-offers/my-offers`, { headers: this.headers });
+  }
+
+  getSwapOffersForItem(itemId: string): Observable<SwapOfferResponse[]> {
+    return this.http.get<SwapOfferResponse[]>(`${this.baseUrl}/swap-offers/for-item/${itemId}`, { headers: this.headers });
   }
 }

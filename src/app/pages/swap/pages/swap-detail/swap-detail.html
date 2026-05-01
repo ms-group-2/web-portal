@@ -9,7 +9,6 @@
   </div>
 } @else if (item(); as item) {
   <div class="min-h-screen bg-white">
-    <!-- Header with Back Button -->
     <div class=" border-gray-200  pt-24">
       <div class="mx-auto max-w-7xl px-4 sm:px-8 pt-6">
         <button
@@ -24,12 +23,9 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="mx-auto max-w-7xl px-4 sm:px-8 pb-12 pt-8 ">
       <div class="grid gap-12 lg:grid-cols-2">
-        <!-- Left Column: Image Gallery -->
         <div class="space-y-6">
-          <!-- Main Image -->
           <div class="relative aspect-square overflow-hidden rounded-3xl bg-gray-100">
             <img
               [src]="currentPhoto()"
@@ -37,7 +33,6 @@
               class="h-full w-full object-cover"
             />
 
-            <!-- Image Navigation -->
             @if (photos().length > 1) {
               <button
                 type="button"
@@ -52,7 +47,6 @@
                 <mat-icon class="!text-3xl text-gray-900">chevron_right</mat-icon>
               </button>
 
-              <!-- Image Indicators -->
               <div class="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
                 @for (photo of photos(); track $index) {
                   <button
@@ -65,7 +59,6 @@
               </div>
             }
 
-            <!-- Featured Badge -->
             @if (item.featured) {
               <div class="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-gradient-to-r from-[#F3B582] to-[#FAAF78] px-5 py-3 text-sm font-black uppercase tracking-wide text-black shadow-xl">
                 <mat-icon class="!h-5 !w-5 !text-xl">auto_awesome</mat-icon>
@@ -73,7 +66,6 @@
               </div>
             }
 
-            <!-- Locked Badge -->
             @if (item.status === 'locked') {
               <div class="absolute left-6 top-6 rounded-full bg-swap px-5 py-3 text-sm font-black uppercase tracking-wide text-white shadow-xl">
                 {{ 'swap.detail.inTrade' | translate }}
@@ -81,7 +73,6 @@
             }
           </div>
 
-          <!-- Thumbnail Strip -->
           @if (photos().length > 1) {
             <div class="grid grid-cols-4 gap-4">
               @for (photo of thumbnails(); track $index) {
@@ -103,9 +94,7 @@
           }
         </div>
 
-        <!-- Right Column: Details -->
         <div class="space-y-8 min-w-0">
-          <!-- Title & Actions -->
           <div>
             <div class="mb-4 flex items-start justify-between">
               <h1 class="flex-1 min-w-0 break-words text-5xl font-black uppercase leading-tight text-gray-900">{{ item.title }}</h1>
@@ -128,7 +117,6 @@
               </div>
             </div>
 
-            <!-- Meta -->
             <div class="flex flex-wrap items-center gap-6 text-base">
               @if (posterProfile(); as poster) {
                 <button
@@ -163,13 +151,11 @@
             </div>
           </div>
 
-          <!-- Description -->
           <div class="space-y-4 overflow-hidden">
             <h3 class="text-sm font-black uppercase tracking-wider text-gray-500">{{ 'swap.detail.description' | translate }}</h3>
             <p class="text-xl font-medium leading-relaxed text-gray-700 break-words whitespace-pre-wrap">{{ item.description }}</p>
           </div>
 
-          <!-- What They Want -->
           <div class="rounded-3xl border-2 border-gray-200 bg-gray-50 p-8">
             <div class="flex items-start gap-5">
               <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-swap">
@@ -182,7 +168,6 @@
             </div>
           </div>
 
-          <!-- Trust & Safety -->
           <div class="rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
             <div class="flex items-center gap-3">
               <mat-icon class="!text-2xl text-blue-600">shield</mat-icon>
@@ -192,8 +177,17 @@
             </div>
           </div>
 
-          <!-- Action Buttons -->
           <div class="space-y-4 pt-4">
+            @if (isOwner()) {
+              <button
+                type="button"
+                (click)="openBoostDialog()"
+                class="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-swap bg-white px-4 sm:px-8 py-4 text-base font-black uppercase tracking-wide text-swap transition-all hover:bg-gray-50">
+                <mat-icon class="!text-2xl">bolt</mat-icon>
+                {{ 'swap.boost.open' | translate }}
+              </button>
+            }
+
             <button
               type="button"
               (click)="proposeSwap()"

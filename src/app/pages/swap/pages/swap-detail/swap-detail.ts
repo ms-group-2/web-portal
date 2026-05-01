@@ -10,16 +10,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { SwapListingApiService } from 'lib/services/swap';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { Profile } from 'lib/services/profile/models/profile.model';
+import { AuthService } from 'lib/services/identity/auth.service';
 import { normalizeSwapPhotos, SWAP_PHOTO_PLACEHOLDER } from 'lib/utils/swap-photos';
 import { formatRelativeShort } from 'lib/utils/relative-time';
 import { SwapItem } from '../../swap.models';
 import { MOCK_SWAP_ITEMS } from '../../swap.mock-data';
+import { SwapBoostDialog } from 'lib/components/swap-boost-dialog/swap-boost-dialog';
 
 @Component({
   selector: 'app-swap-detail',
@@ -32,6 +35,8 @@ export class SwapDetail {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private api = inject(SwapListingApiService);
+  private dialog = inject(MatDialog);
+  private auth = inject(AuthService);
   private profileApi = inject(ProfileApiService);
   private destroyRef = inject(DestroyRef);
 
@@ -40,6 +45,12 @@ export class SwapDetail {
   isLoading = signal(true);
   currentImageIndex = signal(0);
   isFavorited = signal(false);
+
+  isOwner = computed(() => {
+    const currentUserId = this.auth.user()?.id;
+    const listingOwnerId = this.item()?.owner_id;
+    return !!currentUserId && !!listingOwnerId && currentUserId === listingOwnerId;
+  });
 
   photos = computed(() => {
     const i = this.item();
@@ -160,5 +171,21 @@ export class SwapDetail {
     if (item) {
       this.router.navigate(['/swap/propose', item.id]);
     }
+  }
+
+  openBoostDialog() {
+    const listing = this.item();
+    if (!listing || !this.isOwner()) return;
+
+    const dialogRef = this.dialog.open(SwapBoostDialog, {
+      width: '720px',
+      maxWidth: '95vw',
+      data: { listingId: listing.id, title: listing.title },
+    });
+
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((applied) => {
+      if (!applied) return;
+      this.loadItem(listing.id);
+    });
   }
 }

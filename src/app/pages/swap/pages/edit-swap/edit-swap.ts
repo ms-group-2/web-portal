@@ -11,12 +11,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { SwapListingApiService, SwapItemsService } from 'lib/services/swap';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
+import { SwapBoostDialog } from 'lib/components/swap-boost-dialog/swap-boost-dialog';
 
 @Component({
   selector: 'app-edit-swap',
@@ -29,6 +31,7 @@ export class EditSwap implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private api = inject(SwapListingApiService);
+  private dialog = inject(MatDialog);
   private swapItems = inject(SwapItemsService);
   private snackbar = inject(SnackbarService);
   private destroyRef = inject(DestroyRef);
@@ -187,5 +190,24 @@ export class EditSwap implements OnInit {
 
   goBack() {
     this.router.navigate(['/swap']);
+  }
+
+  openBoostDialog() {
+    if (!this.listingId) return;
+    const dialogRef = this.dialog.open(SwapBoostDialog, {
+      width: '720px',
+      maxWidth: '95vw',
+      data: {
+        listingId: this.listingId,
+        title: this.title(),
+      },
+    });
+
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((applied) => {
+      if (applied) {
+        this.loadListing();
+        this.swapItems.loadUserListings();
+      }
+    });
   }
 }

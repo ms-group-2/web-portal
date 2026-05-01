@@ -17,7 +17,7 @@ import { Profile } from 'lib/services/profile/models/profile.model';
 import { SwapListingApiService } from 'lib/services/swap';
 import { SwapListing } from 'lib/services/swap/models/swap-listing.model';
 import { normalizeSwapPhotos, SWAP_PHOTO_PLACEHOLDER } from 'lib/utils/swap-photos';
-import { formatRelativeShort } from 'lib/utils/relative-time';
+import { formatRelativeShort, parseBackendDate } from 'lib/utils/relative-time';
 
 @Component({
   selector: 'app-user-profile',
@@ -53,7 +53,8 @@ export class UserProfile {
   memberSince = computed(() => {
     const p = this.profile();
     if (!p?.created_at) return '';
-    const date = new Date(p.created_at);
+    const date = parseBackendDate(p.created_at);
+    if (Number.isNaN(date.getTime())) return '';
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   });
 

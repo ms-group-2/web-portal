@@ -6,4 +6,8 @@ export * from './models/swap-listing.request.model';
 export * from './models/swap-listing.response.model';
 export * from './models/trade.model';
 export * from './models/proposal.model';
+export * from './models/monetization.model';
+export * from './models/category-attributes.model';
+export * from './models/boost.model';
+export * from './models/swap-offer.model';
 export * from './proposal-sse.service';

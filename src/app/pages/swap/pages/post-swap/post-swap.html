@@ -60,7 +60,7 @@
               type="text"
               [value]="title()"
               (input)="title.set($any($event.target).value)"
-              (keydown.enter)="canProceed() && nextStep()"
+              (keyup.enter)="onEnterNextStep()"
               [placeholder]="'swap.postForm.step1Placeholder' | translate"
               maxlength="25"
               autofocus
@@ -225,7 +225,7 @@
                   type="text"
                   [value]="location()"
                   (input)="location.set($any($event.target).value)"
-                  (keydown.enter)="canProceed() && nextStep()"
+                  (keyup.enter)="onEnterNextStep()"
                   [placeholder]="'swap.postForm.step5LocationPlaceholder' | translate"
                   [disabled]="locationPrefilled()"
                   maxlength="50"
@@ -311,7 +311,7 @@
                   </div>
                   <div class="flex items-center gap-2">
                     <span class="text-xs font-bold text-gray-500">{{ 'swap.postForm.step6PostedBy' | translate }}</span>
-                    <span class="text-sm font-black text-gray-900">{{ userName() }}-მ</span>
+                    <span class="text-sm font-black text-gray-900">{{ userName() }}</span>
                   </div>
                 </div>
               </div>
@@ -322,6 +322,63 @@
                 <mat-icon class="!text-sm align-middle">auto_awesome</mat-icon>
                 {{ 'swap.postForm.step6GoLive' | translate }}
               </p>
+            </div>
+
+            <div class="mt-6 rounded-2xl border-2 border-gray-200 p-5">
+              <div class="mb-4">
+                <h3 class="text-lg font-black text-gray-900">{{ 'swap.postForm.boostTitle' | translate }}</h3>
+                <p class="text-sm text-gray-600">{{ 'swap.postForm.boostSubtitle' | translate }}</p>
+              </div>
+
+              @if (boostPackages().length > 0) {
+                <div class="grid gap-3 sm:grid-cols-2">
+                  @for (pkg of boostPackages(); track $index) {
+                    <button
+                      type="button"
+                      (click)="selectBoost($index)"
+                      class="rounded-xl border p-3 text-left transition-all"
+                      [ngClass]="selectedBoostIndex() === $index ? 'border-swap bg-swap/5' : 'border-gray-200 hover:border-swap/50'">
+                      <p class="font-bold text-gray-900">{{ pkg.tier }} · {{ pkg.days }} {{ 'swap.postForm.days' | translate }}</p>
+                      <p class="text-sm text-gray-600">{{ pkg.price }} ₾</p>
+                    </button>
+                  }
+                </div>
+              }
+
+              <div class="mt-4">
+                <label class="mb-2 block text-sm font-bold uppercase text-gray-500">{{ 'swap.postForm.autoUpdateDays' | translate }}</label>
+                <input
+                  type="number"
+                  min="0"
+                  [value]="autoUpdateDays()"
+                  (input)="setAutoUpdateDays($any($event.target).valueAsNumber)"
+                  class="w-full rounded-xl border border-gray-300 px-3 py-2" />
+              </div>
+
+              @if (stickers().length > 0) {
+                <div class="mt-4">
+                  <p class="mb-2 text-sm font-bold uppercase text-gray-500">{{ 'swap.postForm.stickers' | translate }}</p>
+                  <div class="grid gap-2 sm:grid-cols-2">
+                    @for (sticker of stickers(); track sticker.code) {
+                      <label class="flex items-center justify-between rounded-xl border border-gray-200 p-3">
+                        <div>
+                          <p class="font-semibold text-gray-900">{{ sticker.label || sticker.code }}</p>
+                          <p class="text-xs text-gray-600">{{ sticker.price }} ₾</p>
+                        </div>
+                        <input
+                          type="checkbox"
+                          [checked]="selectedStickers().has(sticker.code)"
+                          (change)="toggleSticker(sticker.code)" />
+                      </label>
+                    }
+                  </div>
+                </div>
+              }
+
+              <div class="mt-4 rounded-xl bg-gray-50 p-3">
+                <p class="text-sm text-gray-600">{{ 'swap.postForm.boostTotal' | translate }}</p>
+                <p class="text-xl font-black text-gray-900">{{ boostEstimatedTotal() }} ₾</p>
+              </div>
             </div>
           </div>
         }

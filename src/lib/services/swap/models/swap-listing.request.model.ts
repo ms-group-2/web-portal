@@ -26,7 +26,13 @@ export interface UploadUrlResponse {
   object_path: string;
 }
 
-export interface PaginationParams {
+export interface ListingQueryParams {
   page?: number;
   limit?: number;
+  q?: string;
+  category_id?: number;
+  sort_by?: string;
+  min_price?: number;
+  max_price?: number;
+  status?: string;
 }
