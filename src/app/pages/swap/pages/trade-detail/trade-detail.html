@@ -1,0 +1,159 @@
+<app-header variant="white"></app-header>
+
+@if (isLoading()) {
+  <div class="flex min-h-screen items-center justify-center bg-white">
+    <div class="text-center">
+      <div class="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-swap border-t-transparent"></div>
+      <p class="font-semibold text-gray-600">{{ 'swap.tradeDetail.loading' | translate }}</p>
+    </div>
+  </div>
+} @else if (error()) {
+  <div class="trade-detail-page">
+    <div class="trade-sticky-header">
+      <div class="max-w-5xl mx-auto px-4 sm:px-8 py-5">
+        <button type="button" (click)="goBack()" class="trade-back-btn group">
+          <div class="back-circle">
+            <mat-icon class="!text-xl">arrow_back</mat-icon>
+          </div>
+          <span class="uppercase text-sm tracking-wide">{{ 'swap.tradeDetail.back' | translate }}</span>
+        </button>
+      </div>
+    </div>
+    <div class="flex items-center justify-center py-32">
+      <div class="text-center">
+        <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+          <mat-icon class="!text-4xl text-red-500">error_outline</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-2">{{ 'swap.tradeDetail.errorTitle' | translate }}</h3>
+        <p class="text-gray-600">{{ 'swap.tradeDetail.errorDesc' | translate }}</p>
+      </div>
+    </div>
+  </div>
+} @else if (trade(); as trade) {
+  <div class="trade-detail-page">
+    <div class="trade-sticky-header">
+      <div class="max-w-5xl mx-auto px-4 sm:px-8 py-5">
+        <button type="button" (click)="goBack()" class="trade-back-btn group">
+          <div class="back-circle">
+            <mat-icon class="!text-xl">arrow_back</mat-icon>
+          </div>
+          <span class="uppercase text-sm tracking-wide">{{ 'swap.tradeDetail.back' | translate }}</span>
+        </button>
+
+        <div class="mt-4 flex items-end justify-between gap-4">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-black text-gray-900 uppercase mb-1">{{ 'swap.tradeDetail.title' | translate }}</h1>
+            <p class="text-sm font-semibold text-gray-600">
+              {{ trade.items.length }} {{ 'swap.notifications.participants' | translate }}
+            </p>
+          </div>
+          <span class="trade-status-badge" [class]="statusClass(trade.status)">{{ trade.status }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-8 py-8 pb-14 relative">
+      <div class="trade-info-bar">
+        <div class="flex items-center gap-2">
+          <mat-icon class="!text-lg text-gray-500">schedule</mat-icon>
+          <span class="text-sm font-bold text-gray-600">{{ 'swap.tradeDetail.created' | translate }} {{ createdLabel() }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <mat-icon class="!text-lg text-gray-500">timer</mat-icon>
+          <span class="text-sm font-bold text-gray-600">{{ 'swap.tradeDetail.expires' | translate }} {{ expiresLabel() }}</span>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        @for (item of trade.items; track $index) {
+          <div class="trade-step">
+            <div class="trade-step-header">
+              <div class="trade-step-number">{{ $index + 1 }}</div>
+              <span class="text-xs font-black uppercase tracking-wide text-gray-500">
+                {{ 'swap.tradeDetail.step' | translate }} {{ $index + 1 }}
+              </span>
+              <span class="notif-status-badge text-[10px] ml-auto" [class]="statusClass(item.status)">{{ item.status }}</span>
+            </div>
+
+            <div class="trade-step-cards">
+              <!-- From item -->
+              <div class="trade-item-card">
+                <p class="trade-item-label trade-item-label--from">{{ 'swap.tradeDetail.gives' | translate }}</p>
+                <div class="trade-item-photo">
+                  <img [src]="getListingPhoto(item.from_item_id)" [alt]="getListingTitle(item.from_item_id)" />
+                </div>
+                <div class="trade-item-info">
+                  <h4 class="text-base font-black text-gray-900 line-clamp-1 mb-1">{{ getListingTitle(item.from_item_id) }}</h4>
+                  @if (getListingCondition(item.from_item_id)) {
+                    <p class="text-xs font-bold text-gray-500 uppercase mb-1">{{ getListingCondition(item.from_item_id) }}</p>
+                  }
+                  @if (getListingLocation(item.from_item_id)) {
+                    <div class="flex items-center gap-1 text-xs text-gray-400">
+                      <mat-icon class="!text-sm !h-3.5 !w-3.5">location_on</mat-icon>
+                      <span class="font-bold">{{ getListingLocation(item.from_item_id) }}</span>
+                    </div>
+                  }
+                  <button type="button" (click)="viewListing(item.from_item_id)"
+                          class="mt-2 text-xs font-black text-swap uppercase hover:underline">
+                    {{ 'swap.tradeDetail.viewListing' | translate }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="trade-arrow">
+                <mat-icon class="!text-xl text-white">arrow_forward</mat-icon>
+              </div>
+
+              <div class="trade-item-card">
+                <p class="trade-item-label trade-item-label--to">{{ 'swap.tradeDetail.receives' | translate }}</p>
+                <div class="trade-item-photo">
+                  <img [src]="getListingPhoto(item.to_item_id)" [alt]="getListingTitle(item.to_item_id)" />
+                </div>
+                <div class="trade-item-info">
+                  <h4 class="text-base font-black text-gray-900 line-clamp-1 mb-1">{{ getListingTitle(item.to_item_id) }}</h4>
+                  @if (getListingCondition(item.to_item_id)) {
+                    <p class="text-xs font-bold text-gray-500 uppercase mb-1">{{ getListingCondition(item.to_item_id) }}</p>
+                  }
+                  @if (getListingLocation(item.to_item_id)) {
+                    <div class="flex items-center gap-1 text-xs text-gray-400">
+                      <mat-icon class="!text-sm !h-3.5 !w-3.5">location_on</mat-icon>
+                      <span class="font-bold">{{ getListingLocation(item.to_item_id) }}</span>
+                    </div>
+                  }
+                  <button type="button" (click)="viewListing(item.to_item_id)"
+                          class="mt-2 text-xs font-black text-swap uppercase hover:underline">
+                    {{ 'swap.tradeDetail.viewListing' | translate }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (isPending()) {
+        <div class="mt-8 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl flex items-start gap-2">
+          <mat-icon class="!text-lg text-amber-600 shrink-0 mt-0.5">info</mat-icon>
+          <p class="text-sm text-amber-900 font-semibold">{{ 'swap.tradeDetail.chainWarning' | translate }}</p>
+        </div>
+        <div class="flex gap-4 mt-4">
+          <button type="button" (click)="voteOnChain(true)"
+                  [disabled]="isVoting()"
+                  class="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-6 py-4 text-base font-black uppercase text-white shadow-lg transition-all hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed">
+            <mat-icon class="!text-xl">check_circle</mat-icon>
+            {{ 'swap.tradeDetail.acceptChain' | translate }}
+          </button>
+          <button type="button" (click)="voteOnChain(false)"
+                  [disabled]="isVoting()"
+                  class="rounded-2xl border-2 border-gray-200 bg-white px-6 py-4 text-base font-black uppercase text-gray-700 transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ 'swap.tradeDetail.pass' | translate }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<div class="trade-footer">
+  <app-footer></app-footer>
+</div>

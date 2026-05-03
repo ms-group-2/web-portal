@@ -143,6 +143,14 @@
       </button>
 
       <a
+        routerLink="/swap/notifications"
+        aria-label="Notifications"
+        class="header-btn hidden lg:flex relative w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center transition"
+      >
+        <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">notifications</mat-icon>
+      </a>
+
+      <a
         routerLink="/profile/wishlist"
         aria-label="Favorites"
         class="header-btn hidden lg:flex relative w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center transition"
@@ -286,6 +294,16 @@
               {{ favoriteCount() }}
             </span>
           }
+        </a>
+        <a
+          routerLink="/swap/notifications"
+          routerLinkActive="active-nav-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link mobile-drawer-favorites font-extrabold transition px-4 py-3 rounded-xl flex items-center gap-3 mt-1"
+          (click)="closeMobileNav()"
+        >
+          <mat-icon class="!w-6 !h-6 flex-shrink-0 drawer-inline-icon">notifications</mat-icon>
+          <span class="flex-1">{{ 'swap.notifications.title' | translate }}</span>
         </a>
         <button
           type="button"

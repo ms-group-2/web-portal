@@ -46,7 +46,6 @@ export class ChatService {
     this.isLoading.set(true);
     this.isBusy.set(true);
 
-    // Add an empty bot message that we'll stream into
     this.messages.update(msgs => [
       ...msgs,
       { role: 'bot', text: '', timestamp: new Date() },

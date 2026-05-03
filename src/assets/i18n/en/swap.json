@@ -79,7 +79,6 @@
       "empty": "You do not have any trade chains yet.",
       "chain": "Chain",
       "created": "Created",
-      "expires": "Expires",
       "accept": "Accept",
       "decline": "Decline"
     },
@@ -199,7 +198,8 @@
       "submitSuccess": "Swap proposal sent successfully!",
       "submitError": "Failed to send proposal. Please try again.",
       "sessionError": "Failed to create session. Please try again.",
-      "fieldRequired": "This field is required"
+      "fieldRequired": "This field is required",
+      "mixingNotAllowed": "You can't mix existing listings with uploaded photos. Remove current items first."
     },
 
     "editForm": {
@@ -253,6 +253,75 @@
       "descriptionMinLength": "Description must be at least 10 characters",
       "cancel": "Cancel",
       "add": "Add"
+    },
+
+    "notifications": {
+      "title": "Your Notifications",
+      "back": "Back",
+      "pendingCount": "You have pending notifications:",
+      "allCaughtUp": "All caught up!",
+      "howItWorks": "How notifications work",
+      "howItWorksDesc": "Proposals are multi-item offers from people wanting your listings. Swap Offers are direct 1-for-1 trades. Chains are multi-way swaps where everyone gets what they want!",
+      "tabAll": "All",
+      "tabProposals": "Proposals",
+      "tabOffers": "Offers",
+      "tabChains": "Chains",
+      "loading": "Loading notifications...",
+      "errorTitle": "Something went wrong",
+      "errorDesc": "Could not load notifications. Please try again.",
+      "emptyTitle": "No Notifications Yet",
+      "emptyDesc": "When someone makes you an offer, it will appear here!",
+      "proposalReceived": "Proposal received",
+      "forYour": "For your:",
+      "offering": "Offering",
+      "item": "item",
+      "items": "items",
+      "view": "View",
+      "offeredItems": "Items They're Offering",
+      "theirMessage": "Their Message",
+      "swapOfferReceived": "Swap offer received",
+      "swapOfferSent": "Swap offer sent",
+      "directSwap": "Direct 1-for-1 swap",
+      "theyOffer": "They Offer",
+      "youOffer": "You Offer",
+      "forYourItem": "For Your",
+      "theirItem": "Their Item",
+      "awaitingResponse": "Awaiting response from the other party",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Successfully accepted!",
+      "declined": "Declined.",
+      "respondError": "Failed to respond. Please try again.",
+      "tradeChain": "Multi-Way Trade Chain",
+      "participants": "participants",
+      "expires": "Expires",
+      "chainWarning": "This trade only works if everyone accepts. Make sure you're happy with what you're getting!",
+      "acceptChain": "Accept Chain",
+      "pass": "Pass",
+      "viewDetails": "View Details",
+      "gives": "Gives",
+      "receives": "Receives"
+    },
+
+    "tradeDetail": {
+      "title": "Trade Chain Details",
+      "back": "Back to Notifications",
+      "loading": "Loading trade details...",
+      "errorTitle": "Trade Not Found",
+      "errorDesc": "This trade chain could not be loaded.",
+      "created": "Created",
+      "expires": "Expires",
+      "participants": "Participants",
+      "step": "Step",
+      "gives": "Gives",
+      "receives": "Receives",
+      "chainWarning": "This trade only works if everyone accepts. Make sure you are happy with what you are getting!",
+      "acceptChain": "Accept Chain",
+      "pass": "Pass",
+      "accepted": "Successfully accepted!",
+      "declined": "Declined.",
+      "respondError": "Failed to respond. Please try again.",
+      "viewListing": "View Listing"
     }
   }
 }

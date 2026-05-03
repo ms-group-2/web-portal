@@ -48,4 +48,5 @@ export interface ProposalItemDraft {
   title: string;
   previewUrl?: string;
   fromListing?: boolean;
+  listingId?: string;
 }

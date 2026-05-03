@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ScrollTopFab } from 'lib/components/scroll-top-fab/scroll-top-fab';
-import { SwapListingApiService } from 'lib/services/swap';
+import { SwapListingApiService, TradeChain } from 'lib/services/swap';
 import { SwapItem } from './swap.models';
 import { SwapHero } from './components/swap-hero/swap-hero';
 import { SwapLiveBar } from './components/swap-live-bar/swap-live-bar';
@@ -20,8 +20,7 @@ import {
   LIVE_ACTIVITIES,
 } from './swap.mock-data';
 import { formatRelativeShort } from 'lib/utils/relative-time';
-import { TradeChain } from 'lib/services/swap';
-import { finalize } from 'rxjs';
+import { finalize, switchMap, forkJoin, of, map, catchError } from 'rxjs';
 
 @Component({
   selector: 'app-swap',
@@ -52,10 +51,12 @@ export class Swap {
   isTradesLoading = signal(false);
   tradesError = signal<string | null>(null);
   myTrades = signal<TradeChain[]>([]);
+  itemTitleMap = signal<Map<string, string>>(new Map());
   votingChainIds = signal<string[]>([]);
   selectedCategoryId = signal<number | null>(null);
   searchQuery = signal('');
   onlineUsers = signal(847);
+
 
   // Mock data
   aiMatches = AI_MATCHES;
@@ -74,16 +75,19 @@ export class Swap {
     return this.swapItems();
   });
 
-  myTradeCards = computed<SwapMyTradeCard[]>(() =>
-    this.myTrades().map((trade) => ({
+  myTradeCards = computed<SwapMyTradeCard[]>(() => {
+    const titles = this.itemTitleMap();
+    return this.myTrades().map((trade) => ({
       id: trade.id,
       status: trade.status,
       createdLabel: formatRelativeShort(trade.created_at),
       expiresLabel: formatRelativeShort(trade.expires_at),
-      participantItems: trade.items.map((item) => item.to_item_id).filter(Boolean),
+      participantItems: trade.items
+        .map((item) => titles.get(item.to_item_id) ?? item.to_item_id.slice(0, 8) + '…')
+        .filter(Boolean),
       isPending: trade.status.toLowerCase() === 'pending',
-    }))
-  );
+    }));
+  });
 
   constructor() {
     effect(() => {
@@ -97,6 +101,7 @@ export class Swap {
   loadAllListings(categoryId?: number | null, query?: string) {
     this.isLoading.set(true);
     this.api.getAllListings({
+      limit: 100,
       category_id: categoryId ?? undefined,
       q: query?.trim() || undefined,
     }).subscribe({
@@ -120,9 +125,29 @@ export class Swap {
   loadMyTrades() {
     this.isTradesLoading.set(true);
     this.tradesError.set(null);
-    this.api.getMyTrades().subscribe({
-      next: (trades) => {
+    this.api.getMyTrades().pipe(
+      switchMap(trades => {
+        const itemIds = new Set<string>();
+        for (const trade of trades) {
+          for (const item of trade.items) {
+            if (item.to_item_id) itemIds.add(item.to_item_id);
+            if (item.from_item_id) itemIds.add(item.from_item_id);
+          }
+        }
+        if (itemIds.size === 0) return of({ trades, titleMap: new Map<string, string>() });
+        return forkJoin(
+          [...itemIds].map(id =>
+            this.api.getListing(id).pipe(
+              map(listing => [id, listing.title] as [string, string]),
+              catchError(() => of([id, id.slice(0, 8) + '…'] as [string, string])),
+            ),
+          ),
+        ).pipe(map(entries => ({ trades, titleMap: new Map(entries) })));
+      }),
+    ).subscribe({
+      next: ({ trades, titleMap }) => {
         this.myTrades.set(trades);
+        this.itemTitleMap.set(titleMap);
         this.isTradesLoading.set(false);
       },
       error: () => {

@@ -8,6 +8,7 @@ import {
   ElementRef,
   effect,
 } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,12 +26,13 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
 import { Header } from 'lib/components/header/header';
 import { normalizeSwapPhotos } from 'lib/utils/swap-photos';
+import { environment } from '../../../../../environments/environment';
 
 type ItemSource = 'listings' | 'computer' | 'qr';
 
 @Component({
   selector: 'app-propose-swap',
-  imports: [MatIconModule, Header, TranslatePipe],
+  imports: [NgClass, MatIconModule, Header, TranslatePipe],
   templateUrl: './propose-swap.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -73,8 +75,14 @@ export class ProposeSwap {
   userListings = this.swapItems.postedItems;
 
   selectedListingIds = computed(() =>
-    new Set(this.itemDrafts().filter(d => d.fromListing).map(d => d.temp_path)),
+    new Set(this.itemDrafts().filter(d => d.fromListing).map(d => d.listingId!)),
   );
+
+  offerMode = computed<'listings' | 'upload' | null>(() => {
+    const drafts = this.itemDrafts();
+    if (drafts.length === 0) return null;
+    return drafts.every(d => d.fromListing) ? 'listings' : 'upload';
+  });
 
   canProceed = computed(() => {
     switch (this.step()) {
@@ -152,31 +160,42 @@ export class ProposeSwap {
   }
 
   setSource(source: ItemSource) {
-    this.activeSource.set(source);
-    if (source === 'qr') {
-      this.ensureSession();
+    const mode = this.offerMode();
+    if (mode === 'listings' && source !== 'listings') {
+      this.snackbar.error(this.translation.translate('swap.proposeForm.mixingNotAllowed'));
+      return;
     }
-    if (source === 'computer') {
+    if (mode === 'upload' && source === 'listings') {
+      this.snackbar.error(this.translation.translate('swap.proposeForm.mixingNotAllowed'));
+      return;
+    }
+
+    this.activeSource.set(source);
+    if (source === 'qr' || source === 'computer') {
       this.ensureSession();
     }
   }
 
   selectListing(listing: PostedSwapItem) {
-    const photos = normalizeSwapPhotos(listing.photos);
-    const photoPath = photos[0] ?? '';
-
-    if (this.selectedListingIds().has(photoPath)) {
-      this.itemDrafts.update(drafts => drafts.filter(d => d.temp_path !== photoPath));
+    if (this.offerMode() === 'upload') {
+      this.snackbar.error(this.translation.translate('swap.proposeForm.mixingNotAllowed'));
       return;
     }
 
+    if (this.selectedListingIds().has(listing.id)) {
+      this.itemDrafts.update(drafts => drafts.filter(d => d.listingId !== listing.id));
+      return;
+    }
+
+    const photos = normalizeSwapPhotos(listing.photos);
     this.itemDrafts.update(drafts => [
       ...drafts,
       {
-        temp_path: photoPath,
+        temp_path: listing.id,
         title: listing.title,
         previewUrl: photos[0],
         fromListing: true,
+        listingId: listing.id,
       },
     ]);
   }
@@ -223,13 +242,18 @@ export class ProposeSwap {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ upload_url, object_path }) => {
-          fetch(upload_url, {
+          const resolvedUploadUrl = this.resolveProposalUploadUrl(upload_url);
+          fetch(resolvedUploadUrl, {
             method: 'PUT',
             body: file,
-            headers: { 'Content-Type': file.type },
+            mode: 'cors',
+            credentials: 'omit',
           })
-            .then(res => {
-              if (!res.ok) throw new Error('Upload failed');
+            .then(async res => {
+              if (!res.ok) {
+                const body = await res.text().catch(() => '');
+                throw new Error(`PUT upload failed (${res.status} ${res.statusText})${body ? `: ${body.slice(0, 300)}` : ''}`);
+              }
               this.api.addItemToSession(sessionId, { temp_path: object_path })
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe({
@@ -240,22 +264,50 @@ export class ProposeSwap {
                     ]);
                     onDone();
                   },
-                  error: () => {
-                    this.snackbar.error(this.translation.translate('swap.proposeForm.step2UploadError'));
+                  error: (err) => {
+                    // eslint-disable-next-line no-console
+                    console.error('[proposal] add-item failed', err);
+                    this.snackbar.error(this.formatError(err, 'swap.proposeForm.step2UploadError'));
                     onDone();
                   },
                 });
             })
-            .catch(() => {
-              this.snackbar.error(this.translation.translate('swap.proposeForm.step2UploadError'));
+            .catch((err) => {
+              // eslint-disable-next-line no-console
+              console.error('[proposal] PUT upload failed', {
+                upload_url,
+                resolvedUploadUrl,
+                err,
+              });
+              this.snackbar.error(this.formatError(err, 'swap.proposeForm.step2UploadError'));
               onDone();
             });
         },
-        error: () => {
-          this.snackbar.error(this.translation.translate('swap.proposeForm.step2UploadError'));
+        error: (err) => {
+          // eslint-disable-next-line no-console
+          console.error('[proposal] upload-url failed', err);
+          this.snackbar.error(this.formatError(err, 'swap.proposeForm.step2UploadError'));
           onDone();
         },
       });
+  }
+
+  private resolveProposalUploadUrl(uploadUrl: string): string {
+    if (!uploadUrl) {
+      return uploadUrl;
+    }
+
+    // Backend can return a relative signed path (starting with /proposals/...).
+    // It must be sent to the public storage gateway host.
+    if (uploadUrl.startsWith('/')) {
+      const apiOrigin = new URL(environment.apiBaseUrl).origin;
+      const normalizedPath = uploadUrl.startsWith('/storage/')
+        ? uploadUrl
+        : `/storage${uploadUrl}`;
+      return `${apiOrigin}${normalizedPath}`;
+    }
+
+    return uploadUrl;
   }
 
   nextStep() {
@@ -305,6 +357,11 @@ export class ProposeSwap {
   private submit() {
     this.isSubmitting.set(true);
 
+    if (this.offerMode() === 'listings') {
+      this.submitSwapOffer();
+      return;
+    }
+
     if (!this.sessionCreated) {
       this.ensureSessionThenSubmit();
       return;
@@ -312,7 +369,29 @@ export class ProposeSwap {
 
     const session = this.session();
     if (!session) return;
-    this.doSubmit(session.session_id);
+    this.submitProposal(session.session_id);
+  }
+
+  private submitSwapOffer() {
+    const senderIds = this.itemDrafts().map(d => d.listingId!);
+    this.api.createSwapOffer({
+      receiver_item_id: this.listingId(),
+      sender_item_ids: senderIds,
+      message: this.message(),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.step.set(5);
+          this.snackbar.success(this.translation.translate('swap.proposeForm.submitSuccess'));
+        },
+        error: (err) => {
+          console.error('[swap-offer] create failed', err);
+          this.isSubmitting.set(false);
+          this.snackbar.error(this.formatError(err, 'swap.proposeForm.submitError'));
+        },
+      });
   }
 
   private ensureSessionThenSubmit() {
@@ -324,7 +403,7 @@ export class ProposeSwap {
           this.session.set(session);
           this.sessionCreated = true;
           this.isLoadingSession.set(false);
-          this.doSubmit(session.session_id);
+          this.submitProposal(session.session_id);
         },
         error: () => {
           this.isLoadingSession.set(false);
@@ -334,7 +413,7 @@ export class ProposeSwap {
       });
   }
 
-  private doSubmit(sessionId: string) {
+  private submitProposal(sessionId: string) {
     this.api.createProposal({
       session_id: sessionId,
       target_listing_id: this.listingId(),
@@ -352,11 +431,27 @@ export class ProposeSwap {
           this.step.set(5);
           this.snackbar.success(this.translation.translate('swap.proposeForm.submitSuccess'));
         },
-        error: () => {
+        error: (err) => {
+          console.error('[proposal] finalize failed', err);
           this.isSubmitting.set(false);
-          this.snackbar.error(this.translation.translate('swap.proposeForm.submitError'));
+          this.snackbar.error(this.formatError(err, 'swap.proposeForm.submitError'));
         },
       });
+  }
+
+  private formatError(err: unknown, fallbackKey: string): string {
+    const fallback = this.translation.translate(fallbackKey);
+    if (!err || typeof err !== 'object') return fallback;
+    const e = err as {
+      message?: string;
+      error?: { message?: string; detail?: Array<{ msg?: string; loc?: unknown[] }> };
+    };
+    const firstDetail = e.error?.detail?.[0];
+    if (firstDetail?.msg) {
+      const loc = Array.isArray(firstDetail.loc) ? firstDetail.loc[firstDetail.loc.length - 1] : '';
+      return loc ? `${String(loc)}: ${firstDetail.msg}` : firstDetail.msg;
+    }
+    return e.error?.message || e.message || fallback;
   }
 
   private focusStepInput() {

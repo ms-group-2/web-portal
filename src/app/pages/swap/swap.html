@@ -7,6 +7,13 @@
 
   <div class="px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32">
     <app-swap-trending [items]="newlyAddedItems()"></app-swap-trending>
+  <app-swap-my-trades
+      [trades]="myTradeCards()"
+      [isLoading]="isTradesLoading()"
+      [error]="tradesError()"
+      [votingChainIds]="votingChainIds()"
+      (vote)="onTradeVote($event)"
+    ></app-swap-my-trades>
 
     <app-swap-ai-match [aiMatches]="aiMatches"></app-swap-ai-match>
   </div>
@@ -20,14 +27,7 @@
       (postItem)="onPostItem()"
     ></app-swap-listings-grid>
 
-    <app-swap-my-trades
-      [trades]="myTradeCards()"
-      [isLoading]="isTradesLoading()"
-      [error]="tradesError()"
-      [votingChainIds]="votingChainIds()"
-      (vote)="onTradeVote($event)"
-    ></app-swap-my-trades>
-
+  
     <app-swap-recent-trades [recentTrades]="recentTrades"></app-swap-recent-trades>
   </div>
 </div>

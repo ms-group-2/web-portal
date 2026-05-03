@@ -1,0 +1,315 @@
+<app-header variant="white"></app-header>
+
+<div class="notif-page">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="notif-blob notif-blob--top"></div>
+    <div class="notif-blob notif-blob--bottom"></div>
+  </div>
+
+  <div class="notif-sticky-header">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-5">
+      <div class="flex items-center justify-between mb-4">
+        <button type="button" (click)="goBack()" class="notif-back-btn group">
+          <div class="back-circle">
+            <mat-icon class="!text-xl">arrow_back</mat-icon>
+          </div>
+          <span class="uppercase text-sm tracking-wide">{{ 'swap.notifications.back' | translate }}</span>
+        </button>
+        <div class="notif-bell-circle">
+          <mat-icon class="!text-xl text-swap">notifications</mat-icon>
+        </div>
+      </div>
+
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-black text-gray-900 uppercase mb-1">{{ 'swap.notifications.title' | translate }}</h1>
+          <p class="text-sm md:text-base font-semibold text-gray-600">
+            {{ (pendingCount() > 0 ? 'swap.notifications.pendingCount' : 'swap.notifications.allCaughtUp') | translate }}
+            @if (pendingCount() > 0) { {{ pendingCount() }} }
+          </p>
+        </div>
+        @if (pendingCount() > 0) {
+          <div class="notif-pending-bubble">{{ pendingCount() }}</div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-8 py-8 pb-14 relative">
+
+    <div class="notif-info-banner pb-8 pt-6">
+      <div class="flex items-center gap-2 mb-1">
+        <mat-icon class="!text-2xl text-blue-600 shrink-0">info</mat-icon>
+        <p class="text-base font-bold text-blue-900">{{ 'swap.notifications.howItWorks' | translate }}</p>
+      </div>
+      <p class="text-sm text-blue-700">{{ 'swap.notifications.howItWorksDesc' | translate }}</p>
+    </div>
+
+    <div class="notif-tabs">
+      @for (tab of tabs(); track tab.id) {
+        <button type="button" (click)="setTab(tab.id)"
+                class="notif-tab" [class.notif-tab--active]="activeTab() === tab.id">
+          {{ tab.labelKey | translate }}
+          @if (tab.badge > 0) {
+            <span class="notif-tab-badge">{{ tab.badge }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    @if (isLoading()) {
+      <div class="notif-state-panel">
+        <div class="w-12 h-12 border-4 border-swap/30 border-t-swap rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-lg font-bold text-gray-600">{{ 'swap.notifications.loading' | translate }}</p>
+      </div>
+    } @else if (error()) {
+      <div class="notif-state-panel">
+        <div class="notif-state-icon bg-red-100">
+          <mat-icon class="!text-4xl text-red-500">error_outline</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-2">{{ 'swap.notifications.errorTitle' | translate }}</h3>
+        <p class="text-gray-600">{{ 'swap.notifications.errorDesc' | translate }}</p>
+      </div>
+    } @else if (filteredCards().length === 0) {
+      <div class="notif-state-panel">
+        <div class="notif-state-icon bg-gray-100">
+          <mat-icon class="!text-4xl text-gray-400">notifications_none</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-2">{{ 'swap.notifications.emptyTitle' | translate }}</h3>
+        <p class="text-lg text-gray-600">{{ 'swap.notifications.emptyDesc' | translate }}</p>
+      </div>
+    } @else {
+
+      <div class="space-y-5">
+        @for (card of filteredCards(); track card.id) {
+          <article class="notif-card">
+            <div class="flex items-start gap-4">
+
+              @switch (card.kind) {
+
+                @case ('proposal') {
+                  <div class="notif-card-icon notif-card-icon--proposal">
+                    <mat-icon class="!text-2xl text-white">inventory_2</mat-icon>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                      <div>
+                        <h3 class="text-lg md:text-xl font-black text-gray-900">{{ 'swap.notifications.proposalReceived' | translate }}</h3>
+                        <p class="text-sm font-bold text-gray-500">{{ 'swap.notifications.forYour' | translate }} {{ asProposal(card).targetListingTitle }}</p>
+                      </div>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-xs font-bold text-gray-400">{{ card.createdLabel }}</span>
+                        <span class="notif-status-badge" [class]="statusClass(card.status)">{{ card.status }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-3">
+                      <p class="text-sm font-bold text-gray-600">
+                        {{ 'swap.notifications.offering' | translate }} {{ asProposal(card).items.length }}
+                        {{ (asProposal(card).items.length === 1 ? 'swap.notifications.item' : 'swap.notifications.items') | translate }}:
+                      </p>
+                      <div class="flex -space-x-2">
+                        @for (item of asProposal(card).items.slice(0, 3); track item.id) {
+                          @if (item.image_url) {
+                            <img [src]="item.image_url" [alt]="item.title" class="notif-thumb" />
+                          } @else {
+                            <div class="notif-thumb-placeholder">
+                              <mat-icon class="!text-sm text-gray-400">photo</mat-icon>
+                            </div>
+                          }
+                        }
+                        @if (asProposal(card).items.length > 3) {
+                          <div class="notif-thumb-placeholder text-xs font-black text-gray-600">
+                            +{{ asProposal(card).items.length - 3 }}
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    @if (asProposal(card).message) {
+                      <p class="text-sm text-gray-600 italic mb-4 line-clamp-1">"{{ asProposal(card).message }}"</p>
+                    }
+
+                    @if (card.status.toLowerCase() === 'pending') {
+                      <button type="button" (click)="viewListing(asProposal(card).targetListingId)"
+                              class="px-4 py-3 bg-white border-2 border-gray-200 hover:border-swap text-gray-700 rounded-xl font-bold text-sm uppercase transition-all flex items-center gap-2">
+                        <mat-icon class="!text-lg">visibility</mat-icon>
+                        {{ 'swap.notifications.view' | translate }}
+                      </button>
+                    }
+
+                    @if (isExpanded(card.id)) {
+                      <div class="mt-4 pt-4 border-t-2 border-gray-100">
+                        <p class="text-sm font-black text-gray-500 uppercase mb-3">{{ 'swap.notifications.offeredItems' | translate }}</p>
+                        <div class="notif-detail-grid">
+                          @for (item of asProposal(card).items; track item.id) {
+                            <div class="notif-detail-card">
+                              @if (item.image_url) {
+                                <img [src]="item.image_url" [alt]="item.title" class="w-full h-24 object-cover" />
+                              } @else {
+                                <div class="w-full h-24 bg-gray-200 flex items-center justify-center">
+                                  <mat-icon class="!text-2xl text-gray-400">photo</mat-icon>
+                                </div>
+                              }
+                              <div class="p-3">
+                                <h4 class="font-black text-gray-900 text-xs mb-1">{{ item.title }}</h4>
+                                @if (item.condition) {
+                                  <p class="text-[10px] text-gray-500 font-bold uppercase">{{ item.condition }}</p>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+                        @if (asProposal(card).message) {
+                          <div class="mt-4 p-4 bg-blue-50 rounded-xl">
+                            <p class="text-xs font-black text-gray-500 uppercase mb-2">{{ 'swap.notifications.theirMessage' | translate }}</p>
+                            <p class="text-sm text-gray-700 italic">"{{ asProposal(card).message }}"</p>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+
+                @case ('offer') {
+                  <div class="notif-card-icon notif-card-icon--offer">
+                    <mat-icon class="!text-2xl text-white">swap_horiz</mat-icon>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                      <div>
+                        <h3 class="text-lg md:text-xl font-black text-gray-900">
+                          {{ (asOffer(card).direction === 'sent' ? 'swap.notifications.swapOfferSent' : 'swap.notifications.swapOfferReceived') | translate }}
+                        </h3>
+                        <p class="text-sm font-bold text-gray-500">{{ 'swap.notifications.directSwap' | translate }}</p>
+                      </div>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-xs font-bold text-gray-400">{{ card.createdLabel }}</span>
+                        <span class="notif-status-badge" [class]="statusClass(card.status)">{{ card.status }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl mb-4">
+                      <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <img [src]="getItemPhoto(asOffer(card).senderItemId)" alt=""
+                             class="notif-item-thumb" />
+                        <div class="min-w-0">
+                          <p class="text-xs font-black text-gray-400 uppercase mb-0.5">
+                            {{ (asOffer(card).direction === 'sent' ? 'swap.notifications.youOffer' : 'swap.notifications.theyOffer') | translate }}
+                          </p>
+                          <p class="text-sm font-black text-gray-900 truncate">{{ getItemTitle(asOffer(card).senderItemId) }}</p>
+                        </div>
+                      </div>
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background: linear-gradient(to bottom right, #faaf78, #f3b582)">
+                        <mat-icon class="!text-lg text-white">swap_horiz</mat-icon>
+                      </div>
+                      <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <img [src]="getItemPhoto(asOffer(card).receiverItemId)" alt=""
+                             class="notif-item-thumb" />
+                        <div class="min-w-0">
+                          <p class="text-[10px] font-black text-gray-400 uppercase mb-0.5">
+                            {{ (asOffer(card).direction === 'sent' ? 'swap.notifications.theirItem' : 'swap.notifications.forYourItem') | translate }}
+                          </p>
+                          <p class="text-sm font-black text-gray-900 truncate">{{ getItemTitle(asOffer(card).receiverItemId) }}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    @if (asOffer(card).direction === 'received' && card.status.toLowerCase() === 'pending') {
+                      <div class="flex gap-3">
+                        <button type="button" (click)="respondToOffer(card.id, true)"
+                                [disabled]="isResponding(card.id)" class="notif-action-btn notif-action-btn--accept">
+                          <mat-icon class="!text-lg">check_circle</mat-icon>
+                          {{ 'swap.notifications.accept' | translate }}
+                        </button>
+                        <button type="button" (click)="respondToOffer(card.id, false)"
+                                [disabled]="isResponding(card.id)" class="notif-action-btn notif-action-btn--decline">
+                          {{ 'swap.notifications.decline' | translate }}
+                        </button>
+                      </div>
+                    } @else if (asOffer(card).direction === 'sent' && card.status.toLowerCase() === 'pending') {
+                      <div class="flex items-center gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
+                        <mat-icon class="!text-lg text-amber-600">hourglass_top</mat-icon>
+                        <p class="text-sm font-bold text-amber-800">{{ 'swap.notifications.awaitingResponse' | translate }}</p>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Trade Chain -->
+                @case ('chain') {
+                  <div class="notif-card-icon notif-card-icon--chain">
+                    <mat-icon class="!text-2xl text-white">group</mat-icon>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                      <div>
+                        <h3 class="text-lg md:text-xl font-black text-gray-900">{{ 'swap.notifications.tradeChain' | translate }}</h3>
+                        <p class="text-sm font-bold text-gray-500">
+                          {{ asChain(card).participantCount }} {{ 'swap.notifications.participants' | translate }}
+                        </p>
+                      </div>
+                      <div class="flex flex-col items-end gap-1">
+                        <span class="notif-status-badge" [class]="statusClass(card.status)">{{ card.status }}</span>
+                        <span class="text-[10px] font-bold text-gray-400 flex items-center gap-1">
+                          <mat-icon class="!text-xs">schedule</mat-icon>
+                          {{ 'swap.notifications.expires' | translate }} {{ asChain(card).expiresLabel }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="mb-4 space-y-2">
+                      @for (item of asChain(card).items; track $index) {
+                        <div class="notif-chain-step">
+                          <div class="notif-chain-number">{{ $index + 1 }}</div>
+                          <div class="flex items-center gap-2 flex-1 min-w-0">
+                            <img [src]="getItemPhoto(item.fromItemId)" alt="" class="notif-item-thumb notif-item-thumb--sm" />
+                            <span class="font-black text-swap text-sm truncate">{{ getItemTitle(item.fromItemId) }}</span>
+                          </div>
+                          <mat-icon class="!text-base text-gray-400 shrink-0">arrow_forward</mat-icon>
+                          <div class="flex items-center gap-2 flex-1 min-w-0">
+                            <img [src]="getItemPhoto(item.toItemId)" alt="" class="notif-item-thumb notif-item-thumb--sm" />
+                            <span class="font-black text-[#FAAF78] text-sm truncate">{{ getItemTitle(item.toItemId) }}</span>
+                          </div>
+                          <span class="notif-status-badge text-[10px]" [class]="statusClass(item.status)">{{ item.status }}</span>
+                        </div>
+                      }
+                    </div>
+
+                    <button type="button" (click)="viewTradeDetail(card.id)"
+                            class="w-full px-4 py-3 mb-4 bg-white border-2 border-gray-200 hover:border-swap text-gray-700 rounded-xl font-bold text-sm uppercase transition-all flex items-center justify-center gap-2">
+                      <mat-icon class="!text-lg">visibility</mat-icon>
+                      {{ 'swap.notifications.viewDetails' | translate }}
+                    </button>
+
+                    @if (asChain(card).isPending) {
+                      <div class="p-3 bg-amber-50 border-2 border-amber-200 rounded-xl flex items-start gap-2 mb-4">
+                        <mat-icon class="!text-lg text-amber-600 shrink-0 mt-0.5">info</mat-icon>
+                        <p class="text-xs text-amber-900 font-semibold">{{ 'swap.notifications.chainWarning' | translate }}</p>
+                      </div>
+                      <div class="flex gap-3">
+                        <button type="button" (click)="voteOnChain(card.id, true)"
+                                [disabled]="isResponding(card.id)" class="notif-action-btn notif-action-btn--accept">
+                          <mat-icon class="!text-lg">check_circle</mat-icon>
+                          {{ 'swap.notifications.acceptChain' | translate }}
+                        </button>
+                        <button type="button" (click)="voteOnChain(card.id, false)"
+                                [disabled]="isResponding(card.id)" class="notif-action-btn notif-action-btn--decline">
+                          {{ 'swap.notifications.pass' | translate }}
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<div class="notif-footer">
+  <app-footer></app-footer>
+</div>

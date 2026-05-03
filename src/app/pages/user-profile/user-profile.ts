@@ -89,7 +89,7 @@ export class UserProfile {
   private loadListings(profileId: string) {
     this.isListingsLoading.set(true);
     this.swapApi
-      .getListingsByProfile(profileId)
+      .getListingsByProfile(profileId, { limit: 100 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

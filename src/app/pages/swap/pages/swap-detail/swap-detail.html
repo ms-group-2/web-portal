@@ -130,6 +130,12 @@
                   }
                   <span class="font-bold underline-offset-2 hover:underline">{{ poster.name }} {{ poster.surname }}</span>
                 </button>
+                @if (poster.location) {
+                  <div class="flex items-center gap-2 text-gray-600">
+                    <mat-icon class="!text-xl text-swap">location_on</mat-icon>
+                    <span class="font-bold">{{ poster.location }}</span>
+                  </div>
+                }
               } @else if (item.postedBy) {
                 <div class="flex items-center gap-2 text-gray-600">
                   <mat-icon class="!text-xl">person</mat-icon>
@@ -142,7 +148,7 @@
                   <span class="font-semibold">{{ item.postedDate }}</span>
                 </div>
               }
-              @if (item.location) {
+              @if (!posterProfile()?.location && item.location) {
                 <div class="flex items-center gap-2 text-gray-600">
                   <mat-icon class="!text-xl text-swap">location_on</mat-icon>
                   <span class="font-bold">{{ item.location }}</span>
@@ -215,7 +221,6 @@
       </div>
     </div>
 
-    <!-- Similar Items Section -->
     @if (similarItems().length > 0) {
       <div class="mt-16 bg-gray-50 py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-8">

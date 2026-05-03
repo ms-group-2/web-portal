@@ -133,10 +133,9 @@
                         type="button"
                         (click)="selectListing(listing)"
                         class="relative group text-left rounded-2xl border-2 overflow-hidden transition-all"
-                        [class.border-swapPost]="selectedListingIds().has(listing.photos[0])"
-                        [class.bg-swapPost/5]="selectedListingIds().has(listing.photos[0])"
-                        [class.border-gray-200]="!selectedListingIds().has(listing.photos[0])"
-                        [class.hover:border-gray-300]="!selectedListingIds().has(listing.photos[0])">
+                        [ngClass]="selectedListingIds().has(listing.id)
+                          ? 'border-swapPost bg-swapPost/5'
+                          : 'border-gray-200 hover:border-gray-300'">
                         <div class="relative h-24 bg-gray-100 overflow-hidden">
                           @if (listing.photos.length > 0) {
                             <img [src]="listing.photos[0]" [alt]="listing.title"
@@ -146,7 +145,7 @@
                               <mat-icon class="!text-3xl text-gray-300">image</mat-icon>
                             </div>
                           }
-                          @if (selectedListingIds().has(listing.photos[0])) {
+                          @if (selectedListingIds().has(listing.id)) {
                             <div class="absolute inset-0 bg-swapPost/20 flex items-center justify-center">
                               <div class="w-8 h-8 bg-swapPost rounded-full flex items-center justify-center">
                                 <mat-icon class="!text-lg text-white">check</mat-icon>
