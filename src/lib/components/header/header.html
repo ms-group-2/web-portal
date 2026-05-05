@@ -41,7 +41,7 @@
       }
     </ul>
 
-    <div class="header-search-breakpoint order-2 2xl:order-3 flex-1 min-w-0 w-full max-w-xl mx-1 sm:mx-4 md:mx-auto 2xl:mx-4 relative" #searchContainer>
+    <div class="header-search-breakpoint order-2 2xl:order-3 flex-1 min-w-0 w-full max-w-3xl mx-1 sm:mx-4 md:mx-auto 2xl:mx-4 relative" #searchContainer>
       <div class="relative">
         <mat-icon class="absolute left-3 inset-y-0 my-auto !w-5 !h-5 !text-xl !leading-5"
           [ngClass]="variant() === 'white' ? 'text-gray-400' : 'text-white/60'">
@@ -127,41 +127,18 @@
     </div>
 
     <div class="order-3 2xl:order-4 ml-auto flex items-center gap-1.5 sm:gap-3 md:gap-5 shrink-0">
-      <button
-        type="button"
-        class="lg:hidden header-btn w-9 h-9 rounded-full flex items-center justify-center transition"
-        (click)="toggleMobileNav()"
-        [attr.aria-expanded]="mobileNavOpen()"
-        aria-controls="header-mobile-nav"
-        aria-label="Menu"
-      >
-        @if (mobileNavOpen()) {
-          <mat-icon class="header-icon !w-6 !h-6">close</mat-icon>
-        } @else {
-          <mat-icon class="header-icon !w-6 !h-6">menu</mat-icon>
-        }
-      </button>
-
       <a
         routerLink="/swap/notifications"
         aria-label="Notifications"
         class="header-btn hidden lg:flex relative w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center transition"
       >
         <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">notifications</mat-icon>
-      </a>
-
-      <a
-        routerLink="/profile/wishlist"
-        aria-label="Favorites"
-        class="header-btn hidden lg:flex relative w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center transition"
-      >
-        <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">favorite_border</mat-icon>
-        @if (favoriteCount() > 0) {
+        @if (notifCount() > 0) {
           <span
             class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-xs md:text-xs font-bold flex items-center justify-center"
             [ngClass]="cartBadgeClass()"
           >
-            {{ favoriteCount() }}
+            {{ notifCount() }}
           </span>
         }
       </a>
@@ -181,14 +158,6 @@
           </span>
         }
       </a>
-
-      <button
-        (click)="toggleLanguage()"
-        class="lang-btn hidden lg:flex w-9 h-9 md:w-12 md:h-12 rounded-full items-center justify-center font-semibold text-xs md:text-sm transition"
-        [attr.aria-label]="isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
-      >
-        {{ isGeorgian() ? 'EN' : 'KA' }}
-      </button>
 
       <div class="flex items-center rounded-full transition"
         [ngClass]="authReady() && !isAuthenticated
@@ -221,6 +190,14 @@
           <mat-icon>person</mat-icon>
           <span>{{ 'header.profile' | translate }}</span>
         </button>
+        <a mat-menu-item routerLink="/profile/wishlist" class="profile-menu-item">
+          <mat-icon>favorite_border</mat-icon>
+          <span>{{ 'profile.nav.favorites' | translate }}</span>
+        </a>
+        <button mat-menu-item class="profile-menu-item" (click)="toggleLanguage()">
+          <mat-icon>translate</mat-icon>
+          <span>{{ (isGeorgian() ? 'header.switchToEnglish' : 'header.switchToGeorgian') | translate }}</span>
+        </button>
         @if (authReady() && !isAuthenticated) {
           <a mat-menu-item routerLink="/auth/sign-in" class="profile-menu-item auth-menu-item">
             <mat-icon>login</mat-icon>
@@ -234,6 +211,21 @@
           </button>
         }
       </mat-menu>
+
+      <button
+        type="button"
+        class="lg:hidden header-btn w-9 h-9 rounded-full flex items-center justify-center transition"
+        (click)="toggleMobileNav()"
+        [attr.aria-expanded]="mobileNavOpen()"
+        aria-controls="header-mobile-nav"
+        aria-label="Menu"
+      >
+        @if (mobileNavOpen()) {
+          <mat-icon class="header-icon !w-6 !h-6">close</mat-icon>
+        } @else {
+          <mat-icon class="header-icon !w-6 !h-6">menu</mat-icon>
+        }
+      </button>
     </div>
   </nav>
 
@@ -304,6 +296,14 @@
         >
           <mat-icon class="!w-6 !h-6 flex-shrink-0 drawer-inline-icon">notifications</mat-icon>
           <span class="flex-1">{{ 'swap.notifications.title' | translate }}</span>
+          @if (notifCount() > 0) {
+            <span
+              class="min-w-6 h-6 px-1.5 text-white rounded-full text-xs font-bold flex items-center justify-center"
+              [ngClass]="cartBadgeClass()"
+            >
+              {{ notifCount() }}
+            </span>
+          }
         </a>
         <button
           type="button"

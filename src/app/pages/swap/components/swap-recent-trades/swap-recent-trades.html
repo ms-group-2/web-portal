@@ -10,97 +10,97 @@
       <p class="text-gray-600 font-semibold text-lg">{{ 'swap.recentTrades.subtitle' | translate }}</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      @for (swap of recentTrades(); track swap.user1 + swap.user2; let i = $index) {
-        <div
-          class="group bg-white rounded-3xl overflow-hidden border-2 border-gray-100 hover:border-swap hover:shadow-2xl transition-all duration-300"
-          appScrollAnimate="fade-up"
-          [delay]="i * 100">
-
-          <!-- Header -->
-          <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-2.5 h-2.5 bg-green-400 rounded-full live-pulse"></div>
-              <span class="text-sm font-black text-gray-600 uppercase tracking-wide">{{ swap.time }}</span>
+    @if (isLoading()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="bg-white rounded-3xl overflow-hidden border-2 border-gray-100 animate-pulse">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-100">
+              <div class="h-4 bg-gray-200 rounded w-24"></div>
             </div>
-            <div class="flex items-center gap-2">
-              <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center  text-green-500">verified_user</mat-icon>
-              <span class="text-green-600 font-black text-xs uppercase">{{ 'swap.recentTrades.verified' | translate }}</span>
+            <div class="p-6">
+              <div class="flex items-center gap-4">
+                <div class="flex-1 h-32 bg-gray-200 rounded-2xl"></div>
+                <div class="w-12 h-12 bg-gray-200 rounded-2xl"></div>
+                <div class="flex-1 h-32 bg-gray-200 rounded-2xl"></div>
+              </div>
             </div>
           </div>
+        }
+      </div>
+    } @else if (recentTrades().length === 0) {
+      <div class="text-center py-16 text-gray-400">
+        <mat-icon class="!text-6xl !w-16 !h-16 mb-4">swap_horiz</mat-icon>
+        <p class="text-lg font-semibold">{{ 'swap.recentTrades.empty' | translate }}</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        @for (swap of recentTrades(); track $index; let i = $index) {
+          <div
+            class="group bg-white rounded-3xl overflow-hidden border-2 border-gray-100 hover:border-swap hover:shadow-2xl transition-all duration-300"
+            appScrollAnimate="fade-up"
+            [delay]="i * 100">
 
-          <!-- Content -->
-          <div class="p-6">
-            <div class="flex items-center gap-4 mb-6">
+            <!-- Header -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 bg-green-400 rounded-full live-pulse"></div>
+                <span class="text-sm font-black text-gray-600 uppercase tracking-wide">{{ swap.time }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center text-green-500">verified_user</mat-icon>
+                <span class="text-green-600 font-black text-xs uppercase">{{ 'swap.recentTrades.verified' | translate }}</span>
+              </div>
+            </div>
 
-              <!-- User 1 -->
-              <div class="flex-1">
-                <div class="relative">
-                  <img
-                    [src]="swap.image1"
-                    [alt]="swap.item1"
-                    class="w-full h-32 object-cover rounded-2xl border-2 border-gray-100 group-hover:border-swap transition-all"
-                    loading="lazy"
-                  />
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl flex items-end">
-                    <div class="p-3 w-full">
-                      <p class="text-white font-black text-sm mb-1 truncate">{{ swap.item1 }}</p>
-                      <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 bg-swap rounded-full flex items-center justify-center">
-                          <span class="text-white text-xs font-black">{{ swap.user1[0] }}</span>
-                        </div>
-                        <p class="text-white/90 text-xs font-bold">{{ swap.user1 }}</p>
+            <!-- Content -->
+            <div class="p-6">
+              <div class="flex items-center gap-4">
+
+                <!-- Item 1 -->
+                <div class="flex-1">
+                  <div class="relative">
+                    <img
+                      [src]="swap.image1"
+                      [alt]="swap.item1"
+                      class="w-full h-32 object-cover rounded-2xl border-2 border-gray-100 group-hover:border-swap transition-all"
+                      loading="lazy"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl flex items-end">
+                      <div class="p-3 w-full">
+                        <p class="text-white font-black text-sm truncate">{{ swap.item1 }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Swap Icon -->
+                <div class="flex-shrink-0">
+                  <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <mat-icon class="!text-white">swap_horiz</mat-icon>
+                  </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="flex-1">
+                  <div class="relative">
+                    <img
+                      [src]="swap.image2"
+                      [alt]="swap.item2"
+                      class="w-full h-32 object-cover rounded-2xl border-2 border-gray-100 group-hover:border-swap transition-all"
+                      loading="lazy"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl flex items-end">
+                      <div class="p-3 w-full">
+                        <p class="text-white font-black text-sm truncate">{{ swap.item2 }}</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <!-- Swap Icon -->
-              <div class="flex-shrink-0">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <mat-icon class="!text-white">swap_horiz</mat-icon>
-                </div>
-              </div>
-
-              <!-- User 2 -->
-              <div class="flex-1">
-                <div class="relative">
-                  <img
-                    [src]="swap.image2"
-                    [alt]="swap.item2"
-                    class="w-full h-32 object-cover rounded-2xl border-2 border-gray-100 group-hover:border-swap transition-all"
-                    loading="lazy"
-                  />
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl flex items-end">
-                    <div class="p-3 w-full">
-                      <p class="text-white font-black text-sm mb-1 truncate">{{ swap.item2 }}</p>
-                      <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                          <span class="text-white text-xs font-black">{{ swap.user2[0] }}</span>
-                        </div>
-                        <p class="text-white/90 text-xs font-bold">{{ swap.user2 }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Rating -->
-            <div class="flex items-center justify-center gap-1 pt-4 border-t border-gray-100">
-              @for (star of [1, 2, 3, 4, 5]; track star) {
-                <mat-icon
-                  class="!w-4 !h-4 !text-base"
-                  [ngClass]="star <= swap.rating ? 'text-yellow-400' : 'text-gray-300'">
-                  star
-                </mat-icon>
-              }
-              <span class="ml-2 text-sm font-black text-gray-600">{{ 'swap.recentTrades.bothRated' | translate }} {{ swap.rating }}&#9733;</span>
             </div>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    }
   </div>
 </section>

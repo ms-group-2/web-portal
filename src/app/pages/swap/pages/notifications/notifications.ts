@@ -4,22 +4,23 @@ import {
   signal,
   computed,
   inject,
+  effect,
   DestroyRef,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { forkJoin, of, map, switchMap, catchError } from 'rxjs';
+import { forkJoin, of, map, catchError } from 'rxjs';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import {
   SwapListingApiService,
+  SwapNotificationService,
   ProposalResponse,
   SwapOfferResponse,
   TradeChain,
 } from 'lib/services/swap';
-import { AuthService } from 'lib/services/identity/auth.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { TranslationService } from 'lib/services/translation.service';
 import { normalizeSwapPhotos, SWAP_PHOTO_PLACEHOLDER } from 'lib/utils/swap-photos';
@@ -84,10 +85,10 @@ interface ItemInfo {
 })
 export class SwapNotifications {
   private router = inject(Router);
-  private auth = inject(AuthService);
   private api = inject(SwapListingApiService);
   private snackbar = inject(SnackbarService);
   private translation = inject(TranslationService);
+  private notifService = inject(SwapNotificationService);
   private destroyRef = inject(DestroyRef);
 
   activeTab = signal<NotifTab>('all');
@@ -146,7 +147,13 @@ export class SwapNotifications {
   asChain = (card: NotificationCard) => card as ChainCard;
 
   constructor() {
-    this.loadAll();
+    this.notifService.refresh();
+
+    effect(() => {
+      const data = this.notifService.data();
+      if (!data) return;
+      this.buildCards(data.receivedProposals, data.receivedOffers, data.trades, data.userListingIds);
+    });
   }
 
   setTab(tab: NotifTab) {
@@ -216,6 +223,7 @@ export class SwapNotifications {
           this.snackbar.success(
             this.translation.translate(accept ? 'swap.notifications.accepted' : 'swap.notifications.declined'),
           );
+          this.notifService.refresh();
         },
         error: () => {
           this.respondingIds.update(s => { const n = new Set(s); n.delete(offerId); return n; });
@@ -231,10 +239,10 @@ export class SwapNotifications {
       .subscribe({
         next: () => {
           this.respondingIds.update(s => { const n = new Set(s); n.delete(chainId); return n; });
-          this.loadAll();
           this.snackbar.success(
             this.translation.translate(accept ? 'swap.notifications.accepted' : 'swap.notifications.declined'),
           );
+          this.notifService.refresh();
         },
         error: () => {
           this.respondingIds.update(s => { const n = new Set(s); n.delete(chainId); return n; });
@@ -243,39 +251,35 @@ export class SwapNotifications {
       });
   }
 
-  private loadAll() {
+  private buildCards(
+    receivedProposals: ProposalResponse[],
+    receivedOffers: SwapOfferResponse[],
+    trades: TradeChain[],
+    userListingIds: string[],
+  ) {
     this.isLoading.set(true);
     this.error.set(null);
 
-    const userId = this.auth.user()?.id;
-    const userListings$ = userId
-      ? this.api.getListingsByProfile(userId).pipe(map(r => r.items))
-      : of([]);
+    const titleMap$ = userListingIds.length > 0
+      ? forkJoin(
+          userListingIds.map(id =>
+            this.api.getListing(id).pipe(
+              map(l => [l.id, l.title] as [string, string]),
+              catchError(() => of([id, ''] as [string, string])),
+            ),
+          ),
+        ).pipe(map(entries => new Map(entries)))
+      : of(new Map<string, string>());
 
-    userListings$.pipe(
-      switchMap(userListings => {
-        const listingIds = userListings.map(l => l.id);
+    const sentOffers$ = this.api.getMySentSwapOffers();
 
-        return forkJoin({
-          sentOffers: this.api.getMySentSwapOffers(),
-          trades: this.api.getMyTrades(),
-          receivedProposals: listingIds.length > 0
-            ? forkJoin(listingIds.map(id => this.api.getProposalsForListing(id)))
-            : of([] as ProposalResponse[][]),
-          receivedOffers: listingIds.length > 0
-            ? forkJoin(listingIds.map(id => this.api.getSwapOffersForItem(id)))
-            : of([] as SwapOfferResponse[][]),
-        }).pipe(map(data => ({ ...data, userListings })));
-      }),
+    forkJoin({ titleMap: titleMap$, sentOffers: sentOffers$ }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: ({ userListings, sentOffers, receivedProposals, receivedOffers, trades }) => {
-        const titleMap = new Map(userListings.map(l => [l.id, l.title]));
+      next: ({ titleMap, sentOffers }) => {
         const sentOfferIdSet = new Set(sentOffers.map(o => o.id));
 
-        const allReceivedProposals = receivedProposals.flat();
-        const uniqueProposals = this.dedupeById(allReceivedProposals);
-        this.proposals.set(uniqueProposals.map(p => ({
+        this.proposals.set(receivedProposals.map(p => ({
           kind: 'proposal',
           id: p.id,
           targetListingId: p.target_listing_id,
@@ -292,8 +296,7 @@ export class SwapNotifications {
           sortDate: new Date(p.created_at).getTime(),
         })));
 
-        const allReceivedOffers = receivedOffers.flat();
-        const allOffers = this.dedupeById([...sentOffers, ...allReceivedOffers]);
+        const allOffers = this.dedupeById([...sentOffers, ...receivedOffers]);
         this.offers.set(allOffers.map(o => ({
           kind: 'offer',
           id: o.id,

@@ -4,7 +4,8 @@ import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ScrollTopFab } from 'lib/components/scroll-top-fab/scroll-top-fab';
 import { SwapListingApiService, TradeChain } from 'lib/services/swap';
-import { SwapItem } from './swap.models';
+import { normalizeSwapPhotos, SWAP_PHOTO_PLACEHOLDER } from 'lib/utils/swap-photos';
+import { SwapItem, RecentTrade } from './swap.models';
 import { SwapHero } from './components/swap-hero/swap-hero';
 import { SwapLiveBar } from './components/swap-live-bar/swap-live-bar';
 import { SwapTrending } from './components/swap-newly-added/swap-trending';
@@ -16,7 +17,6 @@ import { SwapMyTrades, SwapMyTradeCard } from './components/swap-my-trades/swap-
 import {
   MOCK_SWAP_ITEMS,
   AI_MATCHES,
-  RECENT_TRADES,
   LIVE_ACTIVITIES,
 } from './swap.mock-data';
 import { formatRelativeShort } from 'lib/utils/relative-time';
@@ -58,9 +58,11 @@ export class Swap {
   onlineUsers = signal(847);
 
 
+  recentTrades = signal<RecentTrade[]>([]);
+  isRecentTradesLoading = signal(false);
+
   // Mock data
   aiMatches = AI_MATCHES;
-  recentTrades = RECENT_TRADES;
   liveActivities = LIVE_ACTIVITIES;
 
   private readonly FOUR_DAYS_MS = 4 * 24 * 60 * 60 * 1000;
@@ -96,6 +98,7 @@ export class Swap {
       this.loadAllListings(categoryId, query);
     });
     this.loadMyTrades();
+    this.loadRecentTrades();
   }
 
   loadAllListings(categoryId?: number | null, query?: string) {
@@ -185,4 +188,75 @@ export class Swap {
     this.router.navigate(['/swap/create']);
   }
 
+  private loadRecentTrades() {
+    this.isRecentTradesLoading.set(true);
+
+    this.api.getRecentTrades(10).pipe(
+      switchMap(trades => {
+        const itemIds = new Set<string>();
+        for (const t of trades) {
+          for (const item of t.items) {
+            if (item.from_item_id) itemIds.add(item.from_item_id);
+            if (item.to_item_id) itemIds.add(item.to_item_id);
+          }
+        }
+        if (itemIds.size === 0) return of({ trades, listingMap: new Map<string, { title: string; photo: string }>() });
+        return forkJoin(
+          [...itemIds].map(id =>
+            this.api.getListing(id).pipe(
+              map(l => [id, {
+                title: l.title,
+                photo: normalizeSwapPhotos(l.photos)[0] ?? SWAP_PHOTO_PLACEHOLDER,
+              }] as [string, { title: string; photo: string }]),
+              catchError(() => of([id, {
+                title: id.slice(0, 8) + '…',
+                photo: SWAP_PHOTO_PLACEHOLDER,
+              }] as [string, { title: string; photo: string }])),
+            ),
+          ),
+        ).pipe(map(entries => ({ trades, listingMap: new Map(entries) })));
+      }),
+      catchError(() => of({ trades: [] as TradeChain[], listingMap: new Map<string, { title: string; photo: string }>() })),
+    ).subscribe(({ trades, listingMap }) => {
+      const tradeCards: RecentTrade[] = trades
+        .filter(t => t.items.length >= 1)
+        .map(t => {
+          const id1 = t.items[0].from_item_id;
+          const id2 = t.items.length >= 2 ? t.items[1].from_item_id : t.items[0].to_item_id;
+          const a = listingMap.get(id1);
+          const b = listingMap.get(id2);
+          return {
+            item1: a?.title ?? '', image1: a?.photo ?? SWAP_PHOTO_PLACEHOLDER,
+            item2: b?.title ?? '', image2: b?.photo ?? SWAP_PHOTO_PLACEHOLDER,
+            time: formatRelativeShort(t.created_at),
+          };
+        });
+
+      if (tradeCards.length > 0) {
+        this.recentTrades.set(tradeCards);
+      } else {
+        this.buildFallbackCards();
+      }
+      this.isRecentTradesLoading.set(false);
+    });
+  }
+
+  private buildFallbackCards() {
+    const items = this.swapItems();
+    if (items.length < 2) return;
+
+    const cards: RecentTrade[] = [];
+    for (let i = 0; i + 1 < items.length && cards.length < 4; i += 2) {
+      const a = items[i];
+      const b = items[i + 1];
+      cards.push({
+        item1: a.title,
+        image1: normalizeSwapPhotos(a.photos)[0] ?? SWAP_PHOTO_PLACEHOLDER,
+        item2: b.title,
+        image2: normalizeSwapPhotos(b.photos)[0] ?? SWAP_PHOTO_PLACEHOLDER,
+        time: formatRelativeShort(a.created_at),
+      });
+    }
+    this.recentTrades.set(cards);
+  }
 }

@@ -213,7 +213,7 @@
                   max="999999"
                   class="focus:!border-b-swap w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
-                         placeholder:text-gray-300 bg-transparent" />
+                         placeholder:text-gray-300 bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                 @if (showErrors() && (!price() || price()! <= 0)) {
                   <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.fieldRequired' | translate }}</p>
                 }

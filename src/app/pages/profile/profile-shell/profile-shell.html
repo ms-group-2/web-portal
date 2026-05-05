@@ -10,14 +10,14 @@
   } @else {
 
     @if (sidebarOpen()) {
-      <div class="fixed inset-0 bg-black/40 z-40 lg:hidden" (click)="toggleSidebar()"></div>
+      <div class="fixed inset-0 bg-black/40 z-40 min-[1180px]:hidden" (click)="toggleSidebar()"></div>
     }
 
     <div
       [ngClass]="{ '-translate-x-full': !sidebarOpen(), 'translate-x-0': sidebarOpen() }"
-      class="fixed lg:hidden inset-y-0 left-0 z-50 w-72 bg-white flex flex-col overflow-y-auto transition-transform duration-200"
+      class="fixed min-[1180px]:hidden top-[var(--app-header-height)] bottom-0 left-0 z-40 w-72 bg-white flex flex-col overflow-y-auto transition-transform duration-200"
     >
-      <div class="flex-1 p-4 pt-30 pb-40">
+      <div class="flex-1 p-4 pb-40">
         <app-profile-sidebar [sidebarOpen]="sidebarOpen" [showCloseButton]="true"></app-profile-sidebar>
       </div>
     </div>
@@ -29,7 +29,7 @@
           <button
             type="button"
             (click)="toggleSidebar()"
-            class="lg:hidden w-10 h-10 bg-white rounded-lg flex items-center justify-center hover:bg-gray-50 border border-gray-200/50 shadow-sm"
+            class="min-[1180px]:hidden w-10 h-10 bg-white rounded-lg flex items-center justify-center hover:bg-gray-50 border border-gray-200/50 shadow-sm"
           >
             <mat-icon class="text-primary">menu</mat-icon>
           </button>
@@ -44,8 +44,8 @@
           </button>
         </div>
 
-        <div class="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
-          <div class="hidden lg:block">
+        <div class="flex flex-col min-[1180px]:grid min-[1180px]:grid-cols-[280px_1fr] gap-6 min-[1180px]:gap-8">
+          <div class="hidden min-[1180px]:block">
             <app-profile-sidebar></app-profile-sidebar>
           </div>
 

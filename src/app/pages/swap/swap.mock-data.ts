@@ -1,4 +1,4 @@
-import { SwapItem, HeroSwap, TrendingSwap, AiMatch, RecentTrade, LiveActivity } from './swap.models';
+import { SwapItem, HeroSwap, TrendingSwap, AiMatch, LiveActivity } from './swap.models';
 
 export const HERO_SWAPS: HeroSwap[] = [
   {
@@ -293,37 +293,6 @@ export const MOCK_SWAP_ITEMS: SwapItem[] = [
     location: 'Vera',
     postedBy: 'Nino K.',
     postedDate: '5d',
-  },
-];
-
-export const RECENT_TRADES: RecentTrade[] = [
-  {
-    user1: 'Ana K.', item1: 'Vintage Camera',
-    image1: 'https://images.unsplash.com/photo-1606244864456-8bee63fce472?w=300&h=200&fit=crop',
-    user2: 'Luka B.', item2: 'Vinyl Records',
-    image2: 'https://images.unsplash.com/photo-1619983081563-430f63602796?w=300&h=200&fit=crop',
-    time: '5 min ago', rating: 5,
-  },
-  {
-    user1: 'Giorgi M.', item1: 'Leather Jacket',
-    image1: 'https://images.unsplash.com/photo-1520975954732-35dd22299614?w=300&h=200&fit=crop',
-    user2: 'Nino K.', item2: 'Designer Sneakers',
-    image2: 'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=300&h=200&fit=crop',
-    time: '18 min ago', rating: 5,
-  },
-  {
-    user1: 'Mariam T.', item1: 'Handbag',
-    image1: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=300&h=200&fit=crop',
-    user2: 'Davit G.', item2: 'Sunglasses',
-    image2: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&h=200&fit=crop',
-    time: '1 hour ago', rating: 5,
-  },
-  {
-    user1: 'Tamari K.', item1: 'Typewriter',
-    image1: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=300&h=200&fit=crop',
-    user2: 'Ana S.', item2: 'Vintage Books',
-    image2: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=200&fit=crop',
-    time: '2 hours ago', rating: 5,
   },
 ];
 

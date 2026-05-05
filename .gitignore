@@ -6,6 +6,8 @@
 /out-tsc
 /bazel-out
 
+
+
 # Node
 /node_modules
 npm-debug.log
@@ -41,3 +43,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+.claude-flow
+.claude
+.mcp.json
+CLAUDE.md
+

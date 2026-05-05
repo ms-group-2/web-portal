@@ -68,7 +68,8 @@
       "title": "Recent Successful Swaps",
       "subtitle": "See what others are trading",
       "verified": "Verified Swap",
-      "bothRated": "Both parties rated"
+      "bothRated": "Both parties rated",
+      "empty": "No recent trades yet"
     },
 
     "myTrades": {
@@ -121,7 +122,7 @@
       "step5WantPlaceholder": "Vinyl records, art supplies, or surprise me!",
       "step5LocationLabel": "Where are you located?",
       "step5LocationPlaceholder": "Vake, Tbilisi",
-      "step5PriceLabel": "Estimated value (₾)",
+      "step5PriceLabel": "Your product's Estimated value (₾)",
       "step5PricePlaceholder": " ",
       "step5EnterAdress": "Enter your location",
       "step5LocationFromProfile": "Address can be changed from your profile settings",
@@ -300,7 +301,8 @@
       "pass": "Pass",
       "viewDetails": "View Details",
       "gives": "Gives",
-      "receives": "Receives"
+      "receives": "Receives",
+      "newNotifications": "You have new notifications!"
     },
 
     "tradeDetail": {

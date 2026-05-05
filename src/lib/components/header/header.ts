@@ -30,6 +30,7 @@ import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
+import { SwapNotificationService } from 'lib/services/swap/swap-notification.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 
 @Component({
@@ -47,6 +48,7 @@ export class Header implements OnDestroy {
   private searchService = inject(ShopSearchService);
   private cartService = inject(ShopCartService);
   private favoritesService = inject(ShopFavoritesService);
+  private notificationService = inject(SwapNotificationService);
   private document = inject(DOCUMENT);
 
   /** Measured `<header>` height for `padding-top` / `sticky top` below the fixed bar */
@@ -60,6 +62,7 @@ export class Header implements OnDestroy {
   currentRoute = signal('');
   cartCount = this.cartService.cartCount;
   favoriteCount = this.favoritesService.favoriteCount;
+  notifCount = this.notificationService.pendingCount;
 
   private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
