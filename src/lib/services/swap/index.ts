@@ -10,5 +10,6 @@ export * from './models/monetization.model';
 export * from './models/category-attributes.model';
 export * from './models/boost.model';
 export * from './models/swap-offer.model';
+export * from './models/swap-history.model';
 export * from './proposal-sse.service';
 export * from './swap-notification.service';

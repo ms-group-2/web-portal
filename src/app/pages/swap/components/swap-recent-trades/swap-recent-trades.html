@@ -54,7 +54,7 @@
 
             <!-- Content -->
             <div class="p-6">
-              <div class="flex items-center gap-4">
+              <div class="flex items-center gap-4 mb-4">
 
                 <!-- Item 1 -->
                 <div class="flex-1">
@@ -67,7 +67,17 @@
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl flex items-end">
                       <div class="p-3 w-full">
-                        <p class="text-white font-black text-sm truncate">{{ swap.item1 }}</p>
+                        <p class="text-white font-black text-sm mb-1 truncate">{{ swap.item1 }}</p>
+                        <div class="flex items-center gap-2">
+                          @if (swap.user1Avatar) {
+                            <img [src]="swap.user1Avatar" class="w-6 h-6 rounded-full object-cover" />
+                          } @else {
+                            <div class="w-6 h-6 bg-swap rounded-full flex items-center justify-center">
+                              <span class="text-white text-xs font-black">{{ swap.user1[0] || '?' }}</span>
+                            </div>
+                          }
+                          <p class="text-white/90 text-xs font-bold truncate">{{ swap.user1 }}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -91,7 +101,17 @@
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl flex items-end">
                       <div class="p-3 w-full">
-                        <p class="text-white font-black text-sm truncate">{{ swap.item2 }}</p>
+                        <p class="text-white font-black text-sm mb-1 truncate">{{ swap.item2 }}</p>
+                        <div class="flex items-center gap-2">
+                          @if (swap.user2Avatar) {
+                            <img [src]="swap.user2Avatar" class="w-6 h-6 rounded-full object-cover" />
+                          } @else {
+                            <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                              <span class="text-white text-xs font-black">{{ swap.user2[0] || '?' }}</span>
+                            </div>
+                          }
+                          <p class="text-white/90 text-xs font-bold truncate">{{ swap.user2 }}</p>
+                        </div>
                       </div>
                     </div>
                   </div>

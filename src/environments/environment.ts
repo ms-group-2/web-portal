@@ -1,3 +1,3 @@
 export const environment = {
-  apiBaseUrl: 'https://armory-monsieur-zigzagged.ngrok-free.dev',
+  apiBaseUrl: 'https://unmounted-lucinda-nonelevating.ngrok-free.dev',
 };

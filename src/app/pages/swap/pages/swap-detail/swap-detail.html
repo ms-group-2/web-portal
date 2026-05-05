@@ -130,28 +130,22 @@
                   }
                   <span class="font-bold underline-offset-2 hover:underline">{{ poster.name }} {{ poster.surname }}</span>
                 </button>
-                @if (poster.location) {
-                  <div class="flex items-center gap-2 text-gray-600">
-                    <mat-icon class="!text-xl text-swap">location_on</mat-icon>
-                    <span class="font-bold">{{ poster.location }}</span>
-                  </div>
-                }
               } @else if (item.postedBy) {
                 <div class="flex items-center gap-2 text-gray-600">
                   <mat-icon class="!text-xl">person</mat-icon>
                   <span class="font-bold">{{ item.postedBy }}</span>
                 </div>
               }
+              @if (item.location || posterProfile()?.location) {
+                <div class="flex items-center gap-2 text-gray-600">
+                  <mat-icon class="!text-xl text-swap">location_on</mat-icon>
+                  <span class="font-bold">{{ item.location || posterProfile()?.location }}</span>
+                </div>
+              }
               @if (item.postedDate) {
                 <div class="flex items-center gap-2 text-gray-500">
                   <mat-icon class="!text-xl">calendar_today</mat-icon>
                   <span class="font-semibold">{{ item.postedDate }}</span>
-                </div>
-              }
-              @if (!posterProfile()?.location && item.location) {
-                <div class="flex items-center gap-2 text-gray-600">
-                  <mat-icon class="!text-xl text-swap">location_on</mat-icon>
-                  <span class="font-bold">{{ item.location }}</span>
                 </div>
               }
             </div>

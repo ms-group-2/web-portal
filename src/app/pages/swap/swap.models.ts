@@ -50,8 +50,12 @@ export interface AiMatch {
 }
 
 export interface RecentTrade {
+  user1: string;
+  user1Avatar: string;
   item1: string;
   image1: string;
+  user2: string;
+  user2Avatar: string;
   item2: string;
   image2: string;
   time: string;

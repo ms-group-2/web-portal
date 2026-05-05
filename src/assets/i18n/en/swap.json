@@ -20,7 +20,10 @@
 
     "liveBar": {
       "liveNow": "Live Now",
-      "usersOnline": "users online"
+      "usersOnline": "users online",
+      "swapped": " - swapped",
+      "listed": " - listed",
+      "matched": " - matched"
     },
 
     "aiMatch": {

@@ -20,14 +20,19 @@
             @for (activity of liveActivities(); track activity.id) {
               <div class="flex items-center gap-2 text-white/90 text-sm font-semibold whitespace-nowrap">
                 @switch (activity.type) {
-                  <!-- @for (item of items; track $index) {
-                    @case (item.id) { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">{{ item.icon }}</mat-icon> }
-                  } -->
                   @case ('swap') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">swap_horiz</mat-icon> }
                   @case ('new') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">auto_awesome</mat-icon> }
                   @case ('match') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">gps_fixed</mat-icon> }
                 }
-                <span>{{ activity.user }} {{ activity.item }}</span>
+                <span>
+                  <span class="font-black">{{ activity.user }}</span>
+                  @switch (activity.type) {
+                    @case ('swap') { <span class="text-white/70">{{ 'swap.liveBar.swapped' | translate }}</span> }
+                    @case ('new') { <span class="text-white/70">{{ 'swap.liveBar.listed' | translate }}</span> }
+                    @case ('match') { <span class="text-white/70">{{ 'swap.liveBar.matched' | translate }}</span> }
+                  }
+                  {{ activity.item }}
+                </span>
                 <span class="text-white/60 text-xs">{{ activity.time }}</span>
               </div>
             }
@@ -38,9 +43,17 @@
                   @case ('new') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">auto_awesome</mat-icon> }
                   @case ('match') { <mat-icon class="!w-4 !h-4 !text-base !inline-flex !items-center !justify-center">gps_fixed</mat-icon> }
                 }
-                <span>{{ activity.user }} {{ activity.item }}</span>
+                <span>
+                  <span class="font-black">{{ activity.user }}</span>
+                  @switch (activity.type) {
+                    @case ('swap') { <span class="text-white/70">{{ 'swap.liveBar.swapped' | translate }}</span> }
+                    @case ('new') { <span class="text-white/70">{{ 'swap.liveBar.listed' | translate }}</span> }
+                    @case ('match') { <span class="text-white/70">{{ 'swap.liveBar.matched' | translate }}</span> }
+                  }
+                  {{ activity.item }}
+                </span>
                 <span class="text-white/60 text-xs">{{ activity.time }}</span>
-              </div> 
+              </div>
             }
           </div>
         </div>

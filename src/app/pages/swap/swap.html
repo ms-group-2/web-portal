@@ -3,7 +3,7 @@
 <div class="min-h-screen bg-white [overflow-x:clip]">
   <app-swap-hero (search)="onSearch($event)" (postItem)="onPostItem()"></app-swap-hero>
 
-  <app-swap-live-bar [liveActivities]="liveActivities" [onlineUsers]="onlineUsers()"></app-swap-live-bar>
+  <app-swap-live-bar [liveActivities]="liveActivities()" [onlineUsers]="onlineUsers()"></app-swap-live-bar>
 
   <div class="px-4 sm:px-6 md:px-12 lg:px-20 2xl:px-32">
     <app-swap-trending [items]="newlyAddedItems()"></app-swap-trending>

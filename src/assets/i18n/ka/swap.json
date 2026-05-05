@@ -20,7 +20,10 @@
 
     "liveBar": {
       "liveNow": "ახლა ლაივში",
-      "usersOnline": "მომხმარებელი ონლაინ"
+      "usersOnline": " - მომხმარებელი ონლაინ",
+      "swapped": " - გაცვალა",
+      "listed": " - დაამატა",
+      "matched": " - დაემთხვა"
     },
 
     "aiMatch": {

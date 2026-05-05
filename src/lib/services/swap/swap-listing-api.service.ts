@@ -23,6 +23,8 @@ import {
   CreateSwapOfferRequest,
   SwapOfferResponse,
   RespondSwapOfferRequest,
+  PaginatedSwapHistoryResponse,
+  SwapHistoryStatsResponse,
 } from './';
 
 @Injectable({
@@ -181,5 +183,17 @@ export class SwapListingApiService {
 
   getSwapOffersForItem(itemId: string): Observable<SwapOfferResponse[]> {
     return this.http.get<SwapOfferResponse[]>(`${this.baseUrl}/swap-offers/for-item/${itemId}`, { headers: this.headers });
+  }
+
+  getSwapHistory(params?: { type?: string; page?: number; limit?: number }): Observable<PaginatedSwapHistoryResponse> {
+    let httpParams = new HttpParams();
+    if (params?.type) httpParams = httpParams.set('type', params.type);
+    if (params?.page) httpParams = httpParams.set('page', params.page);
+    if (params?.limit) httpParams = httpParams.set('limit', params.limit);
+    return this.http.get<PaginatedSwapHistoryResponse>(`${this.baseUrl}/swap-history/`, { params: httpParams, headers: this.headers });
+  }
+
+  getSwapHistoryStats(): Observable<SwapHistoryStatsResponse> {
+    return this.http.get<SwapHistoryStatsResponse>(`${this.baseUrl}/swap-history/stats`, { headers: this.headers });
   }
 }

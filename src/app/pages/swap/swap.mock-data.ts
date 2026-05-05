@@ -1,4 +1,4 @@
-import { SwapItem, HeroSwap, TrendingSwap, AiMatch, LiveActivity } from './swap.models';
+import { SwapItem, HeroSwap, TrendingSwap, AiMatch } from './swap.models';
 
 export const HERO_SWAPS: HeroSwap[] = [
   {
@@ -294,11 +294,4 @@ export const MOCK_SWAP_ITEMS: SwapItem[] = [
     postedBy: 'Nino K.',
     postedDate: '5d',
   },
-];
-
-export const LIVE_ACTIVITIES: LiveActivity[] = [
-  { id: '1', type: 'swap', user: 'Ana K.', item: 'Camera for Laptop', time: '2m ago' },
-  { id: '2', type: 'new', user: 'Giorgi M.', item: 'Listed Sneakers', time: '5m ago' },
-  { id: '3', type: 'match', user: 'Nino K.', item: 'Found perfect match', time: '8m ago' },
-  { id: '4', type: 'swap', user: 'Luka B.', item: 'Guitar for DJ Controller', time: '12m ago' },
 ];
