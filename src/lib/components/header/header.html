@@ -179,9 +179,15 @@
         <button
           [matMenuTriggerFor]="userMenu"
           aria-label="User menu"
-          class="header-btn w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition shrink-0"
+          class="header-btn relative w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition shrink-0"
         >
           <i class="header-icon ph ph-user text-2xl hover:scale-110 duration-300"></i>
+          @if (unreadMsgCount() > 0) {
+            <span
+              class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-swap border border-white"
+              aria-hidden="true"
+            ></span>
+          }
         </button>
       </div>
 
@@ -192,6 +198,9 @@
             <a mat-menu-item routerLink="/messages" class="user-menu-messages">
               <mat-icon>chat</mat-icon>
               <span>{{ 'header.messages' | translate }}</span>
+              @if (unreadMsgCount() > 0) {
+                <span class="user-menu-messages-badge">{{ unreadMsgCount() }}</span>
+              }
             </a>
           </div>
 

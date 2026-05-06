@@ -4,6 +4,7 @@ import {
   signal,
   computed,
   input,
+  effect,
   OnDestroy,
   HostListener,
   afterNextRender,
@@ -75,6 +76,7 @@ export class Header implements OnDestroy {
   suggestedProducts = signal<Product[]>([]);
   mobileNavOpen = signal(false);
   authReady = signal(false);
+  private messagingBound = false;
 
   isShopRoute = computed(() => {
     const route = this.currentRoute();
@@ -113,6 +115,17 @@ export class Header implements OnDestroy {
   // });
 
   constructor() {
+    effect(() => {
+      const userId = this.auth.user()?.id;
+      if (userId && !this.messagingBound) {
+        this.messagingService.init();
+        this.messagingBound = true;
+      } else if (!userId && this.messagingBound) {
+        this.messagingService.teardown();
+        this.messagingBound = false;
+      }
+    });
+
     afterNextRender(() => this.authReady.set(true));
 
     afterNextRender(() => {
@@ -150,6 +163,10 @@ export class Header implements OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.messagingBound) {
+      this.messagingService.teardown();
+      this.messagingBound = false;
+    }
     this.headerResizeObserver?.disconnect();
     this.headerResizeObserver = null;
     this.document.documentElement.style.removeProperty('--app-header-height');

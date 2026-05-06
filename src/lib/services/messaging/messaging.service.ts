@@ -4,6 +4,8 @@ import { Subject } from 'rxjs';
 import { MessagingApiService } from './messaging-api.service';
 import { MessagingWsService } from './messaging-ws.service';
 import { AuthService } from '../identity/auth.service';
+import { SnackbarService } from '../snackbar.service';
+import { TranslationService } from '../translation.service';
 import {
   ConversationPreview,
   MessageResponse,
@@ -15,6 +17,8 @@ export class MessagingService {
   private api = inject(MessagingApiService);
   private ws = inject(MessagingWsService);
   private auth = inject(AuthService);
+  private snackbar = inject(SnackbarService);
+  private translation = inject(TranslationService);
   private zone = inject(NgZone);
   private destroyRef = inject(DestroyRef);
 
@@ -31,6 +35,7 @@ export class MessagingService {
 
   private typingTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+  private initConsumers = 0;
 
   activeMessages = computed(() => {
     const id = this.activeConversationId();
@@ -47,12 +52,16 @@ export class MessagingService {
   }
 
   init(): void {
+    this.initConsumers++;
+    if (this.initConsumers > 1) return;
     this.ws.connect();
     this.loadConversations();
     this.startPolling();
   }
 
   teardown(): void {
+    this.initConsumers = Math.max(0, this.initConsumers - 1);
+    if (this.initConsumers > 0) return;
     this.ws.disconnect();
     this.stopPolling();
   }
@@ -148,6 +157,7 @@ export class MessagingService {
             next.set(conversationId, [...reversed, ...existing]);
             return next;
           });
+          this.syncConversationUnreadFromMessages(conversationId);
           this.loadingMessages.set(false);
         },
         error: () => this.loadingMessages.set(false),
@@ -157,7 +167,7 @@ export class MessagingService {
   openConversation(conversationId: string): void {
     this.activeConversationId.set(conversationId);
     this.loadMessages(conversationId);
-    this.markAsRead(conversationId);
+    this.markAsRead(conversationId, true);
   }
 
   closeConversation(): void {
@@ -186,9 +196,12 @@ export class MessagingService {
     }
   }
 
-  markAsRead(conversationId: string): void {
+  markAsRead(conversationId: string, force = false): void {
     const convo = this.conversations().find(c => c.id === conversationId);
-    if (!convo || convo.unread_count === 0) return;
+    if (!convo) return;
+    const localUnread = this.getLocalUnreadFromOthers(conversationId);
+    const hasUnread = Math.max(convo.unread_count, localUnread) > 0;
+    if (!force && !hasUnread) return;
 
     if (this.ws.connected()) {
       this.ws.markRead(conversationId);
@@ -201,6 +214,15 @@ export class MessagingService {
     this.conversations.update(list =>
       list.map(c => c.id === conversationId ? { ...c, unread_count: 0 } : c),
     );
+    this.messages.update(map => {
+      const msgs = map.get(conversationId);
+      if (!msgs) return map;
+      const next = new Map(map);
+      next.set(conversationId, msgs.map(m =>
+        m.sender_id !== this.currentUserId() ? { ...m, is_read: true } : m,
+      ));
+      return next;
+    });
     this.recalcUnread();
     this.stateChanged$.next();
   }
@@ -255,6 +277,9 @@ export class MessagingService {
       return next;
     });
 
+    const isIncoming = msg.sender_id !== this.currentUserId();
+    const isActiveConversation = this.activeConversationId() === msg.conversation_id;
+
     this.conversations.update(list => {
       const updated = list.map(c =>
         c.id === msg.conversation_id
@@ -262,8 +287,8 @@ export class MessagingService {
               ...c,
               last_message: msg.content,
               last_message_at: msg.created_at,
-              unread_count: msg.sender_id !== this.currentUserId()
-                ? (this.activeConversationId() === msg.conversation_id ? c.unread_count : c.unread_count + 1)
+              unread_count: isIncoming
+                ? (isActiveConversation ? 0 : c.unread_count + 1)
                 : c.unread_count,
             }
           : c,
@@ -275,8 +300,13 @@ export class MessagingService {
       });
     });
 
-    if (msg.sender_id !== this.currentUserId() && this.activeConversationId() === msg.conversation_id) {
-      this.markAsRead(msg.conversation_id);
+    if (isIncoming && isActiveConversation) {
+      this.markAsRead(msg.conversation_id, true);
+    } else if (isIncoming) {
+      this.snackbar.swap(
+        this.translation.translate('messaging.newMessageNotification'),
+        'chat',
+      );
     }
 
     this.recalcUnread();
@@ -334,6 +364,21 @@ export class MessagingService {
   private recalcUnread(): void {
     const total = this.conversations().reduce((sum, c) => sum + c.unread_count, 0);
     this.unreadCount.set(total);
+  }
+
+  private syncConversationUnreadFromMessages(conversationId: string): void {
+    const unread = this.getLocalUnreadFromOthers(conversationId);
+    this.conversations.update(list =>
+      list.map(c => c.id === conversationId ? { ...c, unread_count: unread } : c),
+    );
+    this.recalcUnread();
+    this.stateChanged$.next();
+  }
+
+  private getLocalUnreadFromOthers(conversationId: string): number {
+    const msgs = this.messages().get(conversationId) ?? [];
+    const me = this.currentUserId();
+    return msgs.filter(m => m.sender_id !== me && !m.is_read).length;
   }
 
   private currentUserId(): string {

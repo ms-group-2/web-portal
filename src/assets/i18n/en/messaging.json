@@ -17,6 +17,7 @@
     "loadMore": "Load older messages",
     "messageEmpty": "Message cannot be empty",
     "online": "Online",
-    "unread": "unread"
+    "unread": "unread",
+    "newMessageNotification": "You have a new unread message"
   }
 }
