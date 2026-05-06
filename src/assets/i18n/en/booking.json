@@ -106,6 +106,60 @@
     },
     "chat": {
       "ariaLabel": "Contact support"
+    },
+    "history": {
+      "title": "Booking History",
+      "noBookings": "No bookings yet",
+      "noBookingsDesc": "Your booking history will appear here",
+      "filterAll": "All",
+      "filterUpcoming": "Upcoming",
+      "filterCompleted": "Completed",
+      "filterCancelled": "Cancelled",
+      "date": "Date",
+      "time": "Time",
+      "duration": "Duration",
+      "minutes": "min",
+      "price": "Price",
+      "status": "Status",
+      "service": "Service",
+      "provider": "Provider",
+      "branch": "Branch",
+      "resource": "Resource",
+      "cancel": "Cancel",
+      "reschedule": "Reschedule",
+      "retryPayment": "Retry Payment",
+      "viewDetails": "Details",
+      "cancelConfirm": "Are you sure you want to cancel this booking?",
+      "loadMore": "Load More"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "PENDING_PAYMENT": "Payment Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CANCELLED": "Cancelled",
+      "COMPLETED": "Completed",
+      "NO_SHOW": "No Show"
+    },
+    "management": {
+      "title": "Bookings",
+      "noBookings": "No bookings yet",
+      "noBookingsDesc": "Incoming bookings will appear here",
+      "filterAll": "All",
+      "filterPending": "Pending",
+      "filterApproved": "Approved",
+      "filterCompleted": "Completed",
+      "approve": "Approve",
+      "reject": "Reject",
+      "complete": "Complete",
+      "noShow": "No Show",
+      "cancel": "Cancel",
+      "customer": "Customer",
+      "scheduledFor": "Scheduled for",
+      "approveConfirm": "Approve this booking?",
+      "rejectConfirm": "Reject this booking?",
+      "completeConfirm": "Mark this booking as completed?",
+      "noShowConfirm": "Mark this booking as no-show?"
     }
   }
 }

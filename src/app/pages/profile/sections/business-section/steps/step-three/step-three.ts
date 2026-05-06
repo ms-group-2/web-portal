@@ -3,6 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { VendorRegistration, BusinessType } from 'lib/models/vendor.models';
+import { ProviderProfileRequest } from 'lib/services/booking';
 import { getReviewFields } from 'lib/utils/vendor.utils';
 import { VENDOR_TERMS_PARAGRAPHS, READY_MESSAGE_ELEMENTS } from 'lib/constants/vendor.constants';
 
@@ -18,7 +19,7 @@ import { VENDOR_TERMS_PARAGRAPHS, READY_MESSAGE_ELEMENTS } from 'lib/constants/v
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorStepThreeComponent {
-  formData = input.required<VendorRegistration>();
+  formData = input.required<VendorRegistration | ProviderProfileRequest>();
   businessType = input.required<BusinessType | null>();
   submitting = input<boolean>(false);
 

@@ -7,7 +7,9 @@ import { Product } from 'src/app/pages/shop/shop.models';
 import { TranslationService } from 'lib/services/translation.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { ConfirmationDialogService } from 'lib/components/confirmation-dialog/confirmation-dialog.service';
+import { PaymentApiService } from 'lib/services/payment/payment-api.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cart',
@@ -21,11 +23,12 @@ export class CartComponent implements OnInit {
   private translation = inject(TranslationService);
   private snackbar = inject(SnackbarService);
   private confirmDialog = inject(ConfirmationDialogService);
+  private paymentApi = inject(PaymentApiService);
 
   loading = signal(true);
   orderPlaced = signal(false);
   checkingOut = signal(false);
-  mockOrderId = '';
+  orderId = '';
 
   cartProducts = computed(() => {
     const ids = this.cartService.cartItems();
@@ -111,16 +114,32 @@ export class CartComponent implements OnInit {
     }
 
     this.checkingOut.set(true);
+    const baseUrl = window.location.origin;
+
     this.cartService.checkoutCart()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        switchMap(response => {
+          const paymentOrderId = response.order_id || response.cart_id;
+          this.orderId = paymentOrderId;
+          return this.paymentApi.processPayment(
+            paymentOrderId,
+            `${baseUrl}/profile/history/shop?payment=success&order=${paymentOrderId}`,
+            `${baseUrl}/profile/history/shop?payment=fail&order=${paymentOrderId}`,
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (response) => {
-          this.mockOrderId = response.cart_id;
+        next: (result) => {
+          if (result.payment?.redirect_url) {
+            window.location.href = result.payment.redirect_url;
+            return;
+          }
           this.orderPlaced.set(true);
           this.checkingOut.set(false);
         },
         error: () => {
-          // this.snackbar.error('Checkout failed. Please try again.');
+          this.snackbar.error(this.translation.translate('profile.cart.paymentError'));
           this.checkingOut.set(false);
         },
       });

@@ -62,6 +62,13 @@ export const profileRoutes: Routes = [
           ),
       },
       {
+        path: 'booking-provider',
+        loadComponent: () =>
+          import('./sections/booking-section/booking-section').then(
+            (m) => m.BookingSectionComponent
+          ),
+      },
+      {
         path: 'cart',
         loadComponent: () =>
           import('./sections/cart/cart').then((m) => m.CartComponent),

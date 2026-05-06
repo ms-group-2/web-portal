@@ -1,7 +1,5 @@
-import { VendorRegistration } from 'lib/models/vendor.models';
-
 export interface FormFieldConfig {
-  name: keyof VendorRegistration;
+  name: string;
   label: string;
   type: string;
   placeholder: string;

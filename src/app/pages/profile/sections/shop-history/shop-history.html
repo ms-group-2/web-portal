@@ -3,9 +3,41 @@
     {{ 'profile.orders.title' | translate }}
   </h1>
 
-  @if (orders().length > 0) {
+  <!-- Filter Tabs -->
+  <div class="flex gap-2 mb-6 flex-wrap">
+    @for (tab of ['all', 'pending', 'paid', 'completed']; track tab) {
+      <button
+        (click)="setFilter($any(tab))"
+        [class]="activeFilter() === tab
+          ? 'px-4 py-2 rounded-lg text-sm font-bold bg-market text-white'
+          : 'px-4 py-2 rounded-lg text-sm font-bold bg-gray-100 text-gray-600 hover:bg-gray-200'"
+      >
+        {{ 'profile.orders.filter.' + tab | translate }}
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading() && orders().length === 0) {
     <div class="space-y-4">
-      @for (order of orders(); track order.id) {
+      @for (i of [1, 2, 3]; track i) {
+        <div class="bg-white rounded-xl p-5 border border-gray-200 animate-pulse">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+            <div class="flex-1">
+              <div class="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+              <div class="h-3 bg-gray-200 rounded w-1/4"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Orders List -->
+  @if (filteredOrders().length > 0) {
+    <div class="space-y-4">
+      @for (order of filteredOrders(); track order.id) {
         <div class="bg-white rounded-xl p-5 border border-gray-200 hover:border-gray-300 transition-all">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -13,8 +45,8 @@
                 <mat-icon class="!w-5 !h-5 !text-xl !leading-5 text-market">receipt_long</mat-icon>
               </div>
               <div>
-                <span class="text-sm font-bold text-gray-900 font-mono">{{ order.id }}</span>
-                <p class="text-xs text-gray-400 mt-0.5">{{ order.date | date:'mediumDate' }}</p>
+                <span class="text-sm font-bold text-gray-900 font-mono">{{ order.id | slice:0:8 }}</span>
+                <p class="text-xs text-gray-400 mt-0.5">{{ order.created_at | date:'mediumDate' }}</p>
               </div>
             </div>
             <span class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide"
@@ -23,33 +55,73 @@
             </span>
           </div>
 
-          <div class="space-y-3">
-            @for (item of order.items; track item.productId) {
-              <div class="flex items-center gap-3">
-                <a [routerLink]="['/shop/product', item.productId]"
-                   class="w-12 h-12 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
-                  <img [src]="item.imageUrl" [alt]="item.title" class="w-full h-full object-cover" />
-                </a>
-                <div class="flex-1 min-w-0">
-                  <a [routerLink]="['/shop/product', item.productId]"
-                     class="text-sm font-semibold text-gray-900 hover:text-market transition-colors truncate block">
-                    {{ item.title }}
-                  </a>
-                  <span class="text-xs text-gray-400">x{{ item.quantity }}</span>
+          @if (order.items.length > 0) {
+            <div class="space-y-3">
+              @for (item of order.items; track item.id) {
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+                    @if (item.product_image_url) {
+                      <img [src]="item.product_image_url" [alt]="item.product_title" class="w-full h-full object-cover" />
+                    } @else {
+                      <div class="w-full h-full flex items-center justify-center">
+                        <mat-icon class="text-gray-300">inventory_2</mat-icon>
+                      </div>
+                    }
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <span class="text-sm font-semibold text-gray-900 truncate block">
+                      {{ item.product_title || ('profile.orders.unknownProduct' | translate) }}
+                    </span>
+                    <span class="text-xs text-gray-400">x{{ item.quantity }}</span>
+                  </div>
+                  <span class="text-sm font-bold text-gray-900">
+                    ₾{{ (item.unit_price * item.quantity).toFixed(2) }}
+                  </span>
                 </div>
-                <span class="text-sm font-bold text-gray-900">₾{{ (item.price * item.quantity).toFixed(2) }}</span>
-              </div>
-            }
-          </div>
+              }
+            </div>
+          }
 
           <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
             <span class="text-xs text-gray-400 uppercase font-semibold">{{ 'profile.cart.total' | translate }}</span>
-            <span class="text-base font-black text-gray-900">₾{{ order.total.toFixed(2) }}</span>
+            <span class="text-base font-black text-gray-900">₾{{ order.total_amount.toFixed(2) }}</span>
           </div>
+
+          @if (canPay(order)) {
+            <div class="mt-3 pt-3 border-t border-gray-100">
+              <button
+                (click)="payOrder(order)"
+                class="px-4 py-2 text-xs font-bold text-white bg-market rounded-lg hover:bg-market/90 transition-colors"
+              >
+                {{ 'profile.orders.pay' | translate }}
+              </button>
+            </div>
+          }
         </div>
       }
     </div>
-  } @else {
+
+    <!-- Load More -->
+    @if (hasMore() && !isLoading()) {
+      <div class="text-center mt-6">
+        <button
+          (click)="loadMore()"
+          class="px-6 py-3 text-sm font-bold text-market bg-market/10 rounded-xl hover:bg-market/20 transition-colors"
+        >
+          {{ 'profile.orders.loadMore' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (isLoading() && orders().length > 0) {
+      <div class="text-center mt-6">
+        <div class="inline-block w-6 h-6 border-2 border-market border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && filteredOrders().length === 0) {
     <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
       <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
         <mat-icon class="!w-8 !h-8 !text-3xl !leading-8 text-gray-300">receipt_long</mat-icon>

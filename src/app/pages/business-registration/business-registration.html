@@ -84,7 +84,8 @@
 
         @if (currentStep() === 2) {
           <app-vendor-step-two
-            [formData]="formData()"
+            [businessType]="businessType()"
+            [formData]="$any(formData())"
             (previousStep)="onStepTwoBack()"
             (nextStep)="onStepTwoNext($event)"
           />

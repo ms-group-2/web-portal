@@ -88,14 +88,15 @@ export class Header implements OnDestroy {
   });
 
   isBookingRoute = computed(() => {
-    return this.currentRoute().includes('/booking');
+    const route = this.currentRoute().split('?')[0];
+    return route === '/booking';
   });
   cartBadgeClass = computed(() => {
     const route = this.currentRoute();
     if (route.includes('/shop') || route.includes('/profile/cart')) {
       return 'bg-market';
     }
-    if (route.includes('/booking')) {
+    if (this.isBookingRoute()) {
       return 'bg-booking';
     }
     if (route.includes('/swap')) {

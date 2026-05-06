@@ -1,0 +1,508 @@
+<div class="flex h-screen overflow-hidden bg-orange-50/30">
+
+  @if (sidebarOpen()) {
+    <div class="fixed inset-0 bg-black/40 z-40 lg:hidden" (click)="toggleSidebar()"></div>
+  }
+
+  <!-- Sidebar -->
+  <div
+    [ngClass]="{ '-translate-x-full': !sidebarOpen(), 'translate-x-0': sidebarOpen() }"
+    class="fixed lg:static inset-y-0 left-0 z-50 w-64 shrink-0 bg-gradient-to-b from-orange-50 to-amber-50 flex flex-col h-full overflow-hidden lg:translate-x-0 transition-transform duration-200 border-r border-orange-200">
+    <div class="p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-booking rounded-lg flex items-center justify-center">
+            <i class="ph ph-calendar-check text-white text-xl"></i>
+          </div>
+          <span class="font-black text-gray-900 text-lg">{{ 'bookingDashboard.brand' | translate }}</span>
+        </div>
+        <button (click)="toggleSidebar()" class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/50">
+          <i class="ph ph-x text-gray-600 text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 min-h-0 overflow-y-auto px-4 space-y-1">
+      @for (tab of tabs; track tab.id) {
+        <button
+          (click)="setTab(tab.id); sidebarOpen.set(false)"
+          [ngClass]="{
+            'bg-white shadow-sm text-booking': activeTab() === tab.id,
+            'text-gray-600 hover:bg-white/50': activeTab() !== tab.id
+          }"
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all"
+        >
+          <i class="ph {{ tab.icon }} text-xl"></i>
+          <span class="font-semibold text-sm">{{ tab.labelKey | translate }}</span>
+          @if (tab.id === 'orders' && pendingCount() > 0) {
+            <span class="ml-auto px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-[10px] font-bold">
+              {{ pendingCount() }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="px-4 pb-4 space-y-1">
+      <button
+        (click)="goBack()"
+        class="w-full flex items-center gap-2 px-4 py-3 bg-booking text-white rounded-lg font-semibold text-sm shadow-sm hover:shadow-md transition-shadow"
+      >
+        <i class="ph ph-arrow-u-down-left text-base"></i>
+        <span>{{ 'bookingDashboard.backToProfile' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="flex-1 min-h-0 min-w-0 overflow-y-auto w-full">
+    <!-- Top Bar -->
+    <div class="bg-white border-b border-orange-100 px-4 sm:px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+      <div class="flex items-center gap-3">
+        <button (click)="toggleSidebar()" class="lg:hidden w-9 h-9 bg-orange-50 rounded-lg flex items-center justify-center hover:bg-orange-100">
+          <i class="ph ph-list text-gray-600 text-xl"></i>
+        </button>
+        @for (tab of tabs; track tab.id) {
+          @if (activeTab() === tab.id) {
+            <button class="w-9 h-9 bg-booking rounded-lg hidden sm:flex items-center justify-center">
+              <i class="ph {{ tab.icon }} text-white text-xl"></i>
+            </button>
+            <span class="text-gray-900 font-medium text-sm">{{ tab.labelKey | translate }}</span>
+          }
+        }
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-4">
+        <button
+          (click)="translation.toggleLanguage()"
+          class="w-9 h-9 bg-orange-50 rounded-lg flex items-center justify-center hover:bg-orange-100 transition-all"
+        >
+          <span class="text-gray-600 text-sm font-semibold">{{ translation.getCurrentLanguage().toUpperCase() }}</span>
+        </button>
+
+        @if (userProfile()) {
+          <div class="hidden sm:flex items-center gap-3 pl-4 border-l border-gray-200">
+            <div class="w-9 h-9 bg-booking rounded-full flex items-center justify-center overflow-hidden">
+              @if (userProfile()!.avatar_url) {
+                <img [src]="userProfile()!.avatar_url" [alt]="userProfile()!.name" class="w-full h-full object-cover" />
+              } @else {
+                <span class="text-white text-sm font-semibold">{{ userProfile()!.name.charAt(0) }}{{ userProfile()!.surname.charAt(0) }}</span>
+              }
+            </div>
+            <span class="text-sm font-semibold text-gray-900">{{ userProfile()!.name }} {{ userProfile()!.surname }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="p-4 sm:p-6 lg:p-8">
+
+      @if (isLoading()) {
+        <div class="space-y-4 animate-pulse">
+          <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div class="h-48 bg-gray-200 rounded-xl"></div>
+        </div>
+      }
+
+      <!-- ══════════════════ OVERVIEW ══════════════════ -->
+      @if (!isLoading() && activeTab() === 'overview') {
+        <h2 class="text-2xl font-black text-gray-900 mb-6 uppercase">{{ 'bookingDashboard.overview.title' | translate }}</h2>
+
+        @if (provider(); as p) {
+          <div class="bg-white rounded-xl border border-gray-200 p-5 sm:p-8 mb-8">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-14 h-14 bg-booking/10 rounded-xl flex items-center justify-center">
+                <i class="ph ph-calendar-check text-booking text-2xl"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-black text-gray-900">{{ p.name }}</h3>
+                @if (p.activity_status === 'ACTIVE') {
+                  <span class="text-xs font-bold text-green-600 uppercase">{{ 'bookingDashboard.overview.active' | translate }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ 'profile.vendor.form.providerPhone' | translate }}</span>
+                <p class="text-gray-900 font-medium mt-1">{{ p.phone_number }}</p>
+              </div>
+              @if (p.call_type) {
+                <div>
+                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ 'profile.vendor.form.callType' | translate }}</span>
+                  <p class="text-gray-900 font-medium mt-1">{{ 'profile.vendor.form.callTypes.' + p.call_type | translate }}</p>
+                </div>
+              }
+              @if (p.business_type) {
+                <div>
+                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ 'profile.vendor.form.providerBusinessType' | translate }}</span>
+                  <p class="text-gray-900 font-medium mt-1">{{ 'profile.vendor.form.providerBusinessTypes.' + p.business_type | translate }}</p>
+                </div>
+              }
+              @if (p.description) {
+                <div class="sm:col-span-2 lg:col-span-3">
+                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ 'profile.vendor.form.providerDescription' | translate }}</span>
+                  <p class="text-gray-900 font-medium mt-1">{{ p.description }}</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Quick stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+            <p class="text-3xl font-black text-booking">{{ services().length }}</p>
+            <p class="text-xs text-gray-500 font-semibold mt-1 uppercase">{{ 'bookingDashboard.overview.services' | translate }}</p>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+            <p class="text-3xl font-black text-yellow-600">{{ pendingCount() }}</p>
+            <p class="text-xs text-gray-500 font-semibold mt-1 uppercase">{{ 'bookingDashboard.overview.pending' | translate }}</p>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+            <p class="text-3xl font-black text-green-600">{{ bookings().length }}</p>
+            <p class="text-xs text-gray-500 font-semibold mt-1 uppercase">{{ 'bookingDashboard.overview.totalBookings' | translate }}</p>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+            <p class="text-3xl font-black text-blue-600">{{ resources().length }}</p>
+            <p class="text-xs text-gray-500 font-semibold mt-1 uppercase">{{ 'bookingDashboard.overview.resources' | translate }}</p>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <h3 class="text-lg font-black text-gray-900 mb-4">{{ 'bookingDashboard.overview.quickActions' | translate }}</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <button (click)="setTab('services')"
+            class="bg-white rounded-xl border border-gray-200 p-6 hover:border-booking hover:shadow-sm transition-all text-left">
+            <div class="w-12 h-12 bg-booking rounded-full flex items-center justify-center mb-4">
+              <i class="ph ph-wrench text-white text-2xl"></i>
+            </div>
+            <h4 class="font-semibold text-gray-900 mb-1">{{ 'bookingDashboard.overview.manageServices' | translate }}</h4>
+            <p class="text-sm text-gray-500">{{ 'bookingDashboard.overview.manageServicesDesc' | translate }}</p>
+          </button>
+          <button (click)="setTab('availability')"
+            class="bg-white rounded-xl border border-gray-200 p-6 hover:border-booking hover:shadow-sm transition-all text-left">
+            <div class="w-12 h-12 bg-amber-400 rounded-full flex items-center justify-center mb-4">
+              <i class="ph ph-calendar-blank text-white text-2xl"></i>
+            </div>
+            <h4 class="font-semibold text-gray-900 mb-1">{{ 'bookingDashboard.overview.manageSchedule' | translate }}</h4>
+            <p class="text-sm text-gray-500">{{ 'bookingDashboard.overview.manageScheduleDesc' | translate }}</p>
+          </button>
+          <button (click)="setTab('orders')"
+            class="bg-white rounded-xl border border-gray-200 p-6 hover:border-booking hover:shadow-sm transition-all text-left">
+            <div class="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center mb-4">
+              <i class="ph ph-calendar-check text-white text-2xl"></i>
+            </div>
+            <h4 class="font-semibold text-gray-900 mb-1">{{ 'bookingDashboard.overview.viewBookings' | translate }}</h4>
+            <p class="text-sm text-gray-500">{{ 'bookingDashboard.overview.viewBookingsDesc' | translate }}</p>
+          </button>
+        </div>
+      }
+
+      <!-- ══════════════════ ORDERS ══════════════════ -->
+      @if (!isLoading() && activeTab() === 'orders') {
+        <h2 class="text-2xl font-black text-gray-900 mb-6 uppercase">
+          {{ 'booking.management.title' | translate }}
+          @if (pendingCount() > 0) {
+            <span class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-sm font-bold">{{ pendingCount() }}</span>
+          }
+        </h2>
+
+        <div class="flex gap-2 mb-6 flex-wrap">
+          @for (f of ['all', 'pending', 'approved', 'completed']; track f) {
+            <button (click)="setOrderFilter($any(f))"
+              [class]="orderFilter() === f
+                ? 'px-4 py-2 rounded-lg text-sm font-bold bg-booking text-white'
+                : 'px-4 py-2 rounded-lg text-sm font-bold bg-gray-100 text-gray-600 hover:bg-gray-200'">
+              {{ 'booking.management.filter' + (f[0].toUpperCase() + f.slice(1)) | translate }}
+            </button>
+          }
+        </div>
+
+        @if (ordersLoading()) {
+          <div class="bg-white rounded-xl border border-gray-200 p-8">
+            <div class="space-y-4">
+              @for (i of [1, 2, 3]; track i) {
+                <div class="flex items-center gap-4 animate-pulse">
+                  <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                  <div class="flex-1">
+                    <div class="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                    <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (!ordersLoading() && filteredBookings().length === 0) {
+          <div class="bg-white rounded-xl border border-gray-200 p-8 text-center py-12">
+            <i class="ph ph-calendar-blank text-gray-300 mx-auto mb-4" style="font-size: 4rem;"></i>
+            <p class="text-gray-500 text-sm font-medium mb-2">{{ 'booking.management.noBookings' | translate }}</p>
+            <p class="text-gray-400 text-xs">{{ 'booking.management.noBookingsDesc' | translate }}</p>
+          </div>
+        }
+
+        @if (!ordersLoading() && filteredBookings().length > 0) {
+          <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+            @for (booking of filteredBookings(); track booking.id) {
+              <div class="p-5 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-4 flex-1 min-w-0">
+                    <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center shrink-0">
+                      <mat-icon class="text-booking text-lg">event</mat-icon>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-bold text-gray-900 truncate">{{ booking.service_id }}</p>
+                      <p class="text-xs text-gray-500 mt-1">
+                        {{ 'booking.management.scheduledFor' | translate }}:
+                        {{ booking.booking_date | date:'mediumDate' }} &bull; {{ booking.start_time }}
+                      </p>
+                      @if (booking.total_price) {
+                        <p class="text-xs text-gray-600 mt-1 font-medium">
+                          {{ booking.total_price }} GEL &bull; {{ booking.duration }} {{ 'booking.history.minutes' | translate }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                  <span [class]="'px-3 py-1 rounded-lg text-xs font-black uppercase shrink-0 ' + getStatusClass(booking.status)">
+                    {{ 'booking.status.' + booking.status | translate }}
+                  </span>
+                </div>
+
+                @if (booking.status === 'PENDING' || booking.status === 'APPROVED') {
+                  <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
+                    @if (booking.status === 'PENDING') {
+                      <button (click)="approveBooking(booking)"
+                        class="px-4 py-1.5 text-xs font-bold text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                        {{ 'booking.management.approve' | translate }}
+                      </button>
+                      <button (click)="rejectBooking(booking)"
+                        class="px-4 py-1.5 text-xs font-bold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                        {{ 'booking.management.reject' | translate }}
+                      </button>
+                    }
+                    @if (booking.status === 'APPROVED') {
+                      <button (click)="completeBooking(booking)"
+                        class="px-4 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                        {{ 'booking.management.complete' | translate }}
+                      </button>
+                    }
+                    <button (click)="cancelBooking(booking)"
+                      class="px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-red-600 transition-colors ml-auto">
+                      {{ 'booking.management.cancel' | translate }}
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- ══════════════════ SERVICES ══════════════════ -->
+      @if (!isLoading() && activeTab() === 'services') {
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-black text-gray-900 uppercase">{{ 'vendor.settingsServices.title' | translate }}</h2>
+          <button (click)="toggleServiceForm()"
+            class="px-4 py-2 text-xs font-bold text-white bg-booking rounded-lg hover:bg-booking-light transition-colors flex items-center gap-1">
+            <mat-icon class="text-base !w-4 !h-4">add</mat-icon>
+            {{ 'vendor.settingsServices.add' | translate }}
+          </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-5">{{ 'vendor.settingsServices.subtitle' | translate }}</p>
+
+        @if (showServiceForm()) {
+          <div class="bg-white border border-gray-200 rounded-xl p-5 mb-5">
+            <form [formGroup]="serviceForm" (ngSubmit)="saveService()">
+              <div class="grid sm:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'vendor.settingsServices.name' | translate }}</mat-label>
+                  <input matInput formControlName="name" [placeholder]="'vendor.settingsServices.namePlaceholder' | translate" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'vendor.settingsServices.duration' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="session_duration" min="5" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'vendor.settingsServices.price' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="session_price" min="0" step="0.01" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'vendor.settingsServices.capacity' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="capacity" min="1" />
+                </mat-form-field>
+                <div class="sm:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'vendor.settingsServices.description' | translate }}</mat-label>
+                    <textarea matInput rows="3" formControlName="description"
+                      [placeholder]="'vendor.settingsServices.descriptionPlaceholder' | translate"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="flex gap-2 justify-end">
+                <button type="button" (click)="toggleServiceForm()"
+                  class="px-4 py-2 text-xs font-bold text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                  {{ 'vendor.settingsServices.cancel' | translate }}
+                </button>
+                <button type="submit" [disabled]="serviceForm.invalid"
+                  [class]="'px-4 py-2 text-xs font-bold rounded-lg transition-colors ' +
+                    (serviceForm.valid ? 'text-white bg-booking hover:bg-booking-light' : 'text-gray-400 bg-gray-200 cursor-not-allowed')">
+                  {{ 'vendor.settingsServices.save' | translate }}
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+
+        @if (services().length === 0 && !showServiceForm()) {
+          <div class="bg-white rounded-xl border border-gray-200 p-8 text-center py-12">
+            <mat-icon class="text-gray-300 mx-auto mb-3" style="font-size: 3rem; width: 3rem; height: 3rem;">room_service</mat-icon>
+            <p class="text-gray-500 text-sm font-medium">{{ 'vendor.settingsServices.noServices' | translate }}</p>
+            <p class="text-gray-400 text-xs mt-1">{{ 'vendor.settingsServices.noServicesDesc' | translate }}</p>
+          </div>
+        }
+
+        @if (services().length > 0) {
+          <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+            @for (service of services(); track service.id) {
+              <div class="flex items-center justify-between p-5 gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-sm font-bold text-gray-900 truncate">{{ service.name }}</span>
+                    <span [class]="'px-2 py-0.5 rounded text-[10px] font-bold uppercase ' +
+                      (service.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500')">
+                      {{ (service.is_active ? 'vendor.settingsServices.active' : 'vendor.settingsServices.inactive') | translate }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-500 truncate">
+                    {{ service.session_duration }} min &bull; {{ service.session_price }} GEL &bull;
+                    {{ 'vendor.settingsServices.capacity' | translate }}: {{ service.capacity }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <mat-slide-toggle [checked]="service.is_active" (change)="toggleServiceActive(service)" color="primary" />
+                  <button (click)="deleteService(service)"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors">
+                    <mat-icon class="text-gray-400 hover:text-red-500 text-lg">delete_outline</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- ══════════════════ AVAILABILITY ══════════════════ -->
+      @if (!isLoading() && activeTab() === 'availability') {
+        <h2 class="text-2xl font-black text-gray-900 mb-2 uppercase">{{ 'vendor.settingsAvailability.title' | translate }}</h2>
+        <p class="text-sm text-gray-500 mb-6">{{ 'vendor.settingsAvailability.subtitle' | translate }}</p>
+
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+          <div class="space-y-3">
+            @for (day of weekSchedule(); track day.dayOfWeek; let i = $index) {
+              <div class="flex items-center gap-4 py-2">
+                <div class="w-28 shrink-0">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" [checked]="day.enabled" (change)="toggleDay(i)"
+                      class="w-4 h-4 rounded border-gray-300 text-booking focus:ring-booking accent-booking" />
+                    <span [class]="'text-sm font-semibold ' + (day.enabled ? 'text-gray-900' : 'text-gray-400')">
+                      {{ 'vendor.settingsAvailability.days.' + day.dayOfWeek | translate }}
+                    </span>
+                  </label>
+                </div>
+                @if (day.enabled) {
+                  <div class="flex items-center gap-2">
+                    <input type="time" [value]="day.startTime"
+                      (input)="updateDayTime(i, 'startTime', $any($event.target).value)"
+                      class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-booking/30" />
+                    <span class="text-gray-400 text-xs">—</span>
+                    <input type="time" [value]="day.endTime"
+                      (input)="updateDayTime(i, 'endTime', $any($event.target).value)"
+                      class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-booking/30" />
+                  </div>
+                } @else {
+                  <span class="text-sm text-gray-400 italic">{{ 'vendor.settingsAvailability.closed' | translate }}</span>
+                }
+              </div>
+            }
+          </div>
+          <div class="mt-5 pt-4 border-t border-gray-100">
+            <button (click)="saveSchedule()" [disabled]="savingSchedule()"
+              class="px-5 py-2.5 text-sm font-bold text-white bg-booking rounded-lg hover:bg-booking-light transition-colors disabled:opacity-50">
+              {{ 'vendor.settingsAvailability.save' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ══════════════════ RESOURCES ══════════════════ -->
+      @if (!isLoading() && activeTab() === 'resources') {
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-black text-gray-900 uppercase">{{ 'vendor.settingsResources.title' | translate }}</h2>
+          <button (click)="toggleResourceForm()"
+            class="px-4 py-2 text-xs font-bold text-white bg-booking rounded-lg hover:bg-booking-light transition-colors flex items-center gap-1">
+            <mat-icon class="text-base !w-4 !h-4">add</mat-icon>
+            {{ 'vendor.settingsResources.add' | translate }}
+          </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-5">{{ 'vendor.settingsResources.subtitle' | translate }}</p>
+
+        @if (showResourceForm()) {
+          <div class="bg-white border border-gray-200 rounded-xl p-5 mb-5">
+            <form [formGroup]="resourceForm" (ngSubmit)="saveResource()" class="flex gap-3 items-end">
+              <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>{{ 'vendor.settingsResources.name' | translate }}</mat-label>
+                <input matInput formControlName="name" [placeholder]="'vendor.settingsResources.namePlaceholder' | translate" />
+              </mat-form-field>
+              <div class="flex gap-2 pb-[1.34em]">
+                <button type="button" (click)="toggleResourceForm()"
+                  class="px-4 py-2 text-xs font-bold text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors h-[56px]">
+                  {{ 'vendor.settingsResources.cancel' | translate }}
+                </button>
+                <button type="submit" [disabled]="resourceForm.invalid"
+                  [class]="'px-4 py-2 text-xs font-bold rounded-lg transition-colors h-[56px] ' +
+                    (resourceForm.valid ? 'text-white bg-booking hover:bg-booking-light' : 'text-gray-400 bg-gray-200 cursor-not-allowed')">
+                  {{ 'vendor.settingsResources.save' | translate }}
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+
+        @if (resources().length === 0 && !showResourceForm()) {
+          <div class="bg-white rounded-xl border border-gray-200 p-8 text-center py-12">
+            <mat-icon class="text-gray-300 mx-auto mb-3" style="font-size: 3rem; width: 3rem; height: 3rem;">meeting_room</mat-icon>
+            <p class="text-gray-500 text-sm font-medium">{{ 'vendor.settingsResources.noResources' | translate }}</p>
+            <p class="text-gray-400 text-xs mt-1">{{ 'vendor.settingsResources.noResourcesDesc' | translate }}</p>
+          </div>
+        }
+
+        @if (resources().length > 0) {
+          <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+            @for (resource of resources(); track resource.id) {
+              <div class="flex items-center justify-between p-4 gap-4">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center shrink-0">
+                    <mat-icon class="text-booking text-base">meeting_room</mat-icon>
+                  </div>
+                  <span class="text-sm font-bold text-gray-900 truncate">{{ resource.name }}</span>
+                  <span [class]="'px-2 py-0.5 rounded text-[10px] font-bold uppercase ' +
+                    (resource.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500')">
+                    {{ (resource.is_active ? 'vendor.settingsResources.active' : 'vendor.settingsResources.inactive') | translate }}
+                  </span>
+                </div>
+                <button (click)="deleteResource(resource)"
+                  class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors shrink-0">
+                  <mat-icon class="text-gray-400 hover:text-red-500 text-lg">delete_outline</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      }
+
+    </div>
+  </div>
+</div>

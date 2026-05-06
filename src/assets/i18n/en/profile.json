@@ -46,6 +46,7 @@
       "swapHistory": "Swap History",
       "shopHistory": "Order History",
       "bookingHistory": "Booking History",
+      "bookingProvider": "Booking Provider",
       "more": "More"
     },
     "logoutDialog": {
@@ -117,17 +118,36 @@
         "message": "Are you sure you want to remove all items from your cart?",
         "confirm": "Remove all",
         "cancel": "Cancel"
-      }
+      },
+      "paymentError": "Payment could not be processed. Please try again."
     },
     "orders": {
       "title": "Order History",
       "empty": "No orders yet",
       "emptyMessage": "Your order history will appear here after your first purchase",
       "browseShop": "Browse Shop",
+      "loadMore": "Load More",
+      "pay": "Pay Now",
+      "unknownProduct": "Product",
+      "paymentVerified": "Payment confirmed successfully!",
+      "paymentVerifyFailed": "Payment verification failed",
+      "paymentFailed": "Payment was not completed",
+      "filter": {
+        "all": "All",
+        "pending": "Pending",
+        "paid": "Paid",
+        "completed": "Completed"
+      },
       "status": {
         "confirmed": "Confirmed",
         "shipped": "Shipped",
-        "delivered": "Delivered"
+        "delivered": "Delivered",
+        "pending": "Pending",
+        "awaiting_payment": "Awaiting Payment",
+        "paid": "Paid",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
       }
     },
     "deletePostDialog": {
@@ -168,6 +188,8 @@
       "subtitle": "Register your business to start selling on our platform",
       "registration": "Business Registrations",
       "registrationFailed": "Registration failed. Please try again.",
+      "registrationSuccessSeller": "Seller registration submitted successfully.",
+      "registrationSuccessService": "Booking business profile saved successfully.",
       "dashboard": "Vendor Dashboard",
       "dashboardComingSoon": "Product management coming soon!",
       "back": "Back",
@@ -262,6 +284,9 @@
       },
       "step2": {
         "title": "Business Information",
+        "sellerSubtitle": "Tell us about your business details so we can verify your seller account.",
+        "serviceTitle": "Booking Business Profile",
+        "serviceSubtitle": "Set up your provider profile so clients can discover and book your services.",
         "continue": "Continue to Verification"
       },
       "step3": {
@@ -287,6 +312,21 @@
         "contactPhone": "Contact Phone",
         "contactEmail": "Contact Email",
         "bankAccount": "Bank Account Number (IBAN)",
+        "providerName": "Provider Name",
+        "providerDescription": "Service Description",
+        "providerPhone": "Provider Phone",
+        "providerBusinessType": "Provider Business Type",
+        "serviceCategory": "Service Category",
+        "callType": "Call Type",
+        "callTypes": {
+          "ONSITE": "On-site",
+          "OUTCALL": "Outcall",
+          "BOTH": "Both"
+        },
+        "providerBusinessTypes": {
+          "INDIVIDUAL": "Individual",
+          "COMPANY": "Company"
+        },
         "submitting": "Registering...",
         "placeholders": {
           "identificationNumber": "XXXXXXXXXX",
@@ -294,7 +334,10 @@
           "legalAddress": "Enter your legal address",
           "contactPhone": "5XXXXXXXX",
           "contactEmail": "business@example.com",
-          "bankAccount": "Enter your bank account number"
+          "bankAccount": "Enter your bank account number",
+          "providerName": "Enter provider name",
+          "providerDescription": "Tell clients what services you offer",
+          "providerPhone": "5XXXXXXXX"
         }
       }
     }
@@ -333,6 +376,87 @@
     "maxlength": "Too long, maximum {n} characters",
     "emptySpace": "Empty spaces are not allowed",
     "edgeSpaces": "Password cannot start or end with spaces"
+  },
+  "bookingRegistration": {
+    "title": "Register as Booking Provider",
+    "subtitle": "Set up your provider profile so clients can discover and book your services instantly — no approval needed.",
+    "backToProfile": "Back to Profile",
+    "steps": {
+      "details": "Details",
+      "review": "Review"
+    },
+    "formTitle": "Provider Details",
+    "formSubtitle": "Fill in your business information to get started",
+    "continueToReview": "Continue to Review",
+    "reviewTitle": "Review & Submit",
+    "reviewSubtitle": "Confirm your details before going live",
+    "providerInfo": "Provider Information",
+    "instantNote": "Instant Activation",
+    "instantNoteDesc": "Your provider profile will be active immediately after registration. No approval wait time — start receiving bookings right away.",
+    "terms": "By registering as a booking provider, you agree to comply with all applicable laws regarding the provision of services. Platform fees: 5% commission on all bookings. You confirm that all information provided is accurate.",
+    "submit": "Register & Go Live",
+    "success": "Booking provider profile created successfully!",
+    "error": "Registration failed. Please try again."
+  },
+  "bookingProvider": {
+    "title": "Booking Provider",
+    "registered": {
+      "title": "You're a Booking Provider!",
+      "subtitle": "Active & Ready to Accept Bookings",
+      "description": "Your booking profile is live. Manage your services, set your availability, and handle incoming bookings from your dashboard.",
+      "dashboardButton": "Go to Booking Dashboard"
+    },
+    "landing": {
+      "title": "Booking Provider",
+      "upgradeTitle": "Become a Booking Provider",
+      "upgradeSubtitle": "Start Accepting Bookings Today",
+      "description": "Register as a booking provider to offer your services on our platform. Set up your profile, define your services and availability, and start receiving bookings from customers — no approval needed, go live instantly.",
+      "startButton": "Register Now"
+    },
+    "features": {
+      "instantSetup": {
+        "title": "Instant Setup",
+        "description": "Register and start accepting bookings immediately — no waiting for approval"
+      },
+      "serviceManagement": {
+        "title": "Service Management",
+        "description": "Define your services with custom pricing, duration, and capacity"
+      },
+      "scheduleControl": {
+        "title": "Schedule Control",
+        "description": "Set your weekly availability and manage your booking calendar"
+      },
+      "bookingManagement": {
+        "title": "Booking Management",
+        "description": "Approve, reject, or reschedule bookings from your dashboard"
+      }
+    }
+  },
+  "bookingDashboard": {
+    "brand": "VIPO Book",
+    "backToProfile": "Back to Profile",
+    "tabs": {
+      "overview": "Overview",
+      "orders": "Bookings",
+      "services": "Services",
+      "availability": "Availability",
+      "resources": "Resources"
+    },
+    "overview": {
+      "title": "Provider Overview",
+      "active": "Active",
+      "services": "Services",
+      "pending": "Pending",
+      "totalBookings": "Total Bookings",
+      "resources": "Resources",
+      "quickActions": "Quick Actions",
+      "manageServices": "Manage Services",
+      "manageServicesDesc": "Add, edit, or remove your service offerings",
+      "manageSchedule": "Manage Schedule",
+      "manageScheduleDesc": "Set your weekly working hours and availability",
+      "viewBookings": "View Bookings",
+      "viewBookingsDesc": "Review and manage incoming booking requests"
+    }
   }
 }
 

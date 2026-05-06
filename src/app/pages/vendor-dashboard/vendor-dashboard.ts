@@ -12,6 +12,10 @@ import { SnackbarService } from 'lib/services/snackbar.service';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { Profile } from 'lib/services/profile/models/profile.model';
+import {
+  BookingProviderApiService,
+  ProviderProfileResponse,
+} from 'lib/services/booking';
 import { DashboardSection } from './sections/dashboard-section/dashboard-section';
 import { ProductsSection } from './sections/products-section/products-section';
 import { OrdersSection } from './sections/orders-section/orders-section';
@@ -57,7 +61,11 @@ export class VendorDashboard implements OnInit {
   private destroyRef = inject(DestroyRef);
   private dialog = inject(MatDialog);
 
+  private providerApi = inject(BookingProviderApiService);
+
   vendorProfile = this.vendorService.vendorProfile;
+  providerProfile = signal<ProviderProfileResponse | null>(null);
+  isBookingProvider = signal(false);
   userProfile = signal<Profile | null>(null);
 
   /** Initialized from the URL snapshot so the first paint matches ?tab= (Observable can emit later). */
@@ -79,7 +87,11 @@ export class VendorDashboard implements OnInit {
 
     this.vendorService.ensureProfileLoaded()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+      .subscribe(() => {
+        if (!this.vendorService.isVendor()) {
+          this.loadBookingProvider();
+        }
+      });
 
     // Load user profile (ProfileApiService caches this internally)
     const userId = this.auth.user()?.id;
@@ -203,7 +215,24 @@ export class VendorDashboard implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/profile/business']);
+    if (this.isBookingProvider() && !this.vendorService.isVendor()) {
+      this.router.navigate(['/profile/booking-provider']);
+    } else {
+      this.router.navigate(['/profile/business']);
+    }
+  }
+
+  private loadBookingProvider(): void {
+    this.providerApi
+      .getMyProfile()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (profile) => {
+          this.providerProfile.set(profile);
+          this.isBookingProvider.set(true);
+        },
+        error: () => {},
+      });
   }
 
   private isPendingApprovalProduct(product: any): boolean {

@@ -1,0 +1,169 @@
+@if (profileLoading()) {
+  <div class="px-4 pb-6 sm:px-6">
+    <div class="space-y-4 animate-pulse">
+      <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+      <div class="h-48 bg-gray-200 rounded-3xl"></div>
+    </div>
+  </div>
+} @else {
+  <div class="px-4 pb-6 sm:px-6 sm:pb-8 md:pb-8">
+    @if (isProvider()) {
+      <!-- Registered Provider -->
+      <div class="max-w-6xl mx-auto">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-booking uppercase tracking-tight mb-6 sm:mb-8 md:mb-10">
+          {{ 'bookingProvider.title' | translate }}
+        </h1>
+        <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 mb-6 sm:mb-8 border border-orange-200">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 bg-booking rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+              <mat-icon class="!text-xl sm:!text-2xl text-white">event_available</mat-icon>
+            </div>
+            <div>
+              <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-1 sm:mb-2">
+                {{ 'bookingProvider.registered.title' | translate }}
+              </h2>
+              <p class="text-booking font-bold text-xs sm:text-sm uppercase tracking-wide">
+                {{ 'bookingProvider.registered.subtitle' | translate }}
+              </p>
+            </div>
+          </div>
+
+          @if (providerProfile(); as profile) {
+            <div class="flex flex-wrap gap-3 mb-6">
+              <span class="px-3 py-1.5 bg-white/80 rounded-lg text-xs font-bold text-gray-700">
+                {{ profile.name }}
+              </span>
+              <span class="px-3 py-1.5 bg-white/80 rounded-lg text-xs font-bold text-gray-700">
+                {{ profile.phone_number }}
+              </span>
+              @if (profile.activity_status === 'ACTIVE') {
+                <span class="px-3 py-1.5 bg-green-100 rounded-lg text-xs font-bold text-green-700">
+                  ACTIVE
+                </span>
+              }
+            </div>
+          }
+
+          <p class="text-gray-700 text-base md:text-lg leading-relaxed mb-6 sm:mb-8 max-w-3xl">
+            {{ 'bookingProvider.registered.description' | translate }}
+          </p>
+          <button
+            (click)="goToDashboard()"
+            class="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-booking text-white font-bold rounded-xl hover:bg-booking-light transition-all uppercase tracking-wide text-xs sm:text-sm shadow-lg"
+          >
+            {{ 'bookingProvider.registered.dashboardButton' | translate }}
+          </button>
+        </div>
+      </div>
+    } @else if (!isVerified()) {
+      <!-- Not Verified -->
+      <div class="max-w-2xl mx-auto text-center py-10 sm:py-12 md:py-16">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+          <mat-icon class="!text-3xl !w-8 !h-8 sm:!text-4xl sm:!w-10 sm:!h-10 text-amber-600">verified_user</mat-icon>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-3 sm:mb-4 uppercase">
+          {{ 'profile.vendor.notVerified.title' | translate }}
+        </h3>
+        <p class="text-sm sm:text-base text-gray-600 mb-6" [innerHTML]="'profile.vendor.notVerified.message' | translate"></p>
+      </div>
+    } @else {
+      <!-- Not Registered - Landing -->
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-booking uppercase tracking-tight mb-5 sm:mb-6 md:mb-8">
+        {{ 'bookingProvider.landing.title' | translate }}
+      </h1>
+
+      <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 mb-6 sm:mb-8 border border-orange-200">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div class="w-11 h-11 sm:w-14 sm:h-14 bg-booking rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
+            <mat-icon class="!text-xl sm:!text-2xl text-white">event_available</mat-icon>
+          </div>
+          <div>
+            <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-1 sm:mb-2">
+              {{ 'bookingProvider.landing.upgradeTitle' | translate }}
+            </h2>
+            <p class="text-booking font-bold text-xs sm:text-sm uppercase tracking-wide">
+              {{ 'bookingProvider.landing.upgradeSubtitle' | translate }}
+            </p>
+          </div>
+        </div>
+
+        <p class="text-gray-700 text-base md:text-lg leading-relaxed mb-6 sm:mb-8 max-w-3xl">
+          {{ 'bookingProvider.landing.description' | translate }}
+        </p>
+
+        <button
+          (click)="startRegistration()"
+          class="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-booking text-white font-bold rounded-xl hover:bg-booking-light transition-all uppercase tracking-wide text-xs sm:text-sm shadow-lg"
+        >
+          {{ 'bookingProvider.landing.startButton' | translate }}
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+          <div class="flex items-start gap-3 sm:gap-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-400 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <mat-icon class="!text-lg sm:!text-2xl text-white">bolt</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-gray-900 mb-1 sm:mb-2">
+                {{ 'bookingProvider.features.instantSetup.title' | translate }}
+              </h3>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                {{ 'bookingProvider.features.instantSetup.description' | translate }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+          <div class="flex items-start gap-3 sm:gap-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-400 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <mat-icon class="!text-lg sm:!text-2xl text-white">room_service</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-gray-900 mb-1 sm:mb-2">
+                {{ 'bookingProvider.features.serviceManagement.title' | translate }}
+              </h3>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                {{ 'bookingProvider.features.serviceManagement.description' | translate }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+          <div class="flex items-start gap-3 sm:gap-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-400 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <mat-icon class="!text-lg sm:!text-2xl text-white">calendar_month</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-gray-900 mb-1 sm:mb-2">
+                {{ 'bookingProvider.features.scheduleControl.title' | translate }}
+              </h3>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                {{ 'bookingProvider.features.scheduleControl.description' | translate }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+          <div class="flex items-start gap-3 sm:gap-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-400 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <mat-icon class="!text-lg sm:!text-2xl text-white">fact_check</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-gray-900 mb-1 sm:mb-2">
+                {{ 'bookingProvider.features.bookingManagement.title' | translate }}
+              </h3>
+              <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                {{ 'bookingProvider.features.bookingManagement.description' | translate }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

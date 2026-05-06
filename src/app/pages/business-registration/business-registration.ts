@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
@@ -8,6 +9,7 @@ import { TranslationService } from 'lib/services/translation.service';
 import { VerificationService } from 'lib/services/verification/verification.service';
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { BusinessType, VendorRegistration } from 'lib/models/vendor.models';
+import { BookingProviderApiService, ProviderProfileRequest } from 'lib/services/booking';
 import { ProgressStepperComponent } from '../profile/sections/business-section/components/progress-stepper/progress-stepper';
 import { VendorStepOneComponent } from '../profile/sections/business-section/steps/step-one/step-one';
 import { VendorStepTwoComponent } from '../profile/sections/business-section/steps/step-two/step-two';
@@ -35,6 +37,7 @@ export class BusinessRegistrationComponent implements OnInit {
   private router = inject(Router);
   translation = inject(TranslationService);
   private vendorService = inject(VendorService);
+  private bookingProviderApi = inject(BookingProviderApiService);
   private verificationService = inject(VerificationService);
   private snackBar = inject(MatSnackBar);
 
@@ -44,7 +47,7 @@ export class BusinessRegistrationComponent implements OnInit {
 
   currentStep = signal(1);
   businessType = signal<BusinessType | null>(null);
-  formData = signal<Partial<VendorRegistration>>({});
+  formData = signal<Partial<VendorRegistration | ProviderProfileRequest>>({});
   submitting = signal(false);
 
   steps = computed(() => {
@@ -72,7 +75,7 @@ export class BusinessRegistrationComponent implements OnInit {
     this.currentStep.set(1);
   }
 
-  onStepTwoNext(data: VendorRegistration) {
+  onStepTwoNext(data: VendorRegistration | ProviderProfileRequest) {
     this.formData.set(data);
     this.currentStep.set(3);
   }
@@ -82,17 +85,30 @@ export class BusinessRegistrationComponent implements OnInit {
   }
 
   onSubmit() {
-    const data = this.formData() as VendorRegistration;
-    if (!data.identification_number) {
-      return;
+    if (this.businessType() !== 'service') {
+      const sellerData = this.formData() as VendorRegistration;
+      if (!sellerData.identification_number) {
+        return;
+      }
     }
 
     this.submitting.set(true);
-    this.vendorService.registerAsVendor(data).subscribe({
+    const flowType = this.businessType();
+    const request$: Observable<unknown> = flowType === 'service'
+      ? this.bookingProviderApi.upsertProfile(this.formData() as ProviderProfileRequest)
+      : this.vendorService.registerAsVendor(this.formData() as VendorRegistration);
+
+    request$.subscribe({
       next: () => {
-        this.snackBar.open('Successfully registered as vendor!', 'Close', {
+        this.snackBar.open(
+          flowType === 'service'
+            ? this.translation.translate('profile.vendor.registrationSuccessService')
+            : this.translation.translate('profile.vendor.registrationSuccessSeller'),
+          'Close',
+          {
           duration: 3000
-        });
+          },
+        );
         this.submitting.set(false);
         this.router.navigate(['/profile/business']);
       },

@@ -1,40 +1,152 @@
 <div class="space-y-6">
   <div class="bg-white rounded-3xl p-10 border-2 border-gray-200">
-    <h3 class="text-3xl font-black text-gray-900 mb-8 uppercase">
-      {{ 'profile.vendor.step2.title' | translate }}
+    <h3 class="text-3xl font-black text-gray-900 mb-2 uppercase">
+      {{ (businessType() === 'service' ? 'profile.vendor.step2.serviceTitle' : 'profile.vendor.step2.title') | translate }}
     </h3>
+    <p class="text-gray-600 mb-8">
+      {{ (businessType() === 'service' ? 'profile.vendor.step2.serviceSubtitle' : 'profile.vendor.step2.sellerSubtitle') | translate }}
+    </p>
 
     <form [formGroup]="businessForm" (ngSubmit)="onContinue()">
-      <div class="grid md:grid-cols-2 gap-6 mb-8">
-        @for (field of formFields; track field.name) {
+      @if (businessType() === 'service') {
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
           <div>
             <label class="block text-xs font-black uppercase tracking-wider mb-2">
-              {{ field.label | translate }}
+              {{ 'profile.vendor.form.providerName' | translate }}
               <span class="text-red-500">*</span>
             </label>
             <mat-form-field appearance="outline" class="w-full">
-              @if (field.name === 'contact_phone') {
-                <span matTextPrefix>{{ COUNTRY_CODE }}&nbsp;</span>
-              }
               <input
                 matInput
-                [type]="field.type"
-                [formControlName]="field.name"
-                [placeholder]="field.placeholder | translate"
-                [attr.inputmode]="field.name === 'contact_phone' ? 'numeric' : null"
-                [attr.autocomplete]="field.name === 'contact_phone' ? 'tel-national' : null"
-                [attr.maxlength]="field.name === 'contact_phone' ? 9 : (field.name === 'identification_number' ? 11 : null)"
-                (input)="onInput($event, field.name)"
+                type="text"
+                formControlName="name"
+                [placeholder]="'profile.vendor.form.placeholders.providerName' | translate"
               />
-              @if (businessForm.get(field.name)?.invalid && businessForm.get(field.name)?.touched) {
-                <mat-error>
-                  {{ getErrorMessage(field.name) | translate }}
-                </mat-error>
+              @if (businessForm.get('name')?.invalid && businessForm.get('name')?.touched) {
+                <mat-error>{{ getErrorMessage('name') | translate }}</mat-error>
               }
             </mat-form-field>
           </div>
-        }
-      </div>
+
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">
+              {{ 'profile.vendor.form.providerPhone' | translate }}
+              <span class="text-red-500">*</span>
+            </label>
+            <mat-form-field appearance="outline" class="w-full">
+              <span matTextPrefix>{{ serviceCountryCode }}&nbsp;</span>
+              <input
+                matInput
+                type="tel"
+                formControlName="phone_number"
+                [placeholder]="'profile.vendor.form.placeholders.providerPhone' | translate"
+                inputmode="numeric"
+                autocomplete="tel-national"
+                maxlength="9"
+                (input)="onInput($event, 'phone_number')"
+              />
+              @if (businessForm.get('phone_number')?.invalid && businessForm.get('phone_number')?.touched) {
+                <mat-error>{{ getErrorMessage('phone_number') | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">
+              {{ 'profile.vendor.form.serviceCategory' | translate }}
+              <span class="text-red-500">*</span>
+            </label>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-select formControlName="category_id">
+                @for (category of categories(); track category.id) {
+                  <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                }
+              </mat-select>
+              @if (businessForm.get('category_id')?.invalid && businessForm.get('category_id')?.touched) {
+                <mat-error>{{ 'validation.required' | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">
+              {{ 'profile.vendor.form.callType' | translate }}
+              <span class="text-red-500">*</span>
+            </label>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-select formControlName="call_type">
+                @for (callType of callTypeOptions; track callType) {
+                  <mat-option [value]="callType">{{ ('profile.vendor.form.callTypes.' + callType) | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">
+              {{ 'profile.vendor.form.providerBusinessType' | translate }}
+              <span class="text-red-500">*</span>
+            </label>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-select formControlName="business_type">
+                @for (providerBusinessType of providerBusinessTypeOptions; track providerBusinessType) {
+                  <mat-option [value]="providerBusinessType">
+                    {{ ('profile.vendor.form.providerBusinessTypes.' + providerBusinessType) | translate }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-xs font-black uppercase tracking-wider mb-2">
+              {{ 'profile.vendor.form.providerDescription' | translate }}
+            </label>
+            <mat-form-field appearance="outline" class="w-full">
+              <textarea
+                matInput
+                rows="4"
+                formControlName="description"
+                [placeholder]="'profile.vendor.form.placeholders.providerDescription' | translate"
+              ></textarea>
+              @if (businessForm.get('description')?.invalid && businessForm.get('description')?.touched) {
+                <mat-error>{{ getErrorMessage('description') | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+      } @else {
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+          @for (field of formFields; track field.name) {
+            <div>
+              <label class="block text-xs font-black uppercase tracking-wider mb-2">
+                {{ field.label | translate }}
+                <span class="text-red-500">*</span>
+              </label>
+              <mat-form-field appearance="outline" class="w-full">
+                @if (field.name === 'contact_phone') {
+                  <span matTextPrefix>{{ COUNTRY_CODE }}&nbsp;</span>
+                }
+                <input
+                  matInput
+                  [type]="field.type"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder | translate"
+                  [attr.inputmode]="field.name === 'contact_phone' ? 'numeric' : null"
+                  [attr.autocomplete]="field.name === 'contact_phone' ? 'tel-national' : null"
+                  [attr.maxlength]="field.name === 'contact_phone' ? 9 : (field.name === 'identification_number' ? 11 : null)"
+                  (input)="onInput($event, field.name)"
+                />
+                @if (businessForm.get(field.name)?.invalid && businessForm.get(field.name)?.touched) {
+                  <mat-error>
+                    {{ getErrorMessage(field.name) | translate }}
+                  </mat-error>
+                }
+              </mat-form-field>
+            </div>
+          }
+        </div>
+      }
 
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-8 gap-4">
         <button
