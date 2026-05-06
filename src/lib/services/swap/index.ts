@@ -14,3 +14,6 @@ export * from './models/swap-history.model';
 export * from './proposal-sse.service';
 export * from './swap-notification.service';
 export * from './exchanged-items.service';
+export * from './swap-wishlist-api.service';
+export * from './swap-favorites.service';
+export * from './models/swap-wishlist.model';

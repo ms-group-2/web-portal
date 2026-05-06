@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+.swap-search-page {
+  .swap-search-content {
+    padding-top: calc(var(--app-header-height, 7rem) + 3.5rem);
+  }
+
+  .swap-search-sidebar {
+    top: calc(var(--app-header-height, 7rem) + 3.5rem);
+  }
+
+  .sticky {
+    max-height: calc(100vh - 8rem);
+  }
+}

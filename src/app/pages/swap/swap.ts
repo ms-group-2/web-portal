@@ -59,7 +59,7 @@ export class Swap {
   isTradesLoading = signal(false);
   tradesError = signal<string | null>(null);
   myTrades = signal<TradeChain[]>([]);
-  itemTitleMap = signal<Map<string, string>>(new Map());
+  itemMetaMap = signal<Map<string, { title: string; photo: string }>>(new Map());
   votingChainIds = signal<string[]>([]);
   selectedCategoryId = signal<number | null>(null);
   searchQuery = signal('');
@@ -111,15 +111,32 @@ export class Swap {
   });
 
   myTradeCards = computed<SwapMyTradeCard[]>(() => {
-    const titles = this.itemTitleMap();
-    return this.myTrades().map((trade) => ({
+    const meta = this.itemMetaMap();
+    return this.myTrades()
+      .filter((trade) => {
+        const status = trade.status.toLowerCase();
+        return status !== 'rejected' && status !== 'cancelled';
+      })
+      .map((trade) => ({
       id: trade.id,
       status: trade.status,
       createdLabel: formatRelativeShort(trade.created_at),
       expiresLabel: formatRelativeShort(trade.expires_at),
-      participantItems: trade.items
-        .map((item) => titles.get(item.to_item_id) ?? item.to_item_id.slice(0, 8) + '…')
-        .filter(Boolean),
+      participantItems: [
+        ...new Set(
+          trade.items
+            .flatMap((item) => [item.from_item_id, item.to_item_id])
+            .map((id) => meta.get(id)?.title ?? id.slice(0, 8) + '…')
+            .filter(Boolean),
+        ),
+      ],
+      steps: trade.items.map((item) => ({
+        fromTitle: meta.get(item.from_item_id)?.title ?? item.from_item_id.slice(0, 8) + '…',
+        toTitle: meta.get(item.to_item_id)?.title ?? item.to_item_id.slice(0, 8) + '…',
+        fromPhoto: meta.get(item.from_item_id)?.photo ?? SWAP_PHOTO_PLACEHOLDER,
+        toPhoto: meta.get(item.to_item_id)?.photo ?? SWAP_PHOTO_PLACEHOLDER,
+        status: item.status,
+      })),
       isPending: trade.status.toLowerCase() === 'pending',
     }));
   });
@@ -178,20 +195,28 @@ export class Swap {
             if (item.from_item_id) itemIds.add(item.from_item_id);
           }
         }
-        if (itemIds.size === 0) return of({ trades, titleMap: new Map<string, string>() });
+        if (itemIds.size === 0) {
+          return of({ trades, itemMap: new Map<string, { title: string; photo: string }>() });
+        }
         return forkJoin(
           [...itemIds].map(id =>
             this.api.getListing(id).pipe(
-              map(listing => [id, listing.title] as [string, string]),
-              catchError(() => of([id, id.slice(0, 8) + '…'] as [string, string])),
+              map(listing => [id, {
+                title: listing.title,
+                photo: normalizeSwapPhotos(listing.photos)[0] ?? SWAP_PHOTO_PLACEHOLDER,
+              }] as [string, { title: string; photo: string }]),
+              catchError(() => of([id, {
+                title: id.slice(0, 8) + '…',
+                photo: SWAP_PHOTO_PLACEHOLDER,
+              }] as [string, { title: string; photo: string }])),
             ),
           ),
-        ).pipe(map(entries => ({ trades, titleMap: new Map(entries) })));
+        ).pipe(map(entries => ({ trades, itemMap: new Map(entries) })));
       }),
     ).subscribe({
-      next: ({ trades, titleMap }) => {
+      next: ({ trades, itemMap }) => {
         this.myTrades.set(trades);
-        this.itemTitleMap.set(titleMap);
+        this.itemMetaMap.set(itemMap);
         this.isTradesLoading.set(false);
       },
       error: () => {
@@ -222,7 +247,11 @@ export class Swap {
 
 
   onSearch(query: string) {
-    this.searchQuery.set(query);
+    const trimmed = query.trim();
+    if (!trimmed) {
+      return;
+    }
+    this.router.navigate(['/swap/search'], { queryParams: { q: trimmed } });
   }
 
   onPostItem() {

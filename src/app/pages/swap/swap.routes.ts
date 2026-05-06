@@ -31,6 +31,15 @@ export const swapRoutes: Routes = [
         loadComponent: () => import('./pages/notifications/notifications').then((m) => m.SwapNotifications),
       },
       {
+        path: 'wishlist',
+        canActivate: [authGuard],
+        loadComponent: () => import('./pages/wishlist/wishlist').then((m) => m.SwapWishlist),
+      },
+      {
+        path: 'search',
+        loadComponent: () => import('./pages/search/search').then((m) => m.SwapSearch),
+      },
+      {
         path: 'trade/:chainId',
         canActivate: [authGuard],
         loadComponent: () => import('./pages/trade-detail/trade-detail').then((m) => m.TradeDetail),

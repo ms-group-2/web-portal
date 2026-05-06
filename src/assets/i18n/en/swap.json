@@ -59,6 +59,13 @@
       "beFirst": "Be the first to post an item",
       "postItem": "Post Item"
     },
+    "search": {
+      "resultsFor": "Results for",
+      "itemsFound": "items found",
+      "categories": "Categories",
+      "clear": "Clear",
+      "enterQuery": "Type in the header search to find swap listings."
+    },
 
     "itemCard": {
       "inTrade": "In Trade",
@@ -86,6 +93,8 @@
       "empty": "You do not have any trade chains yet.",
       "chain": "Chain",
       "created": "Created",
+      "seeAll": "See all trades",
+      "more": "more trades",
       "accept": "Accept",
       "decline": "Decline"
     },
@@ -311,6 +320,23 @@
       "gives": "Gives",
       "receives": "Receives",
       "newNotifications": "You have new notifications!"
+    },
+
+    "wishlist": {
+      "title": "My Wishlist",
+      "back": "Back",
+      "itemsCount": "items saved",
+      "loading": "Loading your wishlist...",
+      "emptyTitle": "No Saved Items Yet",
+      "emptyDesc": "Tap the heart on any listing to save it here!",
+      "browseSwaps": "Browse Swaps",
+      "tabSwap": "Swap",
+      "tabShop": "Shop",
+      "tabBooking": "Booking",
+      "shopComingSoon": "Shop Wishlist",
+      "shopComingSoonDesc": "Your shop favorites will appear here soon.",
+      "bookingComingSoon": "Booking Wishlist",
+      "bookingComingSoonDesc": "Your saved bookings will appear here soon."
     },
 
     "tradeDetail": {

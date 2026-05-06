@@ -252,10 +252,16 @@ export class Header implements OnDestroy {
     const query = this.searchQuery().trim();
     if (!query) return;
 
-    this.searchService.setSearchQuery(query);
     this.showSearchDropdown.set(false);
+    if (this.isShopRoute()) {
+      this.searchService.setSearchQuery(query);
+      this.router.navigate(['/shop/search'], { queryParams: { q: query } });
+      return;
+    }
 
-    this.router.navigate(['/shop/search'], { queryParams: { q: query } });
+    if (this.isSwapRoute()) {
+      this.router.navigate(['/swap/search'], { queryParams: { q: query } });
+    }
   }
 
   onSeeMoreSearchResults(): void {
@@ -296,9 +302,19 @@ export class Header implements OnDestroy {
 
   clearSearch() {
     this.searchQuery.set('');
-    this.searchService.setSearchQuery('');
+    if (this.isShopRoute()) {
+      this.searchService.setSearchQuery('');
+    }
     this.suggestedProducts.set([]);
     this.showSearchDropdown.set(false);
+
+    if (this.isSwapRoute()) {
+      this.router.navigate([], {
+        relativeTo: this.router.routerState.root,
+        queryParams: { q: null },
+        queryParamsHandling: 'merge',
+      });
+    }
   }
 
   private performSearch(query: string) {

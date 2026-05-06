@@ -1,7 +1,17 @@
-<section class="py-16 bg-white">
+<section
+  class="bg-white"
+  [class.py-16]="!compactTopSpacing()"
+>
   <div>
-    <div class="flex items-center justify-between mb-10" appScrollAnimate="fade-up">
-      <h2 class="text-4xl font-black text-gray-900">{{ 'swap.listings.title' | translate }}</h2>
+    <div class="flex items-start justify-between gap-4 mb-10" appScrollAnimate="fade-up">
+      <div>
+        <h2 class="text-4xl font-black text-gray-900">{{ 'swap.listings.title' | translate }}</h2>
+        @if (searchQuery().trim()) {
+          <p class="mt-2 text-sm font-semibold text-gray-600">
+            {{ 'swap.search.resultsFor' | translate }} "<span class="font-bold text-gray-900">{{ searchQuery() }}</span>"
+          </p>
+        }
+      </div>
       <span class="text-sm font-black text-gray-500 uppercase tracking-wide">
         {{ items().length }} {{ 'swap.listings.available' | translate }}
       </span>

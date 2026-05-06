@@ -9,6 +9,14 @@
         <p class="text-sm font-semibold text-gray-600">{{ 'swap.myTrades.subtitle' | translate }}</p>
       </div>
     </div>
+    @if (trades().length > 2) {
+      <button
+        type="button"
+        class="rounded-2xl border-2 border-gray-200 px-4 py-2 text-sm font-black text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
+        (click)="goToAllTrades()">
+        {{ 'swap.myTrades.seeAll' | translate }}
+      </button>
+    }
   </div>
 
   @if (isLoading()) {
@@ -24,57 +32,105 @@
       {{ 'swap.myTrades.empty' | translate }}
     </div>
   } @else {
-    <div class="grid grid-cols-1 gap-5">
-      @for (trade of trades(); track trade.id) {
-        <article class="rounded-3xl border-2 border-gray-100 bg-white p-5 md:p-6">
-          <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div>
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      @for (trade of visibleTrades(); track trade.id) {
+        <article class="overflow-hidden rounded-3xl border-2 border-gray-100 bg-white shadow-sm transition-all hover:border-swap/40 hover:shadow-xl">
+          <div class="flex items-center justify-between gap-3 border-b border-gray-100 bg-gray-50 px-5 py-4 md:px-6">
+            <div class="flex items-center gap-3">
+              <div class="h-2.5 w-2.5 rounded-full" [class.bg-amber-400]="trade.isPending" [class.bg-emerald-400]="!trade.isPending"></div>
               <p class="text-xs font-extrabold uppercase tracking-wide text-gray-500">
                 {{ 'swap.myTrades.chain' | translate }} #{{ trade.id.slice(0, 8) }}
               </p>
-              <p class="mt-1 text-sm font-semibold text-gray-600">
-                {{ 'swap.myTrades.created' | translate }} {{ trade.createdLabel }}
-              </p>
-              <!-- <p class="text-sm font-semibold text-gray-600">
-                {{ 'swap.myTrades.expires' | translate }} {{ trade.expiresLabel }}
-              </p> -->
             </div>
-
             <span
               class="rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide"
-              [class.bg-amber-100]="trade.isPending"
-              [class.text-amber-700]="trade.isPending"
-              [class.bg-emerald-100]="!trade.isPending"
-              [class.text-emerald-700]="!trade.isPending">
+              [class]="statusBadgeClass(trade.status)">
               {{ trade.status }}
             </span>
           </div>
 
-          <div class="mb-5 flex flex-wrap gap-2">
-            @for (item of trade.participantItems; track item) {
-              <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">{{ item }}</span>
+          <div class="p-5 md:p-6">
+            <p class="mb-4 text-sm font-semibold text-gray-600">
+              {{ 'swap.myTrades.created' | translate }} {{ trade.createdLabel }}
+            </p>
+
+            <div class="mb-5 space-y-2">
+              @if (trade.steps.length === 1) {
+                <div class="flex items-center gap-2 rounded-2xl border border-gray-100 bg-gray-50 px-3 py-2">
+                  <img [src]="trade.steps[0].fromPhoto" [alt]="trade.steps[0].fromTitle" class="h-10 w-10 rounded-xl object-cover border border-gray-200" />
+                  <span class="min-w-0 flex-1 truncate text-sm font-black text-swap">{{ trade.steps[0].fromTitle }}</span>
+                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow">
+                    <mat-icon class="!h-5 !w-5 !text-xl">swap_horiz</mat-icon>
+                  </div>
+                  <img [src]="trade.steps[0].toPhoto" [alt]="trade.steps[0].toTitle" class="h-10 w-10 rounded-xl object-cover border border-gray-200" />
+                  <span class="min-w-0 flex-1 truncate text-sm font-black text-[#FAAF78]">{{ trade.steps[0].toTitle }}</span>
+                </div>
+              } @else {
+                @for (step of trade.steps; track $index) {
+                  <div class="flex items-center gap-2 rounded-2xl border border-gray-100 bg-gray-50 px-3 py-2">
+                    <img [src]="step.fromPhoto" [alt]="step.fromTitle" class="h-10 w-10 rounded-xl object-cover border border-gray-200" />
+                    <span class="min-w-0 flex-1 truncate text-sm font-black text-swap">{{ step.fromTitle }}</span>
+                    <mat-icon class="!text-base text-gray-400 shrink-0">arrow_forward</mat-icon>
+                    <img [src]="step.toPhoto" [alt]="step.toTitle" class="h-10 w-10 rounded-xl object-cover border border-gray-200" />
+                    <span class="min-w-0 flex-1 truncate text-sm font-black text-[#FAAF78]">{{ step.toTitle }}</span>
+                  </div>
+                }
+              }
+            </div>
+
+            <div class="mb-5 flex flex-wrap gap-2">
+              @for (item of trade.participantItems; track item) {
+                <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">{{ item }}</span>
+              }
+            </div>
+
+            @if (trade.isPending) {
+              <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+                {{ 'swap.notifications.chainWarning' | translate }}
+              </div>
+            }
+
+            @if (trade.isPending) {
+              <div class="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  class="rounded-2xl bg-emerald-500 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="votingChainIds().includes(trade.id)"
+                  (click)="vote.emit({ chainId: trade.id, accept: true })">
+                  {{ 'swap.myTrades.accept' | translate }}
+                </button>
+
+                <button
+                  type="button"
+                  class="rounded-2xl border-2 border-gray-200 px-5 py-2.5 text-sm font-black text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="votingChainIds().includes(trade.id)"
+                  (click)="vote.emit({ chainId: trade.id, accept: false })">
+                  {{ 'swap.myTrades.decline' | translate }}
+                </button>
+              </div>
             }
           </div>
+        </article>
+      }
 
-          @if (trade.isPending) {
-            <div class="flex flex-wrap gap-3">
-              <button
-                type="button"
-                class="rounded-2xl bg-emerald-500 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
-                [disabled]="votingChainIds().includes(trade.id)"
-                (click)="vote.emit({ chainId: trade.id, accept: true })">
-                {{ 'swap.myTrades.accept' | translate }}
-              </button>
-
-              <button
-                type="button"
-                class="rounded-2xl border-2 border-gray-200 px-5 py-2.5 text-sm font-black text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                [disabled]="votingChainIds().includes(trade.id)"
-                (click)="vote.emit({ chainId: trade.id, accept: false })">
-                {{ 'swap.myTrades.decline' | translate }}
-              </button>
+      @if (hiddenTradeCount() > 0) {
+        <article class="rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50 p-5 md:p-6 lg:col-span-2">
+          <p class="text-xs font-extrabold uppercase tracking-wide text-gray-500">
+            +{{ hiddenTradeCount() }} {{ 'swap.myTrades.more' | translate }}
+          </p>
+          @if (overflowPreviewItems().length > 0) {
+            <div class="mt-3 flex flex-wrap gap-2">
+              @for (item of overflowPreviewItems(); track item) {
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-gray-700">{{ item }}</span>
+              }
             </div>
           }
+          <button
+            type="button"
+            class="mt-4 rounded-2xl bg-gray-900 px-4 py-2 text-sm font-black text-white transition hover:bg-gray-800"
+            (click)="goToAllTrades()">
+            {{ 'swap.myTrades.seeAll' | translate }}
+          </button>
         </article>
       }
     </div>

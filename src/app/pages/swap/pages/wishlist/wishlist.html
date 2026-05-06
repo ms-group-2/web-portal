@@ -1,0 +1,98 @@
+<app-header variant="white"></app-header>
+
+<div class="wishlist-page">
+  <div class="wishlist-sticky-header">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-5">
+      <div class="flex items-center justify-between mb-4">
+        <button type="button" (click)="goBack()" class="wishlist-back-btn">
+          <div class="back-circle">
+            <mat-icon class="!text-xl">arrow_back</mat-icon>
+          </div>
+          <span class="uppercase text-sm tracking-wide">{{ 'swap.wishlist.back' | translate }}</span>
+        </button>
+        <div class="w-10 h-10 rounded-full !inline-flex !items-center !justify-center bg-[#f3ebf6] border border-[#dfc8e8]">
+          <mat-icon class="!text-xl text-swap">favorite</mat-icon>
+        </div>
+      </div>
+
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-black text-gray-900 uppercase mb-1">
+            {{ 'swap.wishlist.title' | translate }}
+          </h1>
+          <p class="text-sm md:text-base font-semibold text-gray-600">
+            {{ itemCount() }} {{ 'swap.wishlist.itemsCount' | translate }}
+          </p>
+        </div>
+        @if (itemCount() > 0) {
+          <div class="wishlist-count-bubble">{{ itemCount() }}</div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-8 py-8 pb-14 relative">
+    <div class="wishlist-tabs">
+      @for (tab of tabs(); track tab.id) {
+        <button type="button" (click)="setTab(tab.id)"
+                class="wishlist-tab" [class.wishlist-tab--active]="activeTab() === tab.id">
+          <mat-icon class="!text-lg">{{ tab.icon }}</mat-icon>
+          {{ tab.labelKey | translate }}
+        </button>
+      }
+    </div>
+
+    @if (isLoading()) {
+      <div class="wishlist-state-panel">
+        <div class="w-12 h-12 border-4 border-swap/30 border-t-swap rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-lg font-bold text-gray-600">{{ 'swap.wishlist.loading' | translate }}</p>
+      </div>
+    } @else if (activeTab() === 'swap') {
+      @if (swapWishlistItems().length === 0) {
+        <div class="wishlist-state-panel">
+          <div class="wishlist-state-icon bg-gray-100">
+            <mat-icon class="!text-4xl text-gray-400">favorite_border</mat-icon>
+          </div>
+          <h3 class="text-2xl font-black text-gray-900 mb-2">{{ 'swap.wishlist.emptyTitle' | translate }}</h3>
+          <p class="text-lg text-gray-600 mb-6">{{ 'swap.wishlist.emptyDesc' | translate }}</p>
+          <button type="button" (click)="goBack()"
+                  class="inline-flex items-center gap-2 px-8 py-4 bg-swap text-white rounded-2xl font-black uppercase text-sm tracking-wide shadow-lg hover:shadow-xl transition-all hover:scale-105">
+            <mat-icon>explore</mat-icon>
+            {{ 'swap.wishlist.browseSwaps' | translate }}
+          </button>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          @for (item of swapWishlistItems(); track item.id) {
+            <app-swap-item-card
+              [item]="item"
+              [isFavorite]="isFavorite(item.id)"
+              (favoriteToggle)="toggleFavorite(item.id)"
+              (cardClick)="navigateToDetail(item.id)"
+            />
+          }
+        </div>
+      }
+    } @else if (activeTab() === 'shop') {
+      <div class="wishlist-state-panel">
+        <div class="wishlist-state-icon bg-gray-100">
+          <mat-icon class="!text-4xl text-gray-400">shopping_bag</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-2">{{ 'swap.wishlist.shopComingSoon' | translate }}</h3>
+        <p class="text-lg text-gray-600">{{ 'swap.wishlist.shopComingSoonDesc' | translate }}</p>
+      </div>
+    } @else {
+      <div class="wishlist-state-panel">
+        <div class="wishlist-state-icon bg-gray-100">
+          <mat-icon class="!text-4xl text-gray-400">event</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-2">{{ 'swap.wishlist.bookingComingSoon' | translate }}</h3>
+        <p class="text-lg text-gray-600">{{ 'swap.wishlist.bookingComingSoonDesc' | translate }}</p>
+      </div>
+    }
+  </div>
+</div>
+
+<div class="wishlist-footer">
+  <app-footer></app-footer>
+</div>

@@ -7,7 +7,7 @@ import {
   effect,
   DestroyRef,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { forkJoin, of, map, catchError } from 'rxjs';
@@ -85,6 +85,7 @@ interface ItemInfo {
 })
 export class SwapNotifications {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private api = inject(SwapListingApiService);
   private snackbar = inject(SnackbarService);
   private translation = inject(TranslationService);
@@ -147,6 +148,15 @@ export class SwapNotifications {
   asChain = (card: NotificationCard) => card as ChainCard;
 
   constructor() {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const tab = params.get('tab');
+        if (tab === 'all' || tab === 'proposals' || tab === 'offers' || tab === 'chains') {
+          this.activeTab.set(tab);
+        }
+      });
+
     this.notifService.refresh();
 
     effect(() => {

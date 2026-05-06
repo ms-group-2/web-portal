@@ -15,6 +15,7 @@ import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { SwapListingApiService, SwapOfferResponse } from 'lib/services/swap';
+import { SwapFavoritesService } from 'lib/services/swap/swap-favorites.service';
 import { catchError, forkJoin, of } from 'rxjs';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { Profile } from 'lib/services/profile/models/profile.model';
@@ -43,13 +44,17 @@ export class SwapDetail {
   private profileApi = inject(ProfileApiService);
   private destroyRef = inject(DestroyRef);
   private messagingService = inject(MessagingService);
+  private favoritesService = inject(SwapFavoritesService);
 
   item = signal<SwapItem | null>(null);
   posterProfile = signal<Profile | null>(null);
   isExchanged = signal(false);
   isLoading = signal(true);
   currentImageIndex = signal(0);
-  isFavorited = signal(false);
+  isFavorited = computed(() => {
+    const i = this.item();
+    return !!i && this.favoritesService.isFavorite(i.id);
+  });
   linkCopied = signal(false);
 
   isOwner = computed(() => {
@@ -175,7 +180,10 @@ export class SwapDetail {
   }
 
   toggleFavorite() {
-    this.isFavorited.update((v) => !v);
+    const i = this.item();
+    if (i) {
+      this.favoritesService.toggleFavorite(i.id);
+    }
   }
 
   onSimilarItemClick(item: SwapItem) {

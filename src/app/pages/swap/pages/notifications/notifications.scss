@@ -194,6 +194,31 @@
   &--sm { width: 2rem; height: 2rem; }
 }
 
+.notif-state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6rem 1rem;
+}
+
+.notif-state-icon {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+
+  mat-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    line-height: 1;
+  }
+}
+
 .notif-footer {
   background: white;
   border-top: 1px solid #eadcf0;
