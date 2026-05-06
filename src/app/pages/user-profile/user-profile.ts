@@ -7,8 +7,8 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location, NgClass } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
@@ -17,6 +17,8 @@ import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { Profile } from 'lib/services/profile/models/profile.model';
 import { SwapListingApiService, ExchangedItemsService } from 'lib/services/swap';
 import { SwapListing } from 'lib/services/swap/models/swap-listing.model';
+import { MessagingService } from 'lib/services/messaging/messaging.service';
+import { AuthService } from 'lib/services/identity/auth.service';
 import { catchError, of } from 'rxjs';
 import { normalizeSwapPhotos, SWAP_PHOTO_PLACEHOLDER } from 'lib/utils/swap-photos';
 import { formatRelativeShort, parseBackendDate } from 'lib/utils/relative-time';
@@ -31,9 +33,12 @@ import { formatRelativeShort, parseBackendDate } from 'lib/utils/relative-time';
 export class UserProfile {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private location = inject(Location);
   private profileApi = inject(ProfileApiService);
   private swapApi = inject(SwapListingApiService);
   private exchangedService = inject(ExchangedItemsService);
+  private messagingService = inject(MessagingService);
+  private auth = inject(AuthService);
   private destroyRef = inject(DestroyRef);
 
   profile = signal<Profile | null>(null);
@@ -117,7 +122,7 @@ export class UserProfile {
   }
 
   goBack() {
-    this.router.navigate(['/swap']);
+    this.location.back();
   }
 
   isExchanged(listingId: string): boolean {
@@ -128,4 +133,21 @@ export class UserProfile {
     this.router.navigate(['/swap', listingId]);
   }
 
+  canMessage = computed(() => {
+    const p = this.profile();
+    const user = this.auth.user();
+    if (!p || !user) return false;
+    return p.id !== user.profile_id && p.id !== user.id;
+  });
+
+  messageUser(): void {
+    const profileId = this.profile()?.id;
+    if (!profileId) return;
+    this.messagingService.startConversation(profileId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (convo) => this.router.navigate(['/messages', convo.id]),
+        error: () => {},
+      });
+  }
 }

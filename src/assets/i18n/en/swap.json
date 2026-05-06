@@ -62,7 +62,7 @@
 
     "itemCard": {
       "inTrade": "In Trade",
-      "exchangeCompleted": "Exchange Completed",
+      "exchangeCompleted": "Successfully Swapped",
       "featured": "Featured",
       "wants": "Wants",
       "viewPhoto": "View photo"
@@ -99,7 +99,7 @@
       "backToSwaps": "Back to Swaps",
       "featured": "Featured",
       "inTrade": "In Trade",
-      "exchangeCompleted": "Exchange Completed",
+      "exchangeCompleted": "Successfully Swapped",
       "description": "Description",
       "wantsInReturn": "Wants in return",
       "safetyNote": "Protected by Swap Safety \u2022 Meet in public \u2022 Verify items",

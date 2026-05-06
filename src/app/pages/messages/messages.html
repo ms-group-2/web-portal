@@ -1,0 +1,157 @@
+<app-header variant="white"></app-header>
+
+<div class="msg-page">
+  <aside class="msg-sidebar" [class.msg-sidebar--hidden]="!!messaging.activeConversationId()">
+    <div class="msg-sidebar-header">
+      <button type="button" (click)="goBack()" class="msg-header-back">
+        <mat-icon class="!text-lg">arrow_back</mat-icon>
+      </button>
+      <h1 class="text-2xl font-black text-gray-900 uppercase">{{ 'messaging.title' | translate }}</h1>
+      @if (messaging.unreadCount() > 0) {
+        <span class="msg-unread-total">{{ messaging.unreadCount() }}</span>
+      }
+    </div>
+
+    @if (messaging.loadingConversations()) {
+      <div class="msg-state-panel">
+        <div class="w-10 h-10 border-4 border-swap/30 border-t-swap rounded-full animate-spin mx-auto"></div>
+      </div>
+    } @else if (conversationViews().length === 0) {
+      <div class="msg-state-panel">
+        <mat-icon class="!text-5xl text-gray-300 mb-3">chat_bubble_outline</mat-icon>
+        <p class="text-base font-bold text-gray-500">{{ 'messaging.noConversations' | translate }}</p>
+        <p class="text-sm text-gray-400 mt-1">{{ 'messaging.noConversationsDesc' | translate }}</p>
+      </div>
+    } @else {
+      <div class="msg-convo-list" (click)="goBackToList()">
+        @for (convo of conversationViews(); track trackByConvo($index, convo)) {
+          <button type="button"
+                  class="msg-convo-item"
+                  [class.msg-convo-item--active]="messaging.activeConversationId() === convo.id"
+                  (click)="selectConversation(convo); $event.stopPropagation()">
+            <div class="msg-avatar">
+              @if (convo.otherAvatar) {
+                <img [src]="convo.otherAvatar" [alt]="convo.otherName" />
+              } @else {
+                <mat-icon class="!text-2xl text-gray-400">person</mat-icon>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2 mb-0.5">
+                <span class="text-sm font-black text-gray-900 truncate">{{ convo.otherName || '...' }}</span>
+                @if (convo.last_message_at) {
+                  <span class="text-xs text-gray-400 font-semibold shrink-0">{{ formatTime(convo.last_message_at) }}</span>
+                }
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-xs text-gray-500 truncate font-medium">
+                  @if (messaging.typingUsers().get(convo.id)) {
+                    <span class="text-swap font-bold italic">{{ 'messaging.typing' | translate }}</span>
+                  } @else if (convo.last_message) {
+                    @if (isLastMessageMine(convo.id)) {
+                      <span class="font-bold text-gray-600">{{ 'messaging.you' | translate }}: </span>
+                    }
+                    {{ convo.last_message }}
+                  } @else {
+                    ...
+                  }
+                </p>
+                @if (convo.unread_count > 0) {
+                  <span class="msg-unread-badge">{{ convo.unread_count }}</span>
+                }
+              </div>
+            </div>
+          </button>
+        }
+      </div>
+    }
+  </aside>
+
+  <main class="msg-chat" [class.msg-chat--active]="!!messaging.activeConversationId()">
+    @if (!messaging.activeConversationId()) {
+      <div class="msg-empty-chat">
+        <div class="msg-empty-icon">
+          <mat-icon class="!text-5xl text-gray-300">forum</mat-icon>
+        </div>
+        <h2 class="text-xl font-black text-gray-700 mb-1">{{ 'messaging.selectConversation' | translate }}</h2>
+        <p class="text-sm text-gray-400">{{ 'messaging.selectConversationDesc' | translate }}</p>
+      </div>
+    } @else {
+      <div class="msg-chat-header">
+        <!-- <button type="button" (click)="goBackToList()" class="msg-back-btn md:hidden">
+          <mat-icon class="!text-xl">arrow_back</mat-icon>
+        </button> -->
+        @if (activeConvo(); as convo) {
+          <a class="msg-avatar msg-avatar--sm cursor-pointer" [routerLink]="['/user', convo.other_user_id]">
+            @if (convo.otherAvatar) {
+              <img [src]="convo.otherAvatar" [alt]="convo.otherName" />
+            } @else {
+              <mat-icon class="!text-lg text-gray-400">person</mat-icon>
+            }
+          </a>
+          <div class="min-w-0">
+            <a class="text-sm font-black text-gray-900 truncate block hover:text-swap transition-colors cursor-pointer" [routerLink]="['/user', convo.other_user_id]">{{ convo.otherName || '...' }}</a>
+            @if (isTyping()) {
+              <p class="text-xs text-swap font-bold italic">{{ 'messaging.typing' | translate }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="msg-messages" #messagesContainer>
+        <div class="msg-spacer"></div>
+
+        @if (messaging.loadingMessages()) {
+          <div class="flex justify-center py-6">
+            <div class="w-8 h-8 border-3 border-swap/30 border-t-swap rounded-full animate-spin"></div>
+          </div>
+        }
+
+        @for (msg of activeMessages(); track trackByMsg($index, msg)) {
+          <div class="msg-bubble-row" [class.msg-bubble-row--sent]="isSentByMe(msg.sender_id)">
+            <div class="msg-bubble" [class.msg-bubble--sent]="isSentByMe(msg.sender_id)" [class.msg-bubble--received]="!isSentByMe(msg.sender_id)">
+              <p class="msg-bubble-text">{{ msg.content }}</p>
+              <div class="msg-bubble-meta">
+                <span class="msg-bubble-time">{{ formatMessageTime(msg.created_at) }}</span>
+                @if (isSentByMe(msg.sender_id)) {
+                  <mat-icon class="msg-check-icon" [class.msg-check-icon--read]="msg.is_read">
+                    {{ msg.is_read ? 'done_all' : 'done' }}
+                  </mat-icon>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (isTyping()) {
+          <div class="msg-bubble-row">
+            <div class="msg-bubble msg-bubble--received">
+              <div class="msg-typing-dots">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="msg-input-bar">
+        <div class="msg-input-wrap">
+          <input
+            type="text"
+            [placeholder]="'messaging.typeMessage' | translate"
+            [value]="messageInput()"
+            (input)="messageInput.set($any($event.target).value); onTyping()"
+            (keydown)="onInputKeydown($event)"
+            class="msg-input"
+          />
+          <button type="button"
+                  (click)="sendMessage()"
+                  [disabled]="!messageInput().trim()"
+                  class="msg-send-btn">
+            <mat-icon class="!text-xl">send</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </main>
+</div>

@@ -7,8 +7,8 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location, NgClass } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { Header } from 'lib/components/header/header';
@@ -24,6 +24,7 @@ import { formatRelativeShort } from 'lib/utils/relative-time';
 import { SwapItem } from '../../swap.models';
 import { MOCK_SWAP_ITEMS } from '../../swap.mock-data';
 import { SwapBoostDialog } from 'lib/components/swap-boost-dialog/swap-boost-dialog';
+import { MessagingService } from 'lib/services/messaging/messaging.service';
 
 @Component({
   selector: 'app-swap-detail',
@@ -35,11 +36,13 @@ import { SwapBoostDialog } from 'lib/components/swap-boost-dialog/swap-boost-dia
 export class SwapDetail {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private location = inject(Location);
   private api = inject(SwapListingApiService);
   private dialog = inject(MatDialog);
   private auth = inject(AuthService);
   private profileApi = inject(ProfileApiService);
   private destroyRef = inject(DestroyRef);
+  private messagingService = inject(MessagingService);
 
   item = signal<SwapItem | null>(null);
   posterProfile = signal<Profile | null>(null);
@@ -152,7 +155,7 @@ export class SwapDetail {
   }
 
   goBack() {
-    this.router.navigate(['/swap']);
+    this.location.back();
   }
 
   nextImage() {
@@ -184,6 +187,17 @@ export class SwapDetail {
     if (item && !this.isExchanged()) {
       this.router.navigate(['/swap/propose', item.id]);
     }
+  }
+
+  messageUser() {
+    const ownerId = this.item()?.owner_id;
+    if (!ownerId) return;
+    this.messagingService.startConversation(ownerId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (convo) => this.router.navigate(['/messages', convo.id]),
+        error: () => {},
+      });
   }
 
   private checkIfExchanged(listingId: string) {

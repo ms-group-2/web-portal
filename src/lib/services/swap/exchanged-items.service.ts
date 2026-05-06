@@ -3,6 +3,7 @@ import { forkJoin, of, catchError } from 'rxjs';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { SwapListingApiService } from './swap-listing-api.service';
 import { SwapOfferResponse } from './models/swap-offer.model';
+import { TradeChain } from './models/trade.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExchangedItemsService {
@@ -26,16 +27,29 @@ export class ExchangedItemsService {
       catchError(() => of([] as SwapOfferResponse[])),
     );
 
+    const trades$ = this.api.getMyTrades().pipe(
+      catchError(() => of([] as TradeChain[])),
+    );
+
     const history$ = this.api.getSwapHistory({ limit: 100 }).pipe(
       catchError(() => of({ items: [], total: 0, page: 1, limit: 100, total_pages: 1 })),
     );
 
-    forkJoin([sent$, history$]).subscribe(([sent, history]) => {
+    forkJoin([sent$, trades$, history$]).subscribe(([sent, trades, history]) => {
       const ids = new Set<string>();
       for (const offer of sent) {
         if (offer.status?.toLowerCase() === 'accepted') {
           if (offer.sender_item_id) ids.add(offer.sender_item_id);
           if (offer.receiver_item_id) ids.add(offer.receiver_item_id);
+        }
+      }
+      for (const trade of trades) {
+        const s = trade.status?.toLowerCase();
+        if (s === 'accepted' || s === 'completed') {
+          for (const item of trade.items) {
+            if (item.from_item_id) ids.add(item.from_item_id);
+            if (item.to_item_id) ids.add(item.to_item_id);
+          }
         }
       }
       for (const record of history.items) {

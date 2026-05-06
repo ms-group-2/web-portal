@@ -80,7 +80,7 @@
         <div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[500px] overflow-y-auto">
           @if (searchLoading()) {
             <div class="p-8 text-center">
-              <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-market border-t-transparent"></div>
+              <div class="inline-block animate-splin rounded-full h-8 w-8 border-4 border-market border-t-transparent"></div>
               <p class="mt-3 text-sm text-gray-500 font-medium">{{ 'shop.search.searching' | translate }}</p>
             </div>
           } @else if (suggestedProducts().length > 0) {
@@ -186,30 +186,55 @@
       </div>
 
       <mat-menu #userMenu="matMenu" class="user-menu z-[60]">
-        <button mat-menu-item class="profile-menu-item" (click)="navigateToProfile()">
-          <mat-icon>person</mat-icon>
-          <span>{{ 'header.profile' | translate }}</span>
-        </button>
-        <a mat-menu-item routerLink="/profile/wishlist" class="profile-menu-item">
-          <mat-icon>favorite_border</mat-icon>
-          <span>{{ 'profile.nav.favorites' | translate }}</span>
-        </a>
-        <button mat-menu-item class="profile-menu-item" (click)="toggleLanguage()">
-          <mat-icon>translate</mat-icon>
-          <span>{{ (isGeorgian() ? 'header.switchToEnglish' : 'header.switchToGeorgian') | translate }}</span>
-        </button>
-        @if (authReady() && !isAuthenticated) {
-          <a mat-menu-item routerLink="/auth/sign-in" class="profile-menu-item auth-menu-item">
-            <mat-icon>login</mat-icon>
-            <span>{{ 'header.signIn' | translate }}</span>
-          </a>
-        }
-        @if (authReady() && isAuthenticated) {
-          <button mat-menu-item (click)="logout()" class="logout-menu-item">
-            <mat-icon>logout</mat-icon>
-            <span>{{ 'header.logout' | translate }}</span>
-          </button>
-        }
+        <div class="user-menu-shell">
+          <div class="user-menu-header">
+            <p class="user-menu-greeting">{{ 'profile.hello' | translate }},</p>
+            <a mat-menu-item routerLink="/messages" class="user-menu-messages">
+              <mat-icon>chat</mat-icon>
+              <span>{{ 'header.messages' | translate }}</span>
+            </a>
+          </div>
+
+          <div class="user-menu-grid">
+            <button mat-menu-item class="profile-menu-item" (click)="navigateToProfile()">
+              <mat-icon>person</mat-icon>
+              <span>{{ 'header.profile' | translate }}</span>
+            </button>
+            <a mat-menu-item routerLink="/profile/my-posts" class="profile-menu-item">
+              <mat-icon>inventory_2</mat-icon>
+              <span>{{ 'profile.nav.myPosts' | translate }}</span>
+            </a>
+            <a mat-menu-item routerLink="/profile/wishlist" class="profile-menu-item">
+              <mat-icon>favorite_border</mat-icon>
+              <span>{{ 'profile.nav.favorites' | translate }}</span>
+            </a>
+            <a mat-menu-item routerLink="/profile/history/shop" class="profile-menu-item">
+              <mat-icon>credit_card</mat-icon>
+              <span>{{ 'profile.nav.shopHistory' | translate }}</span>
+            </a>
+            <a mat-menu-item routerLink="/profile/settings" class="profile-menu-item">
+              <mat-icon>settings</mat-icon>
+              <span>{{ 'profile.nav.settings' | translate }}</span>
+            </a>
+            <button mat-menu-item class="profile-menu-item" (click)="toggleLanguage()">
+              <mat-icon>translate</mat-icon>
+              <span>{{ (isGeorgian() ? 'header.switchToEnglish' : 'header.switchToGeorgian') | translate }}</span>
+            </button>
+            @if (authReady() && !isAuthenticated) {
+              <a mat-menu-item routerLink="/auth/sign-in" class="profile-menu-item auth-menu-item">
+                <mat-icon>login</mat-icon>
+                <span>{{ 'header.signIn' | translate }}</span>
+              </a>
+            }
+          </div>
+
+          @if (authReady() && isAuthenticated) {
+            <button mat-menu-item (click)="logout()" class="logout-menu-item">
+              <mat-icon>logout</mat-icon>
+              <span>{{ 'header.logout' | translate }}</span>
+            </button>
+          }
+        </div>
       </mat-menu>
 
       <button
@@ -284,6 +309,24 @@
               [ngClass]="cartBadgeClass()"
             >
               {{ favoriteCount() }}
+            </span>
+          }
+        </a>
+        <a
+          routerLink="/messages"
+          routerLinkActive="active-nav-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link mobile-drawer-favorites font-extrabold transition px-4 py-3 rounded-xl flex items-center gap-3 mt-1"
+          (click)="closeMobileNav()"
+        >
+          <mat-icon class="!w-6 !h-6 flex-shrink-0 drawer-inline-icon">chat</mat-icon>
+          <span class="flex-1">{{ 'header.messages' | translate }}</span>
+          @if (unreadMsgCount() > 0) {
+            <span
+              class="min-w-6 h-6 px-1.5 text-white rounded-full text-xs font-bold flex items-center justify-center"
+              [ngClass]="cartBadgeClass()"
+            >
+              {{ unreadMsgCount() }}
             </span>
           }
         </a>

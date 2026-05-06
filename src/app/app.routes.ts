@@ -93,6 +93,17 @@ export const routes: Routes = [
   },
 
   {
+    path: 'messages',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/messages/messages').then(m => m.Messages),
+  },
+  {
+    path: 'messages/:conversationId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/messages/messages').then(m => m.Messages),
+  },
+
+  {
     path: 'profile',
     canActivate: [authGuard],
     loadChildren: () => import('./pages/profile/profile.routes').then(m => m.profileRoutes),

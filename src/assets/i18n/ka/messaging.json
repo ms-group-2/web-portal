@@ -1,0 +1,22 @@
+{
+  "messaging": {
+    "title": "შეტყობინებები",
+    "back": "უკან",
+    "noConversations": "საუბრები ჯერ არ არის",
+    "noConversationsDesc": "დაიწყეთ საუბარი სხვა მომხმარებლის პროფილიდან",
+    "selectConversation": "აირჩიეთ საუბარი",
+    "selectConversationDesc": "აირჩიეთ ჩატი სიიდან შეტყობინების გასაგზავნად",
+    "typeMessage": "დაწერეთ შეტყობინება...",
+    "send": "გაგზავნა",
+    "typing": "წერს...",
+    "you": "თქვენ",
+    "today": "დღეს",
+    "yesterday": "გუშინ",
+    "readReceipt": "წაკითხული",
+    "delivered": "მიწოდებული",
+    "loadMore": "ძველი შეტყობინებები",
+    "messageEmpty": "შეტყობინება არ შეიძლება იყოს ცარიელი",
+    "online": "ონლაინ",
+    "unread": "წაუკითხავი"
+  }
+}

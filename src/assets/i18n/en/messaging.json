@@ -1,0 +1,22 @@
+{
+  "messaging": {
+    "title": "Messages",
+    "back": "Back",
+    "noConversations": "No conversations yet",
+    "noConversationsDesc": "Start a conversation by messaging someone from their profile",
+    "selectConversation": "Select a conversation",
+    "selectConversationDesc": "Choose a conversation from the list to start messaging",
+    "typeMessage": "Type a message...",
+    "send": "Send",
+    "typing": "typing...",
+    "you": "You",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "readReceipt": "Read",
+    "delivered": "Delivered",
+    "loadMore": "Load older messages",
+    "messageEmpty": "Message cannot be empty",
+    "online": "Online",
+    "unread": "unread"
+  }
+}

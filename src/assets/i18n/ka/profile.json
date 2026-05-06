@@ -127,7 +127,7 @@
       "status": {
         "confirmed": "დადასტურებული",
         "shipped": "გაგზავნილი",
-        "delivered": "მიწოდებული"
+        "delivered": "გაგზავნილი"
       }
     },
     "deletePostDialog": {
@@ -298,6 +298,18 @@
       }
     }
   },
+  "swapHistory": {
+    "loading": "ისტორია იტვირთება...",
+    "empty": "გაცვლის ისტორია ცარიელია",
+    "emptyDesc": "თქვენი დასრულებული გაცვლები აქ გამოჩნდება",
+    "swapOffer": "გაცვლის შეთავაზება",
+    "directSwap": "პირდაპირი გაცვლა",
+    "tradeChain": "გაცვლის ჯაჭვი",
+    "participants": "მონაწილე",
+    "youGave": "თქვენ შესთავაზეთ",
+    "theirItem": "მათი ნივთი",
+    "viewDetails": "დეტალების ნახვა"
+  },
   "userProfile": {
     "loading": "იტვირთება...",
     "back": "უკან",
@@ -311,7 +323,8 @@
     "exchangeCompleted": "გაცვლა დამთავრდა",
     "notFound": "მომხმარებელი ვერ მოიძებნა",
     "notFoundSubtitle": "ეს პროფილი არ არსებობს ან წაშლილია",
-    "backToSwaps": "გაცვლებზე დაბრუნება"
+    "backToSwaps": "გაცვლებზე დაბრუნება",
+    "sendMessage": "შეტყობინების გაგზავნა"
   },
   "validation": {
     "required": "ეს ველი აუცილებელია",

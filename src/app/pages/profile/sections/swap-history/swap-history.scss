@@ -1,0 +1,67 @@
+:host { display: block; }
+
+.sh-card {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 2px solid #f3f4f6;
+  transition: box-shadow 0.2s;
+
+  &:hover { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+}
+
+.sh-card-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: linear-gradient(to bottom right, #90427b, #7d3a6b);
+
+  &--chain { background: linear-gradient(to bottom right, #faaf78, #f3b582); }
+}
+
+.sh-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sh-item-thumb {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #e5e7eb;
+
+  &--sm { width: 2rem; height: 2rem; }
+}
+
+.sh-chain-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+}
+
+.sh-chain-number {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  color: white;
+  background: #90427b;
+}

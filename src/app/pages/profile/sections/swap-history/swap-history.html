@@ -1,69 +1,115 @@
 <div>
-  <h1 class="text-3xl font-black text-swap uppercase tracking-tight mb-8">გადარიცხვის ისტორია</h1>
-  <div class="space-y-4">
-    <div class="bg-white rounded-xl p-6 border-2 border-swap/20">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-swap rounded-lg flex items-center justify-center">
-            <mat-icon class="w-6 h-6 text-white">swap_horiz</mat-icon>
-          </div>
-          <div>
-            <span class="text-sm font-black text-gray-900 uppercase">ვინტაჟური კამერა გაცვლილი</span>
-            <p class="text-xs text-gray-500 mt-1">დასრულებულია თებერვალი 3, 2025 ჯ.</p>
-            <p class="text-sm text-gray-600 mt-2">გაცვლილია @mike_photos-თან</p>
-          </div>
-        </div>
-        <span class="px-3 py-1 bg-swap/20 text-swap rounded-lg text-xs font-black uppercase">დასრულებული</span>
-      </div>
-    </div>
+  <h1 class="text-3xl font-black text-swap uppercase tracking-tight mb-8">{{ 'profile.nav.swapHistory' | translate }}</h1>
 
-    <div class="bg-white rounded-xl p-6 border-2 border-swap/20">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-swap rounded-lg flex items-center justify-center">
-            <mat-icon class="w-6 h-6 text-white">swap_horiz</mat-icon>
-          </div>
-          <div>
-            <span class="text-sm font-black text-gray-900 uppercase">ტყავის ჟაკეტის გაცვლილი</span>
-            <p class="text-xs text-gray-500 mt-1">დასრულებულია იანვარი 24, 2025 ჯ.</p>
-            <p class="text-sm text-gray-600 mt-2">გაცვლილია @fashion_lover-თან</p>
-          </div>
-        </div>
-        <span class="px-3 py-1 bg-swap/20 text-swap rounded-lg text-xs font-black uppercase">დასრულებული</span>
+  @if (isLoading()) {
+    <div class="flex items-center justify-center py-20">
+      <div class="text-center">
+        <div class="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-swap border-t-transparent"></div>
+        <p class="font-semibold text-gray-600">{{ 'swapHistory.loading' | translate }}</p>
       </div>
     </div>
+  } @else if (cards().length === 0) {
+    <div class="py-20 text-center">
+      <mat-icon class="!text-7xl text-gray-300">swap_horiz</mat-icon>
+      <h3 class="mt-4 text-2xl font-bold text-gray-900">{{ 'swapHistory.empty' | translate }}</h3>
+      <p class="mt-2 font-semibold text-gray-500">{{ 'swapHistory.emptyDesc' | translate }}</p>
+    </div>
+  } @else {
+    <div class="space-y-5">
+      @for (card of cards(); track card.id) {
+        <div class="sh-card">
+          <div class="flex items-start gap-4">
 
-    <div class="bg-white rounded-xl p-6 border-2 border-swap/20">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-swap rounded-lg flex items-center justify-center">
-            <mat-icon class="w-6 h-6 text-white">swap_horiz</mat-icon>
-          </div>
-          <div>
-            <span class="text-sm font-black text-gray-900 uppercase">სკეიტბორდის დეკი გაცვლილი</span>
-            <p class="text-xs text-gray-500 mt-1">დასრულებულია იანვარი 15, 2025 ჯ.</p>
-            <p class="text-sm text-gray-600 mt-2">გაცვლილია @skate_daily-თან</p>
-          </div>
-        </div>
-        <span class="px-3 py-1 bg-swap/20 text-swap rounded-lg text-xs font-black uppercase">დასრულებული</span>
-      </div>
-    </div>
+            @switch (card.kind) {
 
-    <div class="bg-white rounded-xl p-6 border-2 border-swap/20">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-            <mat-icon class="w-6 h-6 text-gray-400">swap_horiz</mat-icon>
-          </div>
-          <div>
-            <span class="text-sm font-black text-gray-900 uppercase">ვინტაჟური რეკორდების გაცვლილი</span>
-            <p class="text-xs text-gray-500 mt-1">დაგეგმილია თებერვალი 8, 2025 ჯ.</p>
-            <p class="text-sm text-gray-600 mt-2">გაცვლილია @vinyl_collector-თან</p>
+              @case ('offer') {
+                <div class="sh-card-icon">
+                  <mat-icon class="!text-2xl text-white">swap_horiz</mat-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <h3 class="text-base md:text-lg font-black text-gray-900">{{ 'swapHistory.swapOffer' | translate }}</h3>
+                      <p class="text-sm font-bold text-gray-500">{{ 'swapHistory.directSwap' | translate }}</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <span class="text-xs font-bold text-gray-400">{{ card.createdLabel }}</span>
+                      <span class="sh-status-badge" [class]="statusClass(card.status)">{{ card.status }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl">
+                    <button type="button" (click)="viewItem(asOffer(card).senderItemId)" class="flex items-center gap-3 flex-1 min-w-0 group">
+                      <img [src]="getItemPhoto(asOffer(card).senderItemId)" alt=""
+                           class="sh-item-thumb group-hover:ring-2 group-hover:ring-swap transition-all" />
+                      <div class="min-w-0">
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-0.5">{{ 'swapHistory.youGave' | translate }}</p>
+                        <p class="text-sm font-black text-gray-900 truncate group-hover:text-swap transition-colors">{{ getItemTitle(asOffer(card).senderItemId) }}</p>
+                      </div>
+                    </button>
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                         style="background: linear-gradient(to bottom right, #90427b, #7d3a6b)">
+                      <mat-icon class="!text-lg text-white">swap_horiz</mat-icon>
+                    </div>
+                    <button type="button" (click)="viewItem(asOffer(card).receiverItemId)" class="flex items-center gap-3 flex-1 min-w-0 group">
+                      <img [src]="getItemPhoto(asOffer(card).receiverItemId)" alt=""
+                           class="sh-item-thumb group-hover:ring-2 group-hover:ring-swap transition-all" />
+                      <div class="min-w-0">
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-0.5">{{ 'swapHistory.theirItem' | translate }}</p>
+                        <p class="text-sm font-black text-gray-900 truncate group-hover:text-swap transition-colors">{{ getItemTitle(asOffer(card).receiverItemId) }}</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              }
+
+              @case ('chain') {
+                <div class="sh-card-icon sh-card-icon--chain">
+                  <mat-icon class="!text-2xl text-white">group</mat-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <h3 class="text-base md:text-lg font-black text-gray-900">{{ 'swapHistory.tradeChain' | translate }}</h3>
+                      <p class="text-sm font-bold text-gray-500">
+                        {{ asChain(card).participantCount }} {{ 'swapHistory.participants' | translate }}
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <span class="text-xs font-bold text-gray-400">{{ card.createdLabel }}</span>
+                      <span class="sh-status-badge" [class]="statusClass(card.status)">{{ card.status }}</span>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2 mb-3">
+                    @for (item of asChain(card).items; track $index) {
+                      <div class="sh-chain-step">
+                        <div class="sh-chain-number">{{ $index + 1 }}</div>
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                          <img [src]="getItemPhoto(item.fromItemId)" alt="" class="sh-item-thumb sh-item-thumb--sm" />
+                          <span class="font-black text-swap text-sm truncate">{{ getItemTitle(item.fromItemId) }}</span>
+                        </div>
+                        <mat-icon class="!text-base text-gray-400 shrink-0">arrow_forward</mat-icon>
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                          <img [src]="getItemPhoto(item.toItemId)" alt="" class="sh-item-thumb sh-item-thumb--sm" />
+                          <span class="font-black text-[#FAAF78] text-sm truncate">{{ getItemTitle(item.toItemId) }}</span>
+                        </div>
+                        <span class="sh-status-badge text-[10px]" [class]="statusClass(item.status)">{{ item.status }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <button type="button" (click)="viewTradeDetail(card.id)"
+                          class="w-full px-4 py-3 bg-white border-2 border-gray-200 hover:border-swap text-gray-700 rounded-xl font-bold text-sm uppercase transition-all flex items-center justify-center gap-2">
+                    <mat-icon class="!text-lg">visibility</mat-icon>
+                    {{ 'swapHistory.viewDetails' | translate }}
+                  </button>
+                </div>
+              }
+            }
           </div>
         </div>
-        <span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-lg text-xs font-black uppercase">Pending</span>
-      </div>
+      }
     </div>
-  </div>
+  }
 </div>
-

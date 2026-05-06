@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, computed, inject, effect } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ScrollTopFab } from 'lib/components/scroll-top-fab/scroll-top-fab';
@@ -22,6 +22,8 @@ import {
 } from './swap.mock-data';
 import { formatRelativeShort } from 'lib/utils/relative-time';
 import { Observable, finalize, switchMap, forkJoin, of, map, catchError } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DestroyRef } from '@angular/core';
 
 @Component({
   selector: 'app-swap',
@@ -44,6 +46,8 @@ import { Observable, finalize, switchMap, forkJoin, of, map, catchError } from '
 })
 export class Swap {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   private api = inject(SwapListingApiService);
   private profileApi = inject(ProfileApiService);
   private auth = inject(AuthService);
@@ -121,6 +125,12 @@ export class Swap {
   });
 
   constructor() {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        this.searchQuery.set((params.get('q') ?? '').trim());
+      });
+
     effect(() => {
       const categoryId = this.selectedCategoryId();
       const query = this.searchQuery();
