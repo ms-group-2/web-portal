@@ -13,3 +13,4 @@ export * from './models/swap-offer.model';
 export * from './models/swap-history.model';
 export * from './proposal-sse.service';
 export * from './swap-notification.service';
+export * from './exchanged-items.service';

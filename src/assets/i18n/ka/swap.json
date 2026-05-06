@@ -62,6 +62,7 @@
 
     "itemCard": {
       "inTrade": "გაცვლაში",
+      "exchangeCompleted": "გაცვლა დამთავრდა",
       "featured": "გამორჩეული",
       "wants": "სურს",
       "viewPhoto": "ნახე ფოტო"
@@ -72,7 +73,9 @@
       "subtitle": "ნახე რას ცვლიან სხვები",
       "verified": "დადასტურებული გაცვლა",
       "bothRated": "ორივე მხარემ შეაფასა",
-      "empty": "ჯერ არ არის ბოლო გაცვლები"
+      "empty": "ჯერ არ არის ბოლო გაცვლები",
+      "loadMore": "მეტის ჩატვირთვა",
+      "loading": "იტვირთება..."
     },
 
     "myTrades": {
@@ -97,13 +100,15 @@
       "backToSwaps": "გაცვლებზე დაბრუნება",
       "featured": "გამორჩეული",
       "inTrade": "გაცვლაში",
+      "exchangeCompleted": "გაცვლა დამთავრდა",
       "description": "აღწერა",
       "wantsInReturn": "სურს სანაცვლოდ",
       "safetyNote": "დაცულია Swap Safety-ით \u2022 შეხვდით საჯარო ადგილას \u2022 გადაამოწმეთ ნივთები",
       "proposeSwap": "შეთავაზე გაცვლა",
       "message": "შეტყობინება",
       "report": "დარეპორტება",
-      "similarSwaps": "მსგავსი გაცვლები"
+      "similarSwaps": "მსგავსი გაცვლები",
+      "linkCopied": "ლინკი დაკოპირდა!"
     },
 
     "postForm": {

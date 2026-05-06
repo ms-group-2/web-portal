@@ -121,6 +121,24 @@
           </div>
         }
       </div>
+
+      @if (hasMore()) {
+        <div class="mt-10 flex justify-center">
+          <button
+            type="button"
+            (click)="loadMore.emit()"
+            [disabled]="isLoadingMore()"
+            class="flex items-center gap-3 rounded-2xl border-2 border-swap bg-white px-8 py-4 text-base font-black uppercase tracking-wide text-swap transition-all hover:bg-swap hover:text-white disabled:opacity-50">
+            @if (isLoadingMore()) {
+              <div class="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+              {{ 'swap.recentTrades.loading' | translate }}
+            } @else {
+              <mat-icon>expand_more</mat-icon>
+              {{ 'swap.recentTrades.loadMore' | translate }}
+            }
+          </button>
+        </div>
+      }
     }
   </div>
 </section>

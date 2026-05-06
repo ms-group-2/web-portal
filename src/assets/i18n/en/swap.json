@@ -62,6 +62,7 @@
 
     "itemCard": {
       "inTrade": "In Trade",
+      "exchangeCompleted": "Exchange Completed",
       "featured": "Featured",
       "wants": "Wants",
       "viewPhoto": "View photo"
@@ -72,7 +73,9 @@
       "subtitle": "See what others are trading",
       "verified": "Verified Swap",
       "bothRated": "Both parties rated",
-      "empty": "No recent trades yet"
+      "empty": "No recent trades yet",
+      "loadMore": "Load More",
+      "loading": "Loading..."
     },
 
     "myTrades": {
@@ -96,13 +99,15 @@
       "backToSwaps": "Back to Swaps",
       "featured": "Featured",
       "inTrade": "In Trade",
+      "exchangeCompleted": "Exchange Completed",
       "description": "Description",
       "wantsInReturn": "Wants in return",
       "safetyNote": "Protected by Swap Safety \u2022 Meet in public \u2022 Verify items",
       "proposeSwap": "Propose a Swap",
       "message": "Message",
       "report": "Report",
-      "similarSwaps": "Similar Swaps"
+      "similarSwaps": "Similar Swaps",
+      "linkCopied": "Link copied!"
     },
 
     "postForm": {

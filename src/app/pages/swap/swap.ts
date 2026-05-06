@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { ScrollTopFab } from 'lib/components/scroll-top-fab/scroll-top-fab';
-import { SwapListingApiService, TradeChain, SwapRecord } from 'lib/services/swap';
+import { SwapListingApiService, TradeChain, SwapRecord, ExchangedItemsService } from 'lib/services/swap';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { AuthService } from 'lib/services/identity/auth.service';
 import { normalizeSwapPhotos, SWAP_PHOTO_PLACEHOLDER } from 'lib/utils/swap-photos';
@@ -47,6 +47,7 @@ export class Swap {
   private api = inject(SwapListingApiService);
   private profileApi = inject(ProfileApiService);
   private auth = inject(AuthService);
+  private exchangedService = inject(ExchangedItemsService);
 
   // State
   swapItems = signal<SwapItem[]>(MOCK_SWAP_ITEMS);
@@ -62,7 +63,12 @@ export class Swap {
 
 
   recentTrades = signal<RecentTrade[]>([]);
+  exchangedItemIds = this.exchangedService.ids;
   isRecentTradesLoading = signal(false);
+  isRecentTradesLoadingMore = signal(false);
+  hasMoreRecentTrades = signal(false);
+  private recentTradesPage = 1;
+  private recentTradesTotalPages = 1;
 
   // Mock data
   aiMatches = AI_MATCHES;
@@ -70,14 +76,34 @@ export class Swap {
 
   private readonly FOUR_DAYS_MS = 4 * 24 * 60 * 60 * 1000;
 
-  newlyAddedItems = computed(() =>
-    this.swapItems().filter(
-      (item) => Date.now() - new Date(item.created_at).getTime() <= this.FOUR_DAYS_MS
-    )
-  );
+  newlyAddedItems = computed(() => {
+    const exchanged = this.exchangedItemIds();
+    return this.swapItems().filter(
+      (item) => !exchanged.has(item.id) && Date.now() - new Date(item.created_at).getTime() <= this.FOUR_DAYS_MS
+    );
+  });
+
+  private static readonly BOOST_RANK: Record<string, number> = {
+    super_vip: 3,
+    vip_plus: 2,
+    vip: 1,
+  };
 
   filteredItems = computed(() => {
-    return this.swapItems();
+    const exchanged = this.exchangedItemIds();
+    const now = Date.now();
+    return this.swapItems()
+      .filter(item => !exchanged.has(item.id))
+      .sort((a, b) => {
+        const aActive = a.boost_tier && a.boost_expires_at && new Date(a.boost_expires_at).getTime() > now;
+        const bActive = b.boost_tier && b.boost_expires_at && new Date(b.boost_expires_at).getTime() > now;
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
+        if (aActive && bActive) {
+          return (Swap.BOOST_RANK[b.boost_tier!] ?? 0) - (Swap.BOOST_RANK[a.boost_tier!] ?? 0);
+        }
+        return 0;
+      });
   });
 
   myTradeCards = computed<SwapMyTradeCard[]>(() => {
@@ -102,6 +128,7 @@ export class Swap {
     });
     this.loadMyTrades();
     this.loadRecentTrades();
+    this.exchangedService.load();
   }
 
   loadAllListings(categoryId?: number | null, query?: string) {
@@ -194,15 +221,26 @@ export class Swap {
 
   private loadRecentTrades() {
     this.isRecentTradesLoading.set(true);
+    this.recentTradesPage = 1;
 
-    this.api.getRecentTrades(10).pipe(
-      switchMap(trades => this.resolveListingsAndProfiles(trades)),
-      catchError(() => of([] as RecentTrade[])),
+    const swapHistory$ = this.auth.isAuthenticated()
+      ? this.api.getSwapHistory({ page: 1, limit: 6 }).pipe(
+          switchMap(res => {
+            this.recentTradesTotalPages = res.total_pages;
+            this.hasMoreRecentTrades.set(res.page < res.total_pages);
+            return this.resolveSwapHistoryCards(res.items);
+          }),
+          catchError(() => of([] as RecentTrade[])),
+        )
+      : of([] as RecentTrade[]);
+
+    swapHistory$.pipe(
       switchMap((cards): Observable<RecentTrade[]> => {
         if (cards.length > 0) return of(cards);
-        if (!this.auth.isAuthenticated()) return of([]);
-        return this.api.getSwapHistory({ limit: 10 }).pipe(
-          switchMap(res => this.resolveSwapHistoryCards(res.items)),
+        return this.api.getRecentTrades(10).pipe(
+          switchMap(trades => {
+            return this.resolveListingsAndProfiles(trades);
+          }),
           catchError(() => of([] as RecentTrade[])),
         );
       }),
@@ -214,6 +252,30 @@ export class Swap {
       } else {
         this.buildFallbackCards();
       }
+    });
+  }
+
+  loadMoreRecentTrades() {
+    if (this.isRecentTradesLoadingMore() || !this.hasMoreRecentTrades()) return;
+
+    this.recentTradesPage++;
+    this.isRecentTradesLoadingMore.set(true);
+
+    this.api.getSwapHistory({ page: this.recentTradesPage, limit: 6 }).pipe(
+      switchMap(res => {
+        this.recentTradesTotalPages = res.total_pages;
+        this.hasMoreRecentTrades.set(res.page < res.total_pages);
+        return this.resolveSwapHistoryCards(res.items);
+      }),
+      catchError(() => {
+        this.recentTradesPage--;
+        return of([] as RecentTrade[]);
+      }),
+    ).subscribe(cards => {
+      if (cards.length > 0) {
+        this.recentTrades.update(existing => [...existing, ...cards]);
+      }
+      this.isRecentTradesLoadingMore.set(false);
     });
   }
 

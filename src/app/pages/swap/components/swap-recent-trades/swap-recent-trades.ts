@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ScrollAnimateDirective } from 'lib/directives/scroll-animate.directive';
@@ -14,4 +14,7 @@ import { RecentTrade } from '../../swap.models';
 export class SwapRecentTrades {
   recentTrades = input.required<RecentTrade[]>();
   isLoading = input(false);
+  isLoadingMore = input(false);
+  hasMore = input(false);
+  loadMore = output<void>();
 }

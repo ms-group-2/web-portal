@@ -19,7 +19,9 @@ import {
   PostedSwapItem,
   ProposalItemDraft,
   ProposalSessionResponse,
+  SwapOfferResponse,
 } from 'lib/services/swap';
+import { catchError, forkJoin, of } from 'rxjs';
 import { ProposalSseService, SseItemEvent } from 'lib/services/swap/proposal-sse.service';
 import { SnackbarService } from 'lib/services/snackbar.service';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
@@ -131,11 +133,30 @@ export class ProposeSwap {
         next: listing => {
           this.targetListing.set(listing);
           this.isLoadingListing.set(false);
+          this.checkIfExchanged(id);
         },
         error: () => {
           this.isLoadingListing.set(false);
           this.snackbar.error(this.translation.translate('swap.proposeForm.sessionError'));
         },
+      });
+  }
+
+  private checkIfExchanged(listingId: string) {
+    const forItem$ = this.api.getSwapOffersForItem(listingId).pipe(
+      catchError(() => of([] as SwapOfferResponse[])),
+    );
+    const sent$ = this.api.getMySentSwapOffers().pipe(
+      catchError(() => of([] as SwapOfferResponse[])),
+    );
+
+    forkJoin([forItem$, sent$])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([forItem, sent]) => {
+        const hasAccepted = forItem.some(o => o.status?.toLowerCase() === 'accepted')
+          || sent.some(o => o.status?.toLowerCase() === 'accepted'
+            && (o.sender_item_id === listingId || o.receiver_item_id === listingId));
+        if (hasAccepted) this.router.navigate(['/swap', listingId]);
       });
   }
 

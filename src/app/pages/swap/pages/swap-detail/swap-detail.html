@@ -59,7 +59,17 @@
               </div>
             }
 
-            @if (item.featured) {
+            @if (activeBoostTier(); as tier) {
+              <div class="absolute left-6 top-6 flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black uppercase tracking-wide text-white shadow-xl"
+                [ngClass]="{
+                  'bg-gradient-to-r from-yellow-400 to-amber-500': tier === 'super_vip',
+                  'bg-gradient-to-r from-purple-500 to-swap': tier === 'vip_plus',
+                  'bg-swap': tier === 'vip'
+                }">
+                <mat-icon class="!h-5 !w-5 !text-xl">{{ tier === 'super_vip' ? 'diamond' : tier === 'vip_plus' ? 'star' : 'bolt' }}</mat-icon>
+                {{ tier === 'super_vip' ? 'SUPER VIP' : tier === 'vip_plus' ? 'VIP+' : 'VIP' }}
+              </div>
+            } @else if (item.featured) {
               <div class="absolute left-6 top-6 flex items-center gap-2 rounded-full bg-gradient-to-r from-[#F3B582] to-[#FAAF78] px-5 py-3 text-sm font-black uppercase tracking-wide text-black shadow-xl">
                 <mat-icon class="!h-5 !w-5 !text-xl">auto_awesome</mat-icon>
                 {{ 'swap.detail.featured' | translate }}
@@ -69,6 +79,12 @@
             @if (item.status === 'locked') {
               <div class="absolute left-6 top-6 rounded-full bg-swap px-5 py-3 text-sm font-black uppercase tracking-wide text-white shadow-xl">
                 {{ 'swap.detail.inTrade' | translate }}
+              </div>
+            }
+
+            @if (isExchanged()) {
+              <div class="absolute left-6 top-6 rounded-full bg-green-600 px-5 py-3 text-sm font-black uppercase tracking-wide text-white shadow-xl">
+                {{ 'swap.detail.exchangeCompleted' | translate }}
               </div>
             }
           </div>
@@ -109,11 +125,24 @@
                     : 'bg-gray-100 border-gray-200 text-gray-600 hover:border-swap'">
                   <mat-icon class="!text-2xl">{{ isFavorited() ? 'favorite' : 'favorite_border' }}</mat-icon>
                 </button>
-                <button
-                  type="button"
-                  class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-gray-200 bg-gray-100 transition-all hover:bg-gray-200">
-                  <mat-icon class="!text-2xl text-gray-600">share</mat-icon>
-                </button>
+                <div class="relative">
+                  <button
+                    type="button"
+                    (click)="shareLink()"
+                    class="flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all"
+                    [ngClass]="linkCopied()
+                      ? 'border-green-400 bg-green-100'
+                      : 'border-gray-200 bg-gray-100 hover:bg-gray-200'">
+                    <mat-icon class="!text-2xl" [ngClass]="linkCopied() ? 'text-green-600' : 'text-gray-600'">
+                      {{ linkCopied() ? 'check' : 'share' }}
+                    </mat-icon>
+                  </button>
+                  @if (linkCopied()) {
+                    <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
+                      {{ 'swap.detail.linkCopied' | translate }}
+                    </div>
+                  }
+                </div>
               </div>
             </div>
 
@@ -177,8 +206,15 @@
             </div>
           </div>
 
-          <div class="space-y-4 pt-4">
-            @if (isOwner()) {
+          @if (isExchanged()) {
+            <div class="rounded-2xl border-2 border-green-200 bg-green-50 p-6 text-center">
+              <div class="flex items-center justify-center gap-3">
+                <mat-icon class="!text-3xl text-green-600">check_circle</mat-icon>
+                <p class="text-lg font-black uppercase text-green-700">{{ 'swap.detail.exchangeCompleted' | translate }}</p>
+              </div>
+            </div>
+          } @else if (isOwner()) {
+            <div class="space-y-4 pt-4">
               <button
                 type="button"
                 (click)="openBoostDialog()"
@@ -186,31 +222,33 @@
                 <mat-icon class="!text-2xl">bolt</mat-icon>
                 {{ 'swap.boost.open' | translate }}
               </button>
-            }
-
-            <button
-              type="button"
-              (click)="proposeSwap()"
-              class="flex w-full items-center justify-center gap-4 rounded-2xl bg-swap px-4 sm:px-8 py-6 text-xl font-black uppercase tracking-wide text-white shadow-lg transition-all hover:scale-105 hover:bg-[#7d3a6b] hover:shadow-xl">
-              <mat-icon class="!text-3xl">swap_horiz</mat-icon>
-              {{ 'swap.detail.proposeSwap' | translate }}
-            </button>
-
-            <div class="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                class="flex items-center justify-center gap-3 rounded-2xl border-2 border-swap bg-white px-6 py-5 text-base font-black uppercase tracking-wide text-swap transition-all hover:bg-gray-50">
-                <mat-icon class="!text-2xl">chat</mat-icon>
-                {{ 'swap.detail.message' | translate }}
-              </button>
-              <button
-                type="button"
-                class="flex items-center justify-center gap-3 rounded-2xl border-2 border-gray-200 bg-gray-100 px-6 py-5 text-base font-bold uppercase tracking-wide text-gray-700 transition-all hover:bg-gray-200">
-                <mat-icon class="!text-2xl">flag</mat-icon>
-                {{ 'swap.detail.report' | translate }}
-              </button>
             </div>
-          </div>
+          } @else {
+            <div class="space-y-4 pt-4">
+              <button
+                type="button"
+                (click)="proposeSwap()"
+                class="flex w-full items-center justify-center gap-4 rounded-2xl bg-swap px-4 sm:px-8 py-6 text-xl font-black uppercase tracking-wide text-white shadow-lg transition-all hover:scale-105 hover:bg-[#7d3a6b] hover:shadow-xl">
+                <mat-icon class="!text-3xl">swap_horiz</mat-icon>
+                {{ 'swap.detail.proposeSwap' | translate }}
+              </button>
+
+              <div class="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  class="flex items-center justify-center gap-3 rounded-2xl border-2 border-swap bg-white px-6 py-5 text-base font-black uppercase tracking-wide text-swap transition-all hover:bg-gray-50">
+                  <mat-icon class="!text-2xl">chat</mat-icon>
+                  {{ 'swap.detail.message' | translate }}
+                </button>
+                <button
+                  type="button"
+                  class="flex items-center justify-center gap-3 rounded-2xl border-2 border-gray-200 bg-gray-100 px-6 py-5 text-base font-bold uppercase tracking-wide text-gray-700 transition-all hover:bg-gray-200">
+                  <mat-icon class="!text-2xl">flag</mat-icon>
+                  {{ 'swap.detail.report' | translate }}
+                </button>
+              </div>
+            </div>
+          }
         </div>
       </div>
     </div>

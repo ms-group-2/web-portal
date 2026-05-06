@@ -14,7 +14,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
-import { SwapListingApiService } from 'lib/services/swap';
+import { SwapListingApiService, SwapOfferResponse } from 'lib/services/swap';
+import { catchError, forkJoin, of } from 'rxjs';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { Profile } from 'lib/services/profile/models/profile.model';
 import { AuthService } from 'lib/services/identity/auth.service';
@@ -42,14 +43,23 @@ export class SwapDetail {
 
   item = signal<SwapItem | null>(null);
   posterProfile = signal<Profile | null>(null);
+  isExchanged = signal(false);
   isLoading = signal(true);
   currentImageIndex = signal(0);
   isFavorited = signal(false);
+  linkCopied = signal(false);
 
   isOwner = computed(() => {
     const currentUserId = this.auth.user()?.id;
     const listingOwnerId = this.item()?.owner_id;
     return !!currentUserId && !!listingOwnerId && currentUserId === listingOwnerId;
+  });
+
+  activeBoostTier = computed(() => {
+    const i = this.item();
+    if (!i?.boost_tier || !i.boost_expires_at) return null;
+    if (new Date(i.boost_expires_at).getTime() <= Date.now()) return null;
+    return i.boost_tier;
   });
 
   photos = computed(() => {
@@ -87,7 +97,10 @@ export class SwapDetail {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
         const id = params.get('id');
-        if (id) this.loadItem(id);
+        if (id) {
+          this.loadItem(id);
+          this.checkIfExchanged(id);
+        }
       });
   }
 
@@ -168,9 +181,36 @@ export class SwapDetail {
 
   proposeSwap() {
     const item = this.item();
-    if (item) {
+    if (item && !this.isExchanged()) {
       this.router.navigate(['/swap/propose', item.id]);
     }
+  }
+
+  private checkIfExchanged(listingId: string) {
+    this.isExchanged.set(false);
+
+    const forItem$ = this.api.getSwapOffersForItem(listingId).pipe(
+      catchError(() => of([] as SwapOfferResponse[])),
+    );
+    const sent$ = this.auth.isAuthenticated()
+      ? this.api.getMySentSwapOffers().pipe(catchError(() => of([] as SwapOfferResponse[])))
+      : of([] as SwapOfferResponse[]);
+
+    forkJoin([forItem$, sent$])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([forItem, sent]) => {
+        const hasAccepted = forItem.some(o => o.status?.toLowerCase() === 'accepted')
+          || sent.some(o => o.status?.toLowerCase() === 'accepted'
+            && (o.sender_item_id === listingId || o.receiver_item_id === listingId));
+        if (hasAccepted) this.isExchanged.set(true);
+      });
+  }
+
+  shareLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      this.linkCopied.set(true);
+      setTimeout(() => this.linkCopied.set(false), 1000);
+    });
   }
 
   openBoostDialog() {

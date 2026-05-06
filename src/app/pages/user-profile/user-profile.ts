@@ -8,20 +8,22 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Header } from 'lib/components/header/header';
 import { Footer } from 'lib/components/footer/footer';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { Profile } from 'lib/services/profile/models/profile.model';
-import { SwapListingApiService } from 'lib/services/swap';
+import { SwapListingApiService, ExchangedItemsService } from 'lib/services/swap';
 import { SwapListing } from 'lib/services/swap/models/swap-listing.model';
+import { catchError, of } from 'rxjs';
 import { normalizeSwapPhotos, SWAP_PHOTO_PLACEHOLDER } from 'lib/utils/swap-photos';
 import { formatRelativeShort, parseBackendDate } from 'lib/utils/relative-time';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [MatIconModule, Header, Footer, TranslatePipe],
+  imports: [NgClass, MatIconModule, Header, Footer, TranslatePipe],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,10 +33,12 @@ export class UserProfile {
   private router = inject(Router);
   private profileApi = inject(ProfileApiService);
   private swapApi = inject(SwapListingApiService);
+  private exchangedService = inject(ExchangedItemsService);
   private destroyRef = inject(DestroyRef);
 
   profile = signal<Profile | null>(null);
   listings = signal<SwapListing[]>([]);
+  exchangedItemIds = this.exchangedService.ids;
   isLoading = signal(true);
   isListingsLoading = signal(true);
 
@@ -66,6 +70,7 @@ export class UserProfile {
         if (id) {
           this.loadProfile(id);
           this.loadListings(id);
+          this.exchangedService.load();
         }
       });
   }
@@ -115,7 +120,12 @@ export class UserProfile {
     this.router.navigate(['/swap']);
   }
 
+  isExchanged(listingId: string): boolean {
+    return this.exchangedItemIds().has(listingId);
+  }
+
   navigateToListing(listingId: string) {
     this.router.navigate(['/swap', listingId]);
   }
+
 }

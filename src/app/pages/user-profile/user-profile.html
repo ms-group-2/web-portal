@@ -100,7 +100,10 @@
               <button
                 type="button"
                 (click)="navigateToListing(listing.id)"
-                class="group overflow-hidden rounded-2xl border-2 border-gray-200 bg-white text-left transition-all hover:scale-[1.02] hover:border-swap hover:shadow-lg">
+                class="group overflow-hidden rounded-2xl border-2 bg-white text-left transition-all"
+                [ngClass]="isExchanged(listing.id)
+                  ? 'border-green-300 opacity-70 cursor-default'
+                  : 'border-gray-200 hover:scale-[1.02] hover:border-swap hover:shadow-lg'">
                 <div class="relative h-52 overflow-hidden bg-gray-100">
                   <img
                     [src]="getListingPhoto(listing)"
@@ -112,6 +115,14 @@
                       <span class="rounded-full bg-white px-4 py-2 text-sm font-black uppercase text-gray-900">
                         {{ 'userProfile.inTrade' | translate }}
                       </span>
+                    </div>
+                  }
+                  @if (isExchanged(listing.id)) {
+                    <div class="absolute inset-0 z-10 flex items-center justify-center bg-black/50">
+                      <div class="flex items-center gap-2 rounded-full bg-green-600 px-5 py-2.5 shadow-lg">
+                        <mat-icon class="!h-4 !w-4 !text-base text-white">check_circle</mat-icon>
+                        <span class="text-sm font-black uppercase text-white">{{ 'userProfile.exchangeCompleted' | translate }}</span>
+                      </div>
                     </div>
                   }
                 </div>

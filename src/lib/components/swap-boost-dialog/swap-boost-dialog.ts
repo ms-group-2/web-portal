@@ -26,7 +26,7 @@ interface SwapBoostDialogData {
   imports: [FormsModule, MatDialogModule, MatButtonModule, MatIconModule, UpperCasePipe, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="w-full max-w-2xl p-6">
+    <div class="w-full max-w-2xl rounded-2xl bg-white p-6">
       <div class="mb-4 flex items-start justify-between">
         <div>
           <h2 class="text-2xl font-black text-gray-900">{{ 'swap.boost.title' | translate }}</h2>

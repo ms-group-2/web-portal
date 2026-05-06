@@ -28,7 +28,13 @@
     ></app-swap-listings-grid>
 
   
-    <app-swap-recent-trades [recentTrades]="recentTrades()" [isLoading]="isRecentTradesLoading()"></app-swap-recent-trades>
+    <app-swap-recent-trades
+      [recentTrades]="recentTrades()"
+      [isLoading]="isRecentTradesLoading()"
+      [isLoadingMore]="isRecentTradesLoadingMore()"
+      [hasMore]="hasMoreRecentTrades()"
+      (loadMore)="loadMoreRecentTrades()"
+    ></app-swap-recent-trades>
   </div>
 </div>
 

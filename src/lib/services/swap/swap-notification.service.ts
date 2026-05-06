@@ -43,6 +43,7 @@ export class SwapNotificationService {
   private initialLoadDone = false;
   private inFlight: Subscription | null = null;
   private cachedListingIds: string[] | null = null;
+  private refreshDebounce: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     effect(() => {
@@ -53,9 +54,7 @@ export class SwapNotificationService {
       this.lastUserId = userId;
 
       this.stopPolling();
-      this.inFlight?.unsubscribe();
-      this.inFlight = null;
-      this.cachedListingIds = null;
+      this.cancelPending();
 
       if (userId) {
         const stored = this.storage.getItem(`${STORAGE_KEY_PREFIX}${userId}`);
@@ -63,7 +62,7 @@ export class SwapNotificationService {
           this._pendingCount.set(Number(stored) || 0);
         }
         this.initialLoadDone = false;
-        this.refresh();
+        this.scheduleRefresh(0);
         this.startPolling();
       } else {
         this._pendingCount.set(0);
@@ -72,7 +71,28 @@ export class SwapNotificationService {
       }
     });
 
-    this.destroyRef.onDestroy(() => this.stopPolling());
+    this.destroyRef.onDestroy(() => {
+      this.stopPolling();
+      this.cancelPending();
+    });
+  }
+
+  private cancelPending(): void {
+    this.inFlight?.unsubscribe();
+    this.inFlight = null;
+    this.cachedListingIds = null;
+    if (this.refreshDebounce) {
+      clearTimeout(this.refreshDebounce);
+      this.refreshDebounce = null;
+    }
+  }
+
+  private scheduleRefresh(delay: number): void {
+    if (this.refreshDebounce) clearTimeout(this.refreshDebounce);
+    this.refreshDebounce = setTimeout(() => {
+      this.refreshDebounce = null;
+      this.refresh();
+    }, delay);
   }
 
   refresh(): void {
@@ -86,16 +106,18 @@ export class SwapNotificationService {
     this.inFlight = listingIds$.pipe(
       switchMap(listingIds => {
         this.cachedListingIds = listingIds;
+        const listingIdSet = new Set(listingIds);
 
         return forkJoin({
-          receivedOffers: listingIds.length > 0
-            ? forkJoin(listingIds.map(id => this.api.getSwapOffersForItem(id)))
-            : of([] as SwapOfferResponse[][]),
-          receivedProposals: listingIds.length > 0
-            ? forkJoin(listingIds.map(id => this.api.getProposalsForListing(id)))
-            : of([] as ProposalResponse[][]),
-          trades: this.api.getMyTrades(),
-        }).pipe(map(data => ({ ...data, listingIds })));
+          proposals: this.api.getMyProposals().pipe(catchError(() => of([] as ProposalResponse[]))),
+          sentOffers: this.api.getMySentSwapOffers().pipe(catchError(() => of([] as SwapOfferResponse[]))),
+          trades: this.api.getMyTrades().pipe(catchError(() => of([] as TradeChain[]))),
+        }).pipe(map(data => ({
+          receivedProposals: data.proposals.filter(p => p.target_listing_id && listingIdSet.has(p.target_listing_id)),
+          receivedOffers: data.sentOffers,
+          trades: data.trades,
+          listingIds,
+        })));
       }),
       catchError(() => of(null)),
       takeUntilDestroyed(this.destroyRef),
@@ -103,12 +125,9 @@ export class SwapNotificationService {
       this.inFlight = null;
       if (!data) return;
 
-      const allProposals = this.dedupeById(data.receivedProposals.flat());
-      const allOffers = this.dedupeById(data.receivedOffers.flat());
-
-      const proposalPending = allProposals
+      const proposalPending = data.receivedProposals
         .filter(p => p.status?.toLowerCase() === 'pending').length;
-      const offerPending = allOffers
+      const offerPending = data.receivedOffers
         .filter(o => o.status?.toLowerCase() === 'pending').length;
       const chainPending = data.trades
         .filter(t => t.status?.toLowerCase() === 'pending').length;
@@ -118,8 +137,8 @@ export class SwapNotificationService {
 
       this._pendingCount.set(total);
       this._data.set({
-        receivedProposals: allProposals,
-        receivedOffers: allOffers,
+        receivedProposals: data.receivedProposals,
+        receivedOffers: data.receivedOffers,
         trades: data.trades,
         userListingIds: data.listingIds,
       });
@@ -137,15 +156,6 @@ export class SwapNotificationService {
 
   invalidateListingCache(): void {
     this.cachedListingIds = null;
-  }
-
-  private dedupeById<T extends { id: string }>(items: T[]): T[] {
-    const seen = new Set<string>();
-    return items.filter(i => {
-      if (seen.has(i.id)) return false;
-      seen.add(i.id);
-      return true;
-    });
   }
 
   private startPolling(): void {

@@ -1,6 +1,6 @@
 <div
   class="swap-card bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-swap transition-all duration-300 hover:shadow-2xl cursor-pointer"
-  [class.opacity-60]="item().status === 'locked'"
+  [class.opacity-60]="item().status === 'locked' || isExchanged()"
   (click)="onCardClick()">
   <div class="relative h-52 overflow-hidden bg-gray-100">
     <app-swap-listing-photo
@@ -19,7 +19,27 @@
       </div>
     }
 
-    @if (item().featured && item().status !== 'locked') {
+    @if (isExchanged()) {
+      <div class="absolute inset-0 z-30 flex items-center justify-center bg-black/50">
+        <div class="rounded-full bg-green-600 px-5 py-2">
+          <span class="text-sm font-black uppercase text-white">{{ 'swap.itemCard.exchangeCompleted' | translate }}</span>
+        </div>
+      </div>
+    }
+
+    @if (activeBoostTier(); as tier) {
+      <div class="absolute left-3 top-3 z-20 rounded-full px-3 py-1.5 shadow-lg"
+        [ngClass]="{
+          'bg-gradient-to-r from-yellow-400 to-amber-500': tier === 'super_vip',
+          'bg-gradient-to-r from-purple-500 to-swap': tier === 'vip_plus',
+          'bg-swap': tier === 'vip'
+        }">
+        <span class="flex items-center gap-1 text-xs font-black uppercase text-white">
+          <mat-icon class="!h-3 !w-3 !text-xs">{{ tier === 'super_vip' ? 'diamond' : tier === 'vip_plus' ? 'star' : 'bolt' }}</mat-icon>
+          {{ tier === 'super_vip' ? 'SUPER VIP' : tier === 'vip_plus' ? 'VIP+' : 'VIP' }}
+        </span>
+      </div>
+    } @else if (item().featured && item().status !== 'locked' && !isExchanged()) {
       <div class="absolute left-3 top-3 z-20 rounded-full bg-swap px-3 py-1.5 shadow-lg">
         <span class="flex items-center gap-1 text-xs font-black uppercase text-white">
           <mat-icon class="!h-3 !w-3 !text-xs">bolt</mat-icon>
@@ -28,7 +48,7 @@
       </div>
     }
 
-    @if (item().status !== 'locked') {
+    @if (item().status !== 'locked' && !isExchanged()) {
       <button
         (click)="onToggleFavorite($event)"
         class="absolute right-3 top-3 z-30 flex h-10 w-10 items-center justify-center rounded-full shadow-lg transition-all"
