@@ -58,14 +58,14 @@ export class ProfileApiService {
   }
 
   getWishlist(page = 1, limit = 20): Observable<WishlistResponse> {
-    return this.http.get<WishlistResponse>(`${this.baseUrl}/wishlist`, {
+    return this.http.get<WishlistResponse>(`${this.baseUrl}/wishlist/`, {
       params: { page, limit },
     });
   }
 
   toggleWishlist(productId: number): Observable<WishlistToggleResponse> {
     const body: WishlistToggleRequest = { product_id: productId };
-    return this.http.post<WishlistToggleResponse>(`${this.baseUrl}/wishlist/toggle`, body);
+    return this.http.post<WishlistToggleResponse>(`${this.baseUrl}/wishlist/`, body);
   }
 
   startVerification(callbackUrl?: string): Observable<VerificationStartResponse> {

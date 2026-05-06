@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
@@ -24,12 +24,14 @@ export class SwapListingsGrid {
 
   postItem = output<void>();
 
+  favoriteSet = computed(() => this.favoritesService.favorites());
+
   toggleFavorite(itemId: string) {
     this.favoritesService.toggleFavorite(itemId);
   }
 
   isFavorite(itemId: string): boolean {
-    return this.favoritesService.isFavorite(itemId);
+    return this.favoriteSet().has(itemId);
   }
 
   navigateToDetail(itemId: string) {

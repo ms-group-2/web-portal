@@ -80,15 +80,14 @@
               <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step2Subtitle' | translate }}</p>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              @for (cat of categories; track cat.name) {
+              @for (cat of categories(); track cat.id) {
                 <button
                   type="button"
-                  (click)="selectCategory(cat.name)"
+                  (click)="selectCategory(cat)"
                   class="p-4 md:p-6 rounded-2xl font-bold transition-all border-2 hover:scale-105 flex flex-col items-center justify-center text-center"
                   [ngClass]="category() === cat.name
                     ? 'bg-swap text-white border-swap shadow-xl'
                     : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-swap'">
-                  <mat-icon class="!text-4xl !w-10 !h-10 mb-2">{{ cat.icon }}</mat-icon>
                   <span class="text-sm">{{ cat.name }}</span>
                 </button>
               }
@@ -176,16 +175,15 @@
           </div>
         }
 
-        @case (5) {
+        @case (6) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in-up">
             <div class="mb-8">
-              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.postForm.step5Title' | translate }}</h2>
-              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step5Subtitle' | translate }}</p>
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.postForm.step5WantLabel' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step5WantEitherHint' | translate }}</p>
             </div>
 
             <div class="space-y-8">
               <div>
-                <label class="text-lg font-black text-gray-700 mb-3 block">{{ 'swap.postForm.step5WantLabel' | translate }}</label>
                 <input
                   type="text"
                   [value]="wantInReturn()"
@@ -196,11 +194,41 @@
                   class="focus:!border-b-swap w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
                          placeholder:text-gray-300 bg-transparent" />
-                @if (showErrors() && !wantInReturn().trim()) {
-                  <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.fieldRequired' | translate }}</p>
+
+                <p class="text-sm text-gray-800 font-black mt-3 mb-3">
+                  {{ 'swap.postForm.step5WantOrCategory' | translate }}
+                </p>
+
+                <div class="flex flex-wrap gap-2">
+                  @for (cat of categories(); track cat.id) {
+                    <button
+                      type="button"
+                      (click)="selectDesiredCategory($any(cat.id))"
+                      class="rounded-full border px-3 py-1.5 text-sm font-bold transition-all"
+                      [ngClass]="desiredCategoryId() === $any(cat.id)
+                        ? 'border-swap bg-swap text-white'
+                        : 'border-gray-300 text-gray-700 hover:border-swap'">
+                      {{ cat.name }}
+                    </button>
+                  }
+                </div>
+
+                @if (showErrors() && !wantInReturn().trim() && desiredCategoryId() === null) {
+                  <p class="text-sm text-red-500 font-semibold mt-2">{{ 'swap.postForm.step5WantOrCategoryError' | translate }}</p>
                 }
               </div>
+            </div>
+          </div>
+        }
 
+        @case (5) {
+          <div class="flex-1 flex flex-col justify-center animate-fade-in-up">
+            <div class="mb-8">
+              <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.postForm.step5Title' | translate }}</h2>
+              <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step5Subtitle' | translate }}</p>
+            </div>
+
+            <div class="space-y-8">
               <div>
                 <label class="text-lg font-black text-gray-700 mb-3 block">{{ 'swap.postForm.step5PriceLabel' | translate }}</label>
                 <input
@@ -245,7 +273,7 @@
           </div>
         }
 
-        @case (6) {
+        @case (7) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in-up">
             <div class="mb-8 text-center">
               <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4">{{ 'swap.postForm.step6Title' | translate }}</h2>
@@ -290,7 +318,7 @@
                   <mat-icon class="text-swapPost">swap_horiz</mat-icon>
                   <div>
                     <p class="text-xs font-black text-gray-500 uppercase tracking-wide">{{ 'swap.postForm.step6WantsLabel' | translate }}</p>
-                    <p class="font-bold text-gray-900">{{ wantInReturn() }}</p>
+                    <p class="font-bold text-gray-900">{{ wantInReturn() || selectedDesiredCategoryName() }}</p>
                   </div>
                 </div>
 
@@ -324,6 +352,11 @@
               </p>
             </div>
 
+          </div>
+        }
+
+        @case (8) {
+          <div class="flex-1 flex flex-col justify-center animate-fade-in-up">
             <div class="mt-6 rounded-2xl border-2 border-gray-200 p-5">
               <div class="mb-4">
                 <h3 class="text-lg font-black text-gray-900">{{ 'swap.postForm.boostTitle' | translate }}</h3>
@@ -338,8 +371,15 @@
                       (click)="selectBoost($index)"
                       class="rounded-xl border p-3 text-left transition-all"
                       [ngClass]="selectedBoostIndex() === $index ? 'border-swap bg-swap/5' : 'border-gray-200 hover:border-swap/50'">
-                      <p class="font-bold text-gray-900">{{ pkg.tier }} · {{ pkg.days }} {{ 'swap.postForm.days' | translate }}</p>
-                      <p class="text-sm text-gray-600">{{ pkg.price }} ₾</p>
+                      <div class="flex items-center gap-2">
+                        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-swap/10 text-swap">
+                          <mat-icon class="!text-base !w-4 !h-4">{{ getBoostTierIcon(pkg.tier) }}</mat-icon>
+                        </span>
+                        <p class="font-bold text-gray-900">
+                          {{ pkg.tier }} · {{ getBoostPackageDays(pkg) ?? '-' }} {{ 'swap.postForm.days' | translate }}
+                        </p>
+                      </div>
+                      <p class="mt-1 text-sm text-gray-600">{{ getBoostPackagePrice(pkg) }} ₾</p>
                     </button>
                   }
                 </div>
@@ -358,18 +398,27 @@
               @if (stickers().length > 0) {
                 <div class="mt-4">
                   <p class="mb-2 text-sm font-bold uppercase text-gray-500">{{ 'swap.postForm.stickers' | translate }}</p>
-                  <div class="grid gap-2 sm:grid-cols-2">
-                    @for (sticker of stickers(); track sticker.code) {
-                      <label class="flex items-center justify-between rounded-xl border border-gray-200 p-3">
-                        <div>
-                          <p class="font-semibold text-gray-900">{{ sticker.label || sticker.code }}</p>
-                          <p class="text-xs text-gray-600">{{ sticker.price }} ₾</p>
+                  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    @for (sticker of stickers(); track $index) {
+                      <button
+                        type="button"
+                        (click)="toggleSticker(getStickerCode(sticker, $index))"
+                        class="flex items-center justify-between rounded-lg border p-2 text-left transition-all"
+                        [ngClass]="selectedStickers().has(getStickerCode(sticker, $index))
+                          ? 'border-transparent bg-[#97498229]'
+                          : 'border-gray-200 hover:border-swap/50'">
+                        <div class="min-w-0 pr-2">
+                          <div class="flex items-center gap-1.5">
+                            <mat-icon class="!text-sm !w-4 !h-4 text-swap">{{ getStickerIcon(getStickerCode(sticker, $index)) }}</mat-icon>
+                            <p class="truncate text-sm font-semibold text-gray-900">{{ getStickerLabel(sticker, $index) }}</p>
+                          </div>
+                          <p class="text-xs text-gray-600">{{ getStickerPrice(sticker) }} ₾</p>
                         </div>
-                        <input
-                          type="checkbox"
-                          [checked]="selectedStickers().has(sticker.code)"
-                          (change)="toggleSticker(sticker.code)" />
-                      </label>
+                        <mat-icon class="!text-base !w-4 !h-4"
+                          [ngClass]="selectedStickers().has(getStickerCode(sticker, $index)) ? 'text-swap' : 'text-gray-300'">
+                          local_offer
+                        </mat-icon>
+                      </button>
                     }
                   </div>
                 </div>

@@ -66,7 +66,7 @@
           @for (item of swapWishlistItems(); track item.id) {
             <app-swap-item-card
               [item]="item"
-              [isFavorite]="isFavorite(item.id)"
+              [isFavorite]="favoriteSet().has(item.id)"
               (favoriteToggle)="toggleFavorite(item.id)"
               (cardClick)="navigateToDetail(item.id)"
             />

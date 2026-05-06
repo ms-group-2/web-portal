@@ -1,11 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  signal,
-  computed,
-  inject,
-  DestroyRef,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
@@ -67,9 +60,7 @@ export class SwapWishlist {
     this.router.navigate(['/swap']);
   }
 
-  isFavorite(itemId: string): boolean {
-    return this.favoritesService.isFavorite(itemId);
-  }
+  favoriteSet = computed(() => this.favoritesService.favorites());
 
   toggleFavorite(itemId: string) {
     this.favoritesService.toggleFavorite(itemId);
