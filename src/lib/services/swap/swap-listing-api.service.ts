@@ -25,6 +25,7 @@ import {
   RespondSwapOfferRequest,
   PaginatedSwapHistoryResponse,
   SwapHistoryStatsResponse,
+  SwapCategory,
 } from './';
 
 @Injectable({
@@ -73,6 +74,10 @@ export class SwapListingApiService {
 
   deleteListing(listingId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${listingId}`, { headers: this.headers });
+  }
+
+  getSwapCategories(): Observable<SwapCategory[]> {
+    return this.http.get<SwapCategory[]>(`${this.baseUrl}/categories`, { headers: this.headers });
   }
 
   getMonetizationInfo(): Observable<MonetizationInfoResponse> {

@@ -20,11 +20,12 @@ import { DashboardSection } from './sections/dashboard-section/dashboard-section
 import { ProductsSection } from './sections/products-section/products-section';
 import { OrdersSection } from './sections/orders-section/orders-section';
 import { SettingsSection } from './sections/settings-section/settings-section';
+import { ImportSection } from './sections/import-section/import-section';
 import { DeleteConfirmationDialog } from './components/delete-confirmation-dialog/delete-confirmation-dialog';
 import { MAIN_NAVIGATION_TABS, SETTINGS_NAVIGATION_TABS } from './constants/navigation.constants';
 import { TabType } from './models/navigation.models';
 
-const VALID_TABS: readonly TabType[] = ['dashboard', 'products', 'orders', 'settings'];
+const VALID_TABS: readonly TabType[] = ['dashboard', 'products', 'orders', 'import', 'settings'];
 
 function tabFromQueryParams(params: Params): TabType {
   const raw = params['tab'];
@@ -46,6 +47,7 @@ function tabFromQueryParams(params: Params): TabType {
     ProductsSection,
     OrdersSection,
     SettingsSection,
+    ImportSection,
   ],
   templateUrl: './vendor-dashboard.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -11,14 +11,24 @@
       "logOut": "Log Out"
     },
     "hero": {
-      "title": "swap. shop. book.",
-      "subtitle": "everything you need in one place",
-      "askAnything": "ask anything",
-      "askDescription": "tell us what you're looking for and we'll help you find it",
+      "kicker": "One Platform",
+      "title": "Swap. Shop. Book.",
+      "subtitle": "A cleaner way to trade, buy, and schedule services in one place.",
+      "askAnything": "What do you need today?",
+      "askDescription": "Use chat to describe what you want and get instant guidance.",
       "placeholder": "what do you need?",
-      "swapItems": "swap items",
-      "shopProducts": "shop products",
-      "bookServices": "book services"
+      "swapItems": "trade my items",
+      "shopProducts": "find products",
+      "bookServices": "book service",
+      "promptSwap": "I want to swap my items. Help me start.",
+      "promptShop": "I want to buy something. Show me options.",
+      "promptBook": "I need to book a service this week.",
+      "thinking": "Thinking...",
+      "productPreviewTitle": "Linked products",
+      "closePreview": "Close product previews",
+      "showPreview": "Show cards",
+      "removeProductPreview": "Remove product card",
+      "productUnavailable": "This product is no longer available."
     },
     "stats": {
       "users": "users",
@@ -26,17 +36,18 @@
       "satisfaction": "satisfaction"
     },
     "services": {
+      "heading": "Everything you need, organized",
       "swap": {
         "title": "Swap",
-        "description": "Trade items with others"
+        "description": "List items, find fair matches, and trade with confidence."
       },
       "shop": {
-        "title": "Market",
-        "description": "Buy verified products"
+        "title": "Shop",
+        "description": "Discover quality products from trusted local sellers."
       },
       "book": {
         "title": "Book",
-        "description": "Schedule services easily"
+        "description": "Reserve appointments quickly with real-time availability."
       }
     },
     "footer": {

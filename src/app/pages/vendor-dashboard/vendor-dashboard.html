@@ -156,6 +156,10 @@
         <app-orders-section />
       }
 
+      @if (activeTab() === 'import') {
+        <app-import-section (onImportComplete)="setActiveTab('products')" />
+      }
+
       @if (activeTab() === 'settings') {
         <app-settings-section />
       }

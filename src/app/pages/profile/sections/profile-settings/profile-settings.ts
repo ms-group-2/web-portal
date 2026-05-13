@@ -544,7 +544,13 @@ export class ProfileSettingsComponent implements OnInit {
         }),
         finalize(() => this.isVerificationLoading.set(false))
       ).subscribe(response => {
-        if (!response?.url) return;
+        if (!response) return;
+        const userId = this.profileId();
+        if (response.status === 'Approved' && userId) {
+          this.pollVerificationStatus(userId);
+          return;
+        }
+        if (!response.url) return;
         if (this.isBrowser) {
           window.location.href = response.url;
         }
@@ -562,6 +568,9 @@ export class ProfileSettingsComponent implements OnInit {
 
   private pollVerificationStatus(userId: string): void {
     this.isVerificationLoading.set(true);
+    this.verificationPollTimedOut.set(false);
+
+    let verified = false;
 
     timer(2000, 5000).pipe(
       take(20),
@@ -571,17 +580,23 @@ export class ProfileSettingsComponent implements OnInit {
       finalize(() => {
         this.isVerificationLoading.set(false);
         this.profileApi.clearCache();
+        if (!verified) {
+          this.verificationPollTimedOut.set(true);
+        }
       }),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe(profile => {
-      if (profile.kyc_verified) {
-        this.verificationService.setVerified(true);
-        this.verificationPollTimedOut.set(false);
-        this.auth.loadMe().subscribe();
-        this.snackbar.success(this.translationService.translate('profile.verification.success'));
-      } else {
-        this.verificationPollTimedOut.set(true);
-      }
+    ).subscribe({
+      next: (profile) => {
+        if (profile.kyc_verified) {
+          verified = true;
+          this.verificationService.setVerified(true);
+          this.auth.loadMe().subscribe();
+          this.snackbar.success(this.translationService.translate('profile.verification.success'));
+        }
+      },
+      error: () => {
+        this.snackbar.error(this.translationService.translate('profile.verification.error'));
+      },
     });
   }
 

@@ -11,9 +11,9 @@
 
     @for (category of categories(); track category.id) {
       <button
-        (click)="selectCategory(+category.id)"
+        (click)="selectCategory(category.id)"
         class="flex items-center gap-3 px-6 py-3.5 rounded-xl font-black text-sm uppercase tracking-wide transition-all whitespace-nowrap"
-        [ngClass]="selectedCategoryId() === +category.id ? 'bg-swap text-white shadow-lg scale-105' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'">
+        [ngClass]="selectedCategoryId() === category.id ? 'bg-swap text-white shadow-lg scale-105' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'">
         <mat-icon class="text-xl">{{ getCategoryIcon(category) }}</mat-icon>
         {{ category.name }}
       </button>

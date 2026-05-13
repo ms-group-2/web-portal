@@ -16,7 +16,11 @@ import { Footer } from 'lib/components/footer/footer';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { SwapListingApiService, SwapOfferResponse } from 'lib/services/swap';
 import { SwapFavoritesService } from 'lib/services/swap/swap-favorites.service';
+import { SwapPriceValidatorService } from 'lib/services/swap/swap-price-validator.service';
+import { PriceValidationResponse } from 'lib/services/swap/models/price-validation.model';
 import { catchError, forkJoin, of } from 'rxjs';
+import { SnackbarService } from 'lib/services/snackbar.service';
+import { TranslationService } from 'lib/services/translation.service';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { Profile } from 'lib/services/profile/models/profile.model';
 import { AuthService } from 'lib/services/identity/auth.service';
@@ -45,6 +49,9 @@ export class SwapDetail {
   private destroyRef = inject(DestroyRef);
   private messagingService = inject(MessagingService);
   private favoritesService = inject(SwapFavoritesService);
+  private priceValidator = inject(SwapPriceValidatorService);
+  private snackbar = inject(SnackbarService);
+  private translation = inject(TranslationService);
 
   item = signal<SwapItem | null>(null);
   posterProfile = signal<Profile | null>(null);
@@ -56,6 +63,8 @@ export class SwapDetail {
     return !!i && this.favoritesService.isFavorite(i.id);
   });
   linkCopied = signal(false);
+  priceValidation = signal<PriceValidationResponse | null>(null);
+  isValidatingPrice = signal(false);
 
   isOwner = computed(() => {
     const currentUserId = this.auth.user()?.id;
@@ -116,6 +125,8 @@ export class SwapDetail {
     this.isLoading.set(true);
     this.currentImageIndex.set(0);
     this.posterProfile.set(null);
+    this.priceValidation.set(null);
+    this.isValidatingPrice.set(false);
 
     this.api
       .getListing(id)
@@ -233,6 +244,63 @@ export class SwapDetail {
       this.linkCopied.set(true);
       setTimeout(() => this.linkCopied.set(false), 1000);
     });
+  }
+
+  checkPrice() {
+    const item = this.item();
+    if (!item || this.isValidatingPrice()) return;
+
+    this.isValidatingPrice.set(true);
+    this.priceValidation.set(null);
+
+    const photos = normalizeSwapPhotos(item.photos).filter(
+      (p) => p !== SWAP_PHOTO_PLACEHOLDER
+    );
+
+    this.priceValidator
+      .validatePrice({
+        title: item.title,
+        estimated_value: item.price,
+        condition: item.condition || 'Used',
+        category: item.category_id?.toString(),
+        photos: photos.length ? photos : undefined,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.priceValidation.set(result);
+          this.isValidatingPrice.set(false);
+        },
+        error: () => {
+          this.isValidatingPrice.set(false);
+          this.snackbar.error(
+            this.translation.translate('swap.detail.priceCheck.error')
+          );
+        },
+      });
+  }
+
+  getStickerColor(code: string): string {
+    const v = code.toLowerCase();
+    if (v.includes('gold') || v.includes('premium')) return 'bg-gradient-to-r from-yellow-500 to-amber-500';
+    if (v.includes('hot') || v.includes('fire')) return 'bg-gradient-to-r from-red-500 to-orange-500';
+    if (v.includes('new')) return 'bg-gradient-to-r from-emerald-500 to-green-500';
+    if (v.includes('urgent') || v.includes('flash')) return 'bg-gradient-to-r from-pink-500 to-rose-500';
+    return 'bg-gradient-to-r from-purple-500 to-swap';
+  }
+
+  getStickerIcon(code: string): string {
+    const v = code.toLowerCase();
+    if (v.includes('gold') || v.includes('premium')) return 'workspace_premium';
+    if (v.includes('hot') || v.includes('fire')) return 'local_fire_department';
+    if (v.includes('new')) return 'new_releases';
+    return 'style';
+  }
+
+  getStickerLabel(code: string): string {
+    const key = 'swap.stickerNames.' + code;
+    const translated = this.translation.translate(key);
+    return translated === key ? code.replace(/_/g, ' ') : translated;
   }
 
   openBoostDialog() {

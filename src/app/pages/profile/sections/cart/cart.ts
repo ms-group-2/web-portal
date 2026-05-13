@@ -10,6 +10,7 @@ import { ConfirmationDialogService } from 'lib/components/confirmation-dialog/co
 import { PaymentApiService } from 'lib/services/payment/payment-api.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -119,12 +120,18 @@ export class CartComponent implements OnInit {
     this.cartService.checkoutCart()
       .pipe(
         switchMap(response => {
-          const paymentOrderId = response.order_id || response.cart_id;
-          this.orderId = paymentOrderId;
+          console.log('Checkout response:', response);
+          const orderId = response.order_id;
+          if (!orderId) {
+            this.snackbar.error(this.translation.translate('profile.cart.paymentError'));
+            this.checkingOut.set(false);
+            return EMPTY;
+          }
+          this.orderId = orderId;
           return this.paymentApi.processPayment(
-            paymentOrderId,
-            `${baseUrl}/profile/history/shop?payment=success&order=${paymentOrderId}`,
-            `${baseUrl}/profile/history/shop?payment=fail&order=${paymentOrderId}`,
+            orderId,
+            `${baseUrl}/profile/history/shop?payment=success&order=${orderId}`,
+            `${baseUrl}/profile/history/shop?payment=fail&order=${orderId}`,
           );
         }),
         takeUntilDestroyed(this.destroyRef),

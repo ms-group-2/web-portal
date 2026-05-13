@@ -1,10 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, model, OnInit, DestroyRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, model, signal, OnInit, DestroyRef } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
-import { ShopService } from 'src/lib/services/shop/shop.service';
-import { Category } from 'src/app/pages/shop/shop.models';
+import { SwapCategory, SwapListingApiService } from 'lib/services/swap';
 
 @Component({
   selector: 'app-swap-category-bar',
@@ -13,48 +12,52 @@ import { Category } from 'src/app/pages/shop/shop.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwapCategoryBar implements OnInit {
-  private shopService = inject(ShopService);
+  private api = inject(SwapListingApiService);
   private destroyRef = inject(DestroyRef);
 
-  categories = this.shopService.mainCategories;
+  categories = signal<SwapCategory[]>([]);
   selectedCategoryId = model<number | null>(null);
 
   ngOnInit() {
-    this.shopService.getMainCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    this.api.getSwapCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (categories) => this.categories.set(categories),
+    });
   }
 
   selectCategory(categoryId: number | null) {
     this.selectedCategoryId.set(categoryId);
   }
 
-  getCategoryIcon(category: Category): string {
-    const slug = category.slug?.toLowerCase() || '';
+  getCategoryIcon(category: SwapCategory): string {
+    if (category.icon_uri) return category.icon_uri;
 
-    if (slug.includes('teqnika')) return 'devices';
-    if (slug.includes('geimingi')) return 'sports_esports';
-    if (slug.includes('mobilurebi')) return 'smartphone';
-    if (slug.includes('kompiuteruli')) return 'computer';
-    if (slug.includes('audioteqnika')) return 'headphones';
-    if (slug.includes('televizorebi')) return 'tv';
-    if (slug.includes('foto-video')) return 'photo_camera';
-    if (slug.includes('silamaze')) return 'face';
-    if (slug.includes('tansacmeli')) return 'checkroom';
-    if (slug.includes('fekhsacmeli')) return 'iron';
-    if (slug.includes('chanta')) return 'work';
-    if (slug.includes('saati')) return 'watch';
-    if (slug.includes('samkaulebi')) return 'diamond';
-    if (slug.includes('sakhli-da-ezo')) return 'home';
-    if (slug.includes('aveji')) return 'chair';
-    if (slug.includes('samzareulo')) return 'kitchen';
-    if (slug.includes('sporti')) return 'fitness_center';
-    if (slug.includes('mogzauroba')) return 'luggage';
-    if (slug.includes('velo')) return 'pedal_bike';
-    if (slug.includes('tsignebi')) return 'menu_book';
-    if (slug.includes('avto-moto')) return 'directions_car';
-    if (slug.includes('remonti')) return 'handyman';
-    if (slug.includes('satamashoebi')) return 'toys';
-    if (slug.includes('mshobeli-bavshvi')) return 'child_care';
-    if (slug.includes('ckhovelebis')) return 'pets';
+    const name = category.name.toLowerCase();
+
+    if (name.includes('ტექნიკა')) return 'devices';
+    if (name.includes('გეიმინგი')) return 'sports_esports';
+    if (name.includes('მობილური')) return 'smartphone';
+    if (name.includes('კომპიუტერ')) return 'computer';
+    if (name.includes('აუდიო')) return 'headphones';
+    if (name.includes('ტელევიზორ')) return 'tv';
+    if (name.includes('ფოტო') || name.includes('ვიდეო')) return 'photo_camera';
+    if (name.includes('სილამაზე')) return 'face';
+    if (name.includes('ტანსაცმელი')) return 'checkroom';
+    if (name.includes('ფეხსაცმელი')) return 'iron';
+    if (name.includes('ჩანთა')) return 'work';
+    if (name.includes('საათი')) return 'watch';
+    if (name.includes('სამკაული')) return 'diamond';
+    if (name.includes('სახლი')) return 'home';
+    if (name.includes('ავეჯი')) return 'chair';
+    if (name.includes('სამზარეულო')) return 'kitchen';
+    if (name.includes('სპორტი')) return 'fitness_center';
+    if (name.includes('მოგზაურობა')) return 'luggage';
+    if (name.includes('ველო')) return 'pedal_bike';
+    if (name.includes('წიგნი')) return 'menu_book';
+    if (name.includes('ავტო') || name.includes('მოტო')) return 'directions_car';
+    if (name.includes('რემონტი')) return 'handyman';
+    if (name.includes('სათამაშო')) return 'toys';
+    if (name.includes('ბავშვი')) return 'child_care';
+    if (name.includes('ცხოველ')) return 'pets';
 
     return 'category';
   }

@@ -27,10 +27,11 @@
   </div>
 
   <div class="relative w-full transition-all duration-500"
-       [class.max-w-3xl]="step() !== totalSteps && !limitReached()"
-       [class.max-w-xl]="step() === totalSteps || limitReached()">
-    <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-12 flex flex-col"
-         [class.min-h-[500px]]="step() !== totalSteps && !limitReached()">
+       [class.max-w-5xl]="!limitReached() && step() === 7 && priceValidation()"
+       [class.max-w-3xl]="!limitReached() && !(step() === 7 && priceValidation())"
+       [class.max-w-xl]="limitReached()">
+    <div class="relative bg-white rounded-3xl shadow-2xl p-6 md:p-12 flex flex-col overflow-hidden"
+         [class.min-h-[500px]]="!limitReached()">
 
       @if (limitReached()) {
         <div class="flex-1 flex flex-col items-center justify-center text-center py-12 animate-fade-in-up">
@@ -187,25 +188,27 @@
                 <input
                   type="text"
                   [value]="wantInReturn()"
-                  (input)="wantInReturn.set($any($event.target).value)"
+                  (input)="onWantInReturnInput($any($event.target).value)"
                   [placeholder]="'swap.postForm.step5WantPlaceholder' | translate"
                   maxlength="150"
                   autofocus
+                  [disabled]="desiredCategoryId() !== null"
                   class="focus:!border-b-swap w-full px-0 py-4 text-xl md:text-2xl font-bold text-gray-900
                          border-0 border-b-4 border-gray-200 focus:outline-none transition-all
-                         placeholder:text-gray-300 bg-transparent" />
+                         placeholder:text-gray-300 bg-transparent
+                         disabled:opacity-40 disabled:cursor-not-allowed" />
 
                 <p class="text-sm text-gray-800 font-black mt-3 mb-3">
                   {{ 'swap.postForm.step5WantOrCategory' | translate }}
                 </p>
 
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-4" [ngClass]="wantInReturn().trim() ? 'opacity-40 pointer-events-none' : ''">
                   @for (cat of categories(); track cat.id) {
                     <button
                       type="button"
-                      (click)="selectDesiredCategory($any(cat.id))"
-                      class="rounded-full border px-3 py-1.5 text-sm font-bold transition-all"
-                      [ngClass]="desiredCategoryId() === $any(cat.id)
+                      (click)="selectDesiredCategory(cat.id)"
+                      class="rounded-full border px-4 py-2 text-sm font-bold transition-all"
+                      [ngClass]="desiredCategoryId() === cat.id
                         ? 'border-swap bg-swap text-white'
                         : 'border-gray-300 text-gray-700 hover:border-swap'">
                       {{ cat.name }}
@@ -280,69 +283,194 @@
               <p class="text-lg md:text-xl text-gray-500 font-semibold">{{ 'swap.postForm.step6Subtitle' | translate }}</p>
             </div>
 
-            <div class="bg-white border-2 border-gray-200 rounded-3xl overflow-hidden shadow-xl
-                        hover:shadow-2xl transition-all mb-2">
-              @if (previewUrls().length > 0) {
-                <div class="relative h-28 md:h-36 bg-gray-100 overflow-hidden">
-                  <img
-                    [src]="previewUrls()[0]"
-                    [alt]="title()"
-                    class="w-full h-full object-cover" />
-                  @if (category()) {
-                    <div class="absolute top-4 right-4 px-3 py-1.5 bg-swapPost text-white
-                                rounded-full text-xs font-black uppercase">
-                      {{ category() }}
+            <div class="flex flex-col lg:flex-row gap-6 items-start justify-center">
+              <div class="w-full max-w-md shrink-0">
+                <div class="relative bg-white border-2 border-gray-200 rounded-3xl overflow-hidden shadow-xl
+                            hover:shadow-2xl transition-all mb-2">
+                  @if (isValidatingPrice()) {
+                    <div class="absolute inset-0 z-10 pointer-events-none backdrop-blur-[2px]">
+                      <div class="scan-line"></div>
+                      <div class="absolute inset-0 bg-blue-500/10"></div>
                     </div>
                   }
+                  @if (previewUrls().length > 0) {
+                    <div class="relative h-28 md:h-36 bg-gray-100 overflow-hidden">
+                      <img
+                        [src]="previewUrls()[0]"
+                        [alt]="title()"
+                        class="w-full h-full object-cover" />
+                      @if (category()) {
+                        <div class="absolute top-4 right-4 px-3 py-1.5 bg-swapPost text-white
+                                    rounded-full text-xs font-black uppercase">
+                          {{ category() }}
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="relative h-28 md:h-36 bg-gray-100 flex items-center justify-center">
+                      <mat-icon class="!text-6xl text-gray-300">image</mat-icon>
+                      @if (category()) {
+                        <div class="absolute top-4 right-4 px-3 py-1.5 bg-swapPost text-white
+                                    rounded-full text-xs font-black uppercase">
+                          {{ category() }}
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <div class="px-10 py-5">
+                    <h3 class="text-2xl font-black text-gray-900 mb-3">{{ title() }}</h3>
+
+                    @if (description()) {
+                      <p class="text-gray-600 font-medium mb-4 line-clamp-3">{{ description() }}</p>
+                    }
+
+                    <div class="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
+                      <mat-icon class="text-swapPost">swap_horiz</mat-icon>
+                      <div>
+                        <p class="text-xs font-black text-gray-500 uppercase tracking-wide">{{ 'swap.postForm.step6WantsLabel' | translate }}</p>
+                        <p class="font-bold text-gray-900">{{ wantInReturn() || selectedDesiredCategoryName() }}</p>
+                      </div>
+                    </div>
+
+                    @if (price()) {
+                      <div class="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
+                        <mat-icon class="text-swapPost">payments</mat-icon>
+                        <div>
+                          <p class="text-xs font-black text-gray-500 uppercase tracking-wide">{{ 'swap.postForm.step5PriceLabel' | translate }}</p>
+                          <p class="font-bold text-gray-900">{{ price() }} ₾</p>
+                        </div>
+                      </div>
+                    }
+
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2 text-gray-500">
+                        <mat-icon class="!text-lg">location_on</mat-icon>
+                        <span class="text-sm font-bold">{{ location() }}</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-gray-500">{{ 'swap.postForm.step6PostedBy' | translate }}</span>
+                        <span class="text-sm font-black text-gray-900">{{ userName() }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              } @else {
-                <div class="relative h-28 md:h-36 bg-gray-100 flex items-center justify-center">
-                  <mat-icon class="!text-6xl text-gray-300">image</mat-icon>
-                  @if (category()) {
-                    <div class="absolute top-4 right-4 px-3 py-1.5 bg-swapPost text-white
-                                rounded-full text-xs font-black uppercase">
-                      {{ category() }}
+
+                <button
+                  type="button"
+                  (click)="checkPrice()"
+                  [disabled]="isValidatingPrice()"
+                  class="mt-4 flex w-full items-center justify-center gap-3 rounded-2xl border-2 px-4 py-4 text-base font-black uppercase tracking-wide transition-all disabled:opacity-60"
+                  [ngClass]="priceValidation()
+                    ? 'border-green-400 bg-green-50 text-green-700 hover:bg-green-100'
+                    : 'border-amber-400 bg-amber-50 text-amber-700 hover:bg-amber-100'">
+                  @if (isValidatingPrice()) {
+                    <div class="h-5 w-5 animate-spin rounded-full border-2 border-amber-700 border-t-transparent"></div>
+                    {{ 'swap.detail.priceCheck.checking' | translate }}
+                  } @else if (priceValidation()) {
+                    <mat-icon class="!text-2xl">check_circle</mat-icon>
+                    {{ 'swap.detail.priceCheck.checked' | translate }}
+                  } @else {
+                    <mat-icon class="!text-2xl">analytics</mat-icon>
+                    {{ 'swap.detail.priceCheck.checkPrice' | translate }}
+                  }
+                </button>
+              </div>
+
+              @if (priceValidation(); as result) {
+                <div class="flex-1 max-w-md space-y-4 rounded-3xl border-2 border-amber-200 bg-amber-50/50 p-6">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-black uppercase text-gray-900">{{ 'swap.detail.priceCheck.title' | translate }}</h3>
+                    <span class="rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-wide"
+                      [ngClass]="{
+                        'bg-green-100 text-green-700': result.status === 'eligible',
+                        'bg-red-100 text-red-700': result.status === 'overpriced' || result.status === 'rejected',
+                        'bg-blue-100 text-blue-700': result.status === 'underpriced',
+                        'bg-yellow-100 text-yellow-700': result.status === 'pending_review'
+                      }">
+                      {{ 'swap.detail.priceCheck.status.' + result.status | translate }}
+                    </span>
+                  </div>
+
+                  <p class="text-base font-medium text-gray-700">{{ result.message }}</p>
+
+                  @if (result.condition_analysis; as analysis) {
+                    <div class="rounded-2xl bg-white p-4">
+                      <p class="mb-2 text-xs font-black uppercase tracking-wider text-gray-500">{{ 'swap.detail.priceCheck.conditionAi' | translate }}</p>
+                      <div class="flex items-center gap-3 mb-2">
+                        <span class="text-base font-bold text-gray-900">{{ analysis.condition }}</span>
+                        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">{{ (analysis.confidence * 100).toFixed(0) }}%</span>
+                      </div>
+                      <p class="text-sm text-gray-600">{{ analysis.reasoning }}</p>
+                      @if (analysis.defects.length > 0) {
+                        <div class="mt-2 flex flex-wrap gap-2">
+                          @for (defect of analysis.defects; track defect) {
+                            <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600">{{ defect }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <div class="rounded-2xl bg-white p-4">
+                    <p class="mb-3 text-xs font-black uppercase tracking-wider text-gray-500">{{ 'swap.detail.priceCheck.fairRange' | translate }}</p>
+                    <div class="flex items-center justify-between text-sm font-bold text-gray-500 mb-1">
+                      <span>{{ result.fair_range.min }}₾</span>
+                      <span class="text-lg font-black text-green-600">{{ result.suggested_price }}₾</span>
+                      <span>{{ result.fair_range.max }}₾</span>
+                    </div>
+                    <div class="relative h-3 rounded-full bg-gray-200">
+                      <div class="absolute inset-y-0 rounded-full bg-gradient-to-r from-green-300 to-green-500"
+                        [style.left.%]="0"
+                        [style.width.%]="100">
+                      </div>
+                      @if (result.fair_range.max > result.fair_range.min) {
+                        <div class="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-amber-500 shadow"
+                          [style.left.%]="((result.estimated_value - result.fair_range.min) / (result.fair_range.max - result.fair_range.min)) * 100">
+                        </div>
+                      }
+                    </div>
+                    <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+                      <span>{{ 'swap.detail.priceCheck.min' | translate }}</span>
+                      <span class="font-bold text-amber-600">{{ 'swap.detail.priceCheck.listedPrice' | translate }}: {{ result.estimated_value }}₾</span>
+                      <span>{{ 'swap.detail.priceCheck.max' | translate }}</span>
+                    </div>
+                  </div>
+
+                  <div class="rounded-2xl bg-white p-4">
+                    <p class="mb-2 text-xs font-black uppercase tracking-wider text-gray-500">{{ 'swap.detail.priceCheck.marketData' | translate }}</p>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <p class="text-2xl font-black text-gray-900">{{ result.market_data.samples }}</p>
+                        <p class="text-xs font-bold text-gray-500">{{ 'swap.detail.priceCheck.samples' | translate }}</p>
+                      </div>
+                      <div>
+                        <p class="text-2xl font-black text-gray-900">{{ result.market_data.median }}₾</p>
+                        <p class="text-xs font-bold text-gray-500">{{ 'swap.detail.priceCheck.median' | translate }}</p>
+                      </div>
+                      <div>
+                        <p class="text-2xl font-black text-gray-900 capitalize">{{ result.market_data.confidence }}</p>
+                        <p class="text-xs font-bold text-gray-500">{{ 'swap.detail.priceCheck.confidence' | translate }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  @if (result.competitors.length > 0) {
+                    <div class="rounded-2xl bg-white p-4">
+                      <p class="mb-3 text-xs font-black uppercase tracking-wider text-gray-500">{{ 'swap.detail.priceCheck.competitors' | translate }}</p>
+                      <div class="space-y-2">
+                        @for (comp of result.competitors; track comp.link) {
+                          <a [href]="comp.link" target="_blank" rel="noopener noreferrer"
+                            class="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100">
+                            <span class="text-sm font-semibold text-gray-700 line-clamp-1 flex-1 mr-3">{{ comp.title }}</span>
+                            <span class="shrink-0 text-sm font-black text-gray-900">{{ comp.price }}₾</span>
+                          </a>
+                        }
+                      </div>
                     </div>
                   }
                 </div>
               }
-
-              <div class="px-10 py-5">
-                <h3 class="text-2xl font-black text-gray-900 mb-3">{{ title() }}</h3>
-
-                @if (description()) {
-                  <p class="text-gray-600 font-medium mb-4 line-clamp-3">{{ description() }}</p>
-                }
-
-                <div class="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
-                  <mat-icon class="text-swapPost">swap_horiz</mat-icon>
-                  <div>
-                    <p class="text-xs font-black text-gray-500 uppercase tracking-wide">{{ 'swap.postForm.step6WantsLabel' | translate }}</p>
-                    <p class="font-bold text-gray-900">{{ wantInReturn() || selectedDesiredCategoryName() }}</p>
-                  </div>
-                </div>
-
-                @if (price()) {
-                  <div class="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
-                    <mat-icon class="text-swapPost">payments</mat-icon>
-                    <div>
-                      <p class="text-xs font-black text-gray-500 uppercase tracking-wide">{{ 'swap.postForm.step5PriceLabel' | translate }}</p>
-                      <p class="font-bold text-gray-900">{{ price() }} ₾</p>
-                    </div>
-                  </div>
-                }
-
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2 text-gray-500">
-                    <mat-icon class="!text-lg">location_on</mat-icon>
-                    <span class="text-sm font-bold">{{ location() }}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-gray-500">{{ 'swap.postForm.step6PostedBy' | translate }}</span>
-                    <span class="text-sm font-black text-gray-900">{{ userName() }}</span>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div class="mt-6 text-center">
@@ -357,80 +485,162 @@
 
         @case (8) {
           <div class="flex-1 flex flex-col justify-center animate-fade-in-up">
-            <div class="mt-6 rounded-2xl border-2 border-gray-200 p-5">
-              <div class="mb-4">
-                <h3 class="text-lg font-black text-gray-900">{{ 'swap.postForm.boostTitle' | translate }}</h3>
-                <p class="text-sm text-gray-600">{{ 'swap.postForm.boostSubtitle' | translate }}</p>
-              </div>
 
-              @if (boostPackages().length > 0) {
-                <div class="grid gap-3 sm:grid-cols-2">
+            <!-- Boost title -->
+            <div class="mb-6">
+              <h2 class="text-2xl md:text-4xl font-black text-gray-900 mb-2">{{ 'swap.postForm.boostTitle' | translate }}</h2>
+              <p class="text-base md:text-lg text-gray-500 font-semibold">{{ 'swap.postForm.boostSubtitle' | translate }}</p>
+            </div>
+
+            <!-- Boost packages -->
+            @if (boostPackages().length > 0) {
+              <div class="rounded-2xl bg-swap/5 p-4 md:p-5 mb-6">
+                <div class="grid gap-4" [ngClass]="boostPackages().length > 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
                   @for (pkg of boostPackages(); track $index) {
                     <button
                       type="button"
                       (click)="selectBoost($index)"
-                      class="rounded-xl border p-3 text-left transition-all"
-                      [ngClass]="selectedBoostIndex() === $index ? 'border-swap bg-swap/5' : 'border-gray-200 hover:border-swap/50'">
-                      <div class="flex items-center gap-2">
-                        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-swap/10 text-swap">
-                          <mat-icon class="!text-base !w-4 !h-4">{{ getBoostTierIcon(pkg.tier) }}</mat-icon>
-                        </span>
-                        <p class="font-bold text-gray-900">
-                          {{ pkg.tier }} · {{ getBoostPackageDays(pkg) ?? '-' }} {{ 'swap.postForm.days' | translate }}
+                      class="relative rounded-2xl border-2 bg-white p-4 text-left transition-all"
+                      [ngClass]="selectedBoostIndex() === $index
+                        ? 'border-swap shadow-lg ring-2 ring-swap/20'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-md'">
+
+                      <!-- Tier header -->
+                      <div class="flex items-center justify-between gap-2 mb-3">
+                        <p class="text-base font-black uppercase leading-tight" [ngClass]="getBoostTierColor(pkg.tier)">
+                          {{ formatTierName(pkg.tier) }}
                         </p>
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" [ngClass]="getBoostTierIconBg(pkg.tier)">
+                          <mat-icon class="text-white !text-xl !w-5 !h-5">{{ getBoostTierIcon(pkg.tier) }}</mat-icon>
+                        </div>
                       </div>
-                      <p class="mt-1 text-sm text-gray-600">{{ getBoostPackagePrice(pkg) }} ₾</p>
+
+                      <!-- Price -->
+                      <p class="text-base font-black text-gray-900 mt-3">
+                        {{ pkg.daily_price }}<span class="text-sm font-bold">₾</span>
+                        <span class="text-sm font-semibold text-gray-500">{{ 'swap.postForm.perDay' | translate }}</span>
+                      </p>
+
+                      <!-- Selection indicator -->
+                      <div class="absolute bottom-4 right-4">
+                        <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                             [ngClass]="selectedBoostIndex() === $index
+                               ? 'border-swap bg-swap'
+                               : 'border-gray-300'">
+                          @if (selectedBoostIndex() === $index) {
+                            <div class="w-2 h-2 rounded-full bg-white"></div>
+                          }
+                        </div>
+                      </div>
                     </button>
                   }
                 </div>
-              }
-
-              <div class="mt-4">
-                <label class="mb-2 block text-sm font-bold uppercase text-gray-500">{{ 'swap.postForm.autoUpdateDays' | translate }}</label>
-                <input
-                  type="number"
-                  min="0"
-                  [value]="autoUpdateDays()"
-                  (input)="setAutoUpdateDays($any($event.target).valueAsNumber)"
-                  class="w-full rounded-xl border border-gray-300 px-3 py-2" />
               </div>
+            }
 
-              @if (stickers().length > 0) {
-                <div class="mt-4">
-                  <p class="mb-2 text-sm font-bold uppercase text-gray-500">{{ 'swap.postForm.stickers' | translate }}</p>
-                  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    @for (sticker of stickers(); track $index) {
-                      <button
-                        type="button"
-                        (click)="toggleSticker(getStickerCode(sticker, $index))"
-                        class="flex items-center justify-between rounded-lg border p-2 text-left transition-all"
-                        [ngClass]="selectedStickers().has(getStickerCode(sticker, $index))
-                          ? 'border-transparent bg-[#97498229]'
-                          : 'border-gray-200 hover:border-swap/50'">
-                        <div class="min-w-0 pr-2">
-                          <div class="flex items-center gap-1.5">
-                            <mat-icon class="!text-sm !w-4 !h-4 text-swap">{{ getStickerIcon(getStickerCode(sticker, $index)) }}</mat-icon>
-                            <p class="truncate text-sm font-semibold text-gray-900">{{ getStickerLabel(sticker, $index) }}</p>
-                          </div>
-                          <p class="text-xs text-gray-600">{{ getStickerPrice(sticker) }} ₾</p>
-                        </div>
-                        <mat-icon class="!text-base !w-4 !h-4"
-                          [ngClass]="selectedStickers().has(getStickerCode(sticker, $index)) ? 'text-swap' : 'text-gray-300'">
-                          local_offer
-                        </mat-icon>
-                      </button>
+            <!-- Additional services -->
+            <div class="mb-6">
+              <p class="text-sm font-black text-gray-800 uppercase tracking-wide mb-4">
+                {{ 'swap.postForm.additionalServices' | translate }}
+              </p>
+
+              <div class="rounded-2xl border border-gray-200 divide-y divide-gray-200">
+                <!-- Auto update -->
+                <button
+                  type="button"
+                  (click)="toggleAutoUpdate()"
+                  class="w-full flex items-center gap-4 p-4 text-left transition-all hover:bg-gray-50">
+                  <div class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                       [ngClass]="autoUpdateEnabled()
+                         ? 'border-swap bg-swap'
+                         : 'border-gray-300'">
+                    @if (autoUpdateEnabled()) {
+                      <mat-icon class="text-white !text-sm !w-3.5 !h-3.5">check</mat-icon>
                     }
                   </div>
-                </div>
-              }
+                  <div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+                    <mat-icon class="!text-lg !w-5 !h-5 text-purple-600">autorenew</mat-icon>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-bold text-gray-900">{{ 'swap.postForm.autoUpdate' | translate }}</p>
+                  </div>
+                  <p class="font-black text-gray-900 text-sm whitespace-nowrap">
+                    {{ autoUpdateDailyPrice() }}₾{{ 'swap.postForm.perDay' | translate }}
+                  </p>
+                </button>
 
-              <div class="mt-4 rounded-xl bg-gray-50 p-3">
-                <p class="text-sm text-gray-600">{{ 'swap.postForm.boostTotal' | translate }}</p>
-                <p class="text-xl font-black text-gray-900">{{ boostEstimatedTotal() }} ₾</p>
+                @if (autoUpdateEnabled()) {
+                  <div class="px-4 py-3 bg-gray-50 flex items-center gap-3">
+                    <label class="text-sm font-bold text-gray-600">{{ 'swap.postForm.autoUpdateDays' | translate }}:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="30"
+                      [value]="autoUpdateDays()"
+                      (input)="setAutoUpdateDays($any($event.target).valueAsNumber)"
+                      class="w-20 rounded-lg border border-gray-300 px-3 py-1.5 text-center text-sm font-bold
+                             focus:border-swap focus:outline-none" />
+                  </div>
+                }
               </div>
             </div>
+
+            <!-- Stickers -->
+            @if (stickers().length > 0) {
+              <div class="mb-6">
+                <div class="flex items-center justify-between mb-1">
+                  <p class="text-sm font-black text-gray-800 uppercase tracking-wide">
+                    {{ 'swap.postForm.stickers' | translate }}
+                  </p>
+                  <p class="text-sm font-bold text-gray-500">
+                    {{ getStickerPrice(stickers()[0]) }}₾{{ 'swap.postForm.perSticker' | translate }}
+                  </p>
+                </div>
+                <p class="text-xs text-gray-500 mb-4">{{ 'swap.postForm.stickersDesc' | translate }}</p>
+
+                <div class="flex flex-wrap gap-2">
+                  @for (sticker of stickers(); track sticker.id) {
+                    <button
+                      type="button"
+                      (click)="toggleSticker(sticker.name)"
+                      class="flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-bold transition-all"
+                      [ngClass]="selectedStickers().has(sticker.name)
+                        ? 'border-swap bg-swap/10 text-swap'
+                        : 'border-gray-300 text-gray-700 hover:border-swap/50'">
+                      <mat-icon class="!text-base !w-4 !h-4"
+                        [ngClass]="selectedStickers().has(sticker.name) ? 'text-swap' : 'text-gray-400'">
+                        {{ getStickerIcon(sticker.name) }}
+                      </mat-icon>
+                      {{ sticker.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Total -->
+            @if (boostEstimatedTotal() > 0) {
+              <div class="rounded-2xl bg-gray-50 border border-gray-200 p-4 flex items-center justify-between">
+                <p class="text-sm font-bold text-gray-600">{{ 'swap.postForm.boostTotal' | translate }}</p>
+                <p class="text-2xl font-black text-gray-900">{{ boostEstimatedTotal() }} ₾</p>
+              </div>
+            }
+
           </div>
         }
+      }
+
+      @if (isSubmitting()) {
+        <div class="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-3xl bg-white/90 backdrop-blur-sm">
+          <div class="relative mb-6">
+            <div class="w-16 h-16 rounded-full border-4 border-swap/20 border-t-swap animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <mat-icon class="text-swap !text-2xl !w-6 !h-6">swap_horiz</mat-icon>
+            </div>
+          </div>
+          <p class="text-xl font-black text-gray-900 mb-2">{{ 'swap.postForm.submitting' | translate }}</p>
+          <p class="text-sm text-gray-500 font-semibold">{{ 'swap.postForm.submittingHint' | translate }}</p>
+        </div>
       }
 
       <div class="flex items-center justify-between mt-5 md:mt-8 pt-6 md:pt-8 border-t border-gray-100">
@@ -448,10 +658,10 @@
         <button
           type="button"
           (click)="nextStep()"
-          [disabled]="isSubmitting()"
+          [disabled]="isSubmitting() || isValidatingPrice()"
           class="px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black uppercase tracking-wide
                  text-sm flex items-center gap-3 transition-all"
-          [ngClass]="canProceed() && !isSubmitting()
+          [ngClass]="canProceed() && !isSubmitting() && !isValidatingPrice()
             ? 'bg-swap text-white hover:bg-[#7d3a6b] hover:shadow-xl hover:scale-105'
             : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
           @if (step() === totalSteps) {

@@ -16,6 +16,7 @@ import {
   BoostPackage,
   MonetizationInfoResponse,
   StickerInfo,
+  SwapCategory,
   SwapItemsService,
   SwapListingApiService,
 } from 'lib/services/swap';
@@ -28,13 +29,14 @@ import { Footer } from "lib/components/footer/footer";
 import { Header } from "lib/components/header/header";
 import { NgClass } from '@angular/common';
 import { PostSwapDraftPhotosService } from 'lib/services/swap/post-swap-draft-photos.service';
-import { ShopService } from 'lib/services/shop/shop.service';
-import { Category } from 'src/app/pages/shop/shop.models';
+import { SwapPriceValidatorService } from 'lib/services/swap/swap-price-validator.service';
+import { PriceValidationResponse } from 'lib/services/swap/models/price-validation.model';
 
 @Component({
   selector: 'app-post-swap',
   imports: [MatIconModule, NgClass, Header, TranslatePipe],
   templateUrl: './post-swap.html',
+  styleUrl: './post-swap.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostSwap {
@@ -49,11 +51,11 @@ export class PostSwap {
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
   private draftPhotos = inject(PostSwapDraftPhotosService);
-  private shopService = inject(ShopService);
+  private priceValidator = inject(SwapPriceValidatorService);
 
   private readonly STORAGE_KEY = 'post-swap-draft';
 
-  readonly categories = signal<Category[]>([]);
+  readonly categories = signal<SwapCategory[]>([]);
   readonly totalSteps = 8;
   readonly stepNumbers = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -71,7 +73,11 @@ export class PostSwap {
   monetization = signal<MonetizationInfoResponse | null>(null);
   selectedBoostIndex = signal<number>(-1);
   selectedStickers = signal<Set<string>>(new Set());
+  autoUpdateEnabled = signal(false);
   autoUpdateDays = signal<number>(0);
+
+  priceValidation = signal<PriceValidationResponse | null>(null);
+  isValidatingPrice = signal(false);
 
   step = signal(1);
   isSubmitting = signal(false);
@@ -100,6 +106,7 @@ export class PostSwap {
         location: this.location(),
         selectedBoostIndex: this.selectedBoostIndex(),
         selectedStickers: Array.from(this.selectedStickers()),
+        autoUpdateEnabled: this.autoUpdateEnabled(),
         autoUpdateDays: this.autoUpdateDays(),
         step: this.step(),
       };
@@ -123,6 +130,7 @@ export class PostSwap {
       if (draft.location) this.location.set(draft.location);
       if (typeof draft.selectedBoostIndex === 'number') this.selectedBoostIndex.set(draft.selectedBoostIndex);
       if (Array.isArray(draft.selectedStickers)) this.selectedStickers.set(new Set(draft.selectedStickers));
+      if (draft.autoUpdateEnabled) this.autoUpdateEnabled.set(true);
       if (typeof draft.autoUpdateDays === 'number') this.autoUpdateDays.set(draft.autoUpdateDays);
       if (draft.step) this.step.set(draft.step);
     } catch {
@@ -172,8 +180,8 @@ export class PostSwap {
   }
 
   private loadCategories() {
-    this.shopService
-      .getMainCategories()
+    this.api
+      .getSwapCategories()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (categories) => this.categories.set(categories),
@@ -187,18 +195,19 @@ export class PostSwap {
     if (index < 0) return null;
     return this.boostPackages()[index] ?? null;
   });
+  autoUpdateDailyPrice = computed(() => this.monetization()?.auto_update_daily_price ?? 0);
   boostEstimatedTotal = computed(() => {
-    const boostCost = this.getBoostPackagePrice(this.selectedBoostPackage());
+    const boostCost = this.selectedBoostPackage()?.daily_price ?? 0;
     const stickerCost = this.stickers()
-      .filter((sticker) => this.selectedStickers().has(sticker.code))
+      .filter((sticker) => this.selectedStickers().has(sticker.name))
       .reduce((sum, sticker) => sum + sticker.price, 0);
-    const autoCost = this.autoUpdateDays() * (this.monetization()?.auto_update_daily_price ?? 0);
+    const autoCost = this.autoUpdateEnabled() ? this.autoUpdateDays() * this.autoUpdateDailyPrice() : 0;
     return boostCost + stickerCost + autoCost;
   });
   selectedDesiredCategoryName = computed(() => {
     const selectedId = this.desiredCategoryId();
     if (selectedId == null) return '';
-    return this.categories().find((c) => Number(c.id) === selectedId)?.name ?? '';
+    return this.categories().find((c) => c.id === selectedId)?.name ?? '';
   });
 
   canProceed = computed(() => {
@@ -243,14 +252,25 @@ export class PostSwap {
     this.focusStepInput();
   }
 
-  selectCategory(category: Category) {
+  selectCategory(category: SwapCategory) {
     this.category.set(category.name);
-    this.categoryId.set(Number(category.id));
+    this.categoryId.set(category.id);
     setTimeout(() => this.nextStep(), 300);
   }
 
   selectDesiredCategory(categoryId: number) {
-    this.desiredCategoryId.update((current) => (current === categoryId ? null : categoryId));
+    const newValue = this.desiredCategoryId() === categoryId ? null : categoryId;
+    this.desiredCategoryId.set(newValue);
+    if (newValue !== null) {
+      this.wantInReturn.set('');
+    }
+  }
+
+  onWantInReturnInput(value: string) {
+    this.wantInReturn.set(value);
+    if (value.trim()) {
+      this.desiredCategoryId.set(null);
+    }
   }
 
   onFilesSelected(event: Event) {
@@ -340,20 +360,8 @@ export class PostSwap {
     this.selectedBoostIndex.set(index);
   }
 
-  getBoostPackageDays(pkg: BoostPackage | null | undefined): number | null {
-    if (!pkg) return null;
-    const candidate = (pkg as unknown as { days?: number; boost_days?: number; duration_days?: number });
-    const rawDays = candidate.days ?? candidate.boost_days ?? candidate.duration_days;
-    if (rawDays == null || Number.isNaN(Number(rawDays))) return null;
-    return Number(rawDays);
-  }
-
-  getBoostPackagePrice(pkg: BoostPackage | null | undefined): number {
-    if (!pkg) return 0;
-    const candidate = (pkg as unknown as { price?: number; amount?: number });
-    const rawPrice = candidate.price ?? candidate.amount;
-    if (rawPrice == null || Number.isNaN(Number(rawPrice))) return 0;
-    return Number(rawPrice);
+  formatTierName(tier: string): string {
+    return tier.replace(/_/g, ' ');
   }
 
   getBoostTierIcon(tier: string | null | undefined): string {
@@ -364,33 +372,37 @@ export class PostSwap {
     return 'local_offer';
   }
 
-  getStickerCode(sticker: StickerInfo, index: number): string {
-    const candidate = sticker as unknown as {
-      code?: string;
-      sticker_code?: string;
-      id?: string | number;
-      label?: string;
-      name?: string;
-    };
-    const raw =
-      candidate.code ??
-      candidate.sticker_code ??
-      candidate.id ??
-      candidate.name ??
-      candidate.label ??
-      `sticker_${index}`;
-    return String(raw);
+  getBoostTierColor(tier: string | null | undefined): string {
+    const value = (tier ?? '').toLowerCase();
+    if (value.includes('super')) return 'text-orange-500';
+    if (value.includes('plus')) return 'text-yellow-500';
+    return 'text-blue-500';
   }
 
-  getStickerLabel(sticker: StickerInfo, index: number): string {
-    const candidate = sticker as unknown as { label?: string; name?: string };
-    return candidate.label || candidate.name || this.getStickerCode(sticker, index);
+  getBoostTierIconBg(tier: string | null | undefined): string {
+    const value = (tier ?? '').toLowerCase();
+    if (value.includes('super')) return 'bg-orange-500';
+    if (value.includes('plus')) return 'bg-yellow-500';
+    return 'bg-blue-500';
+  }
+
+  toggleAutoUpdate() {
+    this.autoUpdateEnabled.update((v) => !v);
+    if (!this.autoUpdateEnabled()) {
+      this.autoUpdateDays.set(0);
+    }
+  }
+
+  getStickerCode(sticker: StickerInfo): string {
+    return sticker.name;
+  }
+
+  getStickerLabel(sticker: StickerInfo): string {
+    return sticker.label;
   }
 
   getStickerPrice(sticker: StickerInfo): number {
-    const candidate = sticker as unknown as { price?: number; amount?: number };
-    const raw = candidate.price ?? candidate.amount;
-    return raw == null || Number.isNaN(Number(raw)) ? 0 : Number(raw);
+    return sticker.price;
   }
 
   getStickerIcon(code: string): string {
@@ -421,6 +433,35 @@ export class PostSwap {
     this.autoUpdateDays.set(Math.max(0, Math.floor(value)));
   }
 
+  checkPrice() {
+    if (this.isValidatingPrice()) return;
+
+    this.isValidatingPrice.set(true);
+    this.priceValidation.set(null);
+
+    this.priceValidator
+      .validatePrice({
+        title: this.title(),
+        estimated_value: this.price() ?? 0,
+        condition: 'Used',
+        category: this.category() || undefined,
+        photos: this.previewUrls().length ? this.previewUrls() : undefined,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.priceValidation.set(result);
+          this.isValidatingPrice.set(false);
+        },
+        error: () => {
+          this.isValidatingPrice.set(false);
+          this.snackbar.error(
+            this.translation.translate('swap.detail.priceCheck.error')
+          );
+        },
+      });
+  }
+
   close() {
     this.router.navigate(['/swap']);
   }
@@ -443,13 +484,12 @@ export class PostSwap {
       boost: this.selectedBoostPackage()
         ? {
             boost_tier: this.selectedBoostPackage()?.tier,
-            boost_days: this.getBoostPackageDays(this.selectedBoostPackage()) ?? undefined,
-            auto_update_days: this.autoUpdateDays(),
+            auto_update_days: this.autoUpdateEnabled() ? this.autoUpdateDays() : undefined,
             stickers: Array.from(this.selectedStickers()),
           }
-        : this.autoUpdateDays() > 0 || this.selectedStickers().size > 0
+        : (this.autoUpdateEnabled() && this.autoUpdateDays() > 0) || this.selectedStickers().size > 0
           ? {
-              auto_update_days: this.autoUpdateDays(),
+              auto_update_days: this.autoUpdateEnabled() ? this.autoUpdateDays() : undefined,
               stickers: Array.from(this.selectedStickers()),
             }
           : undefined,

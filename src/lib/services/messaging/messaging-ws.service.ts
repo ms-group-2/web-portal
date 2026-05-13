@@ -14,21 +14,25 @@ export class MessagingWsService {
 
   private ws: WebSocket | null = null;
   private reconnectAttempt = 0;
+  private maxReconnectAttempts = 10;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private intentionalClose = false;
+  private gaveUp = false;
   private typingThrottles = new Map<string, number>();
+  private visibilityHandler: (() => void) | null = null;
 
   connected = signal(false);
   lastEvent = signal<WsIncomingEvent | null>(null);
   events$ = new Subject<WsIncomingEvent>();
 
   connect(): void {
-    if (!this.isBrowser || this.ws) return;
+    if (!this.isBrowser || this.ws || this.gaveUp || this.reconnectTimer) return;
 
     const token = this.tokens.accessToken();
-    if (!token) {
-      setTimeout(() => this.connect(), 1000);
-      return;
-    }
+    if (!token) return;
+
+    this.intentionalClose = false;
+    this.listenVisibility();
 
     const wsBase = environment.apiBaseUrl
       .replace(/^https:/, 'wss:')
@@ -58,8 +62,10 @@ export class MessagingWsService {
       this.ws.onclose = (e) => {
         this.ws = null;
         this.zone.run(() => this.connected.set(false));
-        console.log('[WS] Closed:', e.code, e.reason);
-        this.scheduleReconnect();
+        if (!this.intentionalClose) {
+          console.log('[WS] Closed:', e.code, e.reason);
+          this.scheduleReconnect();
+        }
       };
 
       this.ws.onerror = () => {
@@ -69,14 +75,18 @@ export class MessagingWsService {
   }
 
   disconnect(): void {
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
+    this.intentionalClose = true;
+    this.clearReconnectTimer();
     this.reconnectAttempt = 0;
+    this.removeVisibilityListener();
     this.ws?.close();
     this.ws = null;
     this.connected.set(false);
+  }
+
+  reset(): void {
+    this.gaveUp = false;
+    this.reconnectAttempt = 0;
   }
 
   sendMessage(conversationId: string, content: string): void {
@@ -102,9 +112,44 @@ export class MessagingWsService {
   }
 
   private scheduleReconnect(): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || this.intentionalClose) return;
+    if (this.reconnectAttempt >= this.maxReconnectAttempts) {
+      console.log('[WS] Max reconnect attempts reached, giving up');
+      this.gaveUp = true;
+      return;
+    }
     const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempt), 30_000);
     this.reconnectAttempt++;
-    this.reconnectTimer = setTimeout(() => this.connect(), delay);
+    console.log(`[WS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempt}/${this.maxReconnectAttempts})`);
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      this.connect();
+    }, delay);
+  }
+
+  private clearReconnectTimer(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+  }
+
+  private listenVisibility(): void {
+    if (this.visibilityHandler) return;
+    this.visibilityHandler = () => {
+      if (document.hidden) {
+        this.clearReconnectTimer();
+      } else if (!this.ws && !this.intentionalClose && !this.gaveUp) {
+        this.connect();
+      }
+    };
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  private removeVisibilityListener(): void {
+    if (this.visibilityHandler) {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+      this.visibilityHandler = null;
+    }
   }
 }

@@ -115,8 +115,34 @@
       "proposeSwap": "Propose a Swap",
       "message": "Message",
       "report": "Report",
+      "estimatedPrice": "Estimated Price",
       "similarSwaps": "Similar Swaps",
-      "linkCopied": "Link copied!"
+      "linkCopied": "Link copied!",
+      "priceCheck": {
+        "checkPrice": "Check Market Price",
+        "checked": "Market Price Checked",
+        "checking": "Analyzing...",
+        "title": "Market Price Analysis",
+        "error": "Failed to check price. Please try again.",
+        "fairRange": "Fair Price Range",
+        "suggestedPrice": "Suggested Price",
+        "listedPrice": "Listed",
+        "min": "Min",
+        "max": "Max",
+        "marketData": "Market Data",
+        "samples": "Samples",
+        "median": "Median",
+        "confidence": "Confidence",
+        "competitors": "Similar on MyMarket.ge",
+        "conditionAi": "AI Condition Analysis",
+        "status": {
+          "eligible": "Fair Price",
+          "overpriced": "Overpriced",
+          "underpriced": "Underpriced",
+          "pending_review": "Pending Review",
+          "rejected": "Rejected"
+        }
+      }
     },
 
     "postForm": {
@@ -165,17 +191,26 @@
       "step3MaxSize": "Each photo must be 5 MB or smaller",
       "step3PhotosDropped": "Only {{count}} photo(s) added — maximum 5 allowed",
       "photosNeedReuploadAfterRefresh": "For security reasons, photos need to be re-uploaded after refresh.",
+      "submitting": "Creating your listing...",
+      "submittingHint": "Please wait, uploading photos",
       "submitSuccess": "Swap item posted successfully!",
       "submitError": "Failed to post swap item. Please try again.",
       "photoUploadPartialError": "Some photos failed to upload. Listing was still created.",
       "boostApplyFailedAfterCreate": "Listing was posted, but boost could not be applied.",
       "monthlyLimitReached": "You've reached your free monthly listing limit",
       "fieldRequired": "This field is required",
-      "boostTitle": "Boost your listing (optional)",
+      "boostTitle": "Sell faster",
       "boostSubtitle": "Pick a package to get more visibility right after posting.",
       "boostTotal": "Estimated boost total",
+      "boostPerDay": "day",
+      "additionalServices": "Additional services",
+      "autoUpdate": "Auto-update",
+      "autoUpdateDesc": "Your listing will be automatically refreshed daily",
       "autoUpdateDays": "Auto-update days",
       "stickers": "Stickers",
+      "stickersDesc": "You can add up to 3 stickers per listing",
+      "perDay": "/day",
+      "perSticker": "/sticker",
       "days": "days"
     },
 
@@ -361,6 +396,34 @@
       "declined": "Declined.",
       "respondError": "Failed to respond. Please try again.",
       "viewListing": "View Listing"
+    },
+
+    "stickerNames": {
+      "hot_deal": "Hot Deal",
+      "premium": "Premium",
+      "new_arrival": "New Arrival",
+      "urgent": "Urgent",
+      "flash_sale": "Flash Sale",
+      "gold": "Gold",
+      "fire": "Fire",
+      "new": "New",
+      "top": "Top",
+      "verified": "Verified",
+      "warranty": "Warranty",
+      "eco_friendly": "Eco Friendly",
+      "handmade": "Handmade",
+      "limited": "Limited",
+      "authentic": "Authentic",
+      "rare": "Rare",
+      "exclusive": "Exclusive",
+      "best_seller": "Best Seller",
+      "trending": "Trending",
+      "negotiable": "Negotiable",
+      "gift": "Gift",
+      "certified": "Certified",
+      "original": "Original",
+      "like_new": "Like New",
+      "free_delivery": "Free Delivery"
     }
   }
 }

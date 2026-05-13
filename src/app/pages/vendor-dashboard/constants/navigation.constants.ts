@@ -4,6 +4,7 @@ export const MAIN_NAVIGATION_TABS: NavigationTab[] = [
   { id: 'dashboard', icon: 'ph-squares-four', translationKey: 'vendor.dashboard' },
   { id: 'products', icon: 'ph-package', translationKey: 'vendor.products' },
   { id: 'orders', icon: 'ph-shopping-bag', translationKey: 'vendor.orders' },
+  { id: 'import', icon: 'ph-upload-simple', translationKey: 'vendor.import.title' },
 ];
 
 export const SETTINGS_NAVIGATION_TABS: NavigationTab[] = [

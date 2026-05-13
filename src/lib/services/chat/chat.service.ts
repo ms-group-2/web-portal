@@ -1,4 +1,5 @@
-import { Injectable, NgZone, inject, signal } from '@angular/core';
+import { Injectable, NgZone, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TranslationService } from '../translation.service';
 
 export interface ChatMessage {
@@ -12,9 +13,12 @@ export interface ChatMessage {
 export class ChatService {
   private translation = inject(TranslationService);
   private zone = inject(NgZone);
+  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  private readonly baseUrl = 'https://melia-unhelped-selena.ngrok-free.dev/';
-  private readonly apiKey = 'intbot-chat-2026'; 
+  private readonly apiKey = 'intbot-chat-2026';
+  private readonly chatEndpoint = this.isBrowser && window.location.hostname === 'localhost'
+    ? '/chat-api/api/chat'
+    : 'https://melia-unhelped-selena.ngrok-free.dev/api/chat';
   private sessionId: string | null = null;
 
   messages = signal<ChatMessage[]>([]);
@@ -52,7 +56,7 @@ export class ChatService {
     ]);
 
     try {
-      const response = await fetch(`${this.baseUrl}api/chat/`, {
+      const response = await fetch(this.chatEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

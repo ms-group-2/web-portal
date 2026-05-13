@@ -1,3 +1,11 @@
+export interface SwapCategory {
+  id: number;
+  name: string;
+  icon_uri: string;
+  parent_id: number | null;
+  children: SwapCategory[];
+}
+
 export interface AllowedValueResponse {
   value: string;
   label?: string;

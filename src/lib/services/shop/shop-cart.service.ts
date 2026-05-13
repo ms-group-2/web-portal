@@ -75,6 +75,7 @@ export class ShopCartService {
   checkoutCart(): Observable<CheckoutResponse> {
     return this.cartApi.checkout().pipe(
       tap(response => {
+        console.log('Checkout API response:', JSON.stringify(response, null, 2));
         this.clearCart();
         this.syncCartStateFromResponse({
           id: response.cart_id,
