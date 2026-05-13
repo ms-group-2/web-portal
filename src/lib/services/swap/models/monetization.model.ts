@@ -2,12 +2,14 @@ import { SwapListing } from './swap-listing.model';
 
 export interface BoostPackage {
   tier: string;
-  days: number;
-  price: number;
+  daily_price: number;
+  sort_priority: number;
+  display_zones?: string[];
 }
 
 export interface StickerInfo {
-  code: string;
+  id: number;
+  name: string;
   label: string;
   price: number;
 }

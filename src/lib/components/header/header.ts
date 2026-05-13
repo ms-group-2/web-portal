@@ -32,6 +32,7 @@ import { ShopSearchService } from 'lib/services/shop/shop-search.service';
 import { ShopCartService } from 'lib/services/shop/shop-cart.service';
 import { ShopFavoritesService } from 'lib/services/shop/shop-favorites.service';
 import { SwapNotificationService } from 'lib/services/swap/swap-notification.service';
+import { SwapFavoritesService } from 'lib/services/swap/swap-favorites.service';
 import { MessagingService } from 'lib/services/messaging/messaging.service';
 import { Product } from 'src/app/pages/shop/shop.models';
 
@@ -51,6 +52,7 @@ export class Header implements OnDestroy {
   private cartService = inject(ShopCartService);
   private favoritesService = inject(ShopFavoritesService);
   private notificationService = inject(SwapNotificationService);
+  private swapFavoritesService = inject(SwapFavoritesService);
   private messagingService = inject(MessagingService);
   private document = inject(DOCUMENT);
 
@@ -65,6 +67,7 @@ export class Header implements OnDestroy {
   currentRoute = signal('');
   cartCount = this.cartService.cartCount;
   favoriteCount = this.favoritesService.favoriteCount;
+  swapFavoriteCount = this.swapFavoritesService.favoriteCount;
   notifCount = this.notificationService.pendingCount;
   unreadMsgCount = this.messagingService.unreadCount;
 
@@ -88,14 +91,15 @@ export class Header implements OnDestroy {
   });
 
   isBookingRoute = computed(() => {
-    return this.currentRoute().includes('/booking');
+    const route = this.currentRoute().split('?')[0];
+    return route === '/booking';
   });
   cartBadgeClass = computed(() => {
     const route = this.currentRoute();
     if (route.includes('/shop') || route.includes('/profile/cart')) {
       return 'bg-market';
     }
-    if (route.includes('/booking')) {
+    if (this.isBookingRoute()) {
       return 'bg-booking';
     }
     if (route.includes('/swap')) {

@@ -1,4 +1,250 @@
 <h2 class="text-2xl font-black text-gray-900 mb-6 uppercase">{{ 'vendor.settings' | translate }}</h2>
-<div class="bg-white rounded-xl border border-gray-200 p-8">
-  <p class="text-gray-500">{{ 'vendor.settingsComingSoon' | translate }}</p>
-</div>
+
+@if (isLoading()) {
+  <div class="bg-white rounded-xl border border-gray-200 p-8">
+    <div class="space-y-4 animate-pulse">
+      <div class="h-6 bg-gray-200 rounded w-1/3"></div>
+      <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+      <div class="h-32 bg-gray-200 rounded"></div>
+    </div>
+  </div>
+}
+
+@if (!isLoading() && !isProvider()) {
+  <div class="bg-white rounded-xl border border-gray-200 p-8">
+    <p class="text-gray-500">{{ 'vendor.settingsComingSoon' | translate }}</p>
+  </div>
+}
+
+@if (!isLoading() && isProvider()) {
+  <div class="space-y-8">
+
+    <!-- ── Service Offerings ──────────────────────────────────── -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="text-lg font-black text-gray-900 uppercase">
+          {{ 'vendor.settingsServices.title' | translate }}
+        </h3>
+        <button
+          (click)="toggleServiceForm()"
+          class="px-4 py-2 text-xs font-bold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-1"
+        >
+          <mat-icon class="text-base !w-4 !h-4">add</mat-icon>
+          {{ 'vendor.settingsServices.add' | translate }}
+        </button>
+      </div>
+      <p class="text-sm text-gray-500 mb-5">{{ 'vendor.settingsServices.subtitle' | translate }}</p>
+
+      <!-- Add Service Form -->
+      @if (showServiceForm()) {
+        <div class="border border-gray-200 rounded-xl p-5 mb-5 bg-gray-50">
+          <form [formGroup]="serviceForm" (ngSubmit)="saveService()">
+            <div class="grid sm:grid-cols-2 gap-4 mb-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ 'vendor.settingsServices.name' | translate }}</mat-label>
+                <input matInput formControlName="name"
+                  [placeholder]="'vendor.settingsServices.namePlaceholder' | translate" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ 'vendor.settingsServices.duration' | translate }}</mat-label>
+                <input matInput type="number" formControlName="session_duration" min="5" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ 'vendor.settingsServices.price' | translate }}</mat-label>
+                <input matInput type="number" formControlName="session_price" min="0" step="0.01" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ 'vendor.settingsServices.capacity' | translate }}</mat-label>
+                <input matInput type="number" formControlName="capacity" min="1" />
+              </mat-form-field>
+
+              <div class="sm:col-span-2">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'vendor.settingsServices.description' | translate }}</mat-label>
+                  <textarea matInput rows="3" formControlName="description"
+                    [placeholder]="'vendor.settingsServices.descriptionPlaceholder' | translate"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="flex gap-2 justify-end">
+              <button type="button" (click)="toggleServiceForm()"
+                class="px-4 py-2 text-xs font-bold text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                {{ 'vendor.settingsServices.cancel' | translate }}
+              </button>
+              <button type="submit" [disabled]="serviceForm.invalid"
+                [class]="'px-4 py-2 text-xs font-bold rounded-lg transition-colors ' +
+                  (serviceForm.valid ? 'text-white bg-primary hover:bg-primary/90' : 'text-gray-400 bg-gray-200 cursor-not-allowed')">
+                {{ 'vendor.settingsServices.save' | translate }}
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- Services List -->
+      @if (services().length === 0 && !showServiceForm()) {
+        <div class="text-center py-8">
+          <mat-icon class="text-gray-300 mx-auto mb-3" style="font-size: 3rem; width: 3rem; height: 3rem;">room_service</mat-icon>
+          <p class="text-gray-500 text-sm font-medium">{{ 'vendor.settingsServices.noServices' | translate }}</p>
+          <p class="text-gray-400 text-xs mt-1">{{ 'vendor.settingsServices.noServicesDesc' | translate }}</p>
+        </div>
+      }
+
+      @if (services().length > 0) {
+        <div class="divide-y divide-gray-100">
+          @for (service of services(); track service.id) {
+            <div class="flex items-center justify-between py-4 gap-4">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-sm font-bold text-gray-900 truncate">{{ service.name }}</span>
+                  <span [class]="'px-2 py-0.5 rounded text-[10px] font-bold uppercase ' +
+                    (service.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500')">
+                    {{ (service.is_active ? 'vendor.settingsServices.active' : 'vendor.settingsServices.inactive') | translate }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 truncate">
+                  {{ service.session_duration }} {{ 'booking.history.minutes' | translate }}
+                  &bull; {{ service.session_price }} GEL
+                  &bull; {{ 'vendor.settingsServices.capacity' | translate }}: {{ service.capacity }}
+                </p>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <mat-slide-toggle
+                  [checked]="service.is_active"
+                  (change)="toggleServiceActive(service)"
+                  color="primary"
+                />
+                <button (click)="deleteService(service)"
+                  class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors">
+                  <mat-icon class="text-gray-400 hover:text-red-500 text-lg">delete_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Weekly Availability ────────────────────────────────── -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 class="text-lg font-black text-gray-900 uppercase mb-1">
+        {{ 'vendor.settingsAvailability.title' | translate }}
+      </h3>
+      <p class="text-sm text-gray-500 mb-5">{{ 'vendor.settingsAvailability.subtitle' | translate }}</p>
+
+      <div class="space-y-3">
+        @for (day of weekSchedule(); track day.dayOfWeek; let i = $index) {
+          <div class="flex items-center gap-4 py-2">
+            <div class="w-28 shrink-0">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" [checked]="day.enabled" (change)="toggleDay(i)"
+                  class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                <span [class]="'text-sm font-semibold ' + (day.enabled ? 'text-gray-900' : 'text-gray-400')">
+                  {{ 'vendor.settingsAvailability.days.' + day.dayOfWeek | translate }}
+                </span>
+              </label>
+            </div>
+
+            @if (day.enabled) {
+              <div class="flex items-center gap-2">
+                <input type="time" [value]="day.startTime"
+                  (input)="updateDayTime(i, 'startTime', $any($event.target).value)"
+                  class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <span class="text-gray-400 text-xs">—</span>
+                <input type="time" [value]="day.endTime"
+                  (input)="updateDayTime(i, 'endTime', $any($event.target).value)"
+                  class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+            } @else {
+              <span class="text-sm text-gray-400 italic">{{ 'vendor.settingsAvailability.closed' | translate }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mt-5 pt-4 border-t border-gray-100">
+        <button (click)="saveSchedule()" [disabled]="savingSchedule()"
+          class="px-5 py-2.5 text-sm font-bold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50">
+          {{ 'vendor.settingsAvailability.save' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Resources ──────────────────────────────────────────── -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="text-lg font-black text-gray-900 uppercase">
+          {{ 'vendor.settingsResources.title' | translate }}
+        </h3>
+        <button
+          (click)="toggleResourceForm()"
+          class="px-4 py-2 text-xs font-bold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-1"
+        >
+          <mat-icon class="text-base !w-4 !h-4">add</mat-icon>
+          {{ 'vendor.settingsResources.add' | translate }}
+        </button>
+      </div>
+      <p class="text-sm text-gray-500 mb-5">{{ 'vendor.settingsResources.subtitle' | translate }}</p>
+
+      <!-- Add Resource Form -->
+      @if (showResourceForm()) {
+        <div class="border border-gray-200 rounded-xl p-5 mb-5 bg-gray-50">
+          <form [formGroup]="resourceForm" (ngSubmit)="saveResource()" class="flex gap-3 items-end">
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>{{ 'vendor.settingsResources.name' | translate }}</mat-label>
+              <input matInput formControlName="name"
+                [placeholder]="'vendor.settingsResources.namePlaceholder' | translate" />
+            </mat-form-field>
+            <div class="flex gap-2 pb-[1.34em]">
+              <button type="button" (click)="toggleResourceForm()"
+                class="px-4 py-2 text-xs font-bold text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors h-[56px]">
+                {{ 'vendor.settingsResources.cancel' | translate }}
+              </button>
+              <button type="submit" [disabled]="resourceForm.invalid"
+                [class]="'px-4 py-2 text-xs font-bold rounded-lg transition-colors h-[56px] ' +
+                  (resourceForm.valid ? 'text-white bg-primary hover:bg-primary/90' : 'text-gray-400 bg-gray-200 cursor-not-allowed')">
+                {{ 'vendor.settingsResources.save' | translate }}
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- Resources List -->
+      @if (resources().length === 0 && !showResourceForm()) {
+        <div class="text-center py-8">
+          <mat-icon class="text-gray-300 mx-auto mb-3" style="font-size: 3rem; width: 3rem; height: 3rem;">meeting_room</mat-icon>
+          <p class="text-gray-500 text-sm font-medium">{{ 'vendor.settingsResources.noResources' | translate }}</p>
+          <p class="text-gray-400 text-xs mt-1">{{ 'vendor.settingsResources.noResourcesDesc' | translate }}</p>
+        </div>
+      }
+
+      @if (resources().length > 0) {
+        <div class="divide-y divide-gray-100">
+          @for (resource of resources(); track resource.id) {
+            <div class="flex items-center justify-between py-3 gap-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                  <mat-icon class="text-gray-500 text-base">meeting_room</mat-icon>
+                </div>
+                <span class="text-sm font-bold text-gray-900 truncate">{{ resource.name }}</span>
+                <span [class]="'px-2 py-0.5 rounded text-[10px] font-bold uppercase ' +
+                  (resource.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500')">
+                  {{ (resource.is_active ? 'vendor.settingsResources.active' : 'vendor.settingsResources.inactive') | translate }}
+                </span>
+              </div>
+              <button (click)="deleteResource(resource)"
+                class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 transition-colors shrink-0">
+                <mat-icon class="text-gray-400 hover:text-red-500 text-lg">delete_outline</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

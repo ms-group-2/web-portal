@@ -2,7 +2,8 @@ export enum SnackbarType {
   SUCCESS = "success",
   ERROR = "error",
   INFO = "info",
-  SWAP = "swap"
+  SWAP = "swap",
+  CHAT = "chat"
 }
 
 export const SNACKBAR_MESSAGES = {

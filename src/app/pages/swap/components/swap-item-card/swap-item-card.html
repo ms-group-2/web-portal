@@ -27,26 +27,38 @@
       </div>
     }
 
-    @if (activeBoostTier(); as tier) {
-      <div class="absolute left-3 top-3 z-20 rounded-full px-3 py-1.5 shadow-lg"
-        [ngClass]="{
-          'bg-gradient-to-r from-yellow-400 to-amber-500': tier === 'super_vip',
-          'bg-gradient-to-r from-purple-500 to-swap': tier === 'vip_plus',
-          'bg-swap': tier === 'vip'
-        }">
-        <span class="flex items-center gap-1 text-xs font-black uppercase text-white">
-          <mat-icon class="!h-3 !w-3 !text-xs">{{ tier === 'super_vip' ? 'diamond' : tier === 'vip_plus' ? 'star' : 'bolt' }}</mat-icon>
-          {{ tier === 'super_vip' ? 'SUPER VIP' : tier === 'vip_plus' ? 'VIP+' : 'VIP' }}
-        </span>
-      </div>
-    } @else if (item().featured && item().status !== 'locked' && !isExchanged()) {
-      <div class="absolute left-3 top-3 z-20 rounded-full bg-swap px-3 py-1.5 shadow-lg">
-        <span class="flex items-center gap-1 text-xs font-black uppercase text-white">
-          <mat-icon class="!h-3 !w-3 !text-xs">bolt</mat-icon>
-          {{ 'swap.itemCard.featured' | translate }}
-        </span>
-      </div>
-    }
+    <div class="absolute left-3 top-3 z-20 flex flex-col gap-1.5">
+      @if (item().boost_tier; as tier) {
+        <div class="rounded-full px-3 py-1.5 shadow-lg w-fit"
+          [ngClass]="{
+            'bg-gradient-to-r from-yellow-400 to-amber-500': tier === 'super_vip',
+            'bg-gradient-to-r from-purple-500 to-swap': tier === 'vip_plus',
+            'bg-swap': tier === 'vip'
+          }">
+          <span class="flex items-center gap-1 text-xs font-black uppercase text-white">
+            <mat-icon class="!h-3 !w-3 !text-xs">{{ tier === 'super_vip' ? 'diamond' : tier === 'vip_plus' ? 'star' : 'bolt' }}</mat-icon>
+            {{ tier === 'super_vip' ? 'SUPER VIP' : tier === 'vip_plus' ? 'VIP+' : 'VIP' }}
+          </span>
+        </div>
+      } @else if (item().featured && item().status !== 'locked' && !isExchanged()) {
+        <div class="rounded-full bg-swap px-3 py-1.5 shadow-lg w-fit">
+          <span class="flex items-center gap-1 text-xs font-black uppercase text-white">
+            <mat-icon class="!h-3 !w-3 !text-xs">bolt</mat-icon>
+            {{ 'swap.itemCard.featured' | translate }}
+          </span>
+        </div>
+      }
+
+      @if (item().stickers.length) {
+        @for (sticker of item().stickers; track sticker) {
+          <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold text-white w-fit shadow"
+            [ngClass]="getStickerColor(sticker)">
+            <mat-icon class="!h-3 !w-3 !text-xs">{{ getStickerIcon(sticker) }}</mat-icon>
+            {{ getStickerLabel(sticker) }}
+          </span>
+        }
+      }
+    </div>
 
     @if (item().status !== 'locked' && !isExchanged()) {
       <button

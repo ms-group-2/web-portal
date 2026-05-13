@@ -1,3 +1,5 @@
 <router-outlet />
 <app-spinner />
-<app-chat-widget />
+@if (showFloatingChat()) {
+  <app-chat-widget />
+}

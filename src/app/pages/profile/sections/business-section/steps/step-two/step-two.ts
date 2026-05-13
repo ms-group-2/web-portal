@@ -1,12 +1,13 @@
-import { ChangeDetectorRef, Component, ChangeDetectionStrategy, DestroyRef, input, output, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ChangeDetectionStrategy, DestroyRef, input, output, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from 'lib/pipes/translate.pipe';
 import { TranslationService } from 'lib/services/translation.service';
-import { VendorRegistration } from 'lib/models/vendor.models';
+import { VendorRegistration, BusinessType } from 'lib/models/vendor.models';
 import { strictEmailValidator } from 'lib/validators/strict-email.validator';
 import { emptySpaceValidator } from 'lib/validators/empty-space.validator';
 import { phoneNationalValidator } from 'lib/validators/phone-national.validator';
@@ -16,6 +17,13 @@ import { PhoneUtil } from 'lib/services/profile/utils/phone.util';
 import { FormFieldConfig } from '../../models/form-field-config.model';
 import { VendorService } from 'lib/services/vendor/vendor.service';
 import { businessRegistryAsyncValidator } from 'lib/validators/business-registry-async.validator';
+import {
+  BookingCatalogApiService,
+  CategoryResponse,
+  ProviderBusinessType,
+  ProviderCallType,
+  ProviderProfileRequest,
+} from 'lib/services/booking';
 
 const BLUR_VALIDATE_FIELDS = new Set<string>([
   'contact_email',
@@ -30,6 +38,7 @@ const BLUR_VALIDATE_FIELDS = new Set<string>([
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
     TranslatePipe
   ],
@@ -41,15 +50,19 @@ export class VendorStepTwoComponent implements OnInit {
   private fb = inject(FormBuilder);
   private translation = inject(TranslationService);
   private vendorService = inject(VendorService);
+  private bookingCatalogApi = inject(BookingCatalogApiService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
-  formData = input<Partial<VendorRegistration>>({});
+  businessType = input<BusinessType | null>(null);
+  formData = input<Partial<VendorRegistration | ProviderProfileRequest>>({});
   previousStep = output<void>();
-  nextStep = output<VendorRegistration>();
+  nextStep = output<VendorRegistration | ProviderProfileRequest>();
 
   businessForm!: FormGroup;
   readonly COUNTRY_CODE = PhoneUtil.GE_DIAL_CODE;
+  readonly serviceCountryCode = PhoneUtil.GE_DIAL_CODE;
+  readonly categories = signal<CategoryResponse[]>([]);
 
   formFields: FormFieldConfig[] = [
     {
@@ -101,34 +114,17 @@ export class VendorStepTwoComponent implements OnInit {
       validators: [Validators.required, Validators.maxLength(34), ibanValidator()]
     }
   ];
+  readonly callTypeOptions: ProviderCallType[] = ['ONSITE', 'OUTCALL', 'BOTH'];
+  readonly providerBusinessTypeOptions: ProviderBusinessType[] = ['INDIVIDUAL', 'COMPANY'];
 
   ngOnInit() {
-    const formControls: Record<string, FormControl> = {};
-    this.formFields.forEach(field => {
-      const rawValue = (this.formData()[field.name as keyof VendorRegistration] ?? '').toString();
-      const initialValue =
-        field.name === 'contact_phone'
-          ? PhoneUtil.extractGeNational(rawValue)
-          : rawValue;
+    if (this.businessType() === 'service') {
+      this.initServiceForm();
+      this.loadBookingCategories();
+      return;
+    }
 
-      const asyncValidators =
-        field.name === 'identification_number'
-          ? [businessRegistryAsyncValidator(this.vendorService)]
-          : [];
-
-      formControls[field.name] = this.fb.control(initialValue, {
-        validators: field.validators,
-        asyncValidators,
-        updateOn: BLUR_VALIDATE_FIELDS.has(field.name) ? 'blur' : 'change',
-      });
-    });
-
-    this.businessForm = this.fb.group(formControls);
-
-    this.businessForm
-      .get('identification_number')
-      ?.statusChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.cdr.markForCheck());
+    this.initSellerForm();
   }
 
   onBack() {
@@ -138,6 +134,19 @@ export class VendorStepTwoComponent implements OnInit {
   onContinue() {
     if (this.businessForm.valid) {
       const raw = this.businessForm.getRawValue() as any;
+      if (this.businessType() === 'service') {
+        const servicePayload: ProviderProfileRequest = {
+          name: raw.name,
+          description: raw.description?.trim() || undefined,
+          phone_number: PhoneUtil.toGeE164((raw.phone_number ?? '').toString()),
+          call_type: raw.call_type,
+          business_type: raw.business_type,
+          category_id: Number(raw.category_id),
+        };
+        this.nextStep.emit(servicePayload);
+        return;
+      }
+
       const national = (raw.contact_phone ?? '').toString();
       const payload: VendorRegistration = {
         ...(raw as VendorRegistration),
@@ -150,8 +159,12 @@ export class VendorStepTwoComponent implements OnInit {
     }
   }
 
-  onInput(event: Event, fieldName: keyof VendorRegistration) {
-    if (fieldName === 'identification_number' || fieldName === 'contact_phone') {
+  onInput(event: Event, fieldName: string) {
+    if (
+      fieldName === 'identification_number' ||
+      fieldName === 'contact_phone' ||
+      fieldName === 'phone_number'
+    ) {
       const control = this.businessForm.get(fieldName) as FormControl | null;
       if (!control) {
         return;
@@ -183,5 +196,66 @@ export class VendorStepTwoComponent implements OnInit {
     }
 
     return `validation.${key}`;
+  }
+
+  private initSellerForm(): void {
+    const formControls: Record<string, FormControl> = {};
+    this.formFields.forEach(field => {
+      const data = this.formData() as Partial<VendorRegistration>;
+      const rawValue = (data[field.name as keyof VendorRegistration] ?? '').toString();
+      const initialValue =
+        field.name === 'contact_phone'
+          ? PhoneUtil.extractGeNational(rawValue)
+          : rawValue;
+
+      const asyncValidators =
+        field.name === 'identification_number'
+          ? [businessRegistryAsyncValidator(this.vendorService)]
+          : [];
+
+      formControls[field.name] = this.fb.control(initialValue, {
+        validators: field.validators,
+        asyncValidators,
+        updateOn: BLUR_VALIDATE_FIELDS.has(field.name) ? 'blur' : 'change',
+      });
+    });
+
+    this.businessForm = this.fb.group(formControls);
+    this.businessForm
+      .get('identification_number')
+      ?.statusChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cdr.markForCheck());
+  }
+
+  private initServiceForm(): void {
+    const existing = this.formData() as Partial<ProviderProfileRequest>;
+    this.businessForm = this.fb.group({
+      name: this.fb.control(existing.name ?? '', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]),
+      description: this.fb.control(existing.description ?? '', [Validators.maxLength(300)]),
+      phone_number: this.fb.control(
+        PhoneUtil.extractGeNational(existing.phone_number ?? ''),
+        [
+          Validators.required,
+          Validators.minLength(9),
+          Validators.maxLength(9),
+          Validators.pattern(/^\d+$/),
+          phoneNationalValidator(),
+        ],
+      ),
+      call_type: this.fb.control(existing.call_type ?? 'ONSITE', [Validators.required]),
+      business_type: this.fb.control(existing.business_type ?? 'INDIVIDUAL', [Validators.required]),
+      category_id: this.fb.control(existing.category_id ?? null, [Validators.required]),
+    });
+  }
+
+  private loadBookingCategories(): void {
+    this.bookingCatalogApi.getCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories) => {
+          this.categories.set(categories);
+          this.cdr.markForCheck();
+        },
+      });
   }
 }

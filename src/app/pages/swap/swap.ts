@@ -63,7 +63,7 @@ export class Swap {
   votingChainIds = signal<string[]>([]);
   selectedCategoryId = signal<number | null>(null);
   searchQuery = signal('');
-  onlineUsers = signal(847);
+  onlineUsers = signal(32);
 
 
   recentTrades = signal<RecentTrade[]>([]);

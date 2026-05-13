@@ -143,21 +143,39 @@
         }
       </a>
 
-      <a
-        routerLink="/profile/cart"
-        aria-label="Shopping cart"
-        class="header-btn relative w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
-      >
-        <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">shopping_cart</mat-icon>
-        @if (cartCount() > 0) {
-          <span
-            class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-xs md:text-xs font-bold flex items-center justify-center"
-            [ngClass]="cartBadgeClass()"
-          >
-            {{ cartCount() }}
-          </span>
-        }
-      </a>
+      @if (isSwapRoute()) {
+        <a
+          routerLink="/profile/wishlist"
+          aria-label="Favorites"
+          class="header-btn relative w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
+        >
+          <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">favorite</mat-icon>
+          @if (swapFavoriteCount() > 0) {
+            <span
+              class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-xs md:text-xs font-bold flex items-center justify-center"
+              [ngClass]="cartBadgeClass()"
+            >
+              {{ swapFavoriteCount() }}
+            </span>
+          }
+        </a>
+      } @else {
+        <a
+          routerLink="/profile/cart"
+          aria-label="Shopping cart"
+          class="header-btn relative w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center transition"
+        >
+          <mat-icon class="header-icon w-6 h-6 hover:scale-110 duration-300">shopping_cart</mat-icon>
+          @if (cartCount() > 0) {
+            <span
+              class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 w-5 h-5 md:w-6 md:h-6 text-white rounded-full text-xs md:text-xs font-bold flex items-center justify-center"
+              [ngClass]="cartBadgeClass()"
+            >
+              {{ cartCount() }}
+            </span>
+          }
+        </a>
+      }
 
       <div class="flex items-center rounded-full transition"
         [ngClass]="authReady() && !isAuthenticated
@@ -205,24 +223,28 @@
           </div>
 
           <div class="user-menu-grid">
-            <button mat-menu-item class="profile-menu-item" (click)="navigateToProfile()">
-              <mat-icon>person</mat-icon>
-              <span>{{ 'header.profile' | translate }}</span>
-            </button>
             <a mat-menu-item routerLink="/profile/my-posts" class="profile-menu-item">
               <mat-icon>inventory_2</mat-icon>
               <span>{{ 'profile.nav.myPosts' | translate }}</span>
             </a>
-            <a mat-menu-item routerLink="/profile/wishlist" class="profile-menu-item">
-              <mat-icon>favorite_border</mat-icon>
-              <span>{{ 'profile.nav.favorites' | translate }}</span>
-            </a>
+            @if (!isSwapRoute()) {
+              <a mat-menu-item routerLink="/profile/wishlist" class="profile-menu-item">
+                <mat-icon>favorite_border</mat-icon>
+                <span>{{ 'profile.nav.favorites' | translate }}</span>
+              </a>
+            }
+            @if (isSwapRoute()) {
+              <a mat-menu-item routerLink="/profile/cart" class="profile-menu-item">
+                <mat-icon>shopping_cart</mat-icon>
+                <span>{{ 'profile.nav.cart' | translate }}</span>
+              </a>
+            }
             <a mat-menu-item routerLink="/profile/history/shop" class="profile-menu-item">
               <mat-icon>credit_card</mat-icon>
               <span>{{ 'profile.nav.shopHistory' | translate }}</span>
             </a>
             <a mat-menu-item routerLink="/profile/settings" class="profile-menu-item">
-              <mat-icon>settings</mat-icon>
+              <mat-icon>person</mat-icon>
               <span>{{ 'profile.nav.settings' | translate }}</span>
             </a>
             <button mat-menu-item class="profile-menu-item" (click)="toggleLanguage()">

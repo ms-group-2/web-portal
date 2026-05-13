@@ -1,0 +1,30 @@
+.upload-zone {
+  border: 2px dashed #d1d5db;
+  background: #fafafa;
+
+  &:hover,
+  &.drag-over {
+    border-color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb, 136, 93, 222), 0.04);
+  }
+}
+
+.compact-field {
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    padding: 0 8px;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    min-height: 36px;
+  }
+
+  ::ng-deep input.mat-mdc-input-element {
+    font-size: 13px;
+  }
+}

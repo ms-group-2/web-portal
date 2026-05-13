@@ -1,8 +1,131 @@
-<h2 class="text-2xl font-black text-gray-900 mb-6 uppercase">{{ 'vendor.orders' | translate }}</h2>
-<div class="bg-white rounded-xl border border-gray-200 p-8">
-  <div class="text-center py-12">
-    <i class="ph ph-shopping-bag text-gray-300 mx-auto mb-4" style="font-size: 4rem;"></i>
-    <p class="text-gray-500 text-sm font-medium mb-2">{{ 'vendor.noOrdersYet' | translate }}</p>
-    <p class="text-gray-400 text-xs">{{ 'vendor.ordersWillAppear' | translate }}</p>
-  </div>
+<h2 class="text-2xl font-black text-gray-900 mb-6 uppercase">
+  {{ 'booking.management.title' | translate }}
+  @if (pendingCount() > 0) {
+    <span class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-sm font-bold">
+      {{ pendingCount() }}
+    </span>
+  }
+</h2>
+
+<!-- Filter Tabs -->
+<div class="flex gap-2 mb-6 flex-wrap">
+  @for (tab of ['all', 'pending', 'approved', 'completed']; track tab) {
+    <button
+      (click)="setFilter($any(tab))"
+      [class]="activeFilter() === tab
+        ? 'px-4 py-2 rounded-lg text-sm font-bold bg-gray-900 text-white'
+        : 'px-4 py-2 rounded-lg text-sm font-bold bg-gray-100 text-gray-600 hover:bg-gray-200'"
+    >
+      {{ 'booking.management.filter' + (tab[0].toUpperCase() + tab.slice(1)) | translate }}
+    </button>
+  }
 </div>
+
+<!-- Loading State -->
+@if (isLoading()) {
+  <div class="bg-white rounded-xl border border-gray-200 p-8">
+    <div class="space-y-4">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="flex items-center gap-4 animate-pulse">
+          <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+          <div class="flex-1">
+            <div class="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+          </div>
+          <div class="h-8 bg-gray-200 rounded w-20"></div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Empty State -->
+@if (!isLoading() && filteredBookings().length === 0) {
+  <div class="bg-white rounded-xl border border-gray-200 p-8">
+    <div class="text-center py-12">
+      <i class="ph ph-calendar-blank text-gray-300 mx-auto mb-4" style="font-size: 4rem;"></i>
+      <p class="text-gray-500 text-sm font-medium mb-2">{{ 'booking.management.noBookings' | translate }}</p>
+      <p class="text-gray-400 text-xs">{{ 'booking.management.noBookingsDesc' | translate }}</p>
+    </div>
+  </div>
+}
+
+<!-- Bookings List -->
+@if (!isLoading() && filteredBookings().length > 0) {
+  <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+    @for (booking of filteredBookings(); track booking.id) {
+      <div class="p-5 hover:bg-gray-50 transition-colors">
+        <div class="flex items-start justify-between gap-4">
+          <!-- Booking Info -->
+          <div class="flex items-start gap-4 flex-1 min-w-0">
+            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+              <mat-icon class="text-gray-500 text-lg">event</mat-icon>
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-gray-900 truncate">
+                {{ booking.service_id }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                {{ 'booking.management.scheduledFor' | translate }}:
+                {{ booking.booking_date | date:'mediumDate' }} &bull; {{ booking.start_time }}
+              </p>
+              @if (booking.total_price) {
+                <p class="text-xs text-gray-600 mt-1 font-medium">
+                  {{ booking.total_price }} GEL &bull;
+                  {{ booking.duration }} {{ 'booking.history.minutes' | translate }}
+                </p>
+              }
+            </div>
+          </div>
+
+          <!-- Status Badge -->
+          <span [class]="'px-3 py-1 rounded-lg text-xs font-black uppercase shrink-0 ' + getStatusClass(booking.status)">
+            {{ 'booking.status.' + booking.status | translate }}
+          </span>
+        </div>
+
+        <!-- Provider Actions -->
+        @if (canApprove(booking) || canComplete(booking) || canNoShow(booking)) {
+          <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
+            @if (canApprove(booking)) {
+              <button
+                (click)="approveBooking(booking)"
+                class="px-4 py-1.5 text-xs font-bold text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+              >
+                {{ 'booking.management.approve' | translate }}
+              </button>
+              <button
+                (click)="rejectBooking(booking)"
+                class="px-4 py-1.5 text-xs font-bold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                {{ 'booking.management.reject' | translate }}
+              </button>
+            }
+            @if (canComplete(booking)) {
+              <button
+                (click)="completeBooking(booking)"
+                class="px-4 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+              >
+                {{ 'booking.management.complete' | translate }}
+              </button>
+              <button
+                (click)="noShowBooking(booking)"
+                class="px-4 py-1.5 text-xs font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                {{ 'booking.management.noShow' | translate }}
+              </button>
+            }
+            @if (canCancel(booking)) {
+              <button
+                (click)="cancelBooking(booking)"
+                class="px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-red-600 transition-colors ml-auto"
+              >
+                {{ 'booking.management.cancel' | translate }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

@@ -52,8 +52,8 @@ interface SwapBoostDialogData {
                   [class.border-swap]="selectedPackageIndex() === $index"
                   [class.bg-purple-50]="selectedPackageIndex() === $index"
                 >
-                  <p class="font-bold text-gray-900">{{ pkg.tier | uppercase }} - {{ pkg.days }} {{ 'swap.boost.days' | translate }}</p>
-                  <p class="text-sm text-gray-600">{{ pkg.price }} GEL</p>
+                  <p class="font-bold text-gray-900">{{ pkg.tier | uppercase }}</p>
+                  <p class="text-sm text-gray-600">{{ pkg.daily_price }} ₾{{ 'swap.postForm.perDay' | translate }}</p>
                 </button>
               }
             </div>
@@ -73,16 +73,16 @@ interface SwapBoostDialogData {
           <div>
             <h3 class="mb-2 text-sm font-bold uppercase text-gray-500">{{ 'swap.boost.stickers' | translate }}</h3>
             <div class="grid gap-2 sm:grid-cols-2">
-              @for (sticker of stickers(); track sticker.code) {
+              @for (sticker of stickers(); track sticker.name) {
                 <label class="flex cursor-pointer items-center justify-between rounded-xl border border-gray-200 p-3">
                   <div>
-                    <p class="font-semibold text-gray-900">{{ sticker.label || sticker.code }}</p>
-                    <p class="text-xs text-gray-600">{{ sticker.price }} GEL</p>
+                    <p class="font-semibold text-gray-900">{{ sticker.label }}</p>
+                    <p class="text-xs text-gray-600">{{ sticker.price }} ₾</p>
                   </div>
                   <input
                     type="checkbox"
-                    [checked]="selectedStickers().has(sticker.code)"
-                    (change)="toggleSticker(sticker.code)"
+                    [checked]="selectedStickers().has(sticker.name)"
+                    (change)="toggleSticker(sticker.name)"
                   />
                 </label>
               }
@@ -128,10 +128,10 @@ export class SwapBoostDialog {
   totalPrice = computed(() => {
     const selected = this.selectedPackage();
     const stickerCost = this.stickers()
-      .filter((s) => this.selectedStickers().has(s.code))
+      .filter((s) => this.selectedStickers().has(s.name))
       .reduce((sum, s) => sum + s.price, 0);
     const autoCost = this.autoUpdateDays() * (this.monetization()?.auto_update_daily_price ?? 0);
-    return (selected?.price ?? 0) + stickerCost + autoCost;
+    return (selected?.daily_price ?? 0) + stickerCost + autoCost;
   });
 
   constructor() {
@@ -167,7 +167,6 @@ export class SwapBoostDialog {
     const selected = this.selectedPackage();
     const payload: ApplyBoostRequest = {
       boost_tier: selected?.tier,
-      boost_days: selected?.days,
       auto_update_days: this.autoUpdateDays(),
       stickers: Array.from(this.selectedStickers()),
     };

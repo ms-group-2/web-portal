@@ -56,3 +56,9 @@
     background-color: var(--color-swap) !important;
   }
 }
+
+.chat-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #faae78 !important;
+  }
+}

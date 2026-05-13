@@ -1,0 +1,287 @@
+<div class="min-h-screen bg-gradient-to-br from-orange-50/30 via-amber-50/20 to-white flex flex-col">
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-orange-200">
+    <nav class="max-w-6xl mx-auto flex items-center justify-between py-3 px-4">
+      <a routerLink="/" class="flex items-center gap-2 shrink-0" aria-label="Vipo home">
+        <img
+          src="assets/logo/logo-blue.svg"
+          alt="Vipo Logo"
+          class="w-24 h-8 sm:w-28 sm:h-9 md:w-32 md:h-10"
+        />
+      </a>
+
+      <button
+        (click)="translation.toggleLanguage()"
+        class="w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition bg-booking/10 hover:bg-booking/20 text-booking"
+        [attr.aria-label]="translation.isGeorgian() ? 'Switch to English' : 'Switch to Georgian'"
+      >
+        {{ translation.isGeorgian() ? 'EN' : 'KA' }}
+      </button>
+    </nav>
+  </header>
+
+  <div class="flex-1 max-w-7xl mx-auto px-4 pt-20 pb-12 w-full">
+    @if (!isVerified()) {
+      <!-- Not Verified -->
+      <div class="max-w-2xl mx-auto text-center py-16">
+        <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <mat-icon class="!w-10 !h-10 !text-4xl text-amber-600">verified_user</mat-icon>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-4 uppercase">
+          {{ 'profile.vendor.notVerified.title' | translate }}
+        </h3>
+        <p class="text-gray-600 mb-6" [innerHTML]="'profile.vendor.notVerified.message' | translate"></p>
+        <button
+          (click)="goBack()"
+          class="px-8 py-3 bg-booking text-white font-black rounded-xl hover:bg-booking-light transition-all uppercase"
+        >
+          {{ 'profile.vendor.back' | translate }}
+        </button>
+      </div>
+    } @else {
+      <div class="max-w-4xl mx-auto mt-6">
+        <button
+          (click)="goBack()"
+          class="mb-6 flex items-center gap-2 text-booking transition-all uppercase duration-300 font-bold hover:gap-3"
+        >
+          <mat-icon>arrow_back</mat-icon>
+          <span>{{ 'bookingRegistration.backToProfile' | translate }}</span>
+        </button>
+
+        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 uppercase tracking-tight mb-4">
+          {{ 'bookingRegistration.title' | translate }}
+        </h1>
+        <p class="text-gray-600 mb-8 max-w-2xl">
+          {{ 'bookingRegistration.subtitle' | translate }}
+        </p>
+
+        <!-- Step indicator -->
+        <div class="flex items-center gap-3 mb-10">
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
+              [class]="currentStep() >= 1 ? 'bg-booking text-white' : 'bg-gray-200 text-gray-500'"
+            >1</div>
+            <span class="text-sm font-bold" [class]="currentStep() >= 1 ? 'text-booking' : 'text-gray-400'">
+              {{ 'bookingRegistration.steps.details' | translate }}
+            </span>
+          </div>
+          <div class="w-12 h-0.5" [class]="currentStep() >= 2 ? 'bg-booking' : 'bg-gray-200'"></div>
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
+              [class]="currentStep() >= 2 ? 'bg-booking text-white' : 'bg-gray-200 text-gray-500'"
+            >2</div>
+            <span class="text-sm font-bold" [class]="currentStep() >= 2 ? 'text-booking' : 'text-gray-400'">
+              {{ 'bookingRegistration.steps.review' | translate }}
+            </span>
+          </div>
+        </div>
+
+        @if (currentStep() === 1) {
+          <!-- Step 1: Details Form -->
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-12 h-12 bg-booking/10 rounded-xl flex items-center justify-center">
+                <mat-icon class="!text-2xl text-booking">event_available</mat-icon>
+              </div>
+              <div>
+                <h2 class="text-xl sm:text-2xl font-black text-gray-900 uppercase">
+                  {{ 'bookingRegistration.formTitle' | translate }}
+                </h2>
+                <p class="text-sm text-gray-500">
+                  {{ 'bookingRegistration.formSubtitle' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <form [formGroup]="providerForm" (ngSubmit)="goToReview()" class="space-y-5">
+              <!-- Provider Name -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ 'profile.vendor.form.providerName' | translate }}</mat-label>
+                <input matInput formControlName="name"
+                  [placeholder]="'profile.vendor.form.placeholders.providerName' | translate" />
+                @if (providerForm.get('name')?.invalid && providerForm.get('name')?.touched) {
+                  <mat-error>{{ getErrorMessage('name') | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Description -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ 'profile.vendor.form.providerDescription' | translate }}</mat-label>
+                <textarea matInput formControlName="description" rows="3"
+                  [placeholder]="'profile.vendor.form.placeholders.providerDescription' | translate">
+                </textarea>
+                @if (providerForm.get('description')?.invalid && providerForm.get('description')?.touched) {
+                  <mat-error>{{ getErrorMessage('description') | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Phone -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ 'profile.vendor.form.providerPhone' | translate }}</mat-label>
+                <span matPrefix class="text-gray-500 font-semibold pl-1 pr-2">{{ COUNTRY_CODE }}</span>
+                <input matInput formControlName="phone_number" type="tel" maxlength="9"
+                  [placeholder]="'profile.vendor.form.placeholders.providerPhone' | translate"
+                  (input)="onPhoneInput($event)" />
+                @if (providerForm.get('phone_number')?.invalid && providerForm.get('phone_number')?.touched) {
+                  <mat-error>{{ getErrorMessage('phone_number') | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Category -->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>{{ 'profile.vendor.form.serviceCategory' | translate }}</mat-label>
+                <mat-select formControlName="category_id">
+                  @for (cat of categories(); track cat.id) {
+                    <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+                  }
+                </mat-select>
+                @if (providerForm.get('category_id')?.invalid && providerForm.get('category_id')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <!-- Call Type -->
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'profile.vendor.form.callType' | translate }}</mat-label>
+                  <mat-select formControlName="call_type">
+                    @for (type of callTypeOptions; track type) {
+                      <mat-option [value]="type">
+                        {{ 'profile.vendor.form.callTypes.' + type | translate }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <!-- Business Type -->
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'profile.vendor.form.providerBusinessType' | translate }}</mat-label>
+                  <mat-select formControlName="business_type">
+                    @for (type of providerBusinessTypeOptions; track type) {
+                      <mat-option [value]="type">
+                        {{ 'profile.vendor.form.providerBusinessTypes.' + type | translate }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                <button type="button" (click)="goBack()"
+                  class="px-6 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all uppercase text-sm">
+                  {{ 'profile.vendor.back' | translate }}
+                </button>
+                <button type="submit"
+                  class="flex-1 px-8 py-3 bg-booking text-white font-bold rounded-xl hover:bg-booking-light transition-all uppercase text-sm shadow-lg">
+                  {{ 'bookingRegistration.continueToReview' | translate }}
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+
+        @if (currentStep() === 2) {
+          <!-- Step 2: Review & Submit -->
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="w-12 h-12 bg-booking/10 rounded-xl flex items-center justify-center">
+                <mat-icon class="!text-2xl text-booking">fact_check</mat-icon>
+              </div>
+              <div>
+                <h2 class="text-xl sm:text-2xl font-black text-gray-900 uppercase">
+                  {{ 'bookingRegistration.reviewTitle' | translate }}
+                </h2>
+                <p class="text-sm text-gray-500">
+                  {{ 'bookingRegistration.reviewSubtitle' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Profile Summary -->
+            <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 sm:p-6 mb-6 border border-orange-100">
+              <h3 class="text-sm font-black text-booking uppercase tracking-wide mb-4">
+                {{ 'bookingRegistration.providerInfo' | translate }}
+              </h3>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <span class="text-xs text-gray-500 uppercase font-bold">{{ 'profile.vendor.form.providerName' | translate }}</span>
+                  <p class="text-gray-900 font-semibold">{{ providerForm.get('name')?.value }}</p>
+                </div>
+
+                <div>
+                  <span class="text-xs text-gray-500 uppercase font-bold">{{ 'profile.vendor.form.providerPhone' | translate }}</span>
+                  <p class="text-gray-900 font-semibold">{{ COUNTRY_CODE }} {{ providerForm.get('phone_number')?.value }}</p>
+                </div>
+
+                <div>
+                  <span class="text-xs text-gray-500 uppercase font-bold">{{ 'profile.vendor.form.serviceCategory' | translate }}</span>
+                  <p class="text-gray-900 font-semibold">{{ getCategoryName(providerForm.get('category_id')?.value) }}</p>
+                </div>
+
+                <div>
+                  <span class="text-xs text-gray-500 uppercase font-bold">{{ 'profile.vendor.form.callType' | translate }}</span>
+                  <p class="text-gray-900 font-semibold">
+                    {{ 'profile.vendor.form.callTypes.' + providerForm.get('call_type')?.value | translate }}
+                  </p>
+                </div>
+
+                <div>
+                  <span class="text-xs text-gray-500 uppercase font-bold">{{ 'profile.vendor.form.providerBusinessType' | translate }}</span>
+                  <p class="text-gray-900 font-semibold">
+                    {{ 'profile.vendor.form.providerBusinessTypes.' + providerForm.get('business_type')?.value | translate }}
+                  </p>
+                </div>
+
+                @if (providerForm.get('description')?.value) {
+                  <div class="sm:col-span-2">
+                    <span class="text-xs text-gray-500 uppercase font-bold">{{ 'profile.vendor.form.providerDescription' | translate }}</span>
+                    <p class="text-gray-900 font-semibold">{{ providerForm.get('description')?.value }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Instant activation note -->
+            <div class="flex items-start gap-3 bg-green-50 rounded-xl p-4 mb-6 border border-green-200">
+              <mat-icon class="!text-xl text-green-600 mt-0.5">bolt</mat-icon>
+              <div>
+                <p class="text-sm font-bold text-green-800">
+                  {{ 'bookingRegistration.instantNote' | translate }}
+                </p>
+                <p class="text-xs text-green-600 mt-1">
+                  {{ 'bookingRegistration.instantNoteDesc' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Terms -->
+            <div class="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-200">
+              <p class="text-xs text-gray-600 leading-relaxed">
+                {{ 'bookingRegistration.terms' | translate }}
+              </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button (click)="goBackToForm()"
+                class="px-6 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-all uppercase text-sm">
+                {{ 'profile.vendor.back' | translate }}
+              </button>
+              <button (click)="onSubmit()" [disabled]="submitting()"
+                class="flex-1 px-8 py-3 bg-booking text-white font-bold rounded-xl hover:bg-booking-light transition-all uppercase text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                @if (submitting()) {
+                  {{ 'profile.vendor.form.submitting' | translate }}
+                } @else {
+                  {{ 'bookingRegistration.submit' | translate }}
+                }
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <app-footer />
+</div>

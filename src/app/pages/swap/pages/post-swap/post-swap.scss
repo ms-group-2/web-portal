@@ -1,0 +1,26 @@
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.5) 15%,
+    rgba(59, 130, 246, 1) 50%,
+    rgba(59, 130, 246, 0.5) 85%,
+    transparent 100%
+  );
+  box-shadow: 0 0 20px 8px rgba(59, 130, 246, 0.4);
+  animation: scan 2s ease-in-out infinite;
+}
+
+@keyframes scan {
+  0%,
+  100% {
+    top: 0;
+  }
+  50% {
+    top: 100%;
+  }
+}

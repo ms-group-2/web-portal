@@ -61,19 +61,22 @@ export class SwapItemsService {
     }
 
     this._isLoading.set(true);
+
+    const payload = {
+      title: item.title.trim(),
+      swap_item_title: item.wantedItem.trim(),
+      description: item.description.trim(),
+      price: item.price,
+      ...(item.location ? { location: item.location.trim() } : {}),
+      ...(item.categoryId != null ? { category_id: item.categoryId } : {}),
+      ...(item.condition ? { condition: item.condition } : {}),
+      ...(item.desiredCategoryIds?.length
+        ? { desired_category_ids: item.desiredCategoryIds }
+        : {}),
+    };
+
     return this.api
-      .createListing(userId, {
-        title: item.title.trim(),
-        swap_item_title: item.wantedItem.trim(),
-        description: item.description.trim(),
-        price: item.price,
-        ...(item.location ? { location: item.location.trim() } : {}),
-        ...(item.categoryId != null ? { category_id: item.categoryId } : {}),
-        ...(item.condition ? { condition: item.condition } : {}),
-        ...(item.desiredCategoryIds?.length
-          ? { desired_category_ids: item.desiredCategoryIds }
-          : {}),
-      })
+      .createListing(userId, payload)
       .pipe(
         switchMap((listing) => this.uploadPhotosSequentially(listing, item.images)),
         switchMap((listing) => {

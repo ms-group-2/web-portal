@@ -16,6 +16,7 @@ import {
   BoostPackage,
   MonetizationInfoResponse,
   StickerInfo,
+  SwapCategory,
   SwapItemsService,
   SwapListingApiService,
 } from 'lib/services/swap';
@@ -28,28 +29,14 @@ import { Footer } from "lib/components/footer/footer";
 import { Header } from "lib/components/header/header";
 import { NgClass } from '@angular/common';
 import { PostSwapDraftPhotosService } from 'lib/services/swap/post-swap-draft-photos.service';
-
-interface SwapCategory {
-  name: string;
-  icon: string;
-}
-
-const SWAP_CATEGORIES: SwapCategory[] = [
-  { name: 'Electronics', icon: 'devices' },
-  { name: 'Fashion', icon: 'checkroom' },
-  { name: 'Books', icon: 'menu_book' },
-  { name: 'Sports', icon: 'sports_soccer' },
-  { name: 'Music', icon: 'headphones' },
-  { name: 'Art', icon: 'palette' },
-  { name: 'Home', icon: 'home' },
-  { name: 'Games', icon: 'sports_esports' },
-  { name: 'Other', icon: 'more_horiz' },
-];
+import { SwapPriceValidatorService } from 'lib/services/swap/swap-price-validator.service';
+import { PriceValidationResponse } from 'lib/services/swap/models/price-validation.model';
 
 @Component({
   selector: 'app-post-swap',
   imports: [MatIconModule, NgClass, Header, TranslatePipe],
   templateUrl: './post-swap.html',
+  styleUrl: './post-swap.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostSwap {
@@ -64,17 +51,20 @@ export class PostSwap {
   private destroyRef = inject(DestroyRef);
   private translation = inject(TranslationService);
   private draftPhotos = inject(PostSwapDraftPhotosService);
+  private priceValidator = inject(SwapPriceValidatorService);
 
   private readonly STORAGE_KEY = 'post-swap-draft';
 
-  readonly categories = SWAP_CATEGORIES;
-  readonly totalSteps = 6;
-  readonly stepNumbers = [1, 2, 3, 4, 5, 6];
+  readonly categories = signal<SwapCategory[]>([]);
+  readonly totalSteps = 8;
+  readonly stepNumbers = [1, 2, 3, 4, 5, 6, 7, 8];
 
   title = signal('');
   category = signal('');
+  categoryId = signal<number | null>(null);
   description = signal('');
   wantInReturn = signal('');
+  desiredCategoryId = signal<number | null>(null);
   price = signal<number | null>(null);
   location = signal('');
   locationPrefilled = signal(false);
@@ -83,7 +73,11 @@ export class PostSwap {
   monetization = signal<MonetizationInfoResponse | null>(null);
   selectedBoostIndex = signal<number>(-1);
   selectedStickers = signal<Set<string>>(new Set());
+  autoUpdateEnabled = signal(false);
   autoUpdateDays = signal<number>(0);
+
+  priceValidation = signal<PriceValidationResponse | null>(null);
+  isValidatingPrice = signal(false);
 
   step = signal(1);
   isSubmitting = signal(false);
@@ -98,17 +92,21 @@ export class PostSwap {
     // TEMP: disable monthly listing quota guard in UI
     // this.checkQuota();
     this.loadMonetization();
+    this.loadCategories();
 
     effect(() => {
       const draft = {
         title: this.title(),
         category: this.category(),
+        categoryId: this.categoryId(),
         description: this.description(),
         wantInReturn: this.wantInReturn(),
+        desiredCategoryId: this.desiredCategoryId(),
         price: this.price(),
         location: this.location(),
         selectedBoostIndex: this.selectedBoostIndex(),
         selectedStickers: Array.from(this.selectedStickers()),
+        autoUpdateEnabled: this.autoUpdateEnabled(),
         autoUpdateDays: this.autoUpdateDays(),
         step: this.step(),
       };
@@ -124,12 +122,15 @@ export class PostSwap {
       const draft = JSON.parse(saved);
       if (draft.title) this.title.set(draft.title);
       if (draft.category) this.category.set(draft.category);
+      if (typeof draft.categoryId === 'number') this.categoryId.set(draft.categoryId);
       if (draft.description) this.description.set(draft.description);
       if (draft.wantInReturn) this.wantInReturn.set(draft.wantInReturn);
+      if (typeof draft.desiredCategoryId === 'number') this.desiredCategoryId.set(draft.desiredCategoryId);
       if (draft.price != null) this.price.set(draft.price);
       if (draft.location) this.location.set(draft.location);
       if (typeof draft.selectedBoostIndex === 'number') this.selectedBoostIndex.set(draft.selectedBoostIndex);
       if (Array.isArray(draft.selectedStickers)) this.selectedStickers.set(new Set(draft.selectedStickers));
+      if (draft.autoUpdateEnabled) this.autoUpdateEnabled.set(true);
       if (typeof draft.autoUpdateDays === 'number') this.autoUpdateDays.set(draft.autoUpdateDays);
       if (draft.step) this.step.set(draft.step);
     } catch {
@@ -178,6 +179,15 @@ export class PostSwap {
       });
   }
 
+  private loadCategories() {
+    this.api
+      .getSwapCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories) => this.categories.set(categories),
+      });
+  }
+
   boostPackages = computed<BoostPackage[]>(() => this.monetization()?.boost_packages ?? []);
   stickers = computed<StickerInfo[]>(() => this.monetization()?.stickers ?? []);
   selectedBoostPackage = computed<BoostPackage | null>(() => {
@@ -185,13 +195,19 @@ export class PostSwap {
     if (index < 0) return null;
     return this.boostPackages()[index] ?? null;
   });
+  autoUpdateDailyPrice = computed(() => this.monetization()?.auto_update_daily_price ?? 0);
   boostEstimatedTotal = computed(() => {
-    const boostCost = this.selectedBoostPackage()?.price ?? 0;
+    const boostCost = this.selectedBoostPackage()?.daily_price ?? 0;
     const stickerCost = this.stickers()
-      .filter((sticker) => this.selectedStickers().has(sticker.code))
+      .filter((sticker) => this.selectedStickers().has(sticker.name))
       .reduce((sum, sticker) => sum + sticker.price, 0);
-    const autoCost = this.autoUpdateDays() * (this.monetization()?.auto_update_daily_price ?? 0);
+    const autoCost = this.autoUpdateEnabled() ? this.autoUpdateDays() * this.autoUpdateDailyPrice() : 0;
     return boostCost + stickerCost + autoCost;
+  });
+  selectedDesiredCategoryName = computed(() => {
+    const selectedId = this.desiredCategoryId();
+    if (selectedId == null) return '';
+    return this.categories().find((c) => c.id === selectedId)?.name ?? '';
   });
 
   canProceed = computed(() => {
@@ -201,10 +217,11 @@ export class PostSwap {
       case 3: return this.selectedFiles().length > 0;
       case 4: return this.description().trim().length > 0;
       case 5:
-        return this.wantInReturn().trim().length > 0
-          && this.price() !== null && this.price()! > 0
+        return this.price() !== null && this.price()! > 0
           && this.location().trim().length > 0;
-      case 6: return true;
+      case 6: return this.wantInReturn().trim().length > 0 || this.desiredCategoryId() !== null;
+      case 7: return true;
+      case 8: return true;
       default: return false;
     }
   });
@@ -235,9 +252,25 @@ export class PostSwap {
     this.focusStepInput();
   }
 
-  selectCategory(name: string) {
-    this.category.set(name);
+  selectCategory(category: SwapCategory) {
+    this.category.set(category.name);
+    this.categoryId.set(category.id);
     setTimeout(() => this.nextStep(), 300);
+  }
+
+  selectDesiredCategory(categoryId: number) {
+    const newValue = this.desiredCategoryId() === categoryId ? null : categoryId;
+    this.desiredCategoryId.set(newValue);
+    if (newValue !== null) {
+      this.wantInReturn.set('');
+    }
+  }
+
+  onWantInReturnInput(value: string) {
+    this.wantInReturn.set(value);
+    if (value.trim()) {
+      this.desiredCategoryId.set(null);
+    }
   }
 
   onFilesSelected(event: Event) {
@@ -327,6 +360,59 @@ export class PostSwap {
     this.selectedBoostIndex.set(index);
   }
 
+  formatTierName(tier: string): string {
+    return tier.replace(/_/g, ' ');
+  }
+
+  getBoostTierIcon(tier: string | null | undefined): string {
+    const value = (tier ?? '').toLowerCase();
+    if (value.includes('super')) return 'workspace_premium';
+    if (value.includes('plus')) return 'stars';
+    if (value.includes('vip')) return 'local_fire_department';
+    return 'local_offer';
+  }
+
+  getBoostTierColor(tier: string | null | undefined): string {
+    const value = (tier ?? '').toLowerCase();
+    if (value.includes('super')) return 'text-orange-500';
+    if (value.includes('plus')) return 'text-yellow-500';
+    return 'text-blue-500';
+  }
+
+  getBoostTierIconBg(tier: string | null | undefined): string {
+    const value = (tier ?? '').toLowerCase();
+    if (value.includes('super')) return 'bg-orange-500';
+    if (value.includes('plus')) return 'bg-yellow-500';
+    return 'bg-blue-500';
+  }
+
+  toggleAutoUpdate() {
+    this.autoUpdateEnabled.update((v) => !v);
+    if (!this.autoUpdateEnabled()) {
+      this.autoUpdateDays.set(0);
+    }
+  }
+
+  getStickerCode(sticker: StickerInfo): string {
+    return sticker.name;
+  }
+
+  getStickerLabel(sticker: StickerInfo): string {
+    return sticker.label;
+  }
+
+  getStickerPrice(sticker: StickerInfo): number {
+    return sticker.price;
+  }
+
+  getStickerIcon(code: string): string {
+    const value = code.toLowerCase();
+    if (value.includes('gold') || value.includes('premium')) return 'workspace_premium';
+    if (value.includes('hot') || value.includes('fire')) return 'local_fire_department';
+    if (value.includes('new')) return 'new_releases';
+    return 'style';
+  }
+
   toggleSticker(code: string) {
     this.selectedStickers.update((current) => {
       const next = new Set(current);
@@ -347,30 +433,63 @@ export class PostSwap {
     this.autoUpdateDays.set(Math.max(0, Math.floor(value)));
   }
 
+  checkPrice() {
+    if (this.isValidatingPrice()) return;
+
+    this.isValidatingPrice.set(true);
+    this.priceValidation.set(null);
+
+    this.priceValidator
+      .validatePrice({
+        title: this.title(),
+        estimated_value: this.price() ?? 0,
+        condition: 'Used',
+        category: this.category() || undefined,
+        photos: this.previewUrls().length ? this.previewUrls() : undefined,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.priceValidation.set(result);
+          this.isValidatingPrice.set(false);
+        },
+        error: () => {
+          this.isValidatingPrice.set(false);
+          this.snackbar.error(
+            this.translation.translate('swap.detail.priceCheck.error')
+          );
+        },
+      });
+  }
+
   close() {
     this.router.navigate(['/swap']);
   }
 
   private submit() {
     this.isSubmitting.set(true);
+    const selectedCategoryId = this.categoryId();
+    const selectedDesiredCategoryId = this.desiredCategoryId();
+    const wantedItemText = this.wantInReturn().trim() || this.selectedDesiredCategoryName();
 
     const result = this.swapItems.addItem({
       title: this.title(),
       description: this.description(),
-      wantedItem: this.wantInReturn(),
+      wantedItem: wantedItemText,
       price: this.price() ?? 0,
       location: this.location(),
+      categoryId: selectedCategoryId ?? undefined,
+      desiredCategoryIds: selectedDesiredCategoryId != null ? [selectedDesiredCategoryId] : undefined,
       images: this.selectedFiles(),
       boost: this.selectedBoostPackage()
         ? {
             boost_tier: this.selectedBoostPackage()?.tier,
-            boost_days: this.selectedBoostPackage()?.days,
-            auto_update_days: this.autoUpdateDays(),
+            auto_update_days: this.autoUpdateEnabled() ? this.autoUpdateDays() : undefined,
             stickers: Array.from(this.selectedStickers()),
           }
-        : this.autoUpdateDays() > 0 || this.selectedStickers().size > 0
+        : (this.autoUpdateEnabled() && this.autoUpdateDays() > 0) || this.selectedStickers().size > 0
           ? {
-              auto_update_days: this.autoUpdateDays(),
+              auto_update_days: this.autoUpdateEnabled() ? this.autoUpdateDays() : undefined,
               stickers: Array.from(this.selectedStickers()),
             }
           : undefined,

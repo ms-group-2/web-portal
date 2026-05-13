@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from 'lib/guards/auth.guard';
-import { vendorGuard } from 'lib/guards/vendor.guard';
+import { vendorOrProviderGuard } from 'lib/guards/vendor.guard';
 import { businessRegisterGuard } from 'lib/guards/business-register.guard';
 
 
@@ -20,6 +20,24 @@ export const routes: Routes = [
   {
     path: 'booking',
     loadComponent: () => import('./pages/booking/booking').then(m => m.Booking),
+  },
+
+  {
+    path: 'booking/register',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/booking-registration/booking-registration').then(
+        m => m.BookingRegistrationComponent,
+      ),
+  },
+
+  {
+    path: 'booking/dashboard',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/booking-dashboard/booking-dashboard').then(
+        m => m.BookingDashboard,
+      ),
   },
 
   {
@@ -120,7 +138,7 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        canActivate: [vendorGuard],
+        canActivate: [vendorOrProviderGuard],
         loadChildren: () => import('./pages/vendor-dashboard/vendor-dashboard.routes').then(m => m.vendorDashboardRoutes),
       }
     ]

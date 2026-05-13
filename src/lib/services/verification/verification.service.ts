@@ -1,4 +1,5 @@
-import { Injectable, signal, computed, inject, effect } from '@angular/core';
+import { Injectable, signal, computed, inject, effect, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProfileApiService } from 'lib/services/profile/profile-api.service';
 import { AuthService } from 'lib/services/identity/auth.service';
 
@@ -13,16 +14,16 @@ export class VerificationService {
 
   isVerified = computed(() => this._isVerified());
 
+  private destroyRef = inject(DestroyRef);
+
   constructor() {
     effect(() => {
       const user = this.authService.user();
       if (user?.id) {
-        if (user.is_verified) {
-          this._isVerified.set(true);
-          return;
-        }
         this.profileApi.clearCache();
-        this.profileApi.getProfile(user.id).subscribe(profile => {
+        this.profileApi.getProfile(user.id).pipe(
+          takeUntilDestroyed(this.destroyRef),
+        ).subscribe(profile => {
           this._isVerified.set(profile.kyc_verified ?? false);
         });
       } else {

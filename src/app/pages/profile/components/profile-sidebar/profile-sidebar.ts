@@ -33,6 +33,7 @@ export class ProfileSidebarComponent implements OnInit, OnDestroy {
     { route: '/profile/wishlist', icon: 'favorite_border', label: 'profile.nav.favorites', activeClass: 'bg-primary text-white' },
     { route: '/profile/addresses', icon: 'location_on', label: 'profile.nav.addresses', activeClass: 'bg-primary text-white' },
     { route: '/profile/business', icon: 'store', label: 'profile.nav.business', activeClass: 'bg-market text-white' },
+    { route: '/profile/booking-provider', icon: 'event_available', label: 'profile.nav.bookingProvider', activeClass: 'bg-booking text-white' },
     { route: '/profile/settings', icon: 'settings', label: 'profile.nav.settings', activeClass: 'bg-primary text-white' },
   ];
 

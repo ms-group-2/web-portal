@@ -15,7 +15,6 @@ import {
   CheckoutResponse,
   UpdateCartItemRequest,
 } from 'lib/services/shop/models/shop-cart.models';
-import { MockOrderItem, ShopOrdersService } from './shop-orders.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShopCartService {
@@ -24,8 +23,6 @@ export class ShopCartService {
   private readonly snackbar = inject(SnackbarService);
   private readonly translation = inject(TranslationService);
   private readonly cartApi = inject(ShopCartApiService);
-  private readonly ordersService = inject(ShopOrdersService);
-
   private readonly baseUrl = environment.apiBaseUrl;
   private readonly CART_STORAGE_KEY_PREFIX = 'vipo_cart_';
   private inFlightCartLoad$: Observable<CartResponse> | null = null;
@@ -76,11 +73,9 @@ export class ShopCartService {
   }
 
   checkoutCart(): Observable<CheckoutResponse> {
-    const items = this.buildOrderItemsFromState();
-
     return this.cartApi.checkout().pipe(
       tap(response => {
-        this.ordersService.placeOrder(items, response.total, response.cart_id);
+        console.log('Checkout API response:', JSON.stringify(response, null, 2));
         this.clearCart();
         this.syncCartStateFromResponse({
           id: response.cart_id,
@@ -338,27 +333,6 @@ export class ShopCartService {
     this.cartItemQuantitiesByProductId.set(quantities);
     this.cartTotal.set(this.computeTotalFromLocalState());
     this.saveCartToStorage(next);
-  }
-
-  private buildOrderItemsFromState(): MockOrderItem[] {
-    const quantities = this.cartItemQuantitiesByProductId();
-    const productsById = this.cartProductsById();
-
-    return Object.keys(quantities)
-      .map(rawId => {
-        const productId = Number(rawId);
-        const quantity = quantities[productId] || 0;
-        const product = productsById[productId];
-
-        return {
-          productId,
-          title: product?.title || product?.name || '',
-          imageUrl: product?.cover_image_url || product?.image_url || product?.image || '',
-          price: product?.price || 0,
-          quantity,
-        };
-      })
-      .filter(item => item.quantity > 0);
   }
 
   private computeTotalFromLocalState(): number {

@@ -75,6 +75,10 @@ export class SnackbarService {
     this.show(text, SnackbarType.SWAP, closeIcon);
   }
 
+  chat(text: string, closeIcon: string = 'chat') {
+    this.show(text, SnackbarType.CHAT, closeIcon, 'left', 'bottom');
+  }
+
   snackbar(type: 'info' | 'error' | 'success', text: string): void {
     this.show(text, type as SnackbarType);
   }

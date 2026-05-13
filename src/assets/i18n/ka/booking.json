@@ -106,6 +106,60 @@
     },
     "chat": {
       "ariaLabel": "დაუკავშირდი მხარდაჭერას"
+    },
+    "history": {
+      "title": "ჯავშნების ისტორია",
+      "noBookings": "ჯავშნები არ არის",
+      "noBookingsDesc": "თქვენი ჯავშნების ისტორია აქ გამოჩნდება",
+      "filterAll": "ყველა",
+      "filterUpcoming": "მომავალი",
+      "filterCompleted": "დასრულებული",
+      "filterCancelled": "გაუქმებული",
+      "date": "თარიღი",
+      "time": "დრო",
+      "duration": "ხანგრძლივობა",
+      "minutes": "წთ",
+      "price": "ფასი",
+      "status": "სტატუსი",
+      "service": "სერვისი",
+      "provider": "პროვაიდერი",
+      "branch": "ფილიალი",
+      "resource": "რესურსი",
+      "cancel": "გაუქმება",
+      "reschedule": "გადანიშვნა",
+      "retryPayment": "გადახდის გამეორება",
+      "viewDetails": "დეტალები",
+      "cancelConfirm": "ნამდვილად გსურთ ამ ჯავშნის გაუქმება?",
+      "loadMore": "მეტის ჩატვირთვა"
+    },
+    "status": {
+      "PENDING": "მოლოდინში",
+      "PENDING_PAYMENT": "გადახდა მოლოდინში",
+      "APPROVED": "დადასტურებული",
+      "REJECTED": "უარყოფილი",
+      "CANCELLED": "გაუქმებული",
+      "COMPLETED": "დასრულებული",
+      "NO_SHOW": "არ გამოცხადდა"
+    },
+    "management": {
+      "title": "ჯავშნები",
+      "noBookings": "ჯავშნები არ არის",
+      "noBookingsDesc": "შემოსული ჯავშნები აქ გამოჩნდება",
+      "filterAll": "ყველა",
+      "filterPending": "მოლოდინში",
+      "filterApproved": "დადასტურებული",
+      "filterCompleted": "დასრულებული",
+      "approve": "დადასტურება",
+      "reject": "უარყოფა",
+      "complete": "დასრულება",
+      "noShow": "არ გამოცხადდა",
+      "cancel": "გაუქმება",
+      "customer": "მომხმარებელი",
+      "scheduledFor": "დანიშნულია",
+      "approveConfirm": "დაადასტუროთ ეს ჯავშანი?",
+      "rejectConfirm": "უარყოთ ეს ჯავშანი?",
+      "completeConfirm": "მონიშნოთ ეს ჯავშანი დასრულებულად?",
+      "noShowConfirm": "მონიშნოთ, რომ მომხმარებელი არ გამოცხადდა?"
     }
   }
 }

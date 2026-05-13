@@ -1,0 +1,24 @@
+{
+  "/chat-api": {
+    "target": "https://melia-unhelped-selena.ngrok-free.dev",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/chat-api": ""
+    },
+    "headers": {
+      "ngrok-skip-browser-warning": "true"
+    }
+  },
+  "/import-api": {
+    "target": "https://melia-unhelped-selena.ngrok-free.dev",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/import-api": ""
+    },
+    "headers": {
+      "ngrok-skip-browser-warning": "true"
+    }
+  }
+}

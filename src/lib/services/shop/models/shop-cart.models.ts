@@ -30,6 +30,7 @@ export interface CartResponse {
 
 export interface CheckoutResponse {
   cart_id: string;
+  order_id?: string;
   status: string;
   total: number;
   item_count: number;

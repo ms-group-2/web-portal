@@ -23,11 +23,7 @@ export const BUSINESS_TYPE_OPTIONS: BusinessTypeOption[] = [
     borderColor: 'border-[#885dde]',
     bgColor: 'bg-[#885dde]/10',
     hoverBg: 'hover:bg-[#885dde]/10',
-    disabled: true,
-    comingSoon: {
-      title: 'profile.vendor.step1.comingSoon.title',
-      subtitle: 'profile.vendor.step1.comingSoon.subtitle'
-    }
+    disabled: false,
   },
   {
     type: 'both',

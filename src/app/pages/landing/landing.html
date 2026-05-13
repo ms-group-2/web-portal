@@ -1,102 +1,306 @@
 <app-header variant="white"></app-header>
 <div class="min-h-screen bg-white">
-
-  <section id="main" class="pt-32 pb-20 px-10 bg-white">
-    <div class="max-w-4xl mx-auto">
-      <div class="text-center mb-12">
-        <h1 class="text-6xl font-black text-textBlue mb-4 tracking-tight">
+  <section id="main" class="pt-32 pb-16 px-6 md:px-10 bg-gradient-to-b from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-10 md:mb-14">
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-primary/80 mb-4">{{ 'landing.hero.kicker' | translate }}</p>
+        <h1 class="text-4xl md:text-6xl font-black text-textBlue mb-4 tracking-tight leading-tight">
           {{ 'landing.hero.title' | translate }}
         </h1>
-        <p class="text-lg text-gray-600">{{ 'landing.hero.subtitle' | translate }}</p>
+        <p class="text-base md:text-xl text-gray-600 max-w-2xl mx-auto">{{ 'landing.hero.subtitle' | translate }}</p>
       </div>
 
-      <div class="mb-16 bg-gradient-to-br from-primary/5 via-swap/5 to-booking/5 rounded-3xl p-8 border-2 border-gray-200">
-        <div class="mb-4 text-center">
-          <h2 class="text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">{{ 'landing.hero.askAnything' | translate }}</h2>
-          <p class="text-sm text-gray-500">{{ 'landing.hero.askDescription' | translate }}</p>
-        </div>
+      <div class="chat-workspace" [class.chat-workspace--with-rail]="hasVisibleProductRail()">
+        @if (hasVisibleProductRail()) {
+          <aside class="product-rail">
+            <div class="product-rail__header">
+              <h3 class="text-sm font-black uppercase tracking-wide text-gray-700">{{ 'landing.hero.productPreviewTitle' | translate }}</h3>
+              <button class="product-rail__close" (click)="closeProductRail()" [attr.aria-label]="'landing.hero.closePreview' | translate">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
 
-        <div class="flex items-center gap-3 p-2 bg-white border-2 border-gray-300 rounded-xl hover:border-primary transition-all shadow-sm">
-          <div class="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center ml-2">
-            <mat-icon class="text-white">auto_awesome</mat-icon>
+            <div class="product-rail__list">
+              @for (card of productPreviewCards(); track card.productId) {
+                <article class="product-card">
+                  <button class="product-card__remove" (click)="removeProductCard(card.productId)" [attr.aria-label]="'landing.hero.removeProductPreview' | translate">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  @if (card.loading) {
+                    <div class="product-card__loading">
+                      <div class="product-card__skeleton product-card__skeleton--image"></div>
+                      <div class="product-card__skeleton product-card__skeleton--line"></div>
+                      <div class="product-card__skeleton product-card__skeleton--line short"></div>
+                    </div>
+                  } @else if (card.product) {
+                    <a [routerLink]="['/shop/product', card.product.id]" class="product-card__link">
+                      <img
+                        [src]="card.product.image || card.product.image_url || 'assets/placeholder-product.png'"
+                        [alt]="card.product.name || card.product.title || 'Product'"
+                        class="product-card__image" />
+                      <div class="product-card__body">
+                        <p class="product-card__name">{{ card.product.name || card.product.title }}</p>
+                        <p class="product-card__price">₾{{ card.product.price }}</p>
+                      </div>
+                    </a>
+                  } @else {
+                    <div class="product-card__empty">{{ 'landing.hero.productUnavailable' | translate }}</div>
+                  }
+                </article>
+              }
+            </div>
+          </aside>
+        }
+
+        <div class="chat-pane bg-white rounded-3xl border border-gray-200 shadow-[0_20px_70px_rgba(27,39,94,0.08)] overflow-hidden flex flex-col">
+          <div class="px-5 py-5 md:px-8 md:py-7 border-b border-gray-100 flex items-start md:items-center gap-3 md:gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center shrink-0">
+              <mat-icon class="text-white">smart_toy</mat-icon>
+            </div>
+            <div class="flex-1">
+              <h2 class="text-lg md:text-2xl font-black text-gray-900 tracking-tight">{{ 'landing.hero.askAnything' | translate }}</h2>
+              <p class="text-sm text-gray-500">{{ 'landing.hero.askDescription' | translate }}</p>
+            </div>
+            @if (!showProductRail() && productPreviewCards().length > 0) {
+              <button
+                class="show-preview-btn inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:border-primary hover:text-primary transition-all"
+                (click)="openProductRail()">
+                <mat-icon class="!text-lg">dashboard_customize</mat-icon>
+                {{ 'landing.hero.showPreview' | translate }}
+                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[10px] font-black">{{ productPreviewCards().length }}</span>
+              </button>
+            }
           </div>
 
-          <input
-            type="text"
-            [(ngModel)]="inputValue"
-            (keyup.enter)="handleSend()"
-            [placeholder]="'landing.hero.placeholder' | translate"
-            class="flex-1 px-3 py-3 bg-transparent focus:outline-none placeholder:text-gray-400 text-gray-900 font-medium"
-          />
+          <div class="chat-messages-area px-5 pt-5 md:px-8 md:pt-6">
+            <div #messagesContainer class="chat-messages-scroll space-y-3 overflow-y-auto pr-1">
+              @for (message of chatService.messages(); track message.timestamp) {
+                <div class="flex" [class.justify-end]="message.role === 'user'">
+                  <div
+                    class="max-w-[85%] px-4 py-3 rounded-2xl text-sm md:text-base font-medium"
+                    [class]="message.role === 'user' ? 'bg-primary text-white rounded-tr-md' : 'bg-gray-100 text-gray-800 rounded-tl-md'">
+                    @if (!message.text && message.role === 'bot') {
+                      <span class="typing-dots">
+                        <span></span><span></span><span></span>
+                      </span>
+                    } @else {
+                      {{ message.text }}
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
 
-          <button
-            (click)="handleSend()"
-            [disabled]="!inputValue().trim()"
-            [class]="'w-10 h-10 rounded-lg flex items-center justify-center transition-all mr-2 ' +
-              (inputValue().trim() ? 'bg-primary hover:bg-primary/90' : 'bg-gray-200')">
-            <mat-icon [class]="inputValue().trim() ? 'text-white' : 'text-gray-400'">send</mat-icon>
-          </button>
-        </div>
+          <div class="p-5 md:p-8">
+            <div class="flex items-center gap-3 p-2 md:p-3 bg-gray-50 border border-gray-200 rounded-2xl hover:border-primary/40 transition-all">
+              <mat-icon class="text-gray-400 ml-1">edit_note</mat-icon>
+              <input
+                type="text"
+                [ngModel]="inputValue()"
+                (ngModelChange)="inputValue.set($event)"
+                (keyup.enter)="handleSend()"
+                [placeholder]="'landing.hero.placeholder' | translate"
+                class="flex-1 px-2 py-2 bg-transparent focus:outline-none placeholder:text-gray-400 text-gray-900 font-medium"
+              />
+              <button
+                (click)="handleSend()"
+                [disabled]="!inputValue().trim() || chatService.isBusy()"
+                [class]="'w-11 h-11 rounded-xl flex items-center justify-center transition-all ' +
+                  (inputValue().trim() && !chatService.isBusy() ? 'bg-primary hover:bg-primary/90' : 'bg-gray-200')">
+                <mat-icon [class]="inputValue().trim() && !chatService.isBusy() ? 'text-white' : 'text-gray-400'">send</mat-icon>
+              </button>
+            </div>
 
-        <div class="mt-4 flex flex-wrap gap-2 justify-center">
-          <button
-            (click)="handleQuickAction('swap')"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-swap  hover:bg-swap hover:text-white transition-all uppercase tracking-wide">
-            {{ 'landing.hero.swapItems' | translate }}
-          </button>
-          <button
-            (click)="handleQuickAction('shop')"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-market hover:bg-market hover:text-white transition-all uppercase tracking-wide">
-            {{ 'landing.hero.shopProducts' | translate }}
-          </button>
-          <button
-            (click)="handleQuickAction('book')"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:border-booking hover:bg-booking hover:text-white transition-all uppercase tracking-wide">
-            {{ 'landing.hero.bookServices' | translate }}
-          </button>
+            @if (chatService.messages().length === 0) {
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button
+                (click)="handleQuickAction('swap')"
+                class="px-4 py-2 bg-white border border-gray-300 rounded-full text-xs font-bold text-gray-700 hover:border-primary hover:text-primary transition-all uppercase tracking-wide">
+                {{ 'landing.hero.swapItems' | translate }}
+              </button>
+              <button
+                (click)="handleQuickAction('shop')"
+                class="px-4 py-2 bg-white border border-gray-300 rounded-full text-xs font-bold text-gray-700 hover:border-primary hover:text-primary transition-all uppercase tracking-wide">
+                {{ 'landing.hero.shopProducts' | translate }}
+              </button>
+              <button
+                (click)="handleQuickAction('book')"
+                class="px-4 py-2 bg-white border border-gray-300 rounded-full text-xs font-bold text-gray-700 hover:border-primary hover:text-primary transition-all uppercase tracking-wide">
+                {{ 'landing.hero.bookServices' | translate }}
+              </button>
+            </div>
+            }
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-6 text-center">
-        <div>
-          <div class="text-3xl font-black text-gray-900 mb-1">10K+</div>
-          <div class="text-sm text-gray-500 uppercase tracking-wide">{{ 'landing.stats.users' | translate }}</div>
+      <div class="landing-intro text-center mt-14 mb-14">
+        <h2 class="landing-intro__title">
+          so basically we do
+          <span>three things</span>
+        </h2>
+        <p class="landing-intro__subtitle">
+          swapping, shopping, and booking.<br />
+          yeah that's it. pretty simple.
+        </p>
+      </div>
+
+      <div class="landing-stats">
+        <div class="landing-stats__item">
+          <div class="landing-stats__value">10K+</div>
+          <div class="landing-stats__label">people here</div>
         </div>
-        <div>
-          <div class="text-3xl font-black text-gray-900 mb-1">50K+</div>
-          <div class="text-sm text-gray-500 uppercase tracking-wide">{{ 'landing.stats.listings' | translate }}</div>
+        <div class="landing-stats__dot"></div>
+        <div class="landing-stats__item">
+          <div class="landing-stats__value">50K+</div>
+          <div class="landing-stats__label">swaps done</div>
         </div>
-        <div>
-          <div class="text-3xl font-black text-gray-900 mb-1">99%</div>
-          <div class="text-sm text-gray-500 uppercase tracking-wide">{{ 'landing.stats.satisfaction' | translate }}</div>
+        <div class="landing-stats__dot"></div>
+        <div class="landing-stats__item">
+          <div class="landing-stats__value">99%</div>
+          <div class="landing-stats__label">happy vibes</div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="py-20 px-10 bg-gray-50">
-    <div class="max-w-7xl mx-auto">
-      <div class="grid md:grid-cols-3 gap-8">
-        <button
-          (click)="navigateTo('swap')"
-          class="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-swap transition-all group text-left">
-          <h3 class="text-4xl font-black text-gray-900 mb-3 uppercase group-hover:text-swap transition-colors">{{ 'landing.services.swap.title' | translate }}</h3>
-          <p class="text-gray-600">{{ 'landing.services.swap.description' | translate }}</p>
-        </button>
+  <section class="services-section py-16 md:py-24 px-6 md:px-10 bg-gradient-to-b from-white to-[#f8f8ff]">
+    <div class="max-w-7xl mx-auto space-y-12 md:space-y-16">
+      <button (click)="navigateTo('swap')" class="service-showcase service-showcase--swap">
+        <div class="service-showcase__media">
+          <img
+            src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=1200&q=80"
+            alt="People trading items"
+            loading="lazy" />
+        </div>
+        <div class="service-showcase__content">
+          <div class="service-showcase__badge"><span>01 — SWAP</span></div>
+          <h3 class="service-showcase__title">trade your stuff for free</h3>
+          <p class="service-showcase__description">got things you don't use? swap them for what you actually need. no money, no hassle.</p>
+          <div class="service-showcase__chips">
+            <span class="service-showcase__chip">zero cost</span>
+            <span class="service-showcase__chip">local trades</span>
+            <span class="service-showcase__chip">ai matching</span>
+          </div>
+          <span class="service-showcase__cta">start swapping <mat-icon>arrow_forward</mat-icon></span>
+        </div>
+      </button>
 
-        <button
-          (click)="navigateTo('shop')"
-          class="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-market transition-all group text-left">
-          <h3 class="text-4xl font-black text-gray-900 mb-3 uppercase group-hover:text-market transition-colors">{{ 'landing.services.shop.title' | translate }}</h3>
-          <p class="text-gray-600">{{ 'landing.services.shop.description' | translate }}</p>
-        </button>
+      <button (click)="navigateTo('shop')" class="service-showcase service-showcase--shop service-showcase--reverse">
+        <div class="service-showcase__media">
+          <img
+            src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80"
+            alt="Shopping products"
+            loading="lazy" />
+        </div>
+        <div class="service-showcase__content">
+          <div class="service-showcase__badge"><span>02 — SHOP</span></div>
+          <h3 class="service-showcase__title">buy from real sellers</h3>
+          <p class="service-showcase__description">curated marketplace with verified sellers. quality products, secure checkout, fast shipping.</p>
+          <div class="service-showcase__chips">
+            <span class="service-showcase__chip">verified</span>
+            <span class="service-showcase__chip">secure</span>
+            <span class="service-showcase__chip">fast delivery</span>
+          </div>
+          <span class="service-showcase__cta">browse shop <mat-icon>arrow_forward</mat-icon></span>
+        </div>
+      </button>
 
-        <button
-          (click)="navigateTo('booking')"
-          class="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-booking transition-all group text-left">
-          <h3 class="text-4xl font-black text-gray-900 mb-3 uppercase group-hover:text-booking transition-colors">{{ 'landing.services.book.title' | translate }}</h3>
-          <p class="text-gray-600">{{ 'landing.services.book.description' | translate }}</p>
-        </button>
+      <button (click)="navigateTo('booking')" class="service-showcase service-showcase--book">
+        <div class="service-showcase__media">
+          <img
+            src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&q=80"
+            alt="Booking services"
+            loading="lazy" />
+        </div>
+        <div class="service-showcase__content">
+          <div class="service-showcase__badge"><span>03 — BOOK</span></div>
+          <h3 class="service-showcase__title">book services instantly</h3>
+          <p class="service-showcase__description">haircuts, massages, appointments with local pros. book in seconds, skip the phone calls.</p>
+          <div class="service-showcase__chips">
+            <span class="service-showcase__chip">instant</span>
+            <span class="service-showcase__chip">local pros</span>
+            <span class="service-showcase__chip">easy reschedule</span>
+          </div>
+          <span class="service-showcase__cta">find services <mat-icon>arrow_forward</mat-icon></span>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <section class="py-16 md:py-24 px-6 md:px-10 why-vipo">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-10 md:mb-14">
+        <h2 class="why-vipo__title">why choose vipo?</h2>
+        <p class="why-vipo__subtitle">honestly, we're just better at this</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <article class="why-card">
+          <div class="why-card__media">
+            <img
+              src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=900&q=80"
+              alt="All in one platform"
+              loading="lazy"
+            />
+          </div>
+          <div class="why-card__icon">
+            <mat-icon>all_inclusive</mat-icon>
+          </div>
+          <h3 class="why-card__title">All-in-one experience</h3>
+          <p class="why-card__text">No switching between apps. Discover, trade, and book from one account.</p>
+        </article>
+
+        <article class="why-card">
+          <div class="why-card__media">
+            <img
+              src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=900&q=80"
+              alt="Security and trust"
+              loading="lazy"
+            />
+          </div>
+          <div class="why-card__icon">
+            <mat-icon>verified_user</mat-icon>
+          </div>
+          <h3 class="why-card__title">Safer interactions</h3>
+          <p class="why-card__text">Verified profiles and clearer product details help keep every action more trustworthy.</p>
+        </article>
+
+        <article class="why-card">
+          <div class="why-card__media">
+            <img
+              src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900&q=80"
+              alt="Community of people"
+              loading="lazy"
+            />
+          </div>
+          <div class="why-card__icon">
+            <mat-icon>groups</mat-icon>
+          </div>
+          <h3 class="why-card__title">Real local community</h3>
+          <p class="why-card__text">Connect with people nearby for faster trades, pickups, and appointments.</p>
+        </article>
+
+        <article class="why-card">
+          <div class="why-card__media">
+            <img
+              src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80"
+              alt="Fast and smart platform"
+              loading="lazy"
+            />
+          </div>
+          <div class="why-card__icon">
+            <mat-icon>bolt</mat-icon>
+          </div>
+          <h3 class="why-card__title">Fast from start to finish</h3>
+          <p class="why-card__text">Quick search, direct navigation, and smoother actions across all three areas.</p>
+        </article>
+      </div>
+
+      <div class="why-vipo__trust-badge">
+        <mat-icon>check_circle</mat-icon>
+        <p>join 10,000+ people already using vipo</p>
       </div>
     </div>
   </section>

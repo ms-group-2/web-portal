@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { MessagingApiService } from './messaging-api.service';
 import { MessagingWsService } from './messaging-ws.service';
+import { ProfileApiService } from '../profile/profile-api.service';
 import { AuthService } from '../identity/auth.service';
 import { SnackbarService } from '../snackbar.service';
 import { TranslationService } from '../translation.service';
@@ -16,6 +17,7 @@ import {
 export class MessagingService {
   private api = inject(MessagingApiService);
   private ws = inject(MessagingWsService);
+  private profileApi = inject(ProfileApiService);
   private auth = inject(AuthService);
   private snackbar = inject(SnackbarService);
   private translation = inject(TranslationService);
@@ -35,7 +37,10 @@ export class MessagingService {
 
   private typingTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+  private convoPollTimer: ReturnType<typeof setInterval> | null = null;
   private initConsumers = 0;
+  private nameCache = new Map<string, string>();
+  private audioCtx: AudioContext | null = null;
 
   activeMessages = computed(() => {
     const id = this.activeConversationId();
@@ -54,6 +59,8 @@ export class MessagingService {
   init(): void {
     this.initConsumers++;
     if (this.initConsumers > 1) return;
+    console.log('[MSG] init — loading conversations, connecting WS & starting poll');
+    this.ws.reset();
     this.ws.connect();
     this.loadConversations();
     this.startPolling();
@@ -74,6 +81,9 @@ export class MessagingService {
         this.pollMessages(activeId);
       }
     }, 3000);
+    this.convoPollTimer = setInterval(() => {
+      this.pollConversations();
+    }, 15000);
   }
 
   private stopPolling(): void {
@@ -81,6 +91,54 @@ export class MessagingService {
       clearInterval(this.pollTimer);
       this.pollTimer = null;
     }
+    if (this.convoPollTimer) {
+      clearInterval(this.convoPollTimer);
+      this.convoPollTimer = null;
+    }
+  }
+
+  private pollConversations(): void {
+    this.api.getConversations(1, 50)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(res => {
+        const oldConvos = this.conversations();
+        this.conversations.set(res.conversations);
+        this.recalcUnread();
+
+        for (const convo of res.conversations) {
+          const old = oldConvos.find(c => c.id === convo.id);
+          const hasNewMessage = old && convo.last_message_at !== old.last_message_at
+            && convo.last_message !== old.last_message;
+          if (hasNewMessage && convo.id !== this.activeConversationId()) {
+            console.log(`[MSG] pollConversations — new message in ${convo.id.slice(0, 8)}`);
+            this.showChatNotification(convo.other_user_id);
+            break;
+          }
+        }
+
+        this.stateChanged$.next();
+      });
+  }
+
+  private showChatNotification(userId: string): void {
+    this.playNotificationSound();
+    const cached = this.nameCache.get(userId);
+    if (cached) {
+      this.snackbar.chat(cached);
+      return;
+    }
+    this.profileApi.getProfile(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (profile) => {
+          const name = `${profile.name} ${profile.surname}`;
+          this.nameCache.set(userId, name);
+          this.snackbar.chat(name);
+        },
+        error: () => {
+          this.snackbar.chat(this.translation.translate('messaging.newMessageNotification'));
+        },
+      });
   }
 
   private pollMessages(conversationId: string): void {
@@ -134,9 +192,12 @@ export class MessagingService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
+          const oldUnread = this.unreadCount();
           this.conversations.set(res.conversations);
           this.loadingConversations.set(false);
           this.recalcUnread();
+          const newUnread = this.unreadCount();
+          console.log(`[MSG] loadConversations — ${res.conversations.length} convos, unread: ${oldUnread} → ${newUnread}`);
           const activeId = this.activeConversationId();
           if (activeId) this.markAsRead(activeId);
         },
@@ -165,6 +226,7 @@ export class MessagingService {
   }
 
   openConversation(conversationId: string): void {
+    console.log(`[MSG] openConversation — ${conversationId.slice(0,8)}`);
     this.activeConversationId.set(conversationId);
     this.loadMessages(conversationId);
     this.markAsRead(conversationId, true);
@@ -187,13 +249,9 @@ export class MessagingService {
     };
     this.appendMessage(optimistic);
 
-    if (this.ws.connected()) {
-      this.ws.sendMessage(conversationId, content);
-    } else {
-      this.api.sendMessage(conversationId, content)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
-    }
+    this.api.sendMessage(conversationId, content)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   markAsRead(conversationId: string, force = false): void {
@@ -203,13 +261,9 @@ export class MessagingService {
     const hasUnread = Math.max(convo.unread_count, localUnread) > 0;
     if (!force && !hasUnread) return;
 
-    if (this.ws.connected()) {
-      this.ws.markRead(conversationId);
-    } else {
-      this.api.markRead(conversationId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
-    }
+    this.api.markRead(conversationId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
 
     this.conversations.update(list =>
       list.map(c => c.id === conversationId ? { ...c, unread_count: 0 } : c),
@@ -279,6 +333,7 @@ export class MessagingService {
 
     const isIncoming = msg.sender_id !== this.currentUserId();
     const isActiveConversation = this.activeConversationId() === msg.conversation_id;
+    console.log(`[MSG] appendMessage — id:${msg.id.slice(0,8)} incoming:${isIncoming} activeConvo:${isActiveConversation}`);
 
     this.conversations.update(list => {
       const updated = list.map(c =>
@@ -303,6 +358,7 @@ export class MessagingService {
     if (isIncoming && isActiveConversation) {
       this.markAsRead(msg.conversation_id, true);
     } else if (isIncoming) {
+      this.playNotificationSound();
       this.snackbar.swap(
         this.translation.translate('messaging.newMessageNotification'),
         'chat',
@@ -362,8 +418,12 @@ export class MessagingService {
   }
 
   private recalcUnread(): void {
-    const total = this.conversations().reduce((sum, c) => sum + c.unread_count, 0);
-    this.unreadCount.set(total);
+    this.api.getUnreadCount()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(res => {
+        console.log(`[MSG] recalcUnread — total:${res.count}`);
+        this.unreadCount.set(res.count);
+      });
   }
 
   private syncConversationUnreadFromMessages(conversationId: string): void {
@@ -379,6 +439,39 @@ export class MessagingService {
     const msgs = this.messages().get(conversationId) ?? [];
     const me = this.currentUserId();
     return msgs.filter(m => m.sender_id !== me && !m.is_read).length;
+  }
+
+  private playNotificationSound(): void {
+    try {
+      if (!this.audioCtx) {
+        this.audioCtx = new AudioContext();
+      }
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+
+      const notes = [
+        { freq: 440, start: 0, end: 0.25 },
+        { freq: 523, start: 0.22, end: 0.50 },
+        { freq: 392, start: 0.47, end: 0.85 },
+      ];
+
+      for (const note of notes) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(note.freq, now + note.start);
+
+        gain.gain.setValueAtTime(0, now + note.start);
+        gain.gain.linearRampToValueAtTime(0.2, now + note.start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + note.end);
+
+        osc.start(now + note.start);
+        osc.stop(now + note.end);
+      }
+    } catch { /* audio not supported */ }
   }
 
   private currentUserId(): string {
